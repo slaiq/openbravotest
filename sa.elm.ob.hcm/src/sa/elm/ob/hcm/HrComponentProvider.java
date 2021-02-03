@@ -21,6 +21,8 @@ public class HrComponentProvider extends BaseComponentProvider {
   public Component getComponent(String componentId, Map<String, Object> parameters) {
     return null;
   }
+  
+  // my work
 
   @Override
   public List<ComponentResource> getGlobalComponentResources() {
