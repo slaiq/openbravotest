@@ -19,6 +19,7 @@ public class DMSInvoiceServiceImpl implements DMSInvoiceService {
       OBContext.setAdminMode();
       if (invoice.getEutDmsrecordpath() != null) {
         // DMS integration to delete the record created already
+		// my own testing
         DMSIntegrationLog dmslog = DMSUtility.createDMSIntegrationLog(invoice,
             DMSConstants.DMS_DELETE, null);
 
@@ -32,7 +33,7 @@ public class DMSInvoiceServiceImpl implements DMSInvoiceService {
         invoice.setEutDmsrecordpath(null);
         invoice.setEutAttachPath(null);
         OBDal.getInstance().save(dmslog);
-        OBDal.getInstance().save(invoice);
+       // OBDal.getInstance().save(invoice);
 
         OBDal.getInstance().flush();
 
