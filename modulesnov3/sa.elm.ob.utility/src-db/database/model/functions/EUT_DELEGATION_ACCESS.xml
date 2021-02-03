@@ -1,0 +1,234 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_DELEGATION_ACCESS">
+    <function name="EUT_DELEGATION_ACCESS" type="NULL">
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_recalculate" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2001-2008 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  Gopalakrishnan.
+************************************************************************/
+--p VARCHAR(32767); --OBTG:VARCHAR2--
+v_ResultStr VARCHAR2(2000):='';
+vp VARCHAR2(32);
+vTree VARCHAR2(32);
+v_parentOrg VARCHAR2(32);
+v_parent VARCHAR2(32);
+v_orgId  VARCHAR2(32);
+Cur_Delegation RECORD;
+Cur_Window RECORD;
+Cur_Process RECORD;
+Cur_Form RECORD;
+Cur_List RECORD;
+Cur_Processdef RECORD;
+ 
+BEGIN
+
+ FOR Cur_Delegation IN (
+ --select query
+select t1.eut_docapp_delegate_id as delegation,t2.document_type as doctype,t1.TO_DATE as enddate,t2.ad_role_id as torole,
+     t2.eut_docapp_delegateln_id as lineid,t1.processed as process
+from eut_docapp_delegate t1
+left join eut_docapp_delegateln t2 on t2.eut_docapp_delegate_id=t1.eut_docapp_delegate_id
+and t1.ad_client_id=p_client_id
+where  t1.ad_role_id is not null
+and TO_DATE(to_char(t1.from_date,'yyyy-MM-dd'),'yyyy-MM-dd') <= 
+			TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd')
+			and TO_DATE(to_char(t1.TO_DATE,'yyyy-MM-dd'),'yyyy-MM-dd') >= 
+			TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd') and (t1.processed ='N' or (t1.processed ='Y' and p_recalculate ='Y')))
+ LOOP 
+ --do operation 
+     --Window Access 
+     FOR Cur_Window in (
+	select ad_window_id as windowid from ad_role role
+	join ad_window_access win on win.ad_role_id=role.ad_role_id
+	where role.em_eut_documenttype = Cur_Delegation.doctype and role.ad_client_id=p_client_id and
+	win.ad_window_id not in ( select ad_window_id from ad_role role
+	left join ad_window_access p on p.ad_role_id=role.ad_role_id
+	where role.ad_role_id=Cur_Delegation.torole and role.ad_client_id=p_client_id and ad_window_id is not null ) ) 
+     LOOP 
+    INSERT INTO public.ad_window_access(
+            ad_window_access_id, ad_window_id, ad_role_id, ad_client_id, 
+            ad_org_id, isactive, createdby, updatedby, 
+            isreadwrite,em_eut_docapp_delegateln_id, em_eut_enddate)
+    VALUES (get_uuid(), Cur_Window.windowid, Cur_Delegation.torole, p_client_id, 
+            '0', 'Y', p_user_id,p_user_id , 
+            'Y', Cur_Delegation.lineid, Cur_Delegation.enddate);
+     END LOOP;
+     
+     FOR Cur_Window in (
+    select p.ad_window_access_id,p.em_eut_docapp_delegateln_id,p.ad_window_id as windowid from ad_role role
+	left join ad_window_access p on p.ad_role_id=role.ad_role_id
+	where role.ad_role_id=Cur_Delegation.torole and role.ad_client_id=p_client_id and ad_window_id is not null
+	and p.ad_window_id in (select ad_window_id as windowid from ad_role role
+	join ad_window_access win on win.ad_role_id=role.ad_role_id
+	where role.em_eut_documenttype = Cur_Delegation.doctype and role.ad_client_id=p_client_id) and
+    em_eut_docapp_delegateln_id is not null and em_eut_docapp_delegateln_id != Cur_Delegation.lineid ) 
+     LOOP 
+      Update ad_window_access set em_eut_recalculate = 'Y'  where ad_window_access_id = Cur_Window.ad_window_access_id;
+     END LOOP;
+    
+     
+    --process access
+    FOR Cur_Process IN (
+		select ad_process_id as processid from ad_role role
+		 join ad_process_access pro on pro.ad_role_id=role.ad_role_id
+		where role.em_eut_documenttype = Cur_Delegation.doctype and role.ad_client_id=p_client_id and
+		pro.ad_process_id not in ( select ad_process_id from ad_role rl
+		left join ad_process_access p on p.ad_role_id=rl.ad_role_id
+		where rl.ad_role_id=Cur_Delegation.torole and rl.ad_client_id=p_client_id and ad_process_id is not null)
+		)	
+   LOOP
+   INSERT INTO public.ad_process_access(
+            ad_process_access_id, ad_process_id, ad_role_id, ad_client_id, 
+            ad_org_id, isactive,createdby,updatedby, 
+            isreadwrite,em_eut_docapp_delegateln_id, em_eut_enddate)
+    VALUES (get_uuid(), Cur_Process.processid, Cur_Delegation.torole, p_client_id,
+            '0', 'Y', p_user_id, p_user_id, 
+            'Y',Cur_Delegation.lineid, Cur_Delegation.enddate);
+   END LOOP;
+  
+   
+   FOR Cur_Process in (
+       select p.ad_process_access_id,p.ad_process_id as processid,p.em_eut_docapp_delegateln_id from ad_role rl
+		left join ad_process_access p on p.ad_role_id=rl.ad_role_id
+		where rl.ad_role_id=Cur_Delegation.torole and rl.ad_client_id=p_client_id and ad_process_id is not null
+	and p.ad_process_id in (select ad_process_id as processid from ad_role role
+		 join ad_process_access pro on pro.ad_role_id=role.ad_role_id
+		where role.em_eut_documenttype = Cur_Delegation.doctype and role.ad_client_id=p_client_id) and
+   em_eut_docapp_delegateln_id is not null and em_eut_docapp_delegateln_id != Cur_Delegation.lineid) 
+     LOOP 
+      Update ad_process_access set em_eut_recalculate = 'Y'  where ad_process_access_id = Cur_Process.ad_process_access_id;
+     END LOOP;
+     
+   --Form Access
+  
+   FOR Cur_Form IN (
+	select ad_form_id as formid from ad_role role
+	join ad_form_access pro on pro.ad_role_id=role.ad_role_id
+	where role.em_eut_documenttype = Cur_Delegation.doctype and role.ad_client_id=p_client_id and
+	pro.ad_form_id not in ( select ad_form_id from ad_role rl
+	left join ad_form_access p on p.ad_role_id=rl.ad_role_id
+	where rl.ad_role_id=Cur_Delegation.torole and rl.ad_client_id=p_client_id and ad_form_id is not null))
+   LOOP
+   INSERT INTO public.ad_form_access(
+            ad_form_access_id, ad_form_id, ad_role_id, ad_client_id, ad_org_id, 
+            isactive,createdby, updatedby, isreadwrite, 
+            em_eut_docapp_delegateln_id, em_eut_enddate)
+    VALUES (get_uuid(), Cur_Form.formid, Cur_Delegation.torole, p_client_id, '0', 
+            'Y',p_user_id, p_user_id, 'Y',
+            Cur_Delegation.lineid, Cur_Delegation.enddate);
+
+   END LOOP;
+   
+   FOR Cur_Form in (
+       select p.ad_form_access_id,p.em_eut_docapp_delegateln_id,p.ad_form_id as formid from ad_role rl
+	left join ad_form_access p on p.ad_role_id=rl.ad_role_id
+	where rl.ad_role_id=Cur_Delegation.torole and rl.ad_client_id=p_client_id and ad_form_id is not null
+	and p.ad_form_id not in(select ad_form_id as formid from ad_role role
+	join ad_form_access on p.ad_role_id=role.ad_role_id
+	where role.em_eut_documenttype = Cur_Delegation.doctype and role.ad_client_id=p_client_id) and
+   em_eut_docapp_delegateln_id is not null and em_eut_docapp_delegateln_id != Cur_Delegation.lineid) 
+     LOOP 
+      Update ad_form_access set em_eut_recalculate = 'Y'  where ad_form_access_id = Cur_Form.ad_form_access_id;
+     END LOOP;
+     
+   --Process Definition access
+   
+   FOR Cur_Processdef IN (
+	select obuiapp_process_id as obid from ad_role role
+	join obuiapp_process_access pro on pro.ad_role_id=role.ad_role_id
+	where role.em_eut_documenttype = Cur_Delegation.doctype and role.ad_client_id=p_client_id and
+	pro.obuiapp_process_id not in ( select obuiapp_process_id from ad_role rl
+	left join obuiapp_process_access p on p.ad_role_id=rl.ad_role_id
+	where rl.ad_role_id=Cur_Delegation.torole and rl.ad_client_id=p_client_id and obuiapp_process_id is not null))
+   LOOP
+   INSERT INTO public.obuiapp_process_access(
+            obuiapp_process_access_id, obuiapp_process_id, ad_role_id, ad_client_id, 
+            ad_org_id, isactive,createdby,updatedby, 
+            isreadwrite, em_eut_docapp_delegateln_id, em_eut_enddate)
+    VALUES (get_uuid(), Cur_Processdef.obid,Cur_Delegation.torole, p_client_id,
+            '0', 'Y',p_user_id ,p_user_id, 
+            'Y',Cur_Delegation.lineid, Cur_Delegation.enddate);
+   END LOOP;
+   
+   
+   FOR Cur_Processdef in (
+       select p.obuiapp_process_access_id,p.obuiapp_process_id as obid,p.em_eut_docapp_delegateln_id from ad_role rl
+	left join obuiapp_process_access p on p.ad_role_id=rl.ad_role_id
+	where rl.ad_role_id=Cur_Delegation.torole and rl.ad_client_id=p_client_id and obuiapp_process_id is not null
+	and p.obuiapp_process_id in (select obuiapp_process_id as obid from ad_role role
+	join obuiapp_process_access pro on pro.ad_role_id=role.ad_role_id
+	where role.em_eut_documenttype = Cur_Delegation.doctype and role.ad_client_id=p_client_id) and
+   em_eut_docapp_delegateln_id is not null and em_eut_docapp_delegateln_id != Cur_Delegation.lineid) 
+     LOOP 
+      Update obuiapp_process_access set em_eut_recalculate = 'Y'  where obuiapp_process_access_id = Cur_Processdef.obuiapp_process_access_id;
+     END LOOP;
+     
+   --List Access
+   
+   FOR Cur_List IN (
+	select pro.ad_window_id as wid,pro.ad_reference_id as rid,pro.ad_ref_list_id as lid from ad_role role
+	join eut_list_access pro on pro.ad_role_id=role.ad_role_id
+	where role.em_eut_documenttype = Cur_Delegation.doctype and role.ad_client_id=p_client_id and
+	pro.ad_reference_id not in ( select ad_reference_id from ad_role rl
+	left join eut_list_access p on p.ad_role_id=rl.ad_role_id
+	where rl.ad_role_id=Cur_Delegation.torole and rl.ad_client_id=p_client_id and ad_reference_id is not null and ad_window_id is not null) 
+	and pro.ad_ref_list_id not in (
+	select ad_ref_list_id from ad_role ru
+	left join eut_list_access li on li.ad_role_id=ru.ad_role_id
+	where ru.ad_role_id=Cur_Delegation.torole and ru.ad_client_id=p_client_id and ad_ref_list_id is not null
+	and ad_window_id is not null) and ad_window_id is not null) 
+    LOOP 
+    INSERT INTO public.eut_list_access(
+            eut_list_access_id, ad_window_id, ad_role_id, ad_client_id, ad_org_id, 
+            isactive, createdby, updatedby, isreadwrite, 
+            ad_reference_id, ad_ref_list_id, docapp_delegateln_id, 
+            enddate)
+    VALUES (get_uuid(), Cur_List.wid, Cur_Delegation.torole, p_client_id, '0', 
+            'Y', p_user_id, p_user_id,'Y', 
+            Cur_List.rid, Cur_List.lid,Cur_Delegation.lineid, 
+            Cur_Delegation.enddate);
+
+END LOOP;
+
+ FOR Cur_List in (
+     select p.eut_list_access_id,p.docapp_delegateln_id,p.ad_window_id as wid,p.ad_reference_id as rid,p.ad_ref_list_id as lid from ad_role role
+	join eut_list_access p on p.ad_role_id=role.ad_role_id
+	where role.ad_role_id=Cur_Delegation.torole and role.ad_client_id=p_client_id and ad_reference_id is not null
+	and p.ad_reference_id in (select ad_reference_id from ad_role role
+	join eut_list_access li on li.ad_role_id=role.ad_role_id
+	where role.em_eut_documenttype = Cur_Delegation.doctype and role.ad_client_id=p_client_id) and
+	docapp_delegateln_id is not null and docapp_delegateln_id !=Cur_Delegation.lineid) 
+     LOOP 
+      Update eut_list_access set recalculate = 'Y'  where eut_list_access_id = Cur_List.eut_list_access_id;
+     END LOOP;
+   
+ END LOOP;
+    EXCEPTION
+WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  RAISE v_ResultStr ;
+  RETURN;
+END EUT_DELEGATION_ACCESS
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="BB982822BCFE4196A7B8B4C42B67BB3A" identifier="Material Issue Request RMI">
+    <id>BB982822BCFE4196A7B8B4C42B67BB3A</id>
+    <active>true</active>
+    <name>Material Issue Request RMI</name>
+    <tab id="CE947EDC9B174248883292F17F03BB32" entity-name="ADTab" identifier="Material Issue Request - Material Issue Request"/>
+    <filterClause>((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) </filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>MIRR</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

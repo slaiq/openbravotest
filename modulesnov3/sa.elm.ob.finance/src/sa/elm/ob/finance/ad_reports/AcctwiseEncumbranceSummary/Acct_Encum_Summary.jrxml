@@ -1,0 +1,644 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Encumbrance_Acct_Summary" pageWidth="1330" pageHeight="595" orientation="Landscape" whenNoDataType="NoDataSection" columnWidth="1290" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9e7d2b6d-77a0-45d8-96f9-17d70be65b35">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="LocalHostDB"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="C_Year_ID" class="java.lang.String"/>
+	<parameter name="Aux_C_Year_ID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[($P{C_Year_ID}==null || $P{C_Year_ID}.equals( "" )) ?  "    AND 1=1    " : "   and  bint.c_year_id  = '"+$P{C_Year_ID}+"'    "]]></defaultValueExpression>
+	</parameter>
+	<parameter name="Chapter_ID" class="java.lang.String"/>
+	<parameter name="element_from" class="java.lang.String"/>
+	<parameter name="element_to" class="java.lang.String"/>
+	<parameter name="Aux_Elementvalue_Id" class="java.lang.String">
+		<defaultValueExpression><![CDATA[($P{element_from}==null || $P{element_from}.equals( "" )) ?  "    AND 1=1    " : "     AND ele.value BETWEEN (SELECT value  FROM c_elementvalue WHERE c_elementvalue_id = '"+$P{element_from}+"'      limit 1)   AND (SELECT value  FROM c_elementvalue  WHERE c_elementvalue_id =  '"+$P{element_to}+"'  limit 1)         "]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+	case
+		when ele.value like '21%' then '1'
+		when ele.value like '22%' then '2'
+		when ele.value like '23%' then '2'
+		when ele.value like '24%' then '2'
+		when ele.value like '25%' then '2'
+		when ele.value like '26%' then '2'
+		when ele.value like '27%' then '2'
+		when ele.value like '28%' then '2'
+		when ele.value like '3%' then '3'
+		when ele.value like '4%' then '4'
+		else ''
+	end as chapter,
+	ele.value as account_code,
+	ele.name as account_name,
+	ele.em_efin_classification_ar em_efin_classification,
+	a.c_validcombination_id,
+	coalesce(
+		enq.current_budget,
+		0
+	) as total_cost_budget,
+	coalesce(
+		enq.encumbrance,
+		0
+	) as encumbrance_amount,
+	coalesce(
+		coalesce(
+			enq.current_budget,
+			0
+		)- coalesce(
+			enq.encumbrance,
+			0
+		),
+		0
+	) as remaining_cost,
+	coalesce(
+		enq.funds_available,
+		0
+	) as funds_availble,
+	coalesce(
+		(
+			select
+				sum( ln.revamount ) as grp_encum_amount
+			from
+				efin_budget_manencum encum
+			join efin_budget_manencumlines ln on
+				ln.efin_budget_manencum_id = encum.efin_budget_manencum_id
+			join c_validcombination com on
+				com.c_validcombination_id = ln.c_validcombination_id
+			join c_elementvalue el on
+				el.c_elementvalue_id = com.account_id
+			left join efin_reservation_dataload res on
+				res.efin_reservation_dataload_id = encum.efin_reservation_dataload_id
+			where
+				encum.c_campaign_id = '8CFC8D85BC484DC7AFB75E3DA60FE30F'
+				and(
+					encum.encum_method = 'A'
+					or(
+						encum.encum_method = 'M'
+						and isreservedfund = 'Y'
+					)
+				)
+				and el.c_elementvalue_id = ele.c_elementvalue_id
+				and encum.efin_reservation_dataload_id is not null
+				and encum.efin_budgetint_id = 'D8D5FA6B54E345B0B0331BC5764BDFAC'
+		),
+		0
+	) as legacy_encum_amount,
+	coalesce(
+		(
+			select
+				sum( ln.revamount ) as grp_encum_amount
+			from
+				efin_budget_manencum encum
+			join efin_budget_manencumlines ln on
+				ln.efin_budget_manencum_id = encum.efin_budget_manencum_id
+			join c_validcombination com on
+				com.c_validcombination_id = ln.c_validcombination_id
+			join c_elementvalue el on
+				el.c_elementvalue_id = com.account_id
+			where
+				encum.c_campaign_id = '8CFC8D85BC484DC7AFB75E3DA60FE30F'
+				and(
+					encum.encum_method = 'A'
+					or(
+						encum.encum_method = 'M'
+						and isreservedfund = 'Y'
+					)
+				)
+				and el.c_elementvalue_id = ele.c_elementvalue_id
+				and encum.efin_reservation_dataload_id is null
+				and encum.efin_commits_dataload_id is not null
+				and encum.efin_budgetint_id = 'D8D5FA6B54E345B0B0331BC5764BDFAC'
+		),
+		0
+	) as legacy_reservation_amount,
+	coalesce(
+		(
+			select
+				sum( ln.revamount ) as grp_encum_amount
+			from
+				efin_budget_manencum encum
+			join efin_budget_manencumlines ln on
+				ln.efin_budget_manencum_id = encum.efin_budget_manencum_id
+			join c_validcombination com on
+				com.c_validcombination_id = ln.c_validcombination_id
+			join c_elementvalue el on
+				el.c_elementvalue_id = com.account_id
+			where
+				encum.c_campaign_id = '8CFC8D85BC484DC7AFB75E3DA60FE30F'
+				and(
+					encum.encum_method = 'A'
+					or(
+						encum.encum_method = 'M'
+						and isreservedfund = 'Y'
+					)
+				)
+				and encum.docstatus = 'CO'
+				and el.c_elementvalue_id = ele.c_elementvalue_id
+				and encum.efin_reservation_dataload_id is null
+				and encum.efin_commits_dataload_id is null
+				and encum.efin_budgetint_id = 'D8D5FA6B54E345B0B0331BC5764BDFAC'
+		),
+		0
+	) as GRP_Encum_Amount,
+	coalesce(
+		(
+			select
+				sum( ln.revamount ) as grp_encum_amount
+			from
+				efin_budget_manencum encum
+			join efin_budget_manencumlines ln on
+				ln.efin_budget_manencum_id = encum.efin_budget_manencum_id
+			join c_validcombination com on
+				com.c_validcombination_id = ln.c_validcombination_id
+			join c_elementvalue el on
+				el.c_elementvalue_id = com.account_id
+			where
+				encum.c_campaign_id = '8CFC8D85BC484DC7AFB75E3DA60FE30F'
+				and(
+					encum.encum_method = 'A'
+					or(
+						encum.encum_method = 'M'
+						and isreservedfund = 'Y'
+					)
+				)
+				and encum.docstatus = 'WFA'
+				and el.c_elementvalue_id = ele.c_elementvalue_id
+				and encum.efin_reservation_dataload_id is null
+				and encum.efin_commits_dataload_id is null
+				and encum.efin_budgetint_id = 'D8D5FA6B54E345B0B0331BC5764BDFAC'
+		),
+		0
+	) as GRP_WFA_Encum_Amount
+from
+	c_elementvalue ele
+left join c_validcombination com on
+	ele.c_elementvalue_id = com.account_id
+	and com.c_campaign_id = '8CFC8D85BC484DC7AFB75E3DA60FE30F'
+	and com.c_salesregion_id = '1057C4B86E2B4B119D05BEDBCC8D07CF'
+	and ele.EM_Efin_Project_ID = com.C_Project_ID
+left join(
+		select
+			sum( ln.revamount ) as grp_encum_amount,
+			ln.c_validcombination_id
+		from
+			efin_budget_manencum encum
+		join efin_budget_manencumlines ln on
+			ln.efin_budget_manencum_id = encum.efin_budget_manencum_id
+		join c_validcombination com on
+			com.c_validcombination_id = ln.c_validcombination_id
+		join c_elementvalue ele on
+			ele.c_elementvalue_id = com.account_id
+		where
+			encum.c_campaign_id = '8CFC8D85BC484DC7AFB75E3DA60FE30F'
+			and(
+				encum.encum_method = 'A'
+				or(
+					encum.encum_method = 'M'
+					and isreservedfund = 'Y'
+				)
+			)
+		group by
+			ln.c_validcombination_id
+	) a on
+	com.c_validcombination_id = a.c_validcombination_id
+left join C_Project pro on
+	pro.C_Project_id = ele.EM_Efin_Project_ID
+join efin_budgetinquiry enq on
+	enq.c_elementvalue_id = com.account_id
+	and enq.c_salesregion_id = '38E2AC97B70641F2AF72CBB634935FC4'
+	and enq.c_campaign_id = '8CFC8D85BC484DC7AFB75E3DA60FE30F'
+--	and enq.efin_budgetint_id = 'D8D5FA6B54E345B0B0331BC5764BDFAC'
+join efin_budgetint bint on enq.efin_budgetint_id= bint.efin_budgetint_id 
+ $P!{Aux_C_Year_ID} 
+where
+	1 = 1 --and ele.value='302000201'
+	and  (Case when $P{Chapter_ID}  = '1' then ele.value like '21%'
+			          when $P{Chapter_ID}  = '2' then  
+			       ( ele.value like '22%'
+				or  ele.value like '23%'
+				or  ele.value like '24%'
+				or ele.value like  '25%'
+				or  ele.value like '26%'
+				or  ele.value like '27%'
+				or  ele.value like '28%'
+				)
+				 when $P{Chapter_ID}  = '3' then (ele.value like  '30%' or ele.value like  '36%')
+				 when $P{Chapter_ID}  = '4' then ele.value like  '4%'
+				 else  ele.value like '%'
+				/* (ele.value like '21%' 
+				or ele.value like '22%'
+				or  ele.value like '23%'
+				or  ele.value like '24%'
+				or ele.value like  '25%'
+				or  ele.value like '26%'
+				or  ele.value like '27%'
+				or  ele.value like '28%'
+				or ele.value like  '3%' 
+				or ele.value like '4%'
+				)  */
+				end )
+	 $P!{Aux_Elementvalue_Id} 
+order by
+	ele.value]]>
+	</queryString>
+	<field name="chapter" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="chapter"/>
+	</field>
+	<field name="account_code" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="account_code"/>
+	</field>
+	<field name="account_name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="account_name"/>
+	</field>
+	<field name="em_efin_classification" class="java.lang.String"/>
+	<field name="c_validcombination_id" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="c_validcombination_id"/>
+	</field>
+	<field name="total_cost_budget" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="total_cost_budget"/>
+	</field>
+	<field name="encumbrance_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="encumbrance_amount"/>
+	</field>
+	<field name="remaining_cost" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="remaining_cost"/>
+	</field>
+	<field name="funds_availble" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="funds_availble"/>
+	</field>
+	<field name="legacy_encum_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="legacy_encum_amount"/>
+	</field>
+	<field name="legacy_reservation_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="legacy_reservation_amount"/>
+	</field>
+	<field name="grp_encum_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="grp_encum_amount"/>
+	</field>
+	<field name="grp_wfa_encum_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="grp_wfa_encum_amount"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="22" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="60" height="22" uuid="4ebfd357-e266-41ab-9135-e34dd1170e1c">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="25ccb174-9f68-4202-8501-0c58b616865b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[الباب]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="60" y="0" width="100" height="22" uuid="06a453ec-4304-4588-8a37-c950b51423b2">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="25ccb174-9f68-4202-8501-0c58b616865b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[البند / العنصر]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="160" y="0" width="220" height="22" uuid="28fc30a0-8901-4a7f-815c-9b83bdeb8982">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="25ccb174-9f68-4202-8501-0c58b616865b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[اسم البند / العنصر]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="490" y="0" width="110" height="22" uuid="1c15523c-7fd4-42b6-8b71-8efee1b8ccda">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="25ccb174-9f68-4202-8501-0c58b616865b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[التكاليف الكلية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="600" y="0" width="110" height="22" uuid="2c1de546-cb8f-414a-91e9-4ed01feab29e">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="25ccb174-9f68-4202-8501-0c58b616865b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[مبلغ الارتباط]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="710" y="0" width="110" height="22" uuid="1779dba0-3a34-431b-af2a-ddb29f93e464">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="25ccb174-9f68-4202-8501-0c58b616865b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[المتبقي من التكاليف]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="380" y="0" width="110" height="22" uuid="a500f15a-d5b9-47db-8dde-3accb807292a">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="25ccb174-9f68-4202-8501-0c58b616865b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[التصنيف]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="820" y="0" width="110" height="22" uuid="4c3b1c26-d7ca-4002-95a0-622e7a87c379">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="25ccb174-9f68-4202-8501-0c58b616865b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[ارتباطات النظام السابق]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="930" y="0" width="110" height="22" uuid="da672284-50f4-477f-9092-9f0995ee9740">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="25ccb174-9f68-4202-8501-0c58b616865b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[حجوزات النظام السابق]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1040" y="0" width="110" height="22" uuid="a951d7e5-2dc6-4458-b1e9-0b2113c8eb21">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="25ccb174-9f68-4202-8501-0c58b616865b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[ارتباطات GRP]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1150" y="0" width="130" height="22" uuid="6304c0ff-eaa7-4fd3-8dfe-4b9ec9e8e0c3">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="25ccb174-9f68-4202-8501-0c58b616865b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[ارتباطات بانتظار الموافقه GRP]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="22" splitType="Prevent">
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="1150" y="0" width="130" height="22" isPrintInFirstWholeBand="true" uuid="39dc573b-6ccb-460a-a809-eab0132fdd25">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c290df59-dd88-4587-83ec-7b321f616b82"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grp_wfa_encum_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="1040" y="0" width="110" height="22" isPrintInFirstWholeBand="true" uuid="ef3193ca-f682-452c-b92a-8549a30c4906">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c290df59-dd88-4587-83ec-7b321f616b82"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grp_encum_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="930" y="0" width="110" height="22" isPrintInFirstWholeBand="true" uuid="dabf58ef-c543-4f4b-89fe-bcac130767d6">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c290df59-dd88-4587-83ec-7b321f616b82"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{legacy_reservation_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="820" y="0" width="110" height="22" isPrintInFirstWholeBand="true" uuid="13b1fcd8-9fe0-4a82-b5c0-e8dbc3e9fe66">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c290df59-dd88-4587-83ec-7b321f616b82"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{legacy_encum_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="490" y="0" width="110" height="22" isPrintInFirstWholeBand="true" uuid="74ea136d-e5ef-4d5c-a07d-a76b8cc4d81a">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c290df59-dd88-4587-83ec-7b321f616b82"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total_cost_budget}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="380" y="0" width="110" height="22" isPrintInFirstWholeBand="true" uuid="4fea5104-2391-4369-a38a-126c7913446b">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c290df59-dd88-4587-83ec-7b321f616b82"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{em_efin_classification}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="710" y="0" width="110" height="22" isPrintInFirstWholeBand="true" uuid="4531fec7-ce76-4030-a788-9b820ee032bd">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c290df59-dd88-4587-83ec-7b321f616b82"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{remaining_cost}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="600" y="0" width="110" height="22" isPrintInFirstWholeBand="true" uuid="92d4d453-e281-487d-88b1-95e9c0223004">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c290df59-dd88-4587-83ec-7b321f616b82"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{encumbrance_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="160" y="0" width="220" height="22" isPrintInFirstWholeBand="true" uuid="f186f33d-8d27-4ad9-93f4-8df14b715b87">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c290df59-dd88-4587-83ec-7b321f616b82"/>
+				</reportElement>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{account_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="60" y="0" width="100" height="22" isPrintInFirstWholeBand="true" uuid="06c30859-5cdb-4ba0-883f-153e248a101c">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c290df59-dd88-4587-83ec-7b321f616b82"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{account_code}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="0" y="0" width="60" height="22" isPrintInFirstWholeBand="true" uuid="5f38666f-f886-48f8-9578-a8f3034f76c0">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c290df59-dd88-4587-83ec-7b321f616b82"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{chapter}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+	<noData>
+		<band height="50">
+			<staticText>
+				<reportElement x="210" y="14" width="385" height="30" uuid="4a501736-0a81-4dbe-be3d-27b364e822be">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="25ccb174-9f68-4202-8501-0c58b616865b"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16"/>
+				</textElement>
+				<text><![CDATA[No Data Found]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

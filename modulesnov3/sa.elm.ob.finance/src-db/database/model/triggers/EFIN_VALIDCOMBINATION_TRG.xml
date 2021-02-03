@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_VALIDCOMBINATION_TRG">
+    <trigger name="EFIN_VALIDCOMBINATION_TRG" table="C_VALIDCOMBINATION" fires="after" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[   TYPE RECORD IS REF CURSOR;
+  v_budgettype VARCHAR2(32);
+  v_budgettype_id VARCHAR2(32);
+  v_CorrspCombination_id VARCHAR2(32);
+    
+BEGIN
+    
+	IF AD_isTriggerEnabled()='N' THEN 
+		IF DELETING THEN 
+			RETURN OLD; 
+		ELSE 
+			RETURN NEW; 
+		END IF; 
+	END IF;
+
+
+	IF(INSERTING AND :NEW.em_efin_ismanual = 'Y') THEN
+		select em_efin_budgettype into v_budgettype from c_campaign where c_campaign_id = :NEW.c_campaign_id;
+		
+		--Is Funds Account Combination
+		IF (v_budgettype = 'F') THEN
+			--get cost budget type id
+			SELECT c_campaign_id into v_budgettype_id from c_campaign where em_efin_budgettype='C' and ad_client_id=:NEW.ad_client_id;
+	
+			select c_validcombination_id into v_CorrspCombination_id from c_validcombination where ad_org_id = :NEW.ad_org_id  
+			and c_salesregion_id=:NEW.c_salesregion_id and account_id=:NEW.account_id and c_project_id=:NEW.c_project_id 
+			and c_bpartner_id=:NEW.c_bpartner_id and c_activity_id=:NEW.c_activity_id and user1_id=:NEW.user1_id 
+			and user2_id=:NEW.user2_id and c_campaign_id=v_budgettype_id;
+
+			--Has corresponding cost combination
+			IF (v_CorrspCombination_id IS NOT NULL) THEN
+				--Update cost combination in funds
+				update c_validcombination set em_efin_costcombination = v_CorrspCombination_id where c_validcombination_id = :NEW.c_validcombination_id;
+				--Update funds combination in cost
+				update c_validcombination set em_efin_fundscombination = :NEW.c_validcombination_id where c_validcombination_id =v_CorrspCombination_id;
+			END IF;		
+				
+		END IF;
+		
+		--Is Cost Account Combination
+		IF (v_budgettype = 'C') THEN			
+			--get funds budget type id
+			SELECT c_campaign_id into v_budgettype_id from c_campaign where em_efin_budgettype='F' and ad_client_id=:NEW.ad_client_id;
+
+			select c_validcombination_id into v_CorrspCombination_id from c_validcombination where ad_org_id = :NEW.ad_org_id  
+			and c_salesregion_id=:NEW.c_salesregion_id and account_id=:NEW.account_id and c_project_id=:NEW.c_project_id 
+			and c_bpartner_id=:NEW.c_bpartner_id and c_activity_id=:NEW.c_activity_id and user1_id=:NEW.user1_id 
+			and user2_id=:NEW.user2_id and c_campaign_id=v_budgettype_id;
+			
+			--Has Corresponding fund combination
+			IF (v_CorrspCombination_id IS NOT NULL) THEN
+				--Update cost combination in funds
+				update c_validcombination set em_efin_costcombination = :NEW.c_validcombination_id where c_validcombination_id = v_CorrspCombination_id;
+				--Update funds combination in cost
+				update c_validcombination set em_efin_fundscombination = v_CorrspCombination_id where c_validcombination_id = :NEW.c_validcombination_id;
+			END IF;	
+		END IF;		
+	END IF;
+
+	END EFIN_VALIDCOMBINATION_TRG
+]]></body>
+    </trigger>
+  </database>

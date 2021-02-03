@@ -1,0 +1,167 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_RDV_UPDATEAMT">
+    <trigger name="EFIN_RDV_UPDATEAMT" table="EFIN_RDVTXN" fires="after" insert="false" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_matchamt NUMBER;
+v_penaltyamt NUMBER;
+v_advamt NUMBER;
+v_totdeduct NUMBER;
+v_netmatch NUMBER;
+v_uninvamt NUMBER;
+v_prec NUMBER;
+v_clientId VARCHAR(32);
+v_finalpay VARCHAR(32);
+v_pototal NUMBER;
+v_payamount NUMBER;
+v_order VARCHAR(32);
+v_netmatchamt NUMBER;
+v_totPoValue NUMBER;
+v_count NUMBER;
+v_latestReceiptOrder VARCHAR(32);
+v_baseorder VARCHAR(32);
+BEGIN
+v_matchamt :=0;
+v_penaltyamt :=0;
+v_advamt :=0;
+v_totdeduct :=0;
+v_netmatch :=0;
+v_uninvamt :=0;
+v_payamount :=0;
+v_netmatchamt:=0;
+v_totPoValue:=0;
+v_count:=0;
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+	-- Insert/Update/Delete Operation
+
+	
+	
+	 	
+	IF UPDATING THEN
+    
+    -- To get current Client ID 
+	Select ad_client_id INTO v_clientId from efin_rdvtxn 
+	where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+	-- To get Standarrd Precision from Currency by using Current Client ID
+	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+	in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+		--update total penality
+		if :old.penalty_amt <> :new.penalty_amt then
+			v_penaltyamt = :new.penalty_amt - :old.penalty_amt;
+			update efin_rdv set penalty_amt = ROUND(penalty_amt + v_penaltyamt , v_prec)where efin_rdv_id = :new.efin_rdv_id;
+			if :new.penalty_amt > 0 then
+				update efin_rdvtxn set ispenalty = 'Y' where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+			end if;
+			if :new.penalty_amt <= 0 then
+				update efin_rdvtxn set ispenalty = 'N' where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+			end if;
+		end if;
+
+		if :old.adv_deduct <> :new.adv_deduct then
+			v_advamt = :new.adv_deduct - :old.adv_deduct;
+			update efin_rdv set adv_amt = ROUND(adv_amt + v_advamt, v_prec) where efin_rdv_id = :new.efin_rdv_id;
+			if :new.adv_deduct > 0 then
+				update efin_rdvtxn set isadvanced = 'Y' where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+			end if;
+			if :new.adv_deduct <= 0 then
+				update efin_rdvtxn set isadvanced = 'N' where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+			end if;
+		end if;
+
+		--update total deduction
+		if :old.tot_deduct <> :new.tot_deduct then
+			v_totdeduct = :new.tot_deduct - :old.tot_deduct;
+			update efin_rdv set deduction_amt = ROUND(deduction_amt + v_totdeduct, v_prec) where efin_rdv_id = :new.efin_rdv_id;
+		end if;
+		
+		--update header amount
+		if :old.netmatch_amt <> :new.netmatch_amt then
+			v_uninvamt = :new.netmatch_amt - :old.netmatch_amt;
+			update efin_rdv set uninvoiced_amt = ROUND(uninvoiced_amt + v_uninvamt, v_prec) where efin_rdv_id = :new.efin_rdv_id;
+		end if;
+
+	--	IF new.txnver_status <> old.txnver_status and new.txnver_status = 'CL' THEN
+	--		update efin_rdvtxn set penalty_amt = 0,adv_deduct = 0 where efin_rdvtxn_id = new.efin_rdv_id;
+	--	END IF;
+    --last version checkbox 
+    if :old.netmatch_amt <> :new.netmatch_amt then
+    select c_order_id into v_order from efin_rdv where efin_rdv_id = :new.efin_rdv_id;
+	if(v_order) is not null then
+       
+       select coalesce(em_Escm_base_order,c_order_id) into v_baseOrder from c_order where c_order_id = v_order;
+ 
+    		 IF (v_baseOrder is not null) THEN
+                select c_order.c_order_id into v_latestReceiptOrder from c_order
+                    join m_inout rep on rep.c_order_id = c_order.c_order_id and em_escm_docstatus = 'CO'
+                    where (em_Escm_base_order = v_baseOrder or c_order.c_order_id = v_baseOrder) 
+					 order by c_order.created desc ,c_order.em_escm_revision desc limit 1;
+                else
+                  v_latestReceiptOrder := v_order;
+                END IF;
+                    
+   		 	select isfinalpay,GrandTotal into v_finalpay,v_pototal from c_order join escm_deflookups_typeln on 
+    		c_order.em_escm_contact_type = escm_deflookups_typeln.escm_deflookups_typeln_id
+   			 where c_order_id = v_latestReceiptOrder;
+             
+
+    if(v_finalpay = 'Y') then 
+     
+	 select count(c_order_id),coalesce(sum(amount),0) into v_count,v_payamount 
+     from escm_payment_schedule where pay_nature ='FP' 
+     and c_order_id = v_latestReceiptOrder group by c_order_id;
+   
+       
+       v_totPoValue = v_pototal - coalesce(v_payamount,0);
+        
+	 select coalesce(sum(netmatch_amt + ADV_Deduct),0) into v_netmatchamt from efin_rdvtxn where Appstatus!='DR' 
+     and efin_rdvtxn_id not in (:new.efin_rdvtxn_id) and efin_rdv_id = :new.efin_rdv_id and isadvancetransaction='N'
+     group by efin_rdv_id;
+     
+
+      v_netmatchamt = coalesce(v_netmatchamt,0) + (coalesce(:new.netmatch_amt,0) + coalesce(:new.ADV_Deduct,0));
+     if((v_count >0 and coalesce(v_netmatchamt,0) > coalesce(v_totPoValue,0)) or (v_count is null and coalesce(v_netmatchamt,0) = coalesce(v_totPoValue,0))) 
+     then 
+        
+         update efin_rdvtxn set islastversion  = 'Y' where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+     
+      else
+          update efin_rdvtxn set islastversion  = 'N' where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+
+     
+
+     end if;
+     
+   
+
+    
+    
+    end if;
+    
+    
+    
+    
+  end if;
+end if;
+
+    
+		
+	END IF;
+
+	IF DELETING THEN
+    
+   
+	-- To get Standarrd Precision from Currency by using Current Client ID
+	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+	in (select c_currency_id from ad_client where ad_client_id  = :old.ad_client_id);
+    
+		--update header uninvoiced amt.
+		update efin_rdv set uninvoiced_amt = ROUND(uninvoiced_amt - :old.netmatch_amt, v_prec) where efin_rdv_id = :old.efin_rdv_id;
+		--if old.txnver_status <> 'CL' then
+		update efin_rdv set penalty_amt = ROUND(efin_rdv.penalty_amt - :old.penalty_amt, v_prec),adv_amt = ROUND(adv_amt - :old.adv_deduct, v_prec),
+		deduction_amt = ROUND(deduction_amt - :old.tot_deduct, v_prec)  where efin_rdv_id = :old.efin_rdv_id;
+		--end if;
+	END IF;
+	
+	END EFIN_RDV_UPDATEAMT
+]]></body>
+    </trigger>
+  </database>

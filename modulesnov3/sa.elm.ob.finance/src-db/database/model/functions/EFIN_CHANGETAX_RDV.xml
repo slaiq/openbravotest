@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_CHANGETAX_RDV">
+    <function name="EFIN_CHANGETAX_RDV" type="NULL">
+      <parameter name="pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_ResultStr VARCHAR2(2000):='';
+ v_Message VARCHAR2(2000):='';
+ v_rdvOrderId CHARACTER VARYING(32);
+ v_latestOrderId CHARACTER VARYING(32);
+ v_podate timestamp without time zone;
+ v_taxid CHARACTER VARYING(32);
+ v_newtax_taxamt NUMBER;
+ v_newtaxid CHARACTER VARYING(32);
+ v_newtaxpercent NUMBER;
+ v_newtax_netmatchamt NUMBER;
+ v_oldtaxpercent NUMBER;
+ v_validtaxtodate timestamp without time zone;
+ v_isinclusive character(1);
+ v_record_id CHARACTER VARYING(32);
+ v_clientId CHARACTER VARYING(32);
+ v_prec NUMBER;
+cur_rdvtxnline record;
+BEGIN
+
+
+    v_oldtaxpercent:=0; 
+    v_prec:=0;
+    
+        --to get record id
+		SELECT  i.record_id,i.ad_client_id into v_record_id,v_clientId
+      FROM AD_PInstance i 
+      WHERE i.AD_PInstance_ID=PInstance_ID ;
+
+
+
+    
+	-- To get Standarrd Precision from Currency by using Current Client ID
+	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+	in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+    
+    	-- fetching latest order id
+                    select case when  em_escm_base_order is null then c_order_id else  em_escm_base_order end into v_rdvOrderId  
+                    from c_order where c_order_id = (
+                    select c_order_id  from efin_rdv where efin_rdv_id =(
+                    select efin_rdv_id from efin_rdvtxn where efin_rdvtxn_id=v_record_id ));
+
+					
+                    -- fetching latest order date and tax method id 
+                    select c_order_id , dateordered, em_escm_tax_method_id into v_latestOrderId,v_podate ,v_taxid from 
+                    c_order where (c_order_id=v_rdvOrderId or em_escm_base_order=v_rdvOrderId )
+                    and em_escm_appstatus='ESCM_AP' order by em_escm_revision desc limit 1 ;
+
+                    	if(v_taxid is not null) then 
+						
+                            -- based on order tax checking version date is lesser than tax valid to date
+                            select valid_TO_DATE, istaxincluded,taxpercent into v_validtaxtodate, v_isinclusive ,v_oldtaxpercent from efin_tax_method 
+                            where efin_tax_method_id= v_taxid ;
+                            
+                         -- checking tax valid date with version date, if version date greater than valid to date
+                            if(v_validtaxtodate is not null) then 
+                                select efin_tax_method_id,taxpercent into v_taxid, v_newtaxpercent from efin_tax_method
+                                where istaxincluded= v_isinclusive and valid_TO_DATE is null and isactive='Y' 
+                                order by created desc limit 1 ; 
+                                
+
+
+                                select newtax_taxamt into v_newtax_taxamt from efin_rdvtxn where efin_rdvtxn_id=v_record_id;
+
+                                if(v_newtax_taxamt >0) then
+									update efin_rdvtxnline set newtax_netmatch_amt=0, newtax_taxamt=0 where efin_rdvtxn_id=v_record_id;
+                                    --update efin_rdvtxn set newtax_netmatch_amt=0 , newtax_taxamt=0  where efin_rdvtxn_id=v_record_id ;
+                                   
+                                else
+                                	select efin_tax_method_id,taxpercent into v_newtaxid, v_newtaxpercent from efin_tax_method
+                                where istaxincluded= v_isinclusive and valid_TO_DATE is null and isactive='Y' 
+                                order by created desc limit 1 ;
+                                
+
+
+                                -- calculating new tax- tax amt & net match amount
+                                    if(v_newtaxid is not null ) then
+                                    for cur_rdvtxnline in ( select netmatch_amt,efin_rdvtxnline_id from  efin_rdvtxnline where  efin_rdvtxn_id=v_record_id
+                                                          and issummary='N') 
+                                    loop
+                                    
+									
+
+                                     v_newtax_netmatchamt:= (cur_rdvtxnline.netmatch_amt/(1+(v_oldtaxpercent/100))) + ((cur_rdvtxnline.netmatch_amt/(1+(v_oldtaxpercent/100))) *(v_newtaxpercent/100));
+									 v_newtax_taxamt:=((cur_rdvtxnline.netmatch_amt/(1+(v_oldtaxpercent/100))) *(v_newtaxpercent/100));
+                                    
+
+
+
+                                     update efin_rdvtxnline set newtax_netmatch_amt=ROUND(v_newtax_netmatchamt,v_prec) , newtax_taxamt=ROUND(v_newtax_taxamt,v_prec)  where efin_rdvtxnline_id=cur_rdvtxnline.efin_rdvtxnline_id ;
+                                    end loop;
+                                   -- select sum(newtax_netmatch_amt), sum(v_newtax_taxamt) into v_newtax_netmatchamt,v_newtax_taxamt from  efin_rdvtxnline where efin_rdvtxn_id=v_record_id   and issummary='N' ;
+                                   -- update efin_rdvtxn set newtax_netmatch_amt=v_newtax_netmatchamt , newtax_taxamt=v_newtax_taxamt  where efin_rdvtxn_id=v_record_id ;
+                                   
+									
+                                 end if;
+                                end if;
+                             end if;   
+                         end if;  
+                         
+                          AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 1, v_Message) ;
+    EXCEPTION
+WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 0, v_ResultStr) ;
+  RETURN;
+END EFIN_CHANGETAX_RDV
+]]></body>
+    </function>
+  </database>

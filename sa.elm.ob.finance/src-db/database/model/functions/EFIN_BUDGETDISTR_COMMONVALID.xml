@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_BUDGETDISTR_COMMONVALID">
+    <function name="EFIN_BUDGETDISTR_COMMONVALID" type="NUMERIC">
+      <parameter name="v_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_campaign_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_campaign_type" type="CHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_budgetint_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_fundsreq_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_revisionrule_message" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_firstvalid_message" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_secondvalid_message" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_isreserve" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[Cur_lines record;
+v_bcuorg_id character varying(32);
+v_costorg_id character varying(32);
+v_line_ids character varying(10000);
+v_count NUMBER;
+v_isbudgetrule character(1);
+v_iswarn character(1);
+v_percentage NUMBER;
+v_revision_count NUMBER;
+v_returncount NUMBER;
+
+BEGIN
+
+  -- This function will return number which has three possibility
+  --  1.success
+  --  2.warning
+  --  0.Failed
+  
+
+  v_count:=0;
+  v_revision_count:=0;
+  v_returncount:=1;
+
+  -- Get hq org and BCU org from budget control parameter
+  
+  select hq_budgetcontrolunit, budgetcontrol_costcenter into v_bcuorg_id,v_costorg_id  from efin_budget_ctrl_param 
+   where ad_client_id = v_client_id order by created desc limit 1;
+   
+   
+  -- update all lines with status as success and failurereason as null
+  update efin_fundsreqline  set status='SCS', Failure_Reason=null where efin_fundsreq_id=v_fundsreq_id;
+  
+  -- Check budget revision rules validation
+  select coalesce(count(efin_budgetrevrules_id),0),isbudgetrule, iswarn,percentage into v_revision_count,v_isbudgetrule, v_iswarn, v_percentage from efin_budgetrevrules where transactiontype='BD'
+  group by isbudgetrule, iswarn,percentage limit 1;
+  
+  
+  if(v_revision_count>0) then
+	   select coalesce(count(t1. efin_fundsreqline_id),0)  into v_count  from  efin_fundsreqline  t1  
+	   join efin_budgetinquiry t2 on   t1.fromaccount= t2.c_validcombination_id  
+	   where t2.efin_budgetint_id=v_budgetint_id  and t1. efin_fundsreq_id  =v_fundsreq_id  
+	   and ( (t1.increase > ((t2.current_budget * v_percentage)/100))  or ( t1.decrease > ((t2.current_budget * v_percentage)/100) ) );
+     --raise exception '%,%',v_count,v_iswarn;
+  if(v_count>0) then
+	if(v_iswarn='Y') then
+		update efin_fundsreqline set status='WAR', failure_reason =v_revisionrule_message  where efin_fundsreqline_id in (   select t1. efin_fundsreqline_id from  efin_fundsreqline  t1  
+	    join efin_budgetinquiry t2 on   t1.fromaccount= t2.c_validcombination_id  
+	    where t2.efin_budgetint_id=v_budgetint_id  and t1. efin_fundsreq_id  =v_fundsreq_id  
+	    and ( (t1.increase > ((t2.current_budget * v_percentage)/100))  or ( t1.decrease > ((t2.current_budget * v_percentage)/100) ) ));
+		v_iswarn='1';
+	end if;
+	if(v_iswarn='N') then
+		update efin_fundsreqline set status='FL', failure_reason =v_revisionrule_message  where efin_fundsreqline_id  in (select t1.efin_fundsreqline_id
+		from  efin_fundsreqline  t1  
+		join efin_budgetinquiry t2 on   t1.fromaccount= t2.c_validcombination_id  where t2.efin_budgetint_id= v_budgetint_id
+		and t1. efin_fundsreq_id  =v_fundsreq_id  and ((t1.increase > ((t2.current_budget * v_percentage)/100)  )   
+		or (t1.decrease > ((t2.current_budget * v_percentage)/100) ) ));
+	 v_returncount:=v_returncount+1;		
+	end if;
+	
+   end if;
+   
+  end if; 
+  --If the budget is cost then we have to do two validation 
+    --check cost decrease amount Exceed cost funds available	
+if(v_campaign_type ='C') then
+  -- check cost decrease amount Exceed cost funds available
+    select coalesce(count(ln.efin_fundsreqline_id),0) into v_count  
+	from  efin_fundsreqline  ln  
+	join efin_budgetinquiry inq on   ln.fromaccount= inq.c_validcombination_id  
+	join  efin_fundsreq  hd on hd. efin_fundsreq_id  =ln. efin_fundsreq_id  
+	where ln. efin_fundsreq_id  =v_fundsreq_id 
+	and   CASE WHEN inq.c_salesregion_id = v_bcuorg_id	 THEN (ln.decrease > (inq.current_budget + inq.disinc_amt - inq.disdec_amt))     
+	WHEN inq.c_salesregion_id = v_costorg_id THEN (ln.decrease > (inq.current_budget + inq.depinc_amt - inq.depdec_amt))   ELSE (ln.decrease > inq.funds_available)   END  and inq.ad_client_id =v_client_id 
+	and inq.c_campaign_id =v_campaign_id  and inq.efin_budgetint_id= v_budgetint_id;
+
+  --raise exception '%',v_count; 
+  if(v_count>0 and v_isreserve='N') then
+		--raise exception '%',v_count;
+    update efin_fundsreqline set status='FL', failure_reason =case when failure_reason is null then v_firstvalid_message 
+	 else failure_reason|| ' , '||v_firstvalid_message end where efin_fundsreqline_id in (select ln.efin_fundsreqline_id 
+	from  efin_fundsreqline  ln  
+	join efin_budgetinquiry inq on   ln.fromaccount= inq.c_validcombination_id  
+	join  efin_fundsreq  hd on hd. efin_fundsreq_id  =ln. efin_fundsreq_id  
+	where ln. efin_fundsreq_id  =v_fundsreq_id 
+	and   CASE WHEN inq.c_salesregion_id = v_bcuorg_id	 THEN (ln.decrease > (inq.current_budget + inq.disinc_amt - inq.disdec_amt))     
+	WHEN inq.c_salesregion_id = v_costorg_id THEN (ln.decrease > (inq.current_budget + inq.depinc_amt - inq.depdec_amt))   ELSE (ln.decrease > inq.funds_available)   END  and inq.ad_client_id =v_client_id 
+	and inq.c_campaign_id =v_campaign_id  and inq.efin_budgetint_id= v_budgetint_id);	
+	v_returncount:=v_returncount+1;												
+  END iF;													 
+  END iF;
+																																			  
+-- end of cost budget validion
+																																			  
+--If the budget is funds then we have to do two validation 
+    --check funds decrease amount Exceeds funds funds available
+												   
+if(v_campaign_type ='F') then	
+
+  select coalesce(count(ln. efin_fundsreqline_id),0) into v_count 
+  from  efin_fundsreqline ln  
+  join  efin_fundsreq  hd on hd. efin_fundsreq_id  = ln. efin_fundsreq_id  
+  join efin_budgetinquiry inq on inq.efin_budgetint_id= hd.efin_budgetint_id   
+  where  ln.fromaccount= inq.c_validcombination_id  and ln. efin_fundsreq_id  = v_fundsreq_id and inq.efin_budgetint_id=v_budgetint_id and   
+  CASE WHEN inq.c_salesregion_id = v_bcuorg_id THEN (ln.decrease > (inq.current_budget + inq.disinc_amt - inq.disdec_amt) or  (ln.decrease >inq.funds_available))    
+  WHEN inq.c_salesregion_id = v_costorg_id THEN (ln.decrease > (inq.current_budget + inq.depinc_amt - inq.depdec_amt))   ELSE (ln.decrease > inq.funds_available)   END  
+  and inq.ad_client_id =v_client_id and inq.c_campaign_id = v_campaign_id  ;																																  
+ 
+																					  --raise exception '%', v_count;																																		  
+ if(v_count>0  and v_isreserve='N') then
+    update efin_fundsreqline set status='FL', failure_reason =case when failure_reason is null then v_firstvalid_message 
+	 else failure_reason|| ' , '||v_firstvalid_message end where efin_fundsreqline_id in (select ln. efin_fundsreqline_id 
+  from  efin_fundsreqline ln  
+  join  efin_fundsreq  hd on hd. efin_fundsreq_id  = ln. efin_fundsreq_id  
+  join efin_budgetinquiry inq on inq.efin_budgetint_id= hd.efin_budgetint_id   
+  where  ln.fromaccount= inq.c_validcombination_id  and ln. efin_fundsreq_id  = v_fundsreq_id and inq.efin_budgetint_id=v_budgetint_id and   
+  CASE WHEN inq.c_salesregion_id = v_bcuorg_id THEN (ln.decrease > (inq.current_budget + inq.disinc_amt - inq.disdec_amt) or  (ln.decrease >inq.funds_available))    
+  WHEN inq.c_salesregion_id = v_costorg_id THEN (ln.decrease > (inq.current_budget + inq.depinc_amt - inq.depdec_amt))   ELSE (ln.decrease > inq.funds_available)   END  
+  and inq.ad_client_id =v_client_id and inq.c_campaign_id = v_campaign_id);
+	  v_returncount:=v_returncount+1;												 												 
+  END iF;																																																			  																																			  
+END IF;	
+
+    -- failure
+    if(v_returncount>1) then
+	return 0;
+	end if;
+	
+	--warning
+	if(v_returncount=1 and v_iswarn='1') then
+	return 2;
+	end if;
+	
+	-- success
+	return 1;
+END EFIN_BUDGETDISTR_COMMONVALID
+]]></body>
+    </function>
+  </database>

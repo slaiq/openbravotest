@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+  <database name="TABLE EFIN_SECURITY_RULESLINES">
+    <table name="EFIN_SECURITY_RULESLINES" primaryKey="EFIN_SECURITY_RULESLN_ID">
+      <column name="EFIN_SECURITY_RULESLINES_ID" primaryKey="true" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_CLIENT_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_ORG_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="ISACTIVE" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[Y]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EFIN_SECURITY_RULES_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="TYPE" primaryKey="false" required="true" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="FROMACT" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="TOACT" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="FROMCODE" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="TOCODE" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="C_ELEMENTVALUE" name="EFIN_SECURITY_RULES_FRMACT">
+        <reference local="FROMACT" foreign="C_ELEMENTVALUE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_ELEMENTVALUE" name="EFIN_SECURITY_RULES_TOACT">
+        <reference local="TOACT" foreign="C_ELEMENTVALUE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_CLIENT" name="EFIN_SECURITY_RULESLN_CLI">
+        <reference local="AD_CLIENT_ID" foreign="AD_CLIENT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_SECURITY_RULES" name="EFIN_SECURITY_RULESLN_HE">
+        <reference local="EFIN_SECURITY_RULES_ID" foreign="EFIN_SECURITY_RULES_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_ORG" name="EFIN_SECURITY_RULESLN_ORG">
+        <reference local="AD_ORG_ID" foreign="AD_ORG_ID"/>
+      </foreign-key>
+      <index name="EFIN_SECRULE_ACTR_INDEX" unique="false">
+        <index-column name="EFIN_SECURITY_RULES_ID"/>
+      </index>
+      <check name="EFIN_CHECK_FRM_GT_TO_ACCT"><![CDATA[FROMCODE <= TOCODE]]></check>
+      <check name="EFIN_CHECK_SELECTOR_CODE_ACCT"><![CDATA[FROMACT IS NOT NULL AND TOACT IS NOT NULL AND (TYPE = 'IN' OR TYPE = 'EX') AND TYPE <> 'INC' OR FROMCODE IS NOT NULL AND TOCODE IS NOT NULL AND TYPE = 'INC' AND TYPE <> 'IN' AND TYPE <> 'EX']]></check>
+    </table>
+  </database>

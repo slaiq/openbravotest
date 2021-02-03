@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="16CFD3B6302745F5AD894839209F9E6D" identifier="Unified Proposal Alert">
+    <id>16CFD3B6302745F5AD894839209F9E6D</id>
+    <active>true</active>
+    <creationDate transient="true">2020-06-22T15:06:24.794Z</creationDate>
+    <createdBy transient="true" id="BCF72D95E15446FCB95F1B9333602E88" entity-name="ADUser" identifier="omar"/>
+    <updated transient="true">2020-06-22T15:06:30.125Z</updated>
+    <updatedBy transient="true" id="BCF72D95E15446FCB95F1B9333602E88" entity-name="ADUser" identifier="omar"/>
+    <name>Unified Proposal Alert</name>
+    <tab id="61D6CF3612134CAF942B811EC74B1F0B" entity-name="ADTab" identifier="Proposals Evaluation Events - Proposals Evaluation Events"/>
+    <filterClause>(
+(referencekey_id in (select escm_proposalevl_event_id from escm_proposal_attr where escm_proposalmgmt_id in
+(select escm_proposalmgmt_id from escm_proposalmgmt promgmt
+join eut_next_role_line ln on ln.eut_next_role_id= promgmt.eut_next_role_id
+where ln.eut_forward_reqmoreinfo_id is null and ln.eut_reqmoreinfo_id is null and ln.ad_role_id in (@#AD_ROLE_ID@) and (  (ln.ad_user_id is not null and ln.ad_user_id=@#AD_USER_ID@ ) or(ln.ad_user_id is null ))
+and promgmt.proposalappstatus='INP'))  and ad_role_id=@#AD_ROLE_ID@)
+
+or ( ad_role_id =@#AD_ROLE_ID@ and ( (ad_user_id is not null and ad_user_id=@AD_USER_ID@) or (ad_user_id is null)) )
+
+or (ad_user_id=@#AD_USER_ID@ and status='SOLVED')
+or (((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) and status='NEW' and ad_role_id=@#AD_ROLE_ID@)
+
+or (referencekey_id in (select escm_proposalevl_event_id from escm_proposal_attr where escm_proposalmgmt_id in
+    (select escm_proposalmgmt_id from escm_proposalmgmt where proposalstatus ='AWD' and createdby=@#AD_USER_ID@ ))
+and ad_user_id=@#AD_USER_ID@)
+
+or (referencekey_id in (select escm_proposalevl_event_id from escm_proposal_attr where escm_proposalmgmt_id in
+    (select escm_proposalmgmt_id from escm_proposalmgmt where proposalappstatus ='REJ' and createdby=@#AD_USER_ID@))
+and ad_user_id=@#AD_USER_ID@)
+
+or (referencekey_id in (select escm_proposalevl_event_id from escm_proposal_attr where escm_proposalmgmt_id in
+    (SELECT escm_proposalmgmt_id FROM escm_proposalmgmt 
+  promgmt WHERE EXISTS(select 1  from eut_docapp_delegate dl  join eut_docapp_delegateln dll on dl.eut_docapp_delegate_id = dll.eut_docapp_delegate_id
+ where dll.ad_user_id = @#AD_USER_ID@ and dll.ad_role_id =   @#AD_Role_ID@ and dll.document_type = 'EUT_117'
+ and now() between dl.from_date and dl.to_date
+ and dl.ad_role_id in(
+select li.ad_role_id from escm_proposalmgmt re join eut_next_role rl 
+on re.eut_next_role_id = rl.eut_next_role_id
+join eut_next_role_line li on li.eut_next_role_id = rl.eut_next_role_id where li.eut_forward_reqmoreinfo_id is null and li.eut_reqmoreinfo_id is null)) 
+                        and proposalappstatus= 'INP')) and ad_role_id = @#AD_Role_ID@)
+or
+((referencekey_id in (
+select recordid from eut_forward_reqmoreinfo where ad_user_id=@#AD_USER_ID@ and ad_role_id=@#AD_ROLE_ID@ 
+AND  created = (select max(maxfor.created) from eut_forward_reqmoreinfo maxfor  where 
+                maxfor.recordid=eut_forward_reqmoreinfo.recordid  and forward_rmi='F') 
+) and ad_user_id=@#AD_USER_ID@ and ad_role_id=@#AD_ROLE_ID@ ) and ad_role_id=@#AD_ROLE_ID@)
+)</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>UPA</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

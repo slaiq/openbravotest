@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_PROPOSALEVLEVENT_TRG">
+    <trigger name="ESCM_PROPOSALEVLEVENT_TRG" table="ESCM_PROPOSALEVL_EVENT" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[LINE NUMBER:=0;
+v_PRTotal NUMBER:=0;
+v_count NUMBER:=0;
+v_gross NUMBER:=0;
+v_netprice NUMBER:=0;
+v_discountpercent NUMBER:=0;
+v_discountamount NUMBER:=0;
+v_bgworkbenchId VARCHAR2(32);
+v_propcount NUMBER:=0;
+v_proposals character varying(200);
+
+v_proposalcunt NUMBER:=0;
+cur_rank record;
+v_attId character varying(32);
+v_evlID character varying(32);
+v_ad_org_id character varying(32);
+v_type character varying(2);
+v_taxMethodId character varying(32);
+v_totalTaxAmt NUMBER:=0;
+v_IsTax character(1);
+cur_propsal record;
+cur_propsalline record;
+cur_propsabankdet record;
+cur_propsalreg record;
+BEGIN
+
+	IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	-- take the proposal line count 
+	IF  (INSERTING OR   UPDATING ) then 
+	select count(escm_proposal_attr_id) into v_count from escm_proposal_attr  where escm_proposalevl_event_id=:new.escm_proposalevl_event_id;
+	IF  (INSERTING OR   (UPDATING AND v_count=0 AND :new.deletelines<>'Y')) THEN
+		v_evlID = :NEW.escm_proposalevl_event_id;
+		select bidtype into v_type from escm_bidmgmt  where   escm_bidmgmt_id  = :new.escm_bidmgmt_id;
+	--Check if bid type is direct or not
+	IF (v_type='DR') THEN
+        
+        select count(*)  into v_propcount from escm_proposalmgmt where escm_bidmgmt_id=:new.escm_bidmgmt_id and totalamount=0 ;
+        IF(v_propcount >0) THEN
+        select STRING_AGG(proposalno,',') into v_proposals from escm_proposalmgmt where escm_bidmgmt_id=:new.escm_bidmgmt_id and totalamount=0;
+        
+         RAISE_APPLICATION_ERROR(-20000, '@ESCM_Proposal_Zero@'||' '||v_proposals);      
+         END IF;
+    
+		FOR cur_propsal in (select * from escm_proposalmgmt  where escm_bidmgmt_id  = :new.escm_bidmgmt_id and proposalstatus='SUB')
+		LOOP
+
+		/*select case when (bgdetcount= actcount) then 1 else 0 end into  v_proposalcunt from escm_bgworkbench bg
+		join ( select count(escm_bankguarantee_detail_id)  as bgdetcount,escm_bgworkbench_id  from escm_bankguarantee_detail group by escm_bgworkbench_id )
+		bgdet on bgdet.escm_bgworkbench_id= bg.escm_bgworkbench_id
+		join ( select count(escm_bankguarantee_detail_id) as actcount,escm_bgworkbench_id  from escm_bankguarantee_detail where  bgstatus not in ('REL','CON') 
+		group by  escm_bgworkbench_id ) 
+		actdet on actdet.escm_bgworkbench_id= bg.escm_bgworkbench_id 
+		where bg.document_no  =cur_propsal.escm_proposalmgmt_id
+		and bg.document_type='P' and bg.bghdstatus='CO' ;
+		--raise exception '%',v_proposalcunt;
+		IF(v_proposalcunt = 0) THEN 
+		CONTINUE;
+		END IF;*/
+
+			line:= line+10;
+			v_gross:=0;
+			v_netprice:=0;
+			select get_uuid() into v_attId from dual ;
+			
+			 -- getting PR Total for calculate the estimated price
+			select case when coalesce(sum(reqln.qty),0) > 0 then 
+				round((coalesce(sum(reqln.linenetamt),0)/coalesce(sum(reqln.qty),0))*coalesce(sum(srcref.quantity),0),2) else 0 end into v_PRTotal
+				from escm_proposalmgmt   pro
+				join  escm_bidmgmt_line line on line.escm_bidmgmt_id =pro.escm_bidmgmt_id
+				join  escm_bidsourceref srcref on srcref.escm_bidmgmt_line_id= line.escm_bidmgmt_line_id
+				join m_requisitionline reqln on reqln.m_requisitionline_id= srcref.m_requisitionline_id 
+				where pro.escm_proposalmgmt_id =cur_propsal.escm_proposalmgmt_id;
+
+				select sum(movementqty * gross_unit_price), sum(line_total) into v_gross,v_netprice  from escm_proposalmgmt pro
+				join  escm_proposalmgmt_line line on line.escm_proposalmgmt_id =pro.escm_proposalmgmt_id
+				where pro.escm_proposalmgmt_id =cur_propsal.escm_proposalmgmt_id and line.issummarylevel='N';
+
+				select efin_tax_method_id,coalesce(total_taxamt,0),istax,ad_org_id
+				into v_taxMethodId,v_totalTaxAmt,v_IsTax,v_ad_org_id
+				from escm_proposalmgmt where escm_proposalmgmt_id =cur_propsal.escm_proposalmgmt_id;
+	
+			v_discountamount:=v_gross-v_netprice;
+			IF(v_discountamount > 0) THEN
+			v_discountpercent:=(v_discountamount*100)/v_gross;
+			END IF;
+			
+			-- inserting a record into Proposal Attribute	
+			INSERT INTO escm_proposal_attr ( escm_proposal_attr_id,ad_client_id ,ad_org_id ,isactive,created,createdby 
+				,updated ,updatedby,line,escm_proposalmgmt_id,suppliername ,branchname,c_currency_id ,escm_proposalevl_event_id,estimated_price
+				,prosal_grossprice,prosal_netprice,negotiated_price,projectduration, prosal_discountamt,prosal_discount,
+				pee_efin_tax_method_id,pee_total_taxamt,pee_istax,EM_Efin_Budgetinitial_ID)
+				VALUES( v_attId,:NEW.AD_CLIENT_ID,v_ad_org_id,:NEW.ISACTIVE,:NEW.CREATED,:NEW.CREATEDBY,
+				:NEW.UPDATED,:NEW.UPDATEDBY,line,cur_propsal.escm_proposalmgmt_id,cur_propsal.supplier,cur_propsal.branchname,
+				cur_propsal.c_currency_id,v_evlID,v_PRTotal,v_gross,v_netprice,v_netprice,cur_propsal.projectduration,
+				v_discountamount,round(v_discountpercent,2),v_taxMethodId,v_totalTaxAmt,v_IsTax,cur_propsal.EM_Efin_Budgetinitial_ID);
+
+			-- update the variation in Proposal Attribute based on estimated price	 
+			IF(v_PRTotal is not null and v_PRTotal<>0 ) THEN
+				update escm_proposal_attr  set variation=round((((v_PRTotal-prosal_netprice)/v_PRTotal)*100),2) where escm_proposal_attr_id=v_attId;
+
+			END IF;	
+			
+			-- update the attribute id in Regulation Documents
+			FOR cur_propsalreg in (select * from escm_proposal_regulation   where  escm_proposalmgmt_id=cur_propsal.escm_proposalmgmt_id)
+				LOOP
+					update escm_proposal_regulation   set escm_proposal_attr_id =v_attId 
+						where escm_proposal_regulation_id=cur_propsalreg.escm_proposal_regulation_id;
+				END LOOP;
+				
+			-- update the attribute id in bank guarantee  details
+				-- update the attribute id in bank guarantee  details
+			select escm_bgworkbench_id into v_bgworkbenchId from escm_bgworkbench   where  escm_proposalmgmt_id=cur_propsal.escm_proposalmgmt_id;
+			update escm_bgworkbench   set escm_proposal_attr_id =v_attId where escm_bgworkbench_id=v_bgworkbenchId;
+            --update negotunitprice,quantity,linetotal  proposalmgmt line in PEE
+			update escm_proposalmgmt_line set pee_negot_unit_price=negot_unit_price,pee_qty=movementqty,
+            pee_line_total=line_total,pee_line_taxamt=line_taxamt,PEE_Init_Unitprice = Gross_Unit_Price
+            where escm_proposalmgmt_id=cur_propsal.escm_proposalmgmt_id;
+			-- update the Proposal status as 'Analysis' 
+			update escm_proposalmgmt set proposalstatus='ANY' where  escm_proposalmgmt_id=cur_propsal.escm_proposalmgmt_id;
+			v_count:=1;
+		END LOOP;
+		-- update the proposal evaluation event
+		IF v_count >0 THEN
+			update escm_proposalevl_event set deletelines= 'Y' where escm_proposalevl_event_id=:new.escm_proposalevl_event_id;
+		END IF;
+	END IF; 
+   
+	END IF; 
+
+END IF; 
+	END ESCM_PROPOSALEVLEVENT_TRG
+]]></body>
+    </trigger>
+  </database>

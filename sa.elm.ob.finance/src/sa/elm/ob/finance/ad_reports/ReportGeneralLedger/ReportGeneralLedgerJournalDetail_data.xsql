@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERP. 
+ * The Initial Developer of the Original Code is Openbravo SLU 
+ * All portions are Copyright (C) 2001-2010 Openbravo SLU 
+ * All Rights Reserved. 
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+
+
+
+
+<SqlClass name="ReportGeneralLedgerJournalDetailData" package="sa.elm.ob.finance.ad_reports.ReportGeneralLedger">
+  <SqlClassComment></SqlClassComment>
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+        SELECT F.FACT_ACCT_GROUP_ID AS IDENTIFIER, eut_convert_to_hijri(to_char(CAST(F.DATEACCT as date),'YYYY-MM-DD')) as DATEACCT, F.C_ACCTSCHEMA_ID || '/' ||F.RECORD_ID2 AS DP, (CASE WHEN RECORD_ID2 IS NULL THEN 'none' END) AS DISPLAY1, (CASE WHEN RECORD_ID2 IS NOT NULL THEN 'none' END) AS DISPLAY2, 
+        F.ACCTVALUE AS VALUE,
+         coalesce((ad_org.name||'-'||c_salesregion.name|| '-'||c_elementvalue.name||'-'||c_campaign.name||'-'||c_project.name||'-'||
+c_activity.name||'-'||user1.name||'-'||user2.name),c_elementvalue.name) AS NAME,F.EM_EFIN_ACCTSEQ AS DOCNO,
+         COALESCE(F.EM_EFIN_UNIQUECODE,F.ACCTVALUE) AS UNIQUECODE,F.DESCRIPTION,
+
+         (CASE sum(F.AMTACCTDR) WHEN 0 THEN NULL ELSE sum(F.AMTACCTDR) END) AS AMTACCTDR, 
+	 (CASE sum(F.AMTACCTCR) WHEN 0 THEN NULL ELSE sum(F.AMTACCTCR) END) AS AMTACCTCR, 
+	 (CASE sum(F.AMTACCTCR) WHEN 0 THEN 0 ELSE 1 END) AS ORD ,MIN(SEQNO) AS SEQNO,
+	 F.RECORD_ID AS ID ,efin_gettab_gljournal(F.AD_TABLE_ID, F.DOCBASETYPE, F.AD_CLIENT_ID,F.RECORD_ID) AS TAB_ID, '' as newstyle, docbasetype
+
+        FROM FACT_ACCT F
+         LEFT JOIN C_PROJECT ON F.C_PROJECT_ID = C_PROJECT.C_PROJECT_ID
+                left join ad_org on F.ad_org_id = ad_org.ad_org_id 
+                left join c_salesregion on F.c_salesregion_id = c_salesregion.c_salesregion_id
+                 left join c_elementvalue on F.account_id = c_elementvalue.c_elementvalue_id
+                 left join c_campaign on F.c_campaign_id = c_campaign.c_campaign_id
+                left join c_activity on F.c_activity_id = c_activity.c_activity_id
+                left join user1 on F.user1_id = user1.user1_id
+                 left join user2 on F.user2_id = user2.user2_id
+        WHERE FACT_ACCT_GROUP_ID = ? AND (CAST(DATEACCT as date) = TO_DATE(?) OR TO_DATE(?) = NULL)
+        AND F.ACCOUNT_ID IN (select act.c_elementvalue_id from efin_security_rules_act act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND F.C_Salesregion_ID in (select dep.C_Salesregion_ID from Efin_Security_Rules_Dept dep
+                    join efin_security_rules ru on ru.efin_security_rules_id=dep.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y') 
+          AND F.C_Project_ID in (select proj.c_project_id from efin_security_rules_proj proj
+                    join efin_security_rules ru on ru.efin_security_rules_id=proj.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND F.C_CAMPAIGN_ID IN(select bud.C_campaign_ID from efin_security_rules_budtype bud
+                    join efin_security_rules ru on ru.efin_security_rules_id=bud.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND F.C_Activity_ID in (select act.C_Activity_ID from efin_security_rules_activ act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND F.User1_ID in (select fut1.User1_ID from efin_security_rules_fut1 fut1
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut1.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND F.User2_ID in (select fut2.User2_ID from efin_security_rules_fut2 fut2
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut2.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+	GROUP BY F.RECORD_ID2, F.DESCRIPTION, 
+		f.C_ACCTSCHEMA_ID, F.AD_TABLE_ID, CAST(F.DATEACCT as date),F.EM_EFIN_UNIQUECODE, F.ACCTDESCRIPTION, 
+		CASE WHEN 'N' = 'Y' THEN TO_CHAR(F.DESCRIPTION) ELSE TO_CHAR('') END, F.ACCTVALUE, F.DOCBASETYPE, F.RECORD_ID,      
+		F.FACT_ACCT_GROUP_ID, F.ACCOUNT_ID,F.FACTACCTTYPE,F.EM_EFIN_ACCTSEQ,F.em_efin_documentno,ad_org.name,c_salesregion.name,
+		c_elementvalue.name,c_campaign.name,c_project.name, c_activity.name,user1.name,user2.name,      
+		(CASE F.AMTACCTDR WHEN 0 THEN (CASE SIGN(F.AMTACCTCR) WHEN -1 THEN 1 ELSE 2 END) ELSE (CASE SIGN(F.AMTACCTDR)
+		WHEN -1 THEN 3 ELSE 4 END) END), F.AD_CLIENT_ID 
+	HAVING (sum(F.AMTACCTDR) <> 0 OR sum(F.AMTACCTCR) <> 0)
+        ORDER BY F.FACT_ACCT_GROUP_ID,ORD
+      ]]></Sql>
+    <Field name="rownum" value="count"/>
+    <Parameter name="factAcctGroupId"/>
+    <Parameter name="dateacct"/>
+    <Parameter name="dateacct"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+  </SqlMethod>
+  
+  <SqlMethod name="selectByDP" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+        SELECT F.FACT_ACCT_GROUP_ID AS IDENTIFIER, eut_convert_to_hijri(to_char(F.DATEACCT,'YYYY-MM-DD')) as DATEACCT, F.C_ACCTSCHEMA_ID || '/' ||F.RECORD_ID2 AS DP, (CASE WHEN RECORD_ID2 IS NULL THEN 'none' END) AS DISPLAY1, (CASE WHEN RECORD_ID2 IS NOT NULL THEN 'none' END) AS DISPLAY2, 
+        F.ACCTVALUE AS VALUE, 
+         coalesce((ad_org.name||'-'||c_salesregion.name|| '-'||c_elementvalue.name||'-'||c_campaign.name||'-'||c_project.name||'-'||
+c_activity.name||'-'||user1.name||'-'||user2.name),c_elementvalue.name) AS NAME,COALESCE(F.EM_EFIN_UNIQUECODE,F.ACCTVALUE) AS UNIQUECODE,F.EM_EFIN_ACCTSEQ AS DOCNO,
+        (CASE F.AMTACCTDR WHEN 0 THEN NULL ELSE F.AMTACCTDR END) AS AMTACCTDR, (CASE F.AMTACCTCR WHEN 0 THEN NULL ELSE F.AMTACCTCR END) AS AMTACCTCR, F.DESCRIPTION,
+        (CASE AMTACCTCR WHEN 0 THEN 0 ELSE 1 END) AS ORD
+        FROM FACT_ACCT F
+         LEFT JOIN C_PROJECT ON F.C_PROJECT_ID = C_PROJECT.C_PROJECT_ID
+                left join ad_org on F.ad_org_id = ad_org.ad_org_id 
+                left join c_salesregion on F.c_salesregion_id = c_salesregion.c_salesregion_id
+                 left join c_elementvalue on F.account_id = c_elementvalue.c_elementvalue_id
+                 left join c_campaign on F.c_campaign_id = c_campaign.c_campaign_id
+                left join c_activity on F.c_activity_id = c_activity.c_activity_id
+                left join user1 on F.user1_id = user1.user1_id
+                 left join user2 on F.user2_id = user2.user2_id
+        WHERE FACT_ACCT_GROUP_ID IN (SELECT DISTINCT FACT_ACCT_GROUP_ID
+                                       FROM FACT_ACCT
+                                      WHERE RECORD_ID2=?
+                                      AND C_ACCTSCHEMA_ID=?)
+        AND F.ACCOUNT_ID IN (select act.c_elementvalue_id from efin_security_rules_act act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND F.C_Salesregion_ID in (select dep.C_Salesregion_ID from Efin_Security_Rules_Dept dep
+                    join efin_security_rules ru on ru.efin_security_rules_id=dep.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y') 
+          AND F.C_Project_ID in (select proj.c_project_id from efin_security_rules_proj proj
+                    join efin_security_rules ru on ru.efin_security_rules_id=proj.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND F.C_CAMPAIGN_ID IN(select bud.C_campaign_ID from efin_security_rules_budtype bud
+                    join efin_security_rules ru on ru.efin_security_rules_id=bud.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND F.C_Activity_ID in (select act.C_Activity_ID from efin_security_rules_activ act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND F.User1_ID in (select fut1.User1_ID from efin_security_rules_fut1 fut1
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut1.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND F.User2_ID in (select fut2.User2_ID from efin_security_rules_fut2 fut2
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut2.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+        ORDER BY F.DATEACCT, F.FACT_ACCT_GROUP_ID, ORD, F.SEQNO
+        ]]></Sql>
+    <Field name="rownum" value="count"/>
+    <Parameter name="DPid"/>
+    <Parameter name="acctSchema"/>
+    <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+  </SqlMethod>
+</SqlClass>

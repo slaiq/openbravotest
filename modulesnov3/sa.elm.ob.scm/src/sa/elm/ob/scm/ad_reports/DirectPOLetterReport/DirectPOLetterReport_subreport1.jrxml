@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="DirectPOLetterReport_subreport1" pageWidth="555" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="37290192-b4bf-405c-99d4-569603109557">
+	<property name="ireport.zoom" value="1.3636363636363635"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<parameter name="inpPOId" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpSubject" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select poline.line as seq,poline.priceactual as negprice,po.documentno as docno,
+     coalesce(uomtrl.name, uom.name) as uomname,poline.qtyordered as quantity,poline.em_escm_prodescription as desc
+     --,poline.LineNetAmt as totprice,
+     ,po.GrandTotal as totprice,
+     coalesce(AD_Ref_List_Trl.name,list.name) as status,list.name as appstatus
+     from c_order po
+     left join c_orderline poline on poline.c_order_id = po.c_order_id
+     left join c_uom uom on uom.c_uom_id=poline.c_uom_id
+     left join c_uom_trl uomtrl on uomtrl.c_uom_id=uom.c_uom_id and uomtrl.ad_language  ='ar_SA'
+     left join ad_ref_list list on list.value=po.em_escm_appstatus and list.ad_reference_id='131'
+     left join AD_Ref_List_Trl on AD_Ref_List_Trl.AD_Ref_List_id = list.AD_Ref_List_id
+     and AD_Ref_List_Trl.ad_language='ar_SA'
+     where po.c_order_id =  $P{inpPOId} order by poline.line asc]]>
+	</queryString>
+	<field name="seq" class="java.math.BigDecimal"/>
+	<field name="negprice" class="java.math.BigDecimal"/>
+	<field name="docno" class="java.lang.String"/>
+	<field name="uomname" class="java.lang.String"/>
+	<field name="quantity" class="java.math.BigDecimal"/>
+	<field name="desc" class="java.lang.String"/>
+	<field name="totprice" class="java.math.BigDecimal"/>
+	<field name="status" class="java.lang.String"/>
+	<field name="appstatus" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="114" splitType="Stretch">
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" x="5" y="60" width="548" height="25" uuid="f51974dd-1515-4590-aa1b-1e6c25e1fac9"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["جدول الكميات والأسعار:"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" mode="Opaque" x="303" y="89" width="220" height="25" backcolor="#A3C2F2" uuid="428d917c-cc5a-4acb-94fc-7266f4259a19"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[الوصف]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" mode="Opaque" x="5" y="89" width="89" height="25" backcolor="#A3C2F2" uuid="6a1328a9-7674-4f3d-976f-918ebd99559d"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[اجمالي السطر]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" mode="Opaque" x="523" y="89" width="30" height="25" backcolor="#A3C2F2" uuid="d067f7e8-5a23-4d00-9347-2d9553faee3d"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[م]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" mode="Opaque" x="239" y="89" width="64" height="25" backcolor="#A3C2F2" uuid="386bdd5b-8fa3-4be5-8bd7-c346149d61a9"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[الكمية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" mode="Opaque" x="178" y="89" width="61" height="25" backcolor="#A3C2F2" uuid="fe265432-73ae-445d-ae75-4a5668fc957d"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[وحدة القياس]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" mode="Opaque" x="94" y="89" width="84" height="25" backcolor="#A3C2F2" uuid="51bc3b2d-d374-40a0-8683-fa2fdfb5f75f"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[السعر الافرادي]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="482" y="0" width="71" height="22" uuid="2529b01c-d590-4951-be60-243a3e2ceba3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["الصفحة : "+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($V{PAGE_NUMBER}.toString())+" من "]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="362" y="0" width="121" height="22" uuid="f4b8f1e6-6505-4fcb-ba37-498627ceafb1"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($V{PAGE_NUMBER}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="9" y="11" width="120" height="24" uuid="4cb5d457-4481-4129-b8f2-437ae82f7295"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{docno}.toString())]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="129" y="11" width="97" height="24" uuid="0a85e3d2-f816-4fc0-b3f5-9ce160ab384d"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[رقم التعميد الالي :]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="30" splitType="Prevent">
+			<textField isBlankWhenNull="true">
+				<reportElement x="94" y="-1" width="84" height="31" uuid="2b13391a-3853-4e2d-8c67-827f41097405"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator($F{negprice}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="239" y="-1" width="64" height="31" uuid="a1bb134a-29cc-424b-89b4-e098ba136e66"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{quantity}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="523" y="-1" width="30" height="31" uuid="62b258a9-b2bb-4a35-9e36-1f0661fc04f6"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{seq}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="178" y="-1" width="61" height="31" uuid="933b2a10-02f6-423c-a75c-220030d90efa"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{uomname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="5" y="-1" width="89" height="31" uuid="e217b17a-01e3-4867-a60c-7c0cfcbbef7d"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator($F{totprice}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="303" y="-1" width="220" height="31" uuid="8a0f77b7-3e75-4396-b92c-25579048af63"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{desc}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="90">
+			<textField>
+				<reportElement mode="Opaque" x="426" y="0" width="127" height="37" backcolor="#A3C2F2" uuid="93be118a-7e2a-4021-9e0c-800267015ead"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["إجمالي التعميد رقما:"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="426" y="37" width="127" height="40" backcolor="#A3C2F2" uuid="875672f0-111d-4837-960e-5a88618f538d"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["إجمالي التعميد كتابة:"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="5" y="37" width="421" height="40" uuid="7c735d1c-1400-4d46-9396-97f9f90ce3fd"/>
+				<box rightPadding="4">
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{totprice}==null ? "" :sa.elm.ob.utility.ad_reports.NumberToArabic.convertToArabic($F{totprice}, "SAR"))]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="5" y="0" width="421" height="37" uuid="83866574-8423-43f2-855d-ddac03ce47df"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator($F{totprice}.toString()) + " (ر.س) "]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

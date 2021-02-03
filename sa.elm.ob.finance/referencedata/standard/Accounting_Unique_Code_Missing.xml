@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="E14D30689E104DDEA5671B38B96126D7" identifier="Accounting Unique Code Missing">
+    <id>E14D30689E104DDEA5671B38B96126D7</id>
+    <active>true</active>
+    <creationDate transient="true">2019-03-22T15:29:33.703Z</creationDate>
+    <createdBy transient="true" id="BCF72D95E15446FCB95F1B9333602E88" entity-name="ADUser" identifier="omar"/>
+    <updated transient="true">2019-03-22T15:29:33.703Z</updated>
+    <updatedBy transient="true" id="BCF72D95E15446FCB95F1B9333602E88" entity-name="ADUser" identifier="omar"/>
+    <name>Accounting Unique Code Missing</name>
+    <tab id="1B49A74CF8314D02B7F41B6595A169D4" entity-name="ADTab" identifier="Accounting - G/L Journal"/>
+    <filterClause>ad_client_id=@#AD_CLIENT_ID@</filterClause>
+    <sql>select fc.fact_acct_id AS referencekey_id,
+ fc.em_efin_acctseq AS record_id,
+ '0' AS ad_role_id,
+ NULL AS ad_user_id,
+ 'Unique code is missing for accounting entry for Accounting Sequence no &lt;'||fc.em_efin_acctseq||'&gt;' AS description,
+ 'Y' AS isActive,
+ fc.ad_org_id, 
+ fc.ad_client_id, 
+ now() AS created, 
+ '0' AS createdBy, 
+ now() AS updated,
+ '0' AS updatedBy 
+from fact_acct fc 
+where em_efin_uniquecode is null or 
+      (array_length((string_to_array(em_efin_uniquecode, '-')), 1))&lt;9</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+</ob:Openbravo>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="15D4412CCA5D4106B7B20AE56D780920" identifier="Return Transaction">
+    <id>15D4412CCA5D4106B7B20AE56D780920</id>
+    <active>true</active>
+    <creationDate transient="true">2018-10-11T18:32:37.977Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-07-01T18:45:53.539Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Return Transaction</name>
+    <tab id="72A6B3CA5BE848ACA976304375A5B7A6" entity-name="ADTab" identifier="Header - Return Transaction"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+And ((ad_role_id is not null and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>INR</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_PRSLMGMTLINETAXAMT_TRG">
+    <trigger name="ESCM_PRSLMGMTLINETAXAMT_TRG" table="ESCM_PROPOSALMGMT_LINE" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[
+v_totalLineTaxAmt NUMBER;
+v_proposalmgmt_id varchar(32);
+v_oldLineTaxAmt NUMBER;
+v_newLineTaxAmt NUMBER;
+v_teeTotalLineTaxAmt NUMBER;
+v_peeTotalLineTaxAmt NUMBER;
+v_initialAmtInclusive   NUMBER;
+v_unitpriceAftChang NUMBER;
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+
+    --while deleting,insert or update  then update total line amt in PO header
+	IF (INSERTING OR UPDATING ) THEN
+	v_proposalmgmt_id = :NEW.escm_proposalmgmt_ID;
+	ELSE
+	v_proposalmgmt_id = :OLD.escm_proposalmgmt_ID;
+	END IF;
+	 IF (INSERTING OR DELETING ) THEN
+		 	select COALESCE(sum(Line_Taxamt),'0') into v_totalLineTaxAmt from escm_proposalmgmt_line
+		 	where escm_proposalmgmt_ID = v_proposalmgmt_id and issummarylevel='N';
+		 	update escm_proposalmgmt set Total_Taxamt = v_totalLineTaxAmt 
+			 where  escm_proposalmgmt_ID = v_proposalmgmt_id ;
+         
+         	select coalesce(sum(Gross_Unit_Price*Movementqty),0),coalesce(sum(Unitpricedis*Movementqty),0) into v_initialAmtInclusive,v_unitpriceAftChang 
+        	from escm_proposalmgmt_line where  Issummarylevel ='N' and escm_proposalmgmt_id=v_proposalmgmt_id;
+        	update escm_proposalmgmt set Initialamtinclusive= v_initialAmtInclusive,Totpoafterchngprice=v_unitpriceAftChang  where escm_proposalmgmt_id=v_proposalmgmt_id;
+	 
+     END IF;
+      
+     
+  IF (UPDATING ) THEN
+	 v_oldLineTaxAmt=coalesce(:OLD.Line_Taxamt,0);
+	 v_newLineTaxAmt=coalesce(:NEW.Line_Taxamt,0);
+		IF(v_oldLineTaxAmt <> v_newLineTaxAmt OR coalesce(:NEW.parentline_id, '')<>coalesce(:OLD.parentline_id, '') ) THEN
+			select COALESCE(sum(Line_Taxamt),'0') into v_totalLineTaxAmt from escm_proposalmgmt_line
+			where escm_proposalmgmt_ID = v_proposalmgmt_id and issummarylevel='N';
+			update escm_proposalmgmt set Total_Taxamt = v_totalLineTaxAmt 
+			where  escm_proposalmgmt_ID = v_proposalmgmt_id ;
+		END IF;	
+        
+		IF((:new.tee_line_taxamt )<>(:old.tee_line_taxamt)) THEN
+		
+			select COALESCE(sum(ln.tee_Line_Taxamt),'0') into v_teeTotalLineTaxAmt from escm_proposalmgmt_line ln
+			join Escm_Proposal_Attr attr on ln.escm_proposalmgmt_id = attr.escm_proposalmgmt_id
+			where ln.escm_proposalmgmt_ID = v_proposalmgmt_id and ln.issummarylevel='N';
+			
+			update Escm_Proposal_Attr set tee_total_taxamt = v_teeTotalLineTaxAmt 
+			where  escm_proposalmgmt_ID = v_proposalmgmt_id;
+		END IF;
+		IF((:new.pee_line_taxamt )<>(:old.pee_line_taxamt))THEN
+		
+			select COALESCE(sum(ln.pee_Line_Taxamt),'0') into v_peeTotalLineTaxAmt from escm_proposalmgmt_line ln
+			join Escm_Proposal_Attr attr on ln.escm_proposalmgmt_id = attr.escm_proposalmgmt_id
+			where ln.escm_proposalmgmt_ID = v_proposalmgmt_id and ln.issummarylevel='N';
+			
+			update Escm_Proposal_Attr set pee_total_taxamt = v_peeTotalLineTaxAmt 
+			where  escm_proposalmgmt_ID = v_proposalmgmt_id;
+		END IF;
+        --new field change proposal
+          IF(:old.Gross_Unit_Price <> :new.Gross_Unit_Price or :old.Movementqty<> :new.Movementqty ) then
+         
+         select coalesce(sum(Gross_Unit_Price*Movementqty),0) into v_initialAmtInclusive from escm_proposalmgmt_line 
+         where issummarylevel ='N' and  escm_proposalmgmt_id=:new.escm_proposalmgmt_id;
+         update escm_proposalmgmt set Initialamtinclusive= v_initialAmtInclusive  where escm_proposalmgmt_id=:new.escm_proposalmgmt_id;
+         end if;
+         IF(:old.Unitpricedis <> :new.Unitpricedis or :old.Movementqty<> :new.Movementqty ) then
+         select coalesce(sum(Unitpricedis*Movementqty),0) into v_unitpriceAftChang from escm_proposalmgmt_line 
+         where issummarylevel ='N' and  escm_proposalmgmt_id=:new.escm_proposalmgmt_id;
+         update escm_proposalmgmt set totpoafterchngprice= v_unitpriceAftChang  where escm_proposalmgmt_id=:new.escm_proposalmgmt_id;
+         end if;
+          --new field change tee
+        IF(:old.TEE_Init_Unitprice <> :new.TEE_Init_Unitprice or :old.Tech_Line_Qty<> :new.Tech_Line_Qty ) then
+         
+         select coalesce(sum(TEE_Init_Unitprice*Tech_Line_Qty),0) into v_initialAmtInclusive from escm_proposalmgmt_line 
+         where issummarylevel ='N' and  escm_proposalmgmt_id=:new.escm_proposalmgmt_id;
+         update escm_proposal_attr set tee_Initialamtinclusive= v_initialAmtInclusive  where escm_proposalmgmt_id=:new.escm_proposalmgmt_id;
+        end if;
+        IF(:old.TEE_Unitpricedis <> :new.TEE_Unitpricedis or :old.Tech_Line_Qty<> :new.Tech_Line_Qty ) then
+         select coalesce(sum(TEE_Unitpricedis*Tech_Line_Qty),0) into v_unitpriceAftChang from escm_proposalmgmt_line 
+         where issummarylevel ='N' and  escm_proposalmgmt_id=:new.escm_proposalmgmt_id;
+         update escm_proposal_attr set tee_totpoafterchngprice= v_unitpriceAftChang  where escm_proposalmgmt_id=:new.escm_proposalmgmt_id;
+        end if;
+
+
+           --new field change pee
+        IF(:old.pee_Init_Unitprice <> :new.pee_Init_Unitprice or :old.PEE_Qty<> :new.PEE_Qty ) then
+
+		 select coalesce(sum(pee_Init_Unitprice*PEE_Qty),0) into v_initialAmtInclusive from escm_proposalmgmt_line 
+         where issummarylevel ='N' and  escm_proposalmgmt_id=:new.escm_proposalmgmt_id;
+		 update escm_proposal_attr set pee_Initialamtinclusive= v_initialAmtInclusive  where escm_proposalmgmt_id=:new.escm_proposalmgmt_id;
+        end if;
+        IF(:old.pee_Unitpricedis <> :new.pee_Unitpricedis or :old.PEE_Qty<> :new.PEE_Qty ) then
+         select coalesce(sum(pee_Unitpricedis*PEE_Qty),0) into v_unitpriceAftChang from escm_proposalmgmt_line 
+         where issummarylevel ='N' and  escm_proposalmgmt_id=:new.escm_proposalmgmt_id;
+         update escm_proposal_attr set pee_totpoafterchngprice= v_unitpriceAftChang  where escm_proposalmgmt_id=:new.escm_proposalmgmt_id;
+        end if;
+	END IF;
+	END ESCM_PRSLMGMTLINETAXAMT_TRG
+]]></body>
+    </trigger>
+  </database>

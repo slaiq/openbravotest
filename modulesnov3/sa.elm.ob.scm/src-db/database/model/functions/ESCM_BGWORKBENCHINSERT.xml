@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION ESCM_BGWORKBENCHINSERT">
+    <function name="ESCM_BGWORKBENCHINSERT" type="NULL">
+      <body><![CDATA[v_bgworkbenchId character varying(32);
+v_bpartnerloc_Id character varying(32);
+Cur_BankGuarantee RECORD;
+  BEGIN
+
+	FOR Cur_BankGuarantee in ( select document_no,document_type , array_to_string(array_agg(escm_bankguarantee_detail_id),','):: character varying as bankgugroupid ,  split_part(array_to_string(array_agg(escm_bankguarantee_detail_id),','),',',1) as bgId
+          from escm_bankguarantee_detail where escm_bgworkbench_id is null   group by  document_no,document_type   )
+	LOOP
+          select get_uuid() into v_bgworkbenchId from dual;
+
+
+	-- getting vendor address
+		IF(Cur_BankGuarantee.document_type='P') THEN
+		select branchname into v_bpartnerloc_Id from escm_proposalmgmt where escm_proposalmgmt_id=Cur_BankGuarantee.document_no;
+		ELSE
+		 select c_bpartner_location_id  into v_bpartnerloc_Id from c_order where c_order_id=Cur_BankGuarantee.document_no;
+		 END IF;
+		 
+          INSERT INTO public.escm_bgworkbench(
+            escm_bgworkbench_id, ad_client_id, ad_org_id, isactive, created, 
+            createdby, updated, updatedby, financial_year, internalno, bankbgno, 
+            multi_banks, escm_bidmgmt_id, c_bpartner_id, c_bpartner_location_id, 
+            c_currency_id, document_type, document_no, document_amount,  
+            bankguaranteetype, escm_proposalmgmt_id, escm_proposal_attr_id, 
+            initialbg, bghdstatus, notes, bg_archive_ref, verified, bg_category, 
+            contactname, fax, telephone, email, c_order_id, bgaction)
+		 (select v_bgworkbenchId,  ad_client_id,ad_org_id, isactive, created, 
+		createdby, updated, updatedby, financial_year, internalno, bankbgno, 
+		multi_banks, escm_bidmgmt_id, c_bpartner_id,v_bpartnerloc_Id,c_currency_id,document_type, 
+		document_no,document_amount, bankguaranteetype,escm_proposalmgmt_id,escm_proposal_attr_id,initialbg,'DR',notes, bg_archive_ref, verified, bg_category, 
+            contactname, fax, telephone, email, c_order_id, 'CO'  from escm_bankguarantee_detail where escm_bankguarantee_detail_id=Cur_BankGuarantee.bgId);
+
+
+		update escm_bankguarantee_detail set escm_bgworkbench_id= v_bgworkbenchId where escm_bankguarantee_detail_id in (select replace(unnest(string_to_array(Cur_BankGuarantee.bankgugroupid,',')::character varying []),'''','') from dual
+		);
+				update escm_bankguarantee_detail set extend_expdateh=expirydateh   where  bgstatus='ACT' and escm_bankguarantee_detail_id in (select replace(unnest(string_to_array(Cur_BankGuarantee.bankgugroupid,',')::character varying []),'''','') from dual );
+
+	END LOOP;
+END ESCM_BGWORKBENCHINSERT
+]]></body>
+    </function>
+  </database>

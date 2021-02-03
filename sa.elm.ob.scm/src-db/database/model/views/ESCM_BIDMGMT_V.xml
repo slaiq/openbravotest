@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_BIDMGMT_V">
+    <view name="ESCM_BIDMGMT_V"><![CDATA[SELECT bl.escm_bidmgmt_id AS escm_bidmgmt_v_id, bl.ad_client_id, bl.ad_org_id, bl.isactive, bl.created, bl.createdby, bl.updated, bl.updatedby, bl.bidno, bl.bidname, bl.bidstatus, bl.rfpprice, CASE WHEN bh.openenvday IS NOT NULL THEN concat((SELECT eut_convert_to_hijri(to_char(bh.openenvday, 'yyyy-MM-dd')) AS eut_convert_to_hijri), ' ', bh.openenvdaytime) ELSE NULL END AS openenvday, bh.openenvdaytime FROM escm_bidmgmt bl LEFT JOIN escm_biddates bh ON bh.escm_bidmgmt_id = bl.escm_bidmgmt_id AND bh.created = ((SELECT max(s.created) AS max FROM escm_biddates s WHERE s.escm_bidmgmt_id = bh.escm_bidmgmt_id)) WHERE bl.bidtype = 'TR']]></view>
+  </database>

@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="NonMovingItemsReport" pageWidth="595" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="346989f7-29db-43f1-8241-554b25d475ca">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="50"/>
+	<parameter name="today" class="java.lang.String"/>
+	<parameter name="warehouseId" class="java.lang.String"/>
+	<parameter name="clientId" class="java.lang.String"/>
+	<parameter name="period" class="java.lang.String">
+		<defaultValueExpression><![CDATA["1"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="clientName" class="java.lang.String"/>
+	<parameter name="orgName" class="java.lang.String"/>
+	<parameter name="warehouse" class="java.lang.String"/>
+	<parameter name="periodMonth" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select prd.m_product_id,(select eut_cnvrttohjr_yyyymmdd(to_char((select ot.movementdate from m_inout ot
+join m_inoutline line on line.m_inout_id=ot.m_inout_id
+where line.m_product_id =prd.m_product_id and ot.em_escm_docstatus='CO'
+order by movementdate desc limit 1 ),'YYYY-MM-DD'))) as lastreceipt,
+(select eut_cnvrttohjr_yyyymmdd(to_char((select transaction_date from escm_material_request req
+join escm_material_reqln reqline on reqline.escm_material_request_id=req.escm_material_request_id
+where reqline.m_product_id =prd.m_product_id and req.status ='ESCM_TR'
+order by transaction_date desc limit 1),'YYYY-MM-DD'))) lastmir,prd.name as desc,prd.value as code,
+cat.m_product_category_id,org.name as orgname,cat.value as pcategory,uom.name as uomname,stock.qtyonhand as qty
+from m_product prd
+left join c_uom uom on uom.c_uom_id=prd.c_uom_id
+left join m_product_category cat on cat.m_product_category_id=prd.m_product_category_id
+left join (select de.qtyonhand, wh.m_warehouse_id,wh.ad_org_id,dp.m_product_id
+from m_storage_detail de
+join m_product dp on dp.m_product_id=de.m_product_id
+join m_locator loc on loc.m_locator_id=de.m_locator_id
+join m_warehouse wh on wh.m_warehouse_id=loc.m_warehouse_id
+where qtyonhand <>0 ) stock on stock.m_product_id=prd.m_product_id
+join ad_org org on org.ad_org_id=stock.ad_org_id
+where prd.m_product_id in (
+select m_product_id from m_transaction
+where 1=1
+and to_date(to_char(movementdate,'YYYY-MM-DD'),'YYYY-MM-DD') <= to_date($P{period},'YYYY-MM-DD')
+and em_escm_remainqty <> '0')
+and stock.m_warehouse_id= $P{warehouseId}
+and prd.ad_client_id = $P{clientId}
+order by cat.value]]>
+	</queryString>
+	<field name="m_product_id" class="java.lang.String"/>
+	<field name="lastreceipt" class="java.lang.String"/>
+	<field name="lastmir" class="java.lang.String"/>
+	<field name="desc" class="java.lang.String"/>
+	<field name="code" class="java.lang.String"/>
+	<field name="m_product_category_id" class="java.lang.String"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="pcategory" class="java.lang.String"/>
+	<field name="uomname" class="java.lang.String"/>
+	<field name="qty" class="java.math.BigDecimal"/>
+	<variable name="rownum" class="java.math.BigDecimal" resetType="Group" resetGroup="ProductCategory" calculation="Sum">
+		<variableExpression><![CDATA[BigDecimal.valueOf(1)]]></variableExpression>
+	</variable>
+	<group name="ProductCategory" isStartNewPage="true" isReprintHeaderOnEachPage="true">
+		<groupExpression><![CDATA[$F{m_product_category_id}]]></groupExpression>
+		<groupHeader>
+			<band height="156">
+				<staticText>
+					<reportElement x="486" y="106" width="66" height="20" uuid="c727cc4c-5614-4328-b34b-6b96b99e17b2"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[فئة الصنف]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="351" y="106" width="129" height="20" uuid="edfe3ce0-86db-4f65-b93a-bee024cc4123"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial Unicode MS" size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{pcategory}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="526" y="136" width="28" height="20" uuid="0937efcb-1d3e-470d-a7fc-1aa6346d6dbf"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[م]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="406" y="2" width="148" height="18" uuid="d59be2c4-72a4-462b-aaa6-b5ac372f71ea"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Traditional Arabic Bold" isBold="true"/>
+					</textElement>
+					<text><![CDATA[المملكة العربية السعودية]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="486" y="20" width="66" height="20" uuid="ae10a797-16ce-42af-b6cb-de056bce7970"/>
+					<textElement textAlignment="Right" verticalAlignment="Top">
+						<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[وزارة]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="477" y="41" width="75" height="20" uuid="7263a00f-a759-4f9f-9d0c-49eb149fab99"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[إدارة مستودعات]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="487" y="62" width="65" height="20" uuid="4187ce0a-89ec-4888-9af5-18c75f1ee237"/>
+					<textElement textAlignment="Right" verticalAlignment="Top">
+						<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[مستودع]]></text>
+				</staticText>
+				<image hAlign="Center">
+					<reportElement x="180" y="17" width="158" height="45" uuid="bdb36497-d1a9-48d7-95ee-a04fea953e47"/>
+					<imageExpression><![CDATA[org.openbravo.erpCommon.utility.Utility.showImageLogo("yourcompanylegal","")]]></imageExpression>
+				</image>
+				<staticText>
+					<reportElement x="164" y="66" width="174" height="29" uuid="c3f30f22-1cdc-4664-8f24-7b40addcca87"/>
+					<textElement textAlignment="Center">
+						<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[كشف بالأصناف الركدة و المكدسة]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="109" y="20" width="55" height="29" uuid="be772d42-982f-456f-9e0a-5f86be7f93e1"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font fontName="Traditional Arabic Bold" isBold="true"/>
+					</textElement>
+					<text><![CDATA[التاريخ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="485" y="86" width="67" height="20" uuid="9cddb613-e8e8-488f-b89e-a56575829691"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[راكد منذ (شهر)]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="341" y="20" width="139" height="20" uuid="a0c3ded8-1cfb-4754-adb7-c02c897925c9"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial Unicode MS" size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{clientName}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="341" y="40" width="139" height="20" uuid="1c5da7cd-997c-4cc2-91e1-a8797943ab4a"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial Unicode MS" size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{orgName}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="341" y="62" width="139" height="20" uuid="cf2a44ad-0005-4199-9559-14e4d36e59b0"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial Unicode MS" size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{warehouse}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="356" y="86" width="124" height="20" uuid="4710408c-a8bb-4299-a6ac-9b7c17d88131"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial Unicode MS" size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{periodMonth}]]></textFieldExpression>
+				</textField>
+				<textField pattern="yyyy-MM-dd">
+					<reportElement x="35" y="20" width="71" height="14" uuid="546aa82f-db30-457a-a491-ed378afea0ce"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial Unicode MS" size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{today}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="452" y="136" width="74" height="20" uuid="4ab0dd14-eff6-4829-a424-52eebf7a12d5"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[رقم الصنف]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="282" y="136" width="170" height="20" uuid="896b225d-c579-4a53-9181-2818690a9b94"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[وصف الصنف]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="213" y="136" width="69" height="20" uuid="48e5609f-fea0-4222-a38a-35c2c39a42cc"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[الوحدة]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="66" y="136" width="74" height="20" uuid="94632a2a-cc23-4de6-a765-4cfef79d4187"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[ت. اخر استلام]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="140" y="136" width="73" height="20" uuid="e455048e-5a16-4416-b955-f1ae46b7b221"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[الكمية]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="0" y="136" width="66" height="20" uuid="2441acd2-a000-4d92-a83d-6c547173e107"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[ت. اخر صرف]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="478" y="20" width="9" height="21" uuid="9cee63ad-1fab-4cf2-bef9-62da01290b6f"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial Unicode MS" isStrikeThrough="false"/>
+					</textElement>
+					<text><![CDATA[:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="478" y="41" width="9" height="19" uuid="105fac4d-6016-49e5-92de-f6c106174054"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial Unicode MS"/>
+					</textElement>
+					<text><![CDATA[:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="479" y="62" width="8" height="20" uuid="ab02256f-c852-45ec-9a2b-c4a3d4172049"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial Unicode MS"/>
+					</textElement>
+					<text><![CDATA[:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="479" y="86" width="8" height="20" uuid="fbe32035-69b6-44af-a278-51b94b797973"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial Unicode MS"/>
+					</textElement>
+					<text><![CDATA[:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="478" y="106" width="8" height="15" uuid="6793485b-e6c7-42b7-88b8-c6402d6bc748"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial Unicode MS"/>
+					</textElement>
+					<text><![CDATA[:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="103" y="20" width="8" height="14" uuid="8859246a-b0ba-4ed3-95bc-0b6ba069a4d8"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial Unicode MS"/>
+					</textElement>
+					<text><![CDATA[:]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="18" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="526" y="0" width="28" height="18" uuid="1206dd2c-c644-47bd-89f0-908cb2d892ae"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{rownum}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="452" y="0" width="74" height="18" uuid="b6296cff-c574-4241-bcfa-99ae694c1416"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{code}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="282" y="0" width="170" height="18" uuid="9b6455e6-cd18-44b6-ac1f-f9621f10fdf5"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{desc}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="213" y="0" width="69" height="18" uuid="ef44c907-3061-4b0b-9a5f-a6d2939db33f"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{uomname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="140" y="0" width="73" height="18" uuid="0a524469-cd2e-4938-8616-7ce841030e1b"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{qty}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement x="66" y="0" width="74" height="18" uuid="2ad0d967-bfc7-4bd5-b0a9-4d338b72a0e0"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{lastreceipt}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="66" height="18" uuid="9d2e656f-59ff-4486-8295-d63624c1bd5e"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{lastmir}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<noData>
+		<band height="28">
+			<staticText>
+				<reportElement x="227" y="6" width="100" height="20" uuid="843f8980-459a-4f91-b41c-751075293fff"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[لاتوجد بيانات]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

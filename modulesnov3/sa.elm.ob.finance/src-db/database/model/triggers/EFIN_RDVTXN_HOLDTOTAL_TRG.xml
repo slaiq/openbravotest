@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_RDVTXN_HOLDTOTAL_TRG">
+    <trigger name="EFIN_RDVTXN_HOLDTOTAL_TRG" table="EFIN_RDVTXN" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_holdamt NUMBER;
+v_holdtotal NUMBER;
+v_apphold NUMBER;
+v_rdv_ID VARCHAR2(32); 
+
+BEGIN
+    IF AD_isTriggerEnabled()='N' THEN 
+    IF DELETING THEN 
+        RETURN OLD; 
+    ELSE 
+        RETURN NEW; 
+    END IF; 
+    END IF;    	
+    
+    IF (INSERTING) THEN
+    	v_rdv_ID = :new.efin_rdv_id;
+        v_holdamt = :new.holdamount;
+    ELSIF (UPDATING) THEN
+    	v_rdv_ID = :new.efin_rdv_id;
+        v_holdamt = :new.holdamount - :old.holdamount;
+    ELSE
+		v_rdv_ID = :old.efin_rdv_id;
+        v_holdamt = :old.holdamount;
+    END IF;
+    
+    select total_hold_amt,app_hold_amt into v_holdtotal,v_apphold from efin_rdv where efin_rdv_id=v_rdv_ID;   
+    
+    IF (INSERTING AND v_holdamt <> '0')  OR (UPDATING AND :new.holdamount <> :old.holdamount)THEN       
+		update efin_rdv set app_hold_amt = v_apphold + v_holdamt, total_hold_amt = v_holdtotal + v_holdamt
+        where efin_rdv_id=v_rdv_ID;
+    END IF;
+
+    IF (DELETING) THEN
+        update efin_rdv set app_hold_amt = v_apphold - v_holdamt, total_hold_amt = v_holdtotal - v_holdamt
+        where efin_rdv_id=v_rdv_ID;
+    END IF; 
+   
+END EFIN_RDVTXN_HOLDTOTAL_TRG
+]]></body>
+    </trigger>
+  </database>

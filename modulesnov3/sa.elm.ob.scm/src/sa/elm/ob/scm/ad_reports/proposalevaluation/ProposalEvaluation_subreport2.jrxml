@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.0.final using JasperReports Library version 6.5.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ProposalEvaluation_subreport5" pageWidth="572" pageHeight="802" columnWidth="572" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="5fcbda44-3f84-4afa-9ef5-9d60e08d5913">
+	<property name="ireport.zoom" value="1.2100000000000006"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="BASE_DESIGN" class="java.lang.String"/>
+	<parameter name="inpEventId" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select class.name, cast (attr.negotiated_price as decimal(20,2)) as negotiated_price,CONCAT(bp.value,'-',bp.name) as supplier , pm.subcontractors as subcontractors , attr.rank,
+cast ( attr.netprice as decimal(20,2))as openenvamount
+     from escm_proposal_attr attr    
+    join escm_proposalevl_event propevent on propevent.escm_proposalevl_event_id =attr.escm_proposalevl_event_id
+    join c_bpartner bp on bp.c_bpartner_id =attr.suppliername
+    join escm_proposalmgmt pm on pm.escm_proposalmgmt_id = attr.escm_proposalmgmt_id
+    join(select refln.name,mgmt.escm_bidmgmt_id  from escm_bidmgmt mgmt
+    join escm_deflookups_typeln refln on refln.escm_deflookups_typeln_id=mgmt.bidclass)
+ class on class.escm_bidmgmt_id=propevent.escm_bidmgmt_id  where propevent.escm_bidmgmt_id = (select escm_bidmgmt_id from escm_proposalevl_event where escm_proposalevl_event_id=$P{inpEventId})
+order by attr.rank]]>
+	</queryString>
+	<field name="name" class="java.lang.String"/>
+	<field name="negotiated_price" class="java.math.BigDecimal"/>
+	<field name="supplier" class="java.lang.String"/>
+	<field name="rank" class="java.math.BigDecimal"/>
+	<field name="openenvamount" class="java.math.BigDecimal"/>
+	<field name="subcontractors" class="java.lang.String"/>
+	<columnHeader>
+		<band height="39" splitType="Immediate">
+			<staticText>
+				<reportElement mode="Opaque" x="86" y="14" width="88" height="24" backcolor="#82BEDF" uuid="74140589-eb7c-4110-bb82-66d583341e72"/>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[قيمة العطاء (بالريال)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="174" y="14" width="84" height="24" backcolor="#82BEDF" uuid="7cf613df-47e2-44a0-b393-9bb3c9fe844c"/>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[درجة التصنيف]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="258" y="14" width="239" height="24" backcolor="#82BEDF" uuid="319bca90-3fc5-4cda-b489-002e2c6a2444"/>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[اسم صاحب العطاء]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="497" y="14" width="75" height="24" backcolor="#82BEDF" uuid="dd6eeccc-ef3c-4ec7-bf78-e400de57ea3c"/>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[الترتيب]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="-10" y="14" width="96" height="24" backcolor="#82BEDF" uuid="3c98af1a-22aa-4055-a76f-d6c77bba292f"/>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[مبلغ فتح المطاريف]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="24" splitType="Immediate">
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="86" y="0" width="88" height="24" uuid="567f8208-6f96-4da0-a8e9-c4d38612647d"/>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{negotiated_price}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="174" y="0" width="84" height="24" uuid="60b6e141-6796-4812-b423-5ff69799dd2f"/>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="258" y="0" width="239" height="24" uuid="372434c9-aefe-43ef-888f-de824ec66f21"/>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{supplier} + ($F{subcontractors}==null? "":  " - " +$F{subcontractors})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="497" y="0" width="75" height="24" uuid="77c32972-af9f-4adf-9cba-fc6e6e45e4b8"/>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{rank}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="-10" y="0" width="96" height="24" uuid="dd555811-f612-4641-8bb6-42a3ea1781d5"/>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{openenvamount}.toString())]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

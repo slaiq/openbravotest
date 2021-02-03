@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_GETPARENTORGLIST">
+    <function name="EUT_GETPARENTORGLIST" type="VARCHAR">
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[p VARCHAR2(32767);
+vp VARCHAR2(32);
+vTree VARCHAR2(32);
+vOrgList VARCHAR(32767);
+BEGIN
+
+    SELECT ad_tree_id  INTO vTree FROM ad_tree WHERE ad_client_id = p_client_id AND treetype = 'OO';
+
+    vp := p_org_id;
+    vOrgList:='';
+    WHILE (vp is not null and vp <> '')
+    LOOP
+	vOrgList:= vOrgList ||''''||vp||'''';
+	SELECT parent_id INTO vp FROM ad_treenode WHERE node_id = vp AND ad_tree_id = vTree;
+	IF vp is not null THEN
+		vOrgList:= vOrgList ||',';
+	END IF;
+    End LOOP ;
+    RETURN  vOrgList;
+END EUT_GETPARENTORGLIST
+]]></body>
+    </function>
+  </database>

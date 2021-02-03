@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_PENALTYACT_UPDTRDVLN">
+    <trigger name="EFIN_PENALTYACT_UPDTRDVLN" table="EFIN_PENALTY_ACTION" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_penaltyAmt NUMBER:= 0;
+v_action_id CHARACTER VARYING(32);
+v_rdvtrxline_id CHARACTER VARYING(32);
+v_penaltytype_id CHARACTER VARYING(32);
+v_prec NUMBER;
+v_clientId VARCHAR(32);
+
+v_sumofaddremoveAmt NUMBER:= 0;
+cur_penalty record;
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+	
+	
+
+    IF TG_OP='INSERT' OR TG_OP='UPDATE' THEN
+    -- To get current Client ID 
+	Select ad_client_id INTO v_clientId from efin_penalty_action 
+	where efin_penalty_action_id = :new.efin_penalty_action_id;
+	-- To get Standarrd Precision from Currency by using Current Client ID
+	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+	in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+    
+    v_action_id := :NEW.efin_penalty_action_id;
+    v_rdvtrxline_id := :new.efin_rdvtxnline_id;
+    v_penaltytype_id :=:new.efin_penalty_types_id;
+    ELSE 
+     v_action_id := :OLD.efin_penalty_action_id;
+      v_rdvtrxline_id := :OLD.efin_rdvtxnline_id;
+       v_penaltytype_id :=:old.efin_penalty_types_id;
+    END IF;
+    
+    for cur_penalty in (
+    select distinct   act.efin_penalty_types_id , coalesce(( select coalesce(sum(pen.penalty_amount),0) from efin_penalty_action pen 
+                                where pen.efin_rdvtxnline_id=act.efin_rdvtxnline_id   and pen.action='AD' 
+                                and pen.efin_penalty_types_id = act.efin_penalty_types_id  ) +
+                 ( select coalesce(sum(pen.penalty_amount),0) from efin_penalty_action pen   
+                  where pen.efin_rdvtxnline_id=act.efin_rdvtxnline_id 
+           and pen.action='RM'  and pen.efin_penalty_types_id = act.efin_penalty_types_id 
+                   ),0) as totpenamt   from efin_penalty_action act 
+           where efin_rdvtxnline_id=  v_rdvtrxline_id)
+     
+     Loop
+     v_sumofaddremoveAmt := ROUND(v_sumofaddremoveAmt+cur_penalty.totpenamt , v_prec);
+     end loop;
+     
+	-- Insert/Update/Delete Operation	
+	IF INSERTING THEN
+    IF :new.penalty_amount <> 0 then
+    v_penaltyAmt:=:new.penalty_amount ;
+    end if;
+    
+    update efin_rdvtxnline set penalty_amt= ROUND(penalty_amt+v_penaltyAmt, v_prec)  where efin_rdvtxnline_id= :new.efin_rdvtxnline_id;
+    
+	END IF;
+
+   IF UPDATING THEN
+    IF :new.penalty_amount <> 0 and ((:new.penalty_amount <> :old.penalty_amount)  or (:new.action <> :old.action) or (:new.efin_penalty_types_id <> :old.efin_penalty_types_id)) then
+        v_penaltyAmt := v_sumofaddremoveAmt;
+                update efin_rdvtxnline set penalty_amt= ROUND(v_sumofaddremoveAmt, v_prec)  where efin_rdvtxnline_id= :new.efin_rdvtxnline_id;
+    END IF;
+	END IF;
+
+	IF DELETING THEN
+    
+  
+	-- To get Standarrd Precision from Currency by using Current Client ID
+	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+	in (select c_currency_id from ad_client where ad_client_id  = :old.ad_client_id);
+    
+		IF :old.penalty_amount <> 0 then
+      v_penaltyAmt:=Round(:old.penalty_amount,v_prec);
+    end if;
+    update efin_rdvtxnline set penalty_amt= ROUND(penalty_amt-v_penaltyAmt, v_prec) where efin_rdvtxnline_id= :old.efin_rdvtxnline_id;
+   
+     -- update released amount if released penalty delete
+     IF :old.penalty_rel_id is not null then
+         update efin_penalty_action set releasedamt= ROUND(releasedamt+:old.Penalty_Amount, v_prec) where efin_penalty_action_id= :old.penalty_rel_id;
+     END IF;
+	END IF;
+	
+	END EFIN_PENALTYACT_UPDTRDVLN
+]]></body>
+    </trigger>
+  </database>

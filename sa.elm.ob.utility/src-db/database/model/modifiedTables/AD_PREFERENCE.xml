@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE AD_PREFERENCE">
+    <table name="AD_PREFERENCE" primaryKey="AD_PREFERENCE_KEY">
+      <column name="EM_EUT_DOCAPP_DELEGATELN_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EUT_ENDDATE" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EUT_RECALCULATE" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EUT_FORWARD_REQMOREINFO_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EUT_ISTEMPORARY" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="EUT_DOCAPP_DELEGATELN" name="EM_EUT_AD_PREFERENCE_DELID">
+        <reference local="EM_EUT_DOCAPP_DELEGATELN_ID" foreign="EUT_DOCAPP_DELEGATELN_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EUT_FORWARD_REQMOREINFO" name="EM_EUT_AD_PREFERENCE_FORRMI">
+        <reference local="EM_EUT_FORWARD_REQMOREINFO_ID" foreign="EUT_FORWARD_REQMOREINFO_ID"/>
+      </foreign-key>
+    </table>
+  </database>

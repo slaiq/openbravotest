@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="OpenEnvelopProposal_subreport6_subreport2" pageWidth="340" pageHeight="555" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="340" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="d34190a2-4acb-4e6c-903d-3a37405967e2">
+	<property name="ireport.zoom" value="2.143588810000002"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="inpProposalAttrId" class="java.lang.String"/>
+	<parameter name="RealPath" class="java.lang.String"/>
+	<parameter name="status" class="java.lang.String"/>
+	<parameter name="CheckBoxImagePath" class="java.lang.String"/>
+	<parameter name="UncheckedImagePath" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select provided, expired, eut_convert_to_hijri(to_char(CAST(expirydate as date),'YYYY-MM-DD')) as expirydate,
+comments, lokup.name
+from escm_proposal_regulation preg left join escm_deflookups_typeln lokup on lokup.escm_deflookups_typeln_id=preg.name
+where escm_proposal_attr_id = $P{inpProposalAttrId}]]>
+	</queryString>
+	<field name="provided" class="java.lang.String"/>
+	<field name="expired" class="java.lang.String"/>
+	<field name="expirydate" class="java.lang.String"/>
+	<field name="comments" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<title>
+		<band height="22">
+			<image scaleImage="RetainShape" vAlign="Middle">
+				<reportElement mode="Opaque" x="113" y="2" width="16" height="12" uuid="a3e53ff8-ae9a-4b2d-8a59-3f4dfd1ec1c5"/>
+				<graphicElement>
+					<pen lineWidth="1.0"/>
+				</graphicElement>
+				<imageExpression><![CDATA[$P{CheckBoxImagePath}]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="129" y="0" width="211" height="22" uuid="9ca7369c-d988-4457-a5cb-7737dc8a3457"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[ محتويات العطاء هي المؤشر عليها بعلامة  ]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="22" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="321" height="22" isPrintWhenDetailOverflows="true" uuid="966fb79b-0a75-45d6-81eb-9741234de2b5"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<image scaleImage="RetainShape" vAlign="Middle">
+				<reportElement mode="Opaque" x="321" y="0" width="16" height="16" uuid="8fdb156b-bfb2-4d18-9602-75aa058ecf1d">
+					<printWhenExpression><![CDATA[$F{provided}.equals( "Y" )  && $P{status}.equals( "CO" )]]></printWhenExpression>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="1.0"/>
+				</graphicElement>
+				<imageExpression><![CDATA[$P{CheckBoxImagePath}]]></imageExpression>
+			</image>
+			<image scaleImage="RetainShape" vAlign="Middle">
+				<reportElement mode="Opaque" x="321" y="0" width="16" height="16" uuid="07ce5919-684e-47b6-90c8-e5ea6f6cc517">
+					<printWhenExpression><![CDATA[!$F{provided}.equals( "Y" )]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[$P{UncheckedImagePath}]]></imageExpression>
+			</image>
+		</band>
+	</detail>
+	<summary>
+		<band height="1" splitType="Stretch"/>
+	</summary>
+</jasperReport>

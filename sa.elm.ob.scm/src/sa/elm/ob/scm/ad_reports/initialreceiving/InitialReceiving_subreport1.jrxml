@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="InitialReceiving_subreport1" pageWidth="802" pageHeight="595" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="802" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="168ed454-ef92-4517-8ae3-e0b167e3947b">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="inpInOutId" class="java.lang.String"/>
+	<parameter name="inpClientId" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select ln.line, ln.value, ln.description, ln.uomcode, ln.quantity, ln.notes
+from
+(select inrpt.line, prd.value, coalesce(inrpt.description, '') as description, coalesce(uom.uomsymbol, uom.name) as uomcode,
+coalesce(quantity, 0) as quantity,(select note from obuiapp_note where record_id =(select escm_initialreceipt_id
+from escm_initialreceipt where m_inout_id=$P{inpInOutId}
+and escm_initialreceipt_id=inrpt.escm_initialreceipt_id) order by created desc limit 1) as notes,
+row_number() OVER ()::integer as rnum
+from m_inout inout
+left join escm_initialreceipt inrpt using (m_inout_id)
+left join c_uom uom using (c_uom_id)
+left join m_product prd using (m_product_id)
+where m_inout_id = $P{inpInOutId}) ln
+full join ( select ''::character varying as ad_client_id, b.sno
+from (select generate_series(1, 15)as sno)b ) alllns on ln.rnum = alllns.sno
+order by ln.line]]>
+	</queryString>
+	<field name="line" class="java.math.BigDecimal"/>
+	<field name="value" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<field name="description" class="java.lang.String"/>
+	<field name="uomcode" class="java.lang.String"/>
+	<field name="quantity" class="java.math.BigDecimal"/>
+	<field name="notes" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="17">
+			<textField isBlankWhenNull="true">
+				<reportElement x="693" y="0" width="94" height="17" uuid="61a1603e-0ec4-4da8-858b-6b6ecaf20a7d"/>
+				<box rightPadding="3">
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{line}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="142" y="0" width="93" height="17" isPrintWhenDetailOverflows="true" uuid="f43f8054-0b97-4575-92a8-c5131c40d741"/>
+				<box rightPadding="3">
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{quantity}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1" y="0" width="141" height="17" uuid="93937f06-9906-4dbe-ad57-1a2591b9ea00"/>
+				<box rightPadding="3">
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{notes}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="330" y="0" width="227" height="17" uuid="0714463b-332f-46bc-ab83-8b5b89de7752"/>
+				<box rightPadding="3">
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="557" y="0" width="136" height="17" uuid="1867d30c-f0d2-4ab8-ab16-f1eb356eb6b0"/>
+				<box rightPadding="3">
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{value}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="235" y="0" width="95" height="17" uuid="e5aabd04-a79f-441b-8ab1-14991a79b856"/>
+				<box rightPadding="3">
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{uomcode}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

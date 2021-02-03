@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PrintElectricity" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c657bd5c-58ba-4ea7-b660-0836b0aa5ec3">
+	<property name="ireport.zoom" value="0.9090909090909097"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="291"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/opt/elm/WebContent/src-loc/design/sa/elm/ob/scm/ad_reports/printelectricityreport/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpPOId" class="java.lang.String"/>
+	<parameter name="BASE_DESIGN" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[select eut_convert_to_hijri(to_char( po.em_escm_signaturedate,'YYYY-MM-DD')) as signaturedate,city.name as cityname,
+to_char(po.em_escm_signaturedate,'dd-MM-yyyy') as siggredate,po.em_escm_motcontperson as motcontperson,
+bpcert.certificatenumber as commercialregno,eut_convert_to_hijri(to_char( bpcert.registrydate,'YYYY-MM-DD')) as registrydate,
+bpcert.registrycity,bp.name as bpname,loc.address2 as postalpo,loc.postal as postalcode,emp.title as contposition,
+concat(emp.firstname, ' ', emp.lastname) as contname,emp.EM_Escm_Authorization_Number as authno,eut_convert_to_hijri(to_char( emp.EM_Escm_Authorization_Date,'YYYY-MM-DD'))
+as authdate,po.em_escm_projectname as projname,eut_convert_to_hijri(to_char( po.em_escm_proposaldate,'YYYY-MM-DD')) as proposaldate,
+po.documentno as contractno,eut_convert_to_hijri(to_char( po.em_escm_contractstartdate,'YYYY-MM-DD')) as contractdate,
+po.em_escm_contractduration as duration,
+case when po.em_escm_periodtype='DT' then 'يوم'
+when po.em_escm_periodtype='MTG' then 'شهر (م)'
+when po.em_escm_periodtype='MTH' then 'شهر (هـ)'
+when po.em_escm_periodtype='MT' then 'شهر' end as periodtype, po.grandtotal as totalamt,po.em_escm_motcontposition as motconpostion,
+ po.ad_org_id as org, bploc.name as bplocname,
+concat((SELECT EXTRACT(DOW FROM  po.em_escm_signaturedate::date))) as signatureday, clientinfo.your_company_document_image,  po.ad_client_id
+from c_order po
+left join ad_client cl on cl.ad_client_id = po.ad_client_id
+left join ad_clientinfo clientinfo on cl.ad_client_id = clientinfo.ad_client_id
+left join c_city city on city.c_city_id = po.em_escm_c_city_id
+left join c_bpartner bp on bp.c_bpartner_id=po.c_bpartner_id
+left join C_BPartner_Location bploc on po.C_BPartner_Location_id=bploc.C_BPartner_Location_id
+left join c_location loc on loc.c_location_id = bploc.c_location_id
+left join ad_user emp on emp.c_bpartner_id = bp.c_bpartner_id
+and emp.created = (select max(created) from ad_user where ad_user.c_bpartner_id=bp.c_bpartner_id)
+left join (select name, value, escm_deflookups_typeln_id, cert.c_bpartner_id, cert.certificatenumber,cert.registrydate,cert.registrycity
+from escm_deflookups_typeln lkln
+join escm_deflookups_type typ on lkln.escm_deflookups_type_id=typ.escm_deflookups_type_id
+right join escm_certificates cert on cert.certificatename=lkln.escm_deflookups_typeln_id
+where reference ='CN' and typ.isactive='Y' and (value ilike '%CRN%'
+or escm_deflookups_typeln_id='E1A43F37E4FD41DC95530AB0DD6ED707')) bpcert on bpcert.c_bpartner_id=bp.c_bpartner_id
+where po.c_order_id = $P{inpPOId}]]>
+	</queryString>
+	<field name="signaturedate" class="java.lang.String"/>
+	<field name="cityname" class="java.lang.String"/>
+	<field name="siggredate" class="java.lang.String"/>
+	<field name="motcontperson" class="java.lang.String"/>
+	<field name="commercialregno" class="java.math.BigDecimal"/>
+	<field name="registrydate" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:ONCREATEDEFAULT:SYSDATE--]]></fieldDescription>
+	</field>
+	<field name="registrycity" class="java.lang.String"/>
+	<field name="bpname" class="java.lang.String"/>
+	<field name="postalpo" class="java.lang.String"/>
+	<field name="postalcode" class="java.lang.String"/>
+	<field name="contposition" class="java.lang.String"/>
+	<field name="contname" class="java.lang.String"/>
+	<field name="authno" class="java.math.BigDecimal"/>
+	<field name="authdate" class="java.lang.String"/>
+	<field name="projname" class="java.lang.String"/>
+	<field name="proposaldate" class="java.lang.String"/>
+	<field name="contractno" class="java.lang.String"/>
+	<field name="contractdate" class="java.lang.String"/>
+	<field name="duration" class="java.math.BigDecimal"/>
+	<field name="totalamt" class="java.math.BigDecimal"/>
+	<field name="motconpostion" class="java.lang.String"/>
+	<field name="org" class="java.lang.String"/>
+	<field name="bplocname" class="java.lang.String"/>
+	<field name="signatureday" class="java.lang.String"/>
+	<field name="your_company_document_image" class="java.lang.String"/>
+	<field name="ad_client_id" class="java.lang.String"/>
+	<field name="periodtype" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="71" splitType="Stretch"/>
+	</pageHeader>
+	<detail>
+		<band height="663" splitType="Stretch">
+			<break>
+				<reportElement x="0" y="239" width="555" height="1" uuid="6a33c4c9-fdef-4ec4-b4c1-f5028931c29e"/>
+			</break>
+			<subreport>
+				<reportElement x="0" y="117" width="555" height="122" uuid="06a56fc1-a33d-476c-8897-2e2395b10ae8"/>
+				<subreportParameter name="vendorname">
+					<subreportParameterExpression><![CDATA[$F{bpname}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="registrycity">
+					<subreportParameterExpression><![CDATA[$F{registrycity}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="vendorpostalcode">
+					<subreportParameterExpression><![CDATA[$F{postalcode}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="registryno">
+					<subreportParameterExpression><![CDATA[$F{commercialregno}.toPlainString()]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="contractsigncity">
+					<subreportParameterExpression><![CDATA[$F{cityname}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="motperson">
+					<subreportParameterExpression><![CDATA[$F{motcontperson}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="signatureday">
+					<subreportParameterExpression><![CDATA[$F{signatureday}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="SignatureDate">
+					<subreportParameterExpression><![CDATA[$F{signaturedate}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="bplocname">
+					<subreportParameterExpression><![CDATA[$F{bplocname}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="project">
+					<subreportParameterExpression><![CDATA[$F{projname}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="registrydate">
+					<subreportParameterExpression><![CDATA[$F{registrydate}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="proposaldate">
+					<subreportParameterExpression><![CDATA[$F{proposaldate}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="vendorpobox">
+					<subreportParameterExpression><![CDATA[$F{postalpo}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN}+"/sa/elm/ob/scm/ad_reports/printelectricityreport/PrintElectricity_subreport2.jrxml")]]></subreportExpression>
+			</subreport>
+			<break>
+				<reportElement x="0" y="114" width="555" height="1" uuid="a1e73230-bec8-485d-becc-938771246cab"/>
+			</break>
+			<subreport>
+				<reportElement x="1" y="239" width="555" height="152" uuid="60e0028f-a164-47cd-86a3-4c31940bada6"/>
+				<subreportParameter name="contractdate">
+					<subreportParameterExpression><![CDATA[$F{contractdate}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="contractno">
+					<subreportParameterExpression><![CDATA[$F{contractno}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="BASE_DESIGN">
+					<subreportParameterExpression><![CDATA[$P{BASE_DESIGN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="projectcity">
+					<subreportParameterExpression><![CDATA[$F{cityname}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN}+ "/sa/elm/ob/scm/ad_reports/printelectricityreport/PrintElectricity_subreport3.jrxml")]]></subreportExpression>
+			</subreport>
+			<break>
+				<reportElement x="0" y="391" width="555" height="1" uuid="6726b2f2-fa4f-427e-b1c0-68f5370e3273"/>
+			</break>
+			<subreport>
+				<reportElement x="1" y="392" width="555" height="142" uuid="678ee7fc-1d9a-4052-89f2-6c0ac6e634a0"/>
+				<subreportParameter name="total">
+					<subreportParameterExpression><![CDATA[$F{totalamt}.toPlainString()]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="duration">
+					<subreportParameterExpression><![CDATA[$F{duration}.toPlainString()]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="periodtype">
+					<subreportParameterExpression><![CDATA[$F{periodtype}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN}+ "/sa/elm/ob/scm/ad_reports/printelectricityreport/PrintElectricity_subreport4.jrxml")]]></subreportExpression>
+			</subreport>
+			<break>
+				<reportElement x="0" y="534" width="555" height="1" uuid="c60f7aee-4ed0-4e87-bf24-18623d4b3b92"/>
+			</break>
+			<subreport>
+				<reportElement x="0" y="535" width="556" height="128" uuid="7fed291d-7e8f-40fe-9b09-31ec14f9e329"/>
+				<subreportParameter name="vendorcontact">
+					<subreportParameterExpression><![CDATA[$F{contname}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="motposition">
+					<subreportParameterExpression><![CDATA[$F{motconpostion}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="vendorposition">
+					<subreportParameterExpression><![CDATA[$F{contposition}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="motcontact">
+					<subreportParameterExpression><![CDATA[$F{motcontperson}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN}+ "/sa/elm/ob/scm/ad_reports/printelectricityreport/PrintElectricity_subreport5.jrxml")]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="1" y="0" width="555" height="114" uuid="977d31bd-2afb-424c-95c9-86158f746873"/>
+				<subreportParameter name="ImageID">
+					<subreportParameterExpression><![CDATA[$F{your_company_document_image}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="orgid">
+					<subreportParameterExpression><![CDATA[$F{org}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN}+ "/sa/elm/ob/scm/ad_reports/printelectricityreport/PrintElectricity_subreport1.jrxml")]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="60" splitType="Stretch">
+			<textField>
+				<reportElement x="217" y="0" width="146" height="21" uuid="8b0d8a8d-bf2c-4c38-a5ba-d525f4c39ee1"/>
+				<textElement>
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($V{PAGE_NUMBER}.toString())]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

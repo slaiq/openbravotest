@@ -1,0 +1,329 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_BUDGETREV_COMMONVALID">
+    <function name="EFIN_BUDGETREV_COMMONVALID" type="NUMERIC">
+      <parameter name="v_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_campaign_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_campaign_type" type="CHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_budgetint_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_rev_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_revisionrule_message" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_firstvalid_message" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_secondvalid_message" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_thirdvalid_message" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_fourthvalid_message" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_fifthvalid_message" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_status" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[Cur_lines record;
+v_bcuorg_id character varying(32);
+v_costorg_id character varying(32);
+v_line_ids character varying(10000);
+v_count NUMBER;
+v_isbudgetrule character(1);
+v_iswarn character(1);
+v_percentage NUMBER;
+v_revision_count NUMBER;
+v_returncount NUMBER;
+
+BEGIN
+
+  -- This function will return number which has three possibility
+  --  1.success
+  --  2.warning
+  --  0.Failed
+  
+
+  v_count:=0;
+  v_revision_count:=0;
+  v_returncount:=1;
+
+  -- Get hq org and BCU org from budget control parameter
+  
+  select hq_budgetcontrolunit, budgetcontrol_costcenter into v_bcuorg_id,v_costorg_id  from efin_budget_ctrl_param 
+   where ad_client_id = v_client_id order by created desc limit 1;
+   
+   
+  -- update all lines with status as success and failurereason as null
+  --update efin_budget_transfertrxline  set status='Success' where efin_budget_transfertrx_id=v_rev_id;
+  update efin_budget_transfertrxline  set status=null where efin_budget_transfertrx_id=v_rev_id;
+  
+  -- check distribute uniquecode is not present 
+  select  count(ln.efin_budget_transfertrxline_id ) into  v_count
+    from  efin_budget_transfertrxline  ln 
+    left join c_validcombination lncom on lncom.c_validcombination_id= ln.c_validcombination_id 
+    join efin_budget_ctrl_param para on para.ad_client_id=ln.ad_client_id 
+    left join c_validcombination com on com.ad_org_id=ln. distribute_line_org  
+    and com.c_salesregion_id= para.budgetcontrol_costcenter and com.account_id= lncom.account_id  
+    and com.c_project_id= lncom.c_project_id and  com.c_activity_id=lncom.c_activity_id
+    and com.user1_id=lncom.user1_id  and com.user2_id =lncom.user2_id 
+    and com.c_campaign_id= lncom.c_campaign_id and com.c_bpartner_id= lncom.c_bpartner_id  
+    and com.isactive='Y' where 1=1 and  distribute_line_org  is not null  
+    and   distribute  ='Y'    and ln. efin_budget_transfertrx_id = v_rev_id 
+    and com.c_validcombination_id is null ;
+    
+    IF(v_count >0) then
+    
+     update efin_budget_transfertrxline set status= case when status is null then v_fifthvalid_message 
+     else status|| ','||v_fifthvalid_message end  where efin_budget_transfertrxline_id in ( select ln.efin_budget_transfertrxline_id 
+      from efin_budget_transfertrxline ln
+       left join c_validcombination lncom on lncom.c_validcombination_id= ln.c_validcombination_id 
+    join efin_budget_ctrl_param para on para.ad_client_id=ln.ad_client_id 
+    left join c_validcombination com on com.ad_org_id=ln. distribute_line_org  
+    and com.c_salesregion_id= para.budgetcontrol_costcenter and com.account_id= lncom.account_id  
+    and com.c_project_id= lncom.c_project_id and  com.c_activity_id=lncom.c_activity_id
+    and com.user1_id=lncom.user1_id  and com.user2_id =lncom.user2_id 
+    and com.c_campaign_id= lncom.c_campaign_id and com.c_bpartner_id= lncom.c_bpartner_id  
+    and com.isactive='Y' where 1=1 and  distribute_line_org  is not null  
+    and   distribute  ='Y'    and ln. efin_budget_transfertrx_id = v_rev_id
+    and com.c_validcombination_id is null  );                                                                                   
+                                                                                           
+     v_returncount:=v_returncount+1;	
+    END IF;
+    
+  -- check budget is created for this uniquecode while decreasing the amount
+	select count(ln.efin_budget_transfertrxline_id) into v_count from efin_budget_transfertrxline ln
+    join efin_budget_transfertrx hd on  hd.efin_budget_transfertrx_id=ln.efin_budget_transfertrx_id 
+    left join efin_budgetinquiry inq on inq.efin_budgetint_id = hd.efin_budgetint_id 
+     and inq.c_validcombination_id= ln.c_validcombination_id
+    where  ln.efin_budget_transfertrx_id = v_rev_id and  ln.decrease >0  and inq.efin_budgetinquiry_id is  null;
+    
+    IF(v_count >0) then
+     update efin_budget_transfertrxline set status= case when status is null then v_thirdvalid_message 
+     else status|| ','||v_thirdvalid_message end  where efin_budget_transfertrxline_id in ( select ln.efin_budget_transfertrxline_id 
+      from efin_budget_transfertrxline ln
+    join efin_budget_transfertrx hd on  hd.efin_budget_transfertrx_id=ln.efin_budget_transfertrx_id 
+    left join efin_budgetinquiry inq on inq.efin_budgetint_id = hd.efin_budgetint_id 
+     and inq.c_validcombination_id= ln.c_validcombination_id
+    where  ln.efin_budget_transfertrx_id = v_rev_id and  ln.decrease >0  and inq.efin_budgetinquiry_id is  null);
+    v_returncount:=v_returncount+1;	
+	END IF;
+    
+    
+    -- check either Cost budget is not defined or Cost current budget is lesser than the funds increase amount
+    if(v_campaign_type ='F') then
+    
+    select count(ln.efin_budget_transfertrxline_id) into v_count from efin_budget_transfertrxline ln
+     join efin_budget_transfertrx hd on  hd.efin_budget_transfertrx_id=ln.efin_budget_transfertrx_id 
+     join c_validcombination fundscb on ln.c_validcombination_id= fundscb.c_validcombination_id 
+  	 join c_elementvalue acc on acc.c_elementvalue_id = fundscb.account_Id	
+     left join efin_budgetinquiry cost on cost.efin_budgetint_id = hd.efin_budgetint_id 
+     and fundscb.em_efin_costcombination= cost.c_validcombination_id  
+	 where ln.efin_budget_transfertrx_id = v_rev_id  and ln.current_budget<=0 and acc.em_efin_fundsonly='N'
+     and ln.increase >0 
+     and (cost.efin_budgetinquiry_id is null or cost.current_budget < ln.increase );
+     
+      IF(v_count >0) then
+      
+     update efin_budget_transfertrxline set status= case when status is null then v_fourthvalid_message 
+     else status|| ','||v_fourthvalid_message end  where efin_budget_transfertrxline_id in ( select ln.efin_budget_transfertrxline_id 
+       from efin_budget_transfertrxline ln
+     join efin_budget_transfertrx hd on  hd.efin_budget_transfertrx_id=ln.efin_budget_transfertrx_id                                                                                        
+     join c_validcombination fundscb on ln.c_validcombination_id= fundscb.c_validcombination_id 
+  	 join c_elementvalue acc on acc.c_elementvalue_id = fundscb.account_Id	
+     left join efin_budgetinquiry cost on cost.efin_budgetint_id = hd.efin_budgetint_id 
+     and fundscb.em_efin_costcombination= cost.c_validcombination_id  
+	 where ln.efin_budget_transfertrx_id = v_rev_id  and ln.current_budget<=0 and acc.em_efin_fundsonly='N'
+     and ln.increase >0 
+     and (cost.efin_budgetinquiry_id is null or cost.current_budget < ln.increase ));
+      v_returncount:=v_returncount+1;	
+      END IF;
+      
+    END IF;
+  
+  -- Check budget revision rules validation
+  select coalesce(count(efin_budgetrevrules_id),0),isbudgetrule, iswarn,percentage into v_revision_count,v_isbudgetrule, v_iswarn, v_percentage from efin_budgetrevrules where transactiontype='BR' group by isbudgetrule, iswarn,percentage limit 1;
+  
+  --raise exception '%',v_revision_count;
+  if(v_revision_count>0) then
+	  select coalesce(count(t1.efin_budget_transfertrxline_id),0)  into v_count 
+	  from  efin_budget_transfertrxline  t1  
+	  join efin_budgetinquiry t2 on   t1.c_validcombination_id= t2.c_validcombination_id  where t2.efin_budgetint_id= v_budgetint_id
+	  and t1. efin_budget_transfertrx_id  =v_rev_id  and ((t1.increase > ((t2.current_budget * v_percentage)/100)  )   
+	  or (t1.decrease > ((t2.current_budget * v_percentage)/100) ) );
+     --raise exception '%,%',v_count,v_iswarn;
+     
+  if(v_count>0) then
+	if(v_iswarn='Y') then
+		update efin_budget_transfertrxline set status='Warning:'||' '|| v_revisionrule_message  where efin_budget_transfertrxline_id  in (select t1.efin_budget_transfertrxline_id
+		from  efin_budget_transfertrxline  t1  
+		join efin_budgetinquiry t2 on   t1.c_validcombination_id= t2.c_validcombination_id  where t2.efin_budgetint_id= v_budgetint_id
+		and t1. efin_budget_transfertrx_id  =v_rev_id  and ((t1.increase > ((t2.current_budget * v_percentage)/100)  )   
+		or (t1.decrease > ((t2.current_budget * v_percentage)/100) ) ));
+        v_iswarn='1';
+       
+	end if;
+	if(v_iswarn='N') then
+		update efin_budget_transfertrxline set status='Failed'||' '||v_revisionrule_message  where efin_budget_transfertrxline_id  in (select t1.efin_budget_transfertrxline_id
+		from  efin_budget_transfertrxline  t1  
+		join efin_budgetinquiry t2 on   t1.c_validcombination_id= t2.c_validcombination_id  where t2.efin_budgetint_id= v_budgetint_id
+		and t1. efin_budget_transfertrx_id  =v_rev_id  and ((t1.increase > ((t2.current_budget * v_percentage)/100)  )   
+		or (t1.decrease > ((t2.current_budget * v_percentage)/100) ) ));
+	 v_returncount:=v_returncount+1;		
+	end if;
+	
+   end if;
+   
+  end if; 
+  --If the budget is cost then we have to do two validation 
+    --check cost decrease amount Exceed cost funds available
+	--check cost decrease amount goes below funds budget
+	
+if(v_campaign_type ='C') then
+  -- check cost decrease amount Exceed cost funds available
+ 	  select coalesce(count(ln.efin_budget_transfertrxline_id),0) into v_count
+      from efin_budget_transfertrxline ln 
+      join efin_budgetinquiry inq on ln.c_validcombination_id= inq.c_validcombination_id 
+      join efin_budget_transfertrx hd on hd. efin_budget_transfertrx_id  =ln. efin_budget_transfertrx_id
+      left join efin_budgetinquiry childinq on inq.efin_budgetinquiry_id = childinq.parent_id and childinq.ad_org_id = inq.ad_org_id 
+      where ln. efin_budget_transfertrx_id  =v_rev_id and   CASE WHEN inq.c_salesregion_id = v_bcuorg_id THEN (ln.decrease > (inq.current_budget + inq.disinc_amt - inq.disdec_amt)) and (ln.decrease > (inq.current_budget + inq.disinc_amt - inq.disdec_amt) + coalesce(childinq.funds_available,0))    
+      WHEN inq.c_salesregion_id = v_costorg_id THEN (ln.decrease > (inq.current_budget + inq.depinc_amt - inq.depdec_amt))   ELSE (ln.decrease > inq.funds_available)   END  
+	and inq.ad_client_id =v_client_id and inq.c_campaign_id =v_campaign_id  and inq.efin_budgetint_id= v_budgetint_id and ln.increase = 0;
+ 
+if(v_count>0 and (v_status ='DR' or v_status ='RW')) then
+		--raise exception '%',v_count;
+    update efin_budget_transfertrxline set status=v_firstvalid_message  where efin_budget_transfertrxline_id in (select ln.efin_budget_transfertrxline_id 
+      from efin_budget_transfertrxline ln 
+      join efin_budgetinquiry inq on ln.c_validcombination_id= inq.c_validcombination_id 
+      join efin_budget_transfertrx hd on hd. efin_budget_transfertrx_id  =ln. efin_budget_transfertrx_id
+      left join efin_budgetinquiry childinq on inq.efin_budgetinquiry_id = childinq.parent_id and childinq.ad_org_id = inq.ad_org_id 
+      where ln. efin_budget_transfertrx_id  =v_rev_id and   CASE WHEN inq.c_salesregion_id = v_bcuorg_id THEN (ln.decrease > (inq.current_budget + inq.disinc_amt - inq.disdec_amt)) and (ln.decrease > (inq.current_budget + inq.disinc_amt - inq.disdec_amt) + coalesce(childinq.funds_available,0))    
+      WHEN inq.c_salesregion_id = v_costorg_id THEN (ln.decrease > (inq.current_budget + inq.depinc_amt - inq.depdec_amt))   ELSE (ln.decrease > inq.funds_available)   END  
+       and inq.ad_client_id =v_client_id and inq.c_campaign_id =v_campaign_id  and inq.efin_budgetint_id= v_budgetint_id and ln.increase = 0);
+         
+	v_returncount:=v_returncount+1;												
+  END iF;
+													 
+	--check cost decrease amount goes below funds budget
+													 
+    select coalesce(count(ln.efin_budget_transfertrxline_id),0) into v_count from  efin_budgetinquiry cost
+     join  efin_budget_transfertrx hd on  hd.efin_budgetint_id=cost.efin_budgetint_id 
+     join  efin_budget_transfertrxline  ln on hd. efin_budget_transfertrx_id  = ln.  efin_budget_transfertrx_id  and ln.c_validcombination_id= cost.c_validcombination_id  
+     join c_validcombination fundscb on ln.c_validcombination_id= fundscb.em_efin_costcombination 
+       join c_elementvalue acc on acc.c_elementvalue_id = fundscb.account_Id	
+     join efin_budgetinquiry funds on cost.efin_budgetint_id = funds.efin_budgetint_id and fundscb.c_validcombination_id= funds.c_validcombination_id
+     where CASE WHEN cost.c_salesregion_id = v_bcuorg_id THEN (cost.current_budget-coalesce(ln.decrease,0)) < (funds.current_budget) ELSE (cost.funds_available-coalesce(ln.decrease,0)) < (funds.funds_available) END and coalesce(ln.decrease,0) >0 
+     and hd. efin_budget_transfertrx_id = v_rev_id and acc.em_efin_fundsonly='N'; 
+		
+ IF(v_count >0 and (v_status ='DR' or v_status ='RW')) then
+     --raise exception '%',v_count;
+	  update efin_budget_transfertrxline set status= case when status is null then v_secondvalid_message 
+     else status|| ','||v_secondvalid_message end  where efin_budget_transfertrxline_id in (select ln.efin_budget_transfertrxline_id from efin_budgetinquiry cost 
+        join  efin_budget_transfertrx hd on  hd.efin_budgetint_id=cost.efin_budgetint_id 
+        join  efin_budget_transfertrxline  ln on hd. efin_budget_transfertrx_id  = ln.  efin_budget_transfertrx_id  and ln.c_validcombination_id= cost.c_validcombination_id  
+        join c_validcombination fundscb on ln.c_validcombination_id= fundscb.em_efin_costcombination
+        join efin_budgetinquiry funds on cost.efin_budgetint_id = funds.efin_budgetint_id and fundscb.c_validcombination_id= funds.c_validcombination_id
+        where CASE WHEN cost.c_salesregion_id = v_bcuorg_id THEN (cost.current_budget-coalesce(ln.decrease) ) < (funds.current_budget ) ELSE (cost.funds_available-coalesce(ln.decrease,0)) < (funds.funds_available) END and coalesce(ln.decrease,0) >0 
+        and hd. efin_budget_transfertrx_id = v_rev_id);
+     
+     v_returncount:=v_returncount+1;	
+ END IF;													 
+ END iF;
+																																			  
+-- end of cost budget validion
+																																			  
+--If the budget is funds then we have to do two validation 
+    --check funds decrease amount Exceeds funds funds available
+	--check funds increase amount goes more than cost budget
+																																			  
+if(v_campaign_type ='F') then	
+
+ 	--check funds decrease amount Exceeds funds funds available
+     select coalesce(count(ln.efin_budget_transfertrxline_id),0) into v_count
+   from efin_budget_transfertrxline ln 
+   join efin_budgetinquiry inq on ln.c_validcombination_id= inq.c_validcombination_id 
+   join efin_budget_transfertrx hd on hd. efin_budget_transfertrx_id  =ln. efin_budget_transfertrx_id
+   left join efin_budgetinquiry childinq on inq.efin_budgetinquiry_id = childinq.parent_id and childinq.ad_org_id = inq.ad_org_id 
+   where ln. efin_budget_transfertrx_id  =v_rev_id and   CASE WHEN inq.c_salesregion_id = v_bcuorg_id THEN (ln.decrease > (inq.current_budget + inq.disinc_amt - inq.disdec_amt)) and (ln.decrease > (inq.current_budget + inq.disinc_amt - inq.disdec_amt) + coalesce(childinq.funds_available,0))    
+   WHEN inq.c_salesregion_id = v_costorg_id THEN (ln.decrease > (inq.current_budget + inq.depinc_amt - inq.depdec_amt))   ELSE (ln.decrease > inq.funds_available)   END  
+   and inq.ad_client_id =v_client_id and inq.c_campaign_id =v_campaign_id  and inq.efin_budgetint_id= v_budgetint_id and ln.increase = 0;                                                                                                                                          
+   -- raise exception '%', v_count;                                                                                                                                          
+
+	
+    --raise exception '%', v_count;																																		  
+ if(v_count>0 and (v_status ='DR' or v_status ='RW')) then
+  update efin_budget_transfertrxline set status=v_firstvalid_message  where efin_budget_transfertrxline_id in (select ln.efin_budget_transfertrxline_id 
+      from efin_budget_transfertrxline ln 
+      join efin_budgetinquiry inq on ln.c_validcombination_id= inq.c_validcombination_id 
+      join efin_budget_transfertrx hd on hd. efin_budget_transfertrx_id  =ln. efin_budget_transfertrx_id
+      left join efin_budgetinquiry childinq on inq.efin_budgetinquiry_id = childinq.parent_id and childinq.ad_org_id = inq.ad_org_id 
+      where ln. efin_budget_transfertrx_id  =v_rev_id and   CASE WHEN inq.c_salesregion_id = v_bcuorg_id THEN (ln.decrease > (inq.current_budget + inq.disinc_amt - inq.disdec_amt)) and (ln.decrease > (inq.current_budget + inq.disinc_amt - inq.disdec_amt) + coalesce(childinq.funds_available,0))    
+      WHEN inq.c_salesregion_id = v_costorg_id THEN (ln.decrease > (inq.current_budget + inq.depinc_amt - inq.depdec_amt))   ELSE (ln.decrease > inq.funds_available)   END  
+        and inq.ad_client_id =v_client_id and inq.c_campaign_id =v_campaign_id  and inq.efin_budgetint_id= v_budgetint_id and ln.increase = 0);
+      
+      v_returncount:=v_returncount+1;												 												 
+  END iF;
+																 
+ --check funds increase amount goes more than cost budget																																		  
+select  coalesce(count(ln.efin_budget_transfertrxline_id),0) into v_count
+  from efin_budgetinquiry funds 
+  join  efin_budget_transfertrx hd on  hd.efin_budgetint_id=funds.efin_budgetint_id 
+  join  efin_budget_transfertrxline  ln on hd. efin_budget_transfertrx_id  = ln. efin_budget_transfertrx_id  and ln.c_validcombination_id= funds.c_validcombination_id  
+  join c_validcombination fundscb on ln.c_validcombination_id= fundscb.c_validcombination_id 
+  join c_elementvalue acc on acc.c_elementvalue_id = fundscb.account_Id	
+  join efin_budgetinquiry cost on cost.efin_budgetint_id = funds.efin_budgetint_id and fundscb.em_efin_costcombination= cost.c_validcombination_id  
+  where  CASE WHEN funds.c_salesregion_id = v_bcuorg_id THEN (funds.current_budget + coalesce(ln.increase,0)) > (cost.current_budget - coalesce(coalesce(cost.legacy_spent,0)+coalesce(cost.grp_spent,0), 0))  ELSE (funds.funds_available+coalesce(ln.increase,0)) > (cost.funds_available) END and coalesce(ln.increase,0) >0 
+  and hd. efin_budget_transfertrx_id = v_rev_id and acc.em_efin_fundsonly='N'; 
+  
+ --raise exception '%',v_count;
+ IF(v_count >0) then
+     
+	 
+     update efin_budget_transfertrxline set status= case when status is null then v_secondvalid_message 
+     else status|| ','||v_secondvalid_message end   where efin_budget_transfertrxline_id in ( select ln.efin_budget_transfertrxline_id 
+         from efin_budgetinquiry funds
+        join  efin_budget_transfertrx hd on  hd.efin_budgetint_id=funds.efin_budgetint_id 
+        join  efin_budget_transfertrxline  ln on hd. efin_budget_transfertrx_id  = ln. efin_budget_transfertrx_id  and ln.c_validcombination_id= funds.c_validcombination_id  
+        join c_validcombination fundscb on ln.c_validcombination_id= fundscb.c_validcombination_id 
+        join efin_budgetinquiry cost on cost.efin_budgetint_id = funds.efin_budgetint_id and fundscb.em_efin_costcombination= cost.c_validcombination_id
+        where CASE WHEN funds.c_salesregion_id = v_bcuorg_id THEN (funds.current_budget + coalesce(ln.increase,0)) > (cost.current_budget - coalesce(coalesce(cost.legacy_spent,0)+coalesce(cost.grp_spent,0), 0))  ELSE (funds.funds_available+coalesce(ln.increase,0)) > (cost.funds_available) END and coalesce(ln.increase,0) >0 
+         and hd. efin_budget_transfertrx_id = v_rev_id);
+         
+     v_returncount:=v_returncount+1;	
+ END IF;
+																																			  
+																																			  
+END IF;	
+
+   
+    -- update other line status as 'Success'
+    update efin_budget_transfertrxline set status='Success' where status is null and efin_budget_transfertrx_id = v_rev_id;
+    
+    
+    -- failure
+    if(v_returncount>1) then
+	return 0;
+	end if;
+	--warning
+	if(v_returncount=1 and v_iswarn='1') then
+	return 2;
+	end if;
+	
+	-- success
+	return 1;
+END EFIN_BUDGETREV_COMMONVALID
+]]></body>
+    </function>
+  </database>

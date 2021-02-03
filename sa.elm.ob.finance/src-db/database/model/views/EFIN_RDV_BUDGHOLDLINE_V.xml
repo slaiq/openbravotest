@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_RDV_BUDGHOLDLINE_V">
+    <view name="EFIN_RDV_BUDGHOLDLINE_V"><![CDATA[SELECT ln.efin_rdv_budgholdline_id AS efin_rdv_budgholdline_v_id, ln.ad_client_id, ln.ad_org_id, ln.isactive, ln.created, ln.createdby, ln.updated, ln.updatedby, acc.account_id, acc.c_campaign_id, acc.c_validcombination_id, hd.c_order_id, hd.efin_rdvtxn_id, ln.encum_cost_amount, ln.encum_remaining_amount, ln.efin_rdv_hold_types_id, ln.hold_amount, ln.release_amount, ln.remaining_amount, hd.description FROM efin_rdv_budgholdline ln JOIN efin_rdv_budghold hd ON ln.efin_rdv_budghold_id = hd.efin_rdv_budghold_id JOIN c_validcombination acc ON acc.c_validcombination_id = ln.c_validcombination_id WHERE hd.status = 'APP' AND ln.remaining_amount > 0]]></view>
+  </database>

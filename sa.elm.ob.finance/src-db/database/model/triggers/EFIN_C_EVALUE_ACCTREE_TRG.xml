@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_C_EVALUE_ACCTREE_TRG">
+    <trigger name="EFIN_C_EVALUE_ACCTREE_TRG" table="C_ELEMENTVALUE" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[         cur_parameter RECORD;
+         v_count NUMBER;
+         v_org_id VARCHAR2(32);
+         v_client VARCHAR2(32);
+         v_created DATE without time zone;
+         v_createdby VARCHAR2(32);
+         v_updated DATE without time zone;
+         v_updatedby VARCHAR2(32);
+      BEGIN 
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+     IF (INSERTING) or (UPDATING) THEN
+                      For cur_parameter in (
+                            SELECT Efin_Security_Rules_id,fromcode,tocode
+                from Efin_Security_Ruleslines 
+                where fromcode<=to_number(:new.value) AND tocode>=to_number(:new.value) and type='INC'
+                      )
+
+            LOOP 
+            --pre validation
+             select count(c_elementvalue_id) into v_count from efin_security_rules_act
+             where efin_security_rules_id=cur_parameter.Efin_Security_Rules_id and c_elementvalue_id=:new.c_elementvalue_id;
+                   if(v_count=0) then
+                  select ad_client_id, ad_org_id, 
+              created, createdby, updated, updatedby into v_client,v_org_id,v_created,v_createdby,v_updated,v_updatedby from efin_security_rules 
+              where efin_security_rules_id=cur_parameter.Efin_Security_Rules_id ;
+              
+                 --insert record into security rule account tab
+                 
+                   INSERT INTO public.efin_security_rules_act(
+                efin_security_rules_act_id, ad_client_id, ad_org_id, isactive, 
+                created, createdby, updated, updatedby, c_elementvalue_id, efin_security_rules_id, 
+                efin_manual)
+                       VALUES (get_uuid(), v_client, v_org_id, 'Y', 
+                now(), v_createdby, now(), v_updatedby, :new.c_elementvalue_id, cur_parameter.efin_security_rules_id, 
+                'N');
+
+              end if;
+              END LOOP;
+          
+ 
+     END IF;
+              END EFIN_C_EVALUE_ACCTREE_TRG
+]]></body>
+    </trigger>
+  </database>

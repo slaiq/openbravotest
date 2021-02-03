@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="3478696385444B5DA3E470669E345451" identifier="Custody Transfer">
+    <id>3478696385444B5DA3E470669E345451</id>
+    <active>true</active>
+    <creationDate transient="true">2018-10-30T16:25:02.357Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-07-01T18:45:53.539Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Custody Transfer</name>
+    <tab id="CB9A2A4C6DB24FD19D542A78B07ED6C1" entity-name="ADTab" identifier="Custody Transfer - Custody Transfer"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+  And ((ad_role_id is not null  and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>CT</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_BUDGETLINE_TRG">
+    <function name="EFIN_BUDGETLINE_TRG" type="VARCHAR">
+      <body><![CDATA[status VARCHAR(60);
+BEGIN
+
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF TG_OP = 'DELETE' THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+    
+	IF TG_OP = 'DELETE' THEN 
+		select hd.status into status from efin_budgetlines ln  left join efin_budget hd on hd.efin_budget_id=ln.efin_budget_id
+		where efin_budgetlines_id=OLD.efin_budgetlines_id;
+		IF(status<>'OP') THEN
+			RAISE_APPLICATION_ERROR(-20501,'@EFIN_BudgetLinesCannotDelete@');
+		END IF;   
+	END IF;   
+   
+IF TG_OP = 'DELETE' THEN RETURN OLD; ELSE RETURN NEW; END IF;
+END EFIN_BUDGETLINE_TRG
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="4B737AD9AB8949C3912C033508CCB223" identifier="Funds encumbrance not created">
+    <id>4B737AD9AB8949C3912C033508CCB223</id>
+    <active>true</active>
+    <name>Funds encumbrance not created in PI</name>
+    <tab id="290" entity-name="ADTab" identifier="Header - Purchase Invoice"/>
+    <filterClause>ad_client_id=@#AD_CLIENT_ID@</filterClause>
+    <sql>SELECT c_invoice_id AS referencekey_id,
+     documentno AS  record_id,
+     '0' AS ad_role_id,
+     NULL AS ad_user_id,
+    ' funds encumbrance not created for this purchase invoice ' || documentno  AS description,
+     'Y' AS isActive,
+      ad_org_id, 
+      ad_client_id, 
+      now() AS created,
+      '0' AS createdBy,  
+      now() AS updated,
+      '0' AS updatedBy
+      FROM c_invoice 
+ WHERE EM_Efin_Isreserved='N' and docstatus ='CO' and 
+ ((EM_Efin_Budget_Type ='C' and (EM_Efin_Manualencumbrance_ID is null or 
+                                      EM_Efin_Funds_Encumbrance_ID is null))
+ or (EM_Efin_Budget_Type ='F' and EM_Efin_Manualencumbrance_ID is null))</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+</ob:Openbravo>

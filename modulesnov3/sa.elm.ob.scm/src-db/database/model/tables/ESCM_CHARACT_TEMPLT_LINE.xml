@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+  <database name="TABLE ESCM_CHARACT_TEMPLT_LINE">
+    <table name="ESCM_CHARACT_TEMPLT_LINE" primaryKey="ESCM_CH_TEM_LN_PK">
+      <column name="ESCM_CHARACT_TEMPLT_LINE_ID" primaryKey="true" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_CLIENT_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_ORG_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="ISACTIVE" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[Y]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="LINE" primaryKey="false" required="true" type="DECIMAL" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="M_CHARACTERISTIC_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="DESCRIPTION" primaryKey="false" required="false" type="VARCHAR" size="255" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="ESCM_CHARACT_TEMPLT_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="M_CHARACTERISTIC" name="ESCM_CH_TEM_LN_CHARC">
+        <reference local="M_CHARACTERISTIC_ID" foreign="M_CHARACTERISTIC_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_CLIENT" name="ESCM_CH_TEM_LN_CLIENTID">
+        <reference local="AD_CLIENT_ID" foreign="AD_CLIENT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="ESCM_CHARACT_TEMPLT" name="ESCM_CH_TEM_LN_HID">
+        <reference local="ESCM_CHARACT_TEMPLT_ID" foreign="ESCM_CHARACT_TEMPLT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_ORG" name="ESCM_CH_TEM_LN_ORGID">
+        <reference local="AD_ORG_ID" foreign="AD_ORG_ID"/>
+      </foreign-key>
+      <unique name="ESCM_CH_NAME_UNI">
+        <unique-column name="M_CHARACTERISTIC_ID"/>
+        <unique-column name="AD_CLIENT_ID"/>
+        <unique-column name="ESCM_CHARACT_TEMPLT_ID"/>
+      </unique>
+    </table>
+  </database>

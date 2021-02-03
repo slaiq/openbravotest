@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION ESCM_BGOLDRECORDUPDATION">
+    <function name="ESCM_BGOLDRECORDUPDATION" type="NULL">
+      <body><![CDATA[v_currencyId VARCHAR2(32);
+	v_supplierId VARCHAR2(32);
+	v_bidmmgmtID VARCHAR2(32);
+	v_totalAmt NUMBER;
+	v_financialyear VARCHAR(60);
+	Cur_bg RECORD;
+	v_bgrate NUMBER;
+	v_contactname  VARCHAR2(32); 
+	v_expireIn  NUMBER;
+  BEGIN
+
+	FOR Cur_bg in (select * from escm_bankguarantee_detail where isbgworkbench  ='N' )
+		LOOP
+		      --raise  notice '%escm_proposalmgmt_id',Cur_bg.escm_proposalmgmt_id;
+			IF(Cur_bg.escm_proposalmgmt_id is not null ) THEN	
+	                     -- GET PROPOSAL DETAILS
+				select pro.supplier,pro.escm_bidmgmt_id, sum(ln.line_total), pro.c_currency_id 
+				into v_supplierId ,v_bidmmgmtID,v_totalAmt,v_currencyId
+				from escm_proposalmgmt  pro
+				join escm_proposalmgmt_line ln on ln.escm_proposalmgmt_id = pro.escm_proposalmgmt_id
+				where    pro.escm_proposalmgmt_id =Cur_bg.escm_proposalmgmt_id 
+				group by pro.supplier,pro.escm_bidmgmt_id ,pro.c_currency_id ;
+				
+			--raise  notice '%bankguaranteetype',Cur_bg.bankguaranteetype;
+			--GET BG RATE BASED ON BANK GUARANTEE TYPE
+			IF(Cur_bg.bankguaranteetype='IBG')THEN
+			
+			v_bgrate :=  (select  attrvalue:: NUMBER from escm_bidtermcdn bidterm where
+				     bidterm.escm_bidmgmt_id = v_bidmmgmtID  order by created desc limit 1);
+
+			ELSE IF (Cur_bg.bankguaranteetype='FBG')THEN
+
+			v_bgrate := (SELECT name :: NUMBER from escm_deflookups_typeln  where escm_deflookups_type_id 
+			            = ( select  escm_deflookups_type_id from escm_deflookups_type where reference ='PRC_PARAM'  
+				   and ad_client_id= Cur_bg.ad_client_id) and ad_client_id = Cur_bg.ad_client_id 
+				   order by created desc  limit 1);
+			END IF;
+			END IF; 
+			--raise  notice '%v_bgrate',v_bgrate;
+			
+			--CALCULATE THE EXPRIE IN BASED ON BG START DATE AND EXPIRY DATE
+			select count(distinct gregorian_date) into v_expireIn from eut_hijri_dates  where   gregorian_date > Cur_bg.bgstartdateh  and gregorian_date <= Cur_bg.expirydateh  
+			and ad_client_id= Cur_bg.ad_client_id;
+			--raise  notice '%v_expireIn',v_expireIn;
+			
+			-- CALCULATE THE FINANCIAL YEAR
+			select coalesce(y.description,y.year) into v_financialyear from c_period p 
+			join c_year y on y.c_year_id = p.c_year_id where  Cur_bg.created between startdate 
+			and enddate and p.ad_client_id=Cur_bg.ad_client_id;
+			--raise  notice '%v_financialyear',v_financialyear;
+
+		
+			-- GET BG SPECIALIST ROLE
+			select  (case when visibleat_role_id is not null  then ( select  C_BPartner_ID from ad_user  
+			where ad_user_id = ( select ad_user_id from ad_user_roles   where ad_role_id =pd.visibleat_role_id 
+			order by created asc limit 1 ) ) when ad_user_id is not null then ( select  usr.C_BPartner_ID from ad_user usr 
+			where usr.ad_user_id= pd.ad_user_id )  end ) into v_contactname    from ad_preference  pd where  pd.ispropertylist='Y' 
+			and pd.property='ESCM_BGSpecialist_Role';
+			--raise  notice '%v_contactname',v_contactname;
+			
+			-- update the bank guarantee values
+			update escm_bankguarantee_detail set document_type ='P' , c_bpartner_id=v_supplierId,
+			escm_bidmgmt_id= v_bidmmgmtID,document_amount=v_totalAmt,financial_year =v_financialyear ,
+			c_currency_id=v_currencyId , exprire_in= v_expireIn,bank_percentage =100,
+			multi_banks='N' , foreign_bank='N', contactname=v_contactname, initialbg= v_bgrate,
+			document_no= Cur_bg.escm_proposalmgmt_id,calculated_amt=round((v_totalAmt*(v_bgrate/100)),2)
+			where escm_bankguarantee_detail_id = Cur_bg.escm_bankguarantee_detail_id;
+	END IF;
+	END LOOP;
+END ESCM_BGOLDRECORDUPDATION
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_DELPROCESS_PREFERENCE">
+    <function name="EUT_DELPROCESS_PREFERENCE" type="VARCHAR">
+      <parameter name="clientid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_recalculate" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): Poongodi 23-10-2017
+************************************************************************/
+  
+   cur_record RECORD;
+   cur_pref RECORD;
+   v_prefCount NUMBER;
+
+BEGIN
+
+     for cur_record in (select dl.TO_DATE as enddate,dll.eut_docapp_delegateln_id as delegation,dll.ad_user_id as touser,dll.ad_role_id as torole,
+                       pr.ad_org_id as org,pr.isactive as active,pr.createdby as createdby,pr.updatedby as updatedby,dll.document_type as doctype,
+                       pr.ad_window_id as windowid,pr.attribute as attr,pr.value as value,pr.property as property,pr.ispropertylist as plist,
+                       pr.visibleat_client_id as visibleclient,pr.visibleat_org_id as visibleorg,pr.selected as selection,pr.ad_module_id as module,pr.inherited_from as inherited 
+                       from ad_preference pr
+                       left join eut_docapp_delegate dl on (dl.ad_role_id = pr.visibleat_role_id or pr.visibleat_role_id is null)
+                       join eut_docapp_delegateln dll on dl.eut_docapp_delegate_id = dll.eut_docapp_delegate_id
+                       where TO_DATE(to_char(from_date,'yyyy-MM-dd'),'yyyy-MM-dd') <= 
+                       TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd')
+                       and TO_DATE(to_char(TO_DATE,'yyyy-MM-dd'),'yyyy-MM-dd') >= 
+                       TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd') 
+                       and pr.ad_client_id = ClientId and dl.processed = 'N'
+                       and pr.value='Y' and case when (pr.visibleat_role_id is not null) then (pr.ad_user_id=dl.ad_user_id or pr.ad_user_id is null)
+		       else (pr.ad_user_id=dl.ad_user_id ) end)
+
+        loop
+
+	select count(*) into v_prefCount from ad_preference where property = cur_record.property and ad_user_id = cur_record.touser and
+	visibleat_role_id = cur_record.torole and ad_client_id = ClientId and value='Y';
+
+	IF (v_prefCount = 0)
+	THEN
+		INSERT INTO ad_preference(
+		    ad_preference_id, ad_client_id, ad_org_id, isactive, 
+		    createdby, updatedby, ad_window_id, ad_user_id, attribute, 
+		    value, property, ispropertylist, visibleat_client_id, visibleat_org_id, 
+		    visibleat_role_id, selected, ad_module_id, inherited_from, em_eut_docapp_delegateln_id, 
+		    em_eut_enddate)
+		VALUES (get_uuid(),ClientId ,cur_record.org,cur_record.active, cur_record.createdby,cur_record.updatedby, 
+		    cur_record.windowid, cur_record.touser, cur_record.attr, cur_record.value, cur_record.property, cur_record.plist, 
+		    cur_record.visibleclient, cur_record.visibleorg, cur_record.torole, cur_record.selection, cur_record.module, 
+		    cur_record.inherited, cur_record.delegation, cur_record.enddate);
+	END IF;
+ end loop;
+  RETURN cur_record.delegation;
+END EUT_DELPROCESS_PREFERENCE
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="9AAD527FB5BA477FA4545695A283D4CE" identifier="RDV Advance Alert">
+    <id>9AAD527FB5BA477FA4545695A283D4CE</id>
+    <active>true</active>
+    <name>RDV Advance Alert</name>
+    <tab id="FDBA56F9D57A4F988F4CC6F3577428B9" entity-name="ADTab" identifier="Advance Transaction Version - Receipt Delivery Verification"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+And ((ad_role_id is not null and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>RDVADV</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+  <ADAlertRule id="DE21AB92FA124293882AFD5E0DC1FA58" identifier="RDV Transaction Alert">
+    <id>DE21AB92FA124293882AFD5E0DC1FA58</id>
+    <active>true</active>
+    <name>RDV Transaction Alert</name>
+    <tab id="A0F3A7D17A834A93B3BD4D2C40E77AFE" entity-name="ADTab" identifier="Transaction versions - Receipt Delivery Verification"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+And ((ad_role_id is not null and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>RDV</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

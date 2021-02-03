@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_VALIDCOMBINATION">
+    <table name="C_VALIDCOMBINATION" primaryKey="C_VALIDCOMBINATION_KEY">
+      <column name="EM_EFIN_UNIQUECODE" primaryKey="false" required="false" type="VARCHAR" size="2000" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_UNIQUECODENAME" primaryKey="false" required="false" type="VARCHAR" size="2000" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_ISSAVED" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_ACCOUNTTYPE" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_DIMENSIONTYPE" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_ACTIVATEALL" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_UNIQUECODEFILTER" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_ISDEPTFUND" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_ISMANUAL" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[Y]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_COSTCOMBINATION" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_FUNDSCOMBINATION" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_LEGACYCODE" primaryKey="false" required="false" type="VARCHAR" size="250" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_ACCOUNTPARENT" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="C_ELEMENTVALUE" name="EM_EFIN_ACCOUNTPARENT">
+        <reference local="EM_EFIN_ACCOUNTPARENT" foreign="C_ELEMENTVALUE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_VALIDCOMBINATION" name="EM_EFIN_VALIDCOMBINATION_COST">
+        <reference local="EM_EFIN_COSTCOMBINATION" foreign="C_VALIDCOMBINATION_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_VALIDCOMBINATION" name="EM_EFIN_VALIDCOMBINATION_FUNDS">
+        <reference local="EM_EFIN_FUNDSCOMBINATION" foreign="C_VALIDCOMBINATION_ID"/>
+      </foreign-key>
+      <index name="EM_EFIN_VALIDCOMB_ACCT" unique="false">
+        <index-column name="ACCOUNT_ID"/>
+      </index>
+      <index name="EM_EFIN_VALIDCOMB_ACTIVITY" unique="false">
+        <index-column name="C_ACTIVITY_ID"/>
+      </index>
+      <index name="EM_EFIN_VALIDCOMB_BP" unique="false">
+        <index-column name="C_BPARTNER_ID"/>
+      </index>
+      <index name="EM_EFIN_VALIDCOMB_CAMPAIGN" unique="false">
+        <index-column name="C_CAMPAIGN_ID"/>
+      </index>
+      <index name="EM_EFIN_VALIDCOMB_ORG" unique="false">
+        <index-column name="AD_ORG_ID"/>
+      </index>
+      <index name="EM_EFIN_VALIDCOMB_PROJ" unique="false">
+        <index-column name="C_PROJECT_ID"/>
+      </index>
+      <index name="EM_EFIN_VALIDCOMB_SALESREG" unique="false">
+        <index-column name="C_SALESREGION_ID"/>
+      </index>
+      <index name="EM_EFIN_VALIDCOMB_UNIQUECODE" unique="false">
+        <index-column name="EM_EFIN_UNIQUECODE"/>
+      </index>
+      <index name="EM_EFIN_VALIDCOMB_USR1" unique="false">
+        <index-column name="USER1_ID"/>
+      </index>
+      <index name="EM_EFIN_VALIDCOMB_USR2" unique="false">
+        <index-column name="USER2_ID"/>
+      </index>
+      <unique name="EM_EFIN_UNIQUECODE_UNIQUE">
+        <unique-column name="EM_EFIN_UNIQUECODE"/>
+        <unique-column name="AD_CLIENT_ID"/>
+      </unique>
+    </table>
+  </database>

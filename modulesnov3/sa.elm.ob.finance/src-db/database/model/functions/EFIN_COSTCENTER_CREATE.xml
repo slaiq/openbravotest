@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_COSTCENTER_CREATE">
+    <function name="EFIN_COSTCENTER_CREATE" type="NULL">
+      <parameter name="pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): Priyanka Ranjan ,Gopalakrishnan 
+************************************************************************/
+v_elementvalue_id VARCHAR2(32);
+v_org_id VARCHAR2(32);
+v_salesregion_id VARCHAR2(32);
+v_client_id VARCHAR2(32);
+v_user_id VARCHAR2(32);
+v_ResultStr VARCHAR2(2000):='';
+v_Message VARCHAR2(2000):='';
+v_org_uuid_id VARCHAR2(32);
+v_BCU VARCHAR2(32);
+V_BC_Costcenter VARCHAR2(32);
+V_HQorg_id VARCHAR2(32);
+v_elementvalueparent_id VARCHAR2(32);
+v_enable CHAR(1);
+v_countorg NUMBER;
+v_counthqorg NUMBER;
+v_bcu_count NUMBER;
+v_bcucost_count NUMBER;
+
+
+
+TYPE RECORD IS REF CURSOR;
+Cur_Account RECORD;
+Cur_Org RECORD;
+Cur_Dept RECORD;
+Cur_ParentAccount RECORD;
+
+BEGIN
+
+--get client id
+SELECT  i.ad_client_id,i.AD_User_ID into v_client_id,v_user_id
+      FROM AD_PInstance i 
+      WHERE i.AD_PInstance_ID=PInstance_ID ;
+
+SELECT agency_hq_org, HQ_Budgetcontrolunit, budgetcontrol_costcenter into V_HQorg_id, v_BCU, V_BC_Costcenter
+         from Efin_Budget_Ctrl_Param where ad_client_id = v_client_id ;
+--element,org all - insert
+FOR Cur_Org IN (
+
+		select main.mainev,main.mainorg from
+		(select ev.c_elementvalue_id as mainev,org.ad_org_id as mainorg
+		 from c_elementvalue ev,ad_org org
+		where org.ad_org_id <>'0' and ev.ad_client_id=v_client_id
+		and org.em_ehcm_orgtyp  in (select ehcm_org_type_id from ehcm_org_type where value ='ORG'
+		 and ad_client_id=v_client_id) and 
+		 org.isactive='Y'  and ev.isactive='Y' and ev.accounttype ='E'
+		) as main
+
+		left join 
+		(
+		select ev.c_elementvalue_id as cev,o.org as corg,o.efin_costorgnization_id from c_elementvalue ev
+		join efin_costorgnization o on ev.c_elementvalue_id=o.c_elementvalue_id
+		where  ev.ad_client_id=v_client_id
+		) as cc on cc.cev=main.mainev and main.mainorg=cc.corg
+		where cc.cev is null and cc.efin_costorgnization_id is null
+)
+
+LOOP 
+             
+		INSERT INTO efin_costorgnization(
+		    efin_costorgnization_id, ad_client_id, ad_org_id, isactive,
+		    createdby, updatedby, org, enabledisable, c_elementvalue_id)
+	       VALUES (get_uuid(), v_client_id, 0, 'N',
+		    v_user_id, v_user_id, Cur_Org.mainorg, 'N', Cur_Org.mainev);
+
+END LOOP;
+--insert Dept Cursor
+FOR Cur_Dept IN (
+
+		select inserdep.efin_costorgnization_id as refcc,inserdep.c_salesregion_id,inserdep.enble as enable from
+		(select cc1.efin_costorgnization_id,maindep.c_elementvalue_id,maindep.ad_org_id,maindep.c_salesregion_id,maindep.enble
+		from 
+		(
+		--org ,element,depart all
+		select ev.c_elementvalue_id,mainorgdep.ad_org_id,mainorgdep.c_salesregion_id ,mainorgdep.enble
+		from c_elementvalue ev,
+		(
+		--org dep combination with all except hq Organization dept
+		select mainorg.ad_org_id,maindep.c_salesregion_id,'N' as enble from ad_org mainorg
+		join c_salesregion maindep on maindep.ad_org_id=mainorg.ad_org_id 
+		where mainorg.ad_client_id=v_client_id
+		and mainorg.isactive='Y' and maindep.isactive='Y'
+		and mainorg.ad_org_id <>'0' and  mainorg.em_ehcm_orgtyp  in (select ehcm_org_type_id from ehcm_org_type where value ='ORG'
+		 and ad_client_id=v_client_id) and mainorg.ad_org_id != V_HQorg_id
+		--union for 999 cost centre
+		union 
+		select mainorg.ad_org_id,maindep.c_salesregion_id,'Y' as enble from ad_org mainorg
+		join c_salesregion maindep on maindep.c_salesregion_id=V_BC_Costcenter
+		where mainorg.ad_client_id=v_client_id
+		and mainorg.isactive='Y' and maindep.isactive='Y'
+		and mainorg.ad_org_id <>'0' and  mainorg.em_ehcm_orgtyp  in (select ehcm_org_type_id from ehcm_org_type where value ='ORG'
+		 and ad_client_id=v_client_id)
+		---union for 990 only in hq organization-control unit
+		union
+
+		select mainorg.ad_org_id,maindep.c_salesregion_id,'Y' as enble
+		from ad_org mainorg
+		join c_salesregion maindep on maindep.c_salesregion_id=v_BCU
+		where mainorg.ad_org_id=V_HQorg_id
+
+                -- union for all cost center(dept) in hq organization-control unit - enable 'Y'
+                --org dep combination for hq organization-control unit
+		union
+
+		select mainorg.ad_org_id,maindep.c_salesregion_id,'Y' as enble
+		from ad_org mainorg
+		join c_salesregion maindep on maindep.ad_org_id=mainorg.ad_org_id
+		where mainorg.ad_org_id=V_HQorg_id and mainorg.isactive='Y' and maindep.isactive='Y'
+		 
+		) as mainorgdep
+		where   ev.isactive='Y' and  ev.ad_client_id=v_client_id and ev.accounttype ='E') as maindep
+
+		--org,account -to identify insert org pk 
+		left join 
+		(select ev.c_elementvalue_id as cev,o.org as corg,o.efin_costorgnization_id
+		 from c_elementvalue ev
+		join efin_costorgnization o on ev.c_elementvalue_id=o.c_elementvalue_id
+		where ev.ad_client_id=v_client_id and ev.isactive='Y' ) as cc1 on 
+		cc1.cev=maindep.c_elementvalue_id and cc1.corg=maindep.ad_org_id ) as inserdep
+
+		--org.dept,account.all - insert
+		left join 
+		(select cc.c_salesregion_id,o.efin_costorgnization_id 
+		from efin_costorgnization o 
+		join efin_costcenters cc on cc.efin_costorgnization_id=o.efin_costorgnization_id
+		where o.ad_client_id=v_client_id ) as existcc1 on existcc1.c_salesregion_id=inserdep.c_salesregion_id
+		and inserdep.efin_costorgnization_id=existcc1.efin_costorgnization_id
+		where 
+		existcc1.c_salesregion_id is null and existcc1.efin_costorgnization_id is null
+
+)
+LOOP
+		--Insert records in Cost Center tab in Cost Center Linking
+		INSERT INTO efin_costcenters(
+		efin_costcenters_id, ad_client_id, ad_org_id, isactive, 
+		createdby, updatedby, c_salesregion_id, linkedindicator, 
+		enabledisable, efin_costorgnization_id)
+		VALUES (get_uuid(), v_client_id, 0, Cur_Dept.enable,
+		v_user_id, v_user_id, Cur_Dept.c_salesregion_id, 'N', 
+		'N', Cur_Dept.refcc);   
+		
+END LOOP;
+	--update enable flag in cost center organization for 
+        update efin_costorgnization set enabledisable='Y',isactive='Y' where org =V_HQorg_id;
+        
+     -- update department fund with 'N' for all child accounts
+    --  update c_elementvalue set em_efin_isdeptfund='N' where issummary ='N' and accounttype ='E';
+
+         -- get parent account id
+      --   FOR Cur_ParentAccount IN
+       --  (select c_elementvalue_id from c_elementvalue where issummary ='Y' and em_efin_isdeptfund='Y' and accounttype ='E'
+        --  )
+        --- LOOP 
+        --     v_elementvalueparent_id:=Cur_ParentAccount.c_elementvalue_id;
+             --update department fund with 'Y' in all child accounts for that parent account
+            -- update c_elementvalue set em_efin_isdeptfund='Y' where c_elementvalue_id in (select node_id from ad_treenode where parent_id=v_elementvalueparent_id);
+
+       --  END LOOP;
+
+
+    
+        
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 1, v_Message) ;
+    EXCEPTION
+WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 0, v_ResultStr) ;
+  RETURN;
+END EFIN_COSTCENTER_CREATE
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,369 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_RDVLINE_UPDATEAMT">
+    <trigger name="EFIN_RDVLINE_UPDATEAMT" table="EFIN_RDVTXNLINE" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_matchamt NUMBER;
+v_penaltyamt NUMBER;
+v_advamt NUMBER;
+v_totdeduct NUMBER;
+v_netmatch NUMBER;
+v_penamt NUMBER; 
+cur_penaltyaction record;
+cur_holdaction record;
+v_penaltydiff NUMBER;
+v_holdamt NUMBER;
+v_holddiff NUMBER;
+v_taxAmt NUMBER;
+v_prec NUMBER;
+v_clientId VARCHAR(32);
+v_istax character(1);
+ v_taxpercent NUMBER;
+ v_isincluded character(1);
+ v_amtwithoutTax NUMBER;
+ v_taxFactor NUMBER;
+ v_taxAmount NUMBER;
+ v_matchqty NUMBER;
+ v_rdvOrderId CHARACTER VARYING(32);
+ v_latestOrderId CHARACTER VARYING(32);
+ v_podate timestamp without time zone;
+ v_verdate timestamp without time zone;
+ v_taxid  CHARACTER VARYING(32);
+ v_validtaxtodate timestamp without time zone;
+ v_isinclusive character(1);
+ v_newtaxpercent NUMBER;
+ v_newtax_netmatchamt NUMBER;
+ v_oldtaxpercent NUMBER;
+ v_isnewtaxnetmatchupdate  character(1);
+ v_newtax_taxamt NUMBER;
+ v_poreceiptdate timestamp without time zone;
+ v_isadvance character(1);
+ v_receivetype   CHARACTER VARYING(32);
+BEGIN
+
+v_matchamt :=0;
+v_matchqty :=0;
+v_penaltyamt :=0;
+v_advamt :=0;
+v_totdeduct :=0;
+v_netmatch :=0;
+v_penamt :=0;
+v_penaltydiff :=0;
+v_holdamt :=0;
+v_holddiff :=0;
+v_taxAmt :=0;
+v_taxpercent:=0;
+v_amtwithoutTax:=0;
+v_taxFactor:=0;
+v_taxAmount:=0;
+v_newtaxpercent:=0;
+v_newtax_netmatchamt:=0;
+v_oldtaxpercent:=0;
+v_isnewtaxnetmatchupdate:='N';
+v_newtax_taxamt:=0;
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+  -- To get current Client ID 
+  Select ad_client_id INTO v_clientId from efin_rdvtxnline 
+  where efin_rdvtxnline_id = :new.efin_rdvtxnline_id;
+  -- To get Standarrd Precision from Currency by using Current Client ID
+  select stdPrecision INTO v_prec from c_currency where c_currency_id 
+  in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+  
+  -- Insert/Update/Delete Operation 
+  IF UPDATING THEN
+    
+    IF(:old.match_amt <> :new.match_amt 
+            and :new.match_amt <> round(:new.match_amt,v_prec)
+        ) THEN
+          :new.match_amt := round(:new.match_amt,v_prec);
+          update efin_rdvtxnline set match_amt = round(:new.match_amt,v_prec) where efin_rdvtxnline_id = :NEW.efin_rdvtxnline_id;
+        END IF;
+         IF(:old.match_qty <> :new.match_qty 
+            and :new.match_qty <> round(:new.match_qty,v_prec)) THEN
+          :new.match_qty := round(:new.match_qty,v_prec);
+          update efin_rdvtxnline set match_qty = round(:new.match_qty,v_prec) where efin_rdvtxnline_id = :NEW.efin_rdvtxnline_id;
+        END IF;
+      IF(:old.Netmatch_Amt <> :new.Netmatch_Amt 
+            and :new.Netmatch_Amt <> round(:new.Netmatch_Amt,v_prec)) THEN
+          :new.Netmatch_Amt := round(:new.Netmatch_Amt,v_prec);
+          update efin_rdvtxnline set Netmatch_Amt = round(:new.Netmatch_Amt,v_prec) where efin_rdvtxnline_id = :NEW.efin_rdvtxnline_id;
+        END IF;
+
+    if :old.match_amt <> :new.match_amt then
+      v_matchamt = ROUND(:new.match_amt - :old.match_amt , v_prec);
+      update efin_rdvtxn set match_amt = ROUND(match_amt + v_matchamt,v_prec) where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+    end if;
+          if :old.line_taxamt <> :new.line_taxamt then
+      v_taxAmt = ROUND(:new.line_taxamt - :old.line_taxamt , v_prec);
+      update efin_rdvtxn set line_taxamt = ROUND(line_taxamt + v_taxAmt , v_prec) where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+    end if;
+    
+    if :old.penalty_amt <> :new.penalty_amt then
+      v_penaltyamt = ROUND(:new.penalty_amt - :old.penalty_amt,v_prec);
+      update efin_rdvtxn set penalty_amt = ROUND(penalty_amt + v_penaltyamt,v_prec) where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+      update efin_rdvtxnline set total_deduct = ROUND(:new.penalty_amt + :new.adv_deduct + :new.holdamt , v_prec), netmatch_amt= ROUND(:new.match_amt - (:new.penalty_amt + :new.adv_deduct + :new.holdamt) , v_prec) 
+      where efin_rdvtxnline_id = :new.efin_rdvtxnline_id;
+    end if;
+
+    if :old.adv_deduct <> :new.adv_deduct then
+      v_advamt = ROUND(:new.adv_deduct - :old.adv_deduct,v_prec);
+      update efin_rdvtxn set adv_deduct = ROUND(adv_deduct + v_advamt ,v_prec)where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+      update efin_rdvtxnline set total_deduct = ROUND(:new.penalty_amt + :new.adv_deduct + :new.holdamt ,v_prec), 
+      netmatch_amt= ROUND(:new.match_amt - (:new.penalty_amt + :new.adv_deduct + :new.holdamt) ,v_prec)
+      where efin_rdvtxnline_id = :new.efin_rdvtxnline_id;
+    end if;
+
+    if :old.total_deduct <> :new.total_deduct then
+      v_totdeduct = ROUND(:new.total_deduct - :old.total_deduct, v_prec);
+      update efin_rdvtxn set tot_deduct = ROUND(tot_deduct + v_totdeduct ,v_prec)where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+    end if;
+
+    if :old.netmatch_amt <> :new.netmatch_amt then
+        
+        select  isadvancetransaction into v_isadvance from efin_rdvtxn  where efin_rdvtxn_id=:new.efin_rdvtxn_id;
+          --Net Match-New Tax CALCULATION
+      -- fetching version date in rdv version
+        select txnver_date into v_verdate from efin_rdvtxn where efin_rdvtxn_id=:new.efin_rdvtxn_id;
+                
+                select  em_escm_receivetype into v_receivetype from c_order  where c_order_id=(
+                select c_order_id  from efin_rdv where efin_rdv_id =(
+                    select efin_rdv_id from efin_rdvtxn where efin_rdvtxn_id=:new.efin_rdvtxn_id ));
+                    
+              -- fetching  minimum po receipt date 
+              select min(dateacct) into v_poreceiptdate from m_inout  where m_inout_id in (
+              select   m_inout_id from escm_initialreceipt where escm_initialreceipt_id in (
+              select escm_initialreceipt_id from efin_rdvtxnline_ref where efin_rdvtxnline_id in (
+                  select efin_rdvtxnline_id from efin_rdvtxnline where efin_rdvtxn_id=:new.efin_rdvtxn_id) 
+                  and ((v_receivetype='QTY' and available_qty >0)  or ( v_receivetype='AMT'  and available_amt>0)) ));
+       
+   
+      --raise exception '%',v_poreceiptdate;
+            --- if version date is after june 30 then 
+        if((v_poreceiptdate is not null and to_char(v_poreceiptdate,'yyyy-MM-dd') >='2020-07-01' and v_isadvance='N')
+                 or (v_verdate is not null and to_char(v_verdate,'yyyy-MM-dd') >='2020-07-01' and v_isadvance='Y') or (:new.newtax_netmatch_amt >0) )then 
+
+          -- fetching latest order id
+                    select case when  em_escm_base_order is null then c_order_id else  em_escm_base_order end into v_rdvOrderId  
+                    from c_order where c_order_id = (
+                    select c_order_id  from efin_rdv where efin_rdv_id =(
+                    select efin_rdv_id from efin_rdvtxn where efin_rdvtxn_id=:new.efin_rdvtxn_id ));
+
+          --raise exception '%',v_rdvOrderId;
+
+                    -- fetching latest order date and tax method id 
+                    select c_order_id , case when EM_Escm_Signaturedate is null then dateordered else EM_Escm_Signaturedate end as dateordered, em_escm_tax_method_id into v_latestOrderId,v_podate ,v_taxid from 
+                    c_order where (c_order_id=v_rdvOrderId or em_escm_base_order=v_rdvOrderId )
+                    and em_escm_appstatus='ESCM_AP' order by em_escm_revision desc limit 1 ;
+
+            if(v_taxid is not null) then 
+              --raise exception '%',v_podate;
+              -- if order date in between of may 11 to jun 30 
+              if((to_char(v_podate,'yyyy-MM-dd') >='2020-05-11' and to_char(v_podate,'yyyy-MM-dd') <='2020-06-30') 
+                               or (:new.newtax_netmatch_amt >0))then
+
+                            -- based on order tax checking version date is lesser than tax valid to date
+                            select valid_TO_DATE, istaxincluded,taxpercent into v_validtaxtodate, v_isinclusive ,v_oldtaxpercent from efin_tax_method 
+                            where efin_tax_method_id= v_taxid ;
+
+              --raise exception '%,%',v_validtaxtodate,v_validtaxtodate<v_verdate;
+                            
+                            -- checking tax valid date with version date, if version date greater than valid to date
+                if(v_validtaxtodate is not null  ) then --and v_validtaxtodate<v_poreceiptdate
+                                select efin_tax_method_id,taxpercent into v_taxid, v_newtaxpercent from efin_tax_method
+                                where istaxincluded= v_isinclusive and valid_TO_DATE is null and isactive='Y' 
+                                order by created desc limit 1 ;
+
+              -- raise exception '%,%',v_taxid,new.netmatch_amt/(1+(v_oldtaxpercent/100));
+                  
+                                    -- calculating new tax- tax amt & net match amount
+                                    if(v_taxid is not null ) then
+                                    v_isnewtaxnetmatchupdate:='Y';
+                                    v_newtax_netmatchamt:= (:new.netmatch_amt/(1+(v_oldtaxpercent/100))) + ((:new.netmatch_amt/(1+(v_oldtaxpercent/100))) *(v_newtaxpercent/100));
+                  v_newtax_taxamt:=((:new.netmatch_amt/(1+(v_oldtaxpercent/100))) *(v_newtaxpercent/100));
+                  
+                                    -- raise exception '%',v_newtax_netmatchamt;
+                  update efin_rdvtxnline set newtax_taxamt=ROUND(v_newtax_taxamt,v_prec), newtax_netmatch_amt=ROUND(v_newtax_netmatchamt,v_prec) where efin_rdvtxnline_id=:new.efin_rdvtxnline_id;
+                  
+                                    v_newtax_netmatchamt:=ROUND(v_newtax_netmatchamt- :old.newtax_netmatch_amt,v_prec);  
+                                    v_newtax_taxamt:=ROUND(v_newtax_taxamt- :old.newtax_taxamt,v_prec);  
+                                    
+                                    --  raise exception '%',v_newtax_netmatchamt;
+                  --update efin_rdvtxn set newtax_taxamt=ROUND(newtax_taxamt + v_newtax_taxamt,v_prec), newtax_netmatch_amt = ROUND(newtax_netmatch_amt + v_newtax_netmatchamt,v_prec) where efin_rdvtxn_id = new.efin_rdvtxn_id;
+                                    end if;-- tax id not null if
+                end if;-- validtaxtodate if
+            end if; -- po date vaidation
+          end if; --rdv tax not null if
+    end if;-- --version date not null
+
+         
+            v_netmatch:=ROUND(:new.netmatch_amt - :old.netmatch_amt,v_prec);
+      update efin_rdvtxn set netmatch_amt = ROUND(netmatch_amt + v_netmatch,v_prec) where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+            
+            select ord.em_escm_istax, tax.taxpercent,tax.istaxincluded  into v_istax , v_taxpercent, v_isincluded from c_order ord  
+            join c_orderline ln  on ln.c_order_id= ord.c_order_id
+            left join efin_tax_method tax on tax.efin_tax_method_id = ord.em_escm_tax_method_id
+            where ln.c_orderline_id=:new.c_orderline_id;
+            
+            if(v_istax is not null and v_istax='Y' and v_taxpercent > 0 ) then 
+                v_taxFactor := 1+(v_taxpercent/100);
+                if(v_isincluded='Y') then
+                    v_amtwithoutTax:= :new.netmatch_amt/v_taxFactor;
+                    v_taxAmount:=round(:new.netmatch_amt-v_amtwithoutTax,v_prec);
+                else
+                    v_amtwithoutTax:=:new.netmatch_amt/v_taxFactor;
+                    v_taxAmount:=v_amtwithoutTax*(v_taxpercent/100);
+                end if;
+               if(v_taxAmount>=0) then
+                update efin_rdvtxnline set line_taxamt = ROUND(v_taxAmount, v_prec) 
+                where efin_rdvtxnline_id = :new.efin_rdvtxnline_id;
+              end if;
+            end if;
+            
+    end if;
+        
+        if(:old.newtax_taxamt <> :new.newtax_taxamt) then
+        v_newtax_taxamt = ROUND(:new.newtax_taxamt - :old.newtax_taxamt,v_prec);
+        update efin_rdvtxn set newtax_taxamt=ROUND(newtax_taxamt + v_newtax_taxamt,v_prec) where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+        end if;
+        
+         if(:old.newtax_netmatch_amt <> :new.newtax_netmatch_amt) then
+        v_newtax_netmatchamt = ROUND(:new.newtax_netmatch_amt - :old.newtax_netmatch_amt,v_prec);
+        update efin_rdvtxn set newtax_netmatch_amt=ROUND(newtax_netmatch_amt + v_newtax_netmatchamt,v_prec) where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+        end if;
+        
+        if :old.holdamt<> :new.holdamt then
+      v_holdamt = ROUND(:new.holdamt - :old.holdamt,v_prec);
+      update efin_rdvtxn set holdamount = ROUND(holdamount + v_holdamt,v_prec) where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+      update efin_rdvtxnline set total_deduct = ROUND(:new.penalty_amt + :new.adv_deduct + :new.holdamt , v_prec), 
+      netmatch_amt= ROUND(:new.match_amt - (:new.penalty_amt + :new.adv_deduct + :new.holdamt) , v_prec)
+      where efin_rdvtxnline_id = :new.efin_rdvtxnline_id;
+    end if;
+        
+        
+         if :old.match_qty <> :new.match_qty or :old.match_amt <> :new.match_amt then
+        for cur_penaltyaction in ( select penalty_percentage,efin_penalty_action_id,amount,efin_penalty_types_id ,penalty_amount,action as penltyaction from efin_penalty_action where efin_rdvtxnline_id= :new.efin_rdvtxnline_id 
+                                 )
+        
+        Loop
+        if(cur_penaltyaction.amount<> :new.match_amt) then
+        if( cur_penaltyaction.penltyaction='AD' and cur_penaltyaction.penalty_percentage is not null and 
+           cur_penaltyaction.penalty_percentage <> 0 ) then 
+         v_penamt = round(:new.match_amt * (cur_penaltyaction.penalty_percentage/100),2);
+         v_penaltydiff= ROUND(cur_penaltyaction.penalty_amount - v_penamt, v_prec);
+         --update  rdv line  level penalty action
+         update efin_penalty_action set amount= ROUND(:new.match_amt , v_prec)  , penalty_amount=v_penamt where efin_penalty_action_id=cur_penaltyaction.efin_penalty_action_id;
+         
+         -- update rdv version level penalty 
+         update efin_penalty_header set   penalty_amount= ROUND(penalty_amount-v_penaltydiff,v_prec) , updated_penalty_amt= ROUND(updated_penalty_amt-v_penaltydiff,v_prec)
+         where efin_rdvtxnline_id=:new.efin_rdvtxnline_id  and efin_rdvtxn_id= :new.efin_rdvtxn_id ;
+
+        -- update rdv header level penalty
+        
+        update efin_penalty set penalty_applied = ROUND(penalty_applied-v_penaltydiff,v_prec) where penalty_type =(
+        select deductiontype from efin_penalty_types where efin_penalty_types_id= cur_penaltyaction.efin_penalty_types_id)
+        and efin_rdv_id = ( select efin_rdv_id from efin_rdvtxn where efin_rdvtxn_id = :new.efin_rdvtxn_id);
+        else 
+           --update  rdv line  level penalty action
+         update efin_penalty_action set amount= ROUND(:new.match_amt , v_prec) where efin_penalty_action_id=cur_penaltyaction.efin_penalty_action_id;
+        end if;
+        end if;
+        end loop;
+        --hold action
+        for cur_holdaction in ( select rdv_hold_percentage,efin_rdv_hold_action_id,amount,efin_rdv_hold_types_id ,rdv_hold_amount,action as penltyaction from efin_rdv_hold_action where efin_rdvtxnline_id= :new.efin_rdvtxnline_id 
+                                 )
+        
+        Loop
+        if(cur_holdaction.amount<> :new.match_amt) then
+        if( cur_holdaction.penltyaction='AD' and cur_holdaction.rdv_hold_percentage is not null and 
+           cur_holdaction.rdv_hold_percentage <> 0 ) then 
+         v_holdamt = round(:new.match_amt * (cur_holdaction.rdv_hold_percentage/100),2);
+         v_holddiff= ROUND(cur_holdaction.rdv_hold_amount - v_holdamt,v_prec);
+         --update  rdv line  level hold action
+         update efin_rdv_hold_action set amount= ROUND(:new.match_amt ,v_prec) , rdv_hold_amount=v_holdamt where 
+         efin_rdv_hold_action_id=cur_holdaction.efin_rdv_hold_action_id;
+         
+         -- update rdv version level hold 
+         update efin_rdv_hold_header set rdv_hold_amount= ROUND(rdv_hold_amount-v_holddiff,v_prec)  , updated_rdv_hold_amt= ROUND(updated_rdv_hold_amt-v_holddiff , v_prec)
+         where efin_rdvtxnline_id=:new.efin_rdvtxnline_id  and efin_rdvtxn_id= :new.efin_rdvtxn_id ;
+
+        -- update rdv header level hold
+        
+        update efin_rdv_hold set rdv_hold_applied = ROUND(rdv_hold_applied-v_holddiff , v_prec) where rdv_hold_type =(
+        select deductiontype from efin_rdv_hold_types where efin_rdv_hold_types_id= cur_holdaction.efin_rdv_hold_types_id)
+        and efin_rdv_id = ( select efin_rdv_id from efin_rdvtxn where efin_rdvtxn_id = :new.efin_rdvtxn_id);
+        else 
+           --update  rdv line  level hold action
+         update efin_rdv_hold_action set amount= ROUND(:new.match_amt ,v_prec) where efin_rdv_hold_action_id=cur_holdaction.efin_rdv_hold_action_id;
+        end if;
+        end if;
+        end loop;
+        
+        
+        end if;
+    
+  END IF;
+    
+    IF INSERTING THEN
+      v_matchamt = ROUND(:new.match_amt , v_prec);
+            v_matchqty = ROUND(:new.match_qty , v_prec);
+            v_netmatch = ROUND(:new.netmatch_amt , v_prec);
+            
+            --Net Match-New Tax CALCULATION
+      -- fetching version date
+        select txnver_date into v_verdate from efin_rdvtxn where efin_rdvtxn_id=:new.efin_rdvtxn_id;
+            
+            --- if version date is after june 30 then 
+        if(v_verdate is not null and to_char(v_verdate,'yyyy-MM-dd') >='2020-07-01') then 
+
+          -- fetching latest order id
+                    select case when  em_escm_base_order is null then c_order_id else  em_escm_base_order end into v_rdvOrderId  
+                    from c_order where c_order_id = (
+                    select c_order_id  from efin_rdv where efin_rdv_id =(
+                    select efin_rdv_id from efin_rdvtxn where efin_rdvtxn_id=:new.efin_rdvtxn_id ));
+
+          --raise exception '%',v_rdvOrderId;
+
+                    -- fetching latest order date and tax method id 
+                    select c_order_id , case when EM_Escm_Signaturedate is null then dateordered else EM_Escm_Signaturedate end as dateordered, em_escm_tax_method_id into v_latestOrderId,v_podate ,v_taxid from 
+                    c_order where (c_order_id=v_rdvOrderId or em_escm_base_order=v_rdvOrderId )
+                    and em_escm_appstatus='ESCM_AP' order by em_escm_revision desc limit 1 ;
+
+            if(v_taxid is not null) then 
+              --raise exception '%',v_podate;
+              -- if order date in between of may 11 and jun 30 
+              if(to_char(v_podate,'yyyy-MM-dd') >='2020-05-11' and to_char(v_podate,'yyyy-MM-dd') <='2020-06-30') then
+
+                            -- based on order tax checking version date is lesser than tax valid to date
+                            select valid_TO_DATE, istaxincluded,taxpercent into v_validtaxtodate, v_isinclusive ,v_oldtaxpercent from efin_tax_method 
+                            where efin_tax_method_id= v_taxid ;
+
+              --raise exception '%,%',v_validtaxtodate,v_validtaxtodate<v_verdate;
+                            -- checking tax valid date with version date if version date greater than valid to date
+                if(v_validtaxtodate is not null) then -- and v_validtaxtodate<v_verdate 
+                                select efin_tax_method_id,taxpercent into v_taxid, v_newtaxpercent from efin_tax_method
+                                where istaxincluded= v_isinclusive and valid_TO_DATE is null and isactive='Y' 
+                                order by created desc limit 1 ;
+
+                --calculating the new tax- net match amt and tax amount
+                  if(v_taxid is not null ) then
+                                    v_newtax_netmatchamt:= (:new.netmatch_amt/(1+(v_oldtaxpercent/100))) + ((:new.netmatch_amt/(1+(v_oldtaxpercent/100))) *(v_newtaxpercent/100));
+                  v_newtax_taxamt:=((:new.netmatch_amt/(1+(v_oldtaxpercent/100))) *(v_newtaxpercent/100)); 
+                   end if;-- tax id not null if
+                end if;-- validtaxtodate if
+            end if; -- po date vaidation
+          end if; --rdv tax not null if
+    end if;-- --version date not null
+
+    
+      update efin_rdvtxnline set match_amt = v_matchamt,match_qty=v_matchqty,netmatch_amt=v_netmatch,newtax_netmatch_amt=ROUND(v_newtax_netmatchamt,v_prec)
+            ,newtax_taxamt=ROUND(v_newtax_taxamt,v_prec)
+            where efin_rdvtxnline_id = :new.efin_rdvtxnline_id;
+            
+              -- update version tax amount and net amount 
+           -- update efin_rdvtxn set newtax_taxamt= ROUND(newtax_taxamt + v_newtax_taxamt,v_prec), newtax_netmatch_amt = ROUND(newtax_netmatch_amt + v_newtax_netmatchamt,v_prec) where efin_rdvtxn_id = new.efin_rdvtxn_id;
+            
+  end if;
+  
+  END EFIN_RDVLINE_UPDATEAMT
+]]></body>
+    </trigger>
+  </database>

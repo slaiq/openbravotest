@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_C_ORDER_V">
+    <view name="ESCM_C_ORDER_V"><![CDATA[SELECT ord.c_order_id AS escm_c_order_v_id, ord.ad_client_id, ord.ad_org_id, ord.isactive, ord.created, ord.createdby, ord.updated, ord.updatedby, (COALESCE(ord.documentno, '') || ' - ') || ord.em_escm_revision AS documentrevisionno, ord.documentno, ord.em_escm_revision, ord.em_escm_receivetype, ord.c_order_id FROM c_order ord WHERE ord.em_escm_ordertype <> 'PUR_AG' AND ord.issotrx = 'N']]></view>
+  </database>

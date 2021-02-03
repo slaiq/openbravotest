@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="OpenEnvelopProposal_subreport3" pageWidth="412" pageHeight="555" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="412" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="8f2b220e-e61d-45d4-970f-70dfd6400747">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="inpCommitteeId" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select string_agg(emp_name, ', ') as emp_name,
+regexp_replace(repeat('------------------,', (count(emp_name)::integer)), ',+$', '') as signature,
+lktypln.name, value
+from escm_committee_members cmem left join escm_deflookups_typeln lktypln on lktypln.escm_deflookups_typeln_id=cmem.membertype
+left join escm_deflookups_type lktyp on lktyp.escm_deflookups_type_id=lktypln.escm_deflookups_type_id
+where escm_committee_id=$P{inpCommitteeId} and lktyp.reference='CMT' and (name='Secretary' or value='SEC') group by lktypln.name, value]]>
+	</queryString>
+	<field name="emp_name" class="java.lang.String"/>
+	<field name="signature" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="value" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<columnHeader>
+		<band height="22" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="412" height="22" uuid="965b1954-34b6-4951-92da-4d69b2046531"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[عضو وسكرتير اللجنة]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<summary>
+		<band height="120">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="412" height="60" uuid="38a174e2-3bb1-42e7-91e4-aedd4666e0cd"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{name}.equals( "Secretary" ) || $F{value}.equals( "SEC" )) ? $F{emp_name} : ""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="60" width="412" height="60" uuid="f7d3acd6-a7f6-4f25-a1af-2cf1d75cabb0"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{signature}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

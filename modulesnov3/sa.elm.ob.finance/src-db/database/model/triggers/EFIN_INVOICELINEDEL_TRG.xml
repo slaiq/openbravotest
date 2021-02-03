@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_INVOICELINEDEL_TRG">
+    <trigger name="EFIN_INVOICELINEDEL_TRG" table="C_INVOICELINE" fires="after" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[v_count NUMBER;
+v_invoice_id VARCHAR(32);
+v_invType VARCHAR(10);
+
+BEGIN
+	v_count :=0;
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF DELETING THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+    
+	-- Delete Operation
+	IF DELETING THEN
+		v_invoice_id = :old.c_invoice_id;
+	END IF;
+
+	IF  DELETING THEN 
+    	select em_efin_invoicetype_txt into v_invType from c_invoice where c_invoice_id = v_invoice_id;
+		select coalesce(count(c_invoiceline_id),0) into v_count from c_invoiceline  where c_invoice_id=v_invoice_id;
+		IF( v_invType = 'POM' and v_count = 0) THEN
+			update c_invoice set em_efin_c_order_id = null,em_efin_manualencumbrance_id = null,em_efin_istax='N',em_efin_tax_method_id=null where c_invoice_id = v_invoice_id;
+		END IF;
+	END IF;   
+   
+END EFIN_INVOICELINEDEL_TRG
+]]></body>
+    </trigger>
+  </database>

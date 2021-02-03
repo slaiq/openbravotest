@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="IssueReturnTransaction_subreport1" pageWidth="802" pageHeight="555" orientation="Landscape" columnWidth="802" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="2c21c8f5-c6c0-404b-9113-cb22995e706f">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="inpInOutId" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select rec.itemcode, rec.itemdesc, rec.uomcode, rec.em_escm_inspdecision, rec.movementQty, alllns.sno as seqno, rec.count
+from
+(select prd.value as itemcode, coalesce(inoln.description, '') as itemdesc, coalesce(uomtrl.name, uom.name) as uomcode,em_escm_inspdecision,
+inoln.movementQty, row_number() OVER ()::integer as rnum,
+(select count(m_inoutline_id) from m_inoutline where m_inout_id=inoln.m_inout_id) as count
+from m_inoutline inoln
+left join m_product prd on inoln.m_product_id=prd.m_product_id
+left join c_uom uom on uom.c_uom_id=inoln.c_uom_id
+left join c_uom_trl uomtrl on uomtrl.c_uom_id=uom.c_uom_id and uomtrl.ad_language  ='ar_SA'
+where inoln.m_inout_id=$P{inpInOutId})rec
+full join ( select ''::character varying as ad_client_id, b.sno
+from (select generate_series(1, (select ceil(((select count(m_inoutline_id)
+from m_inoutline where m_inout_id=$P{inpInOutId}))::numeric / 10) * 10):: integer) as sno)b ) alllns on rec.rnum = alllns.sno
+order by alllns.sno]]>
+	</queryString>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="itemdesc" class="java.lang.String"/>
+	<field name="uomcode" class="java.lang.String"/>
+	<field name="em_escm_inspdecision" class="java.lang.String"/>
+	<field name="movementqty" class="java.math.BigDecimal"/>
+	<field name="seqno" class="java.lang.Integer"/>
+	<field name="count" class="java.lang.Long"/>
+	<detail>
+		<band height="26" splitType="Stretch">
+			<textField pattern="#,##0" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="92" height="26" uuid="420291e2-bc70-4139-a190-bec912e649bc"/>
+				<box rightPadding="3">
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{movementqty}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="404" y="0" width="144" height="26" uuid="e6f8d7f0-dbee-46e1-88ca-6973b5cac4a5"/>
+				<box rightPadding="3">
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{itemcode}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="211" y="0" width="193" height="26" uuid="ab6020f0-b771-49f3-aa5e-24bde36bfccf"/>
+				<box rightPadding="3">
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{itemdesc}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="92" y="0" width="119" height="26" uuid="0ce009cc-c264-4dfa-af1a-fc278fe2989f"/>
+				<box rightPadding="3">
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{uomcode}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="548" y="0" width="41" height="26" uuid="469ba290-4ff1-4996-bb80-e47150c96bc3"/>
+				<box rightPadding="3">
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{seqno}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

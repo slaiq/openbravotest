@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE ESCM_BIDMGMT_LINE">
+    <table name="ESCM_BIDMGMT_LINE" primaryKey="ESCM_BIDMGMT_LINE_KEY">
+      <column name="EM_EFIN_BUDGMANENCUMLINE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="EFIN_BUDGET_MANENCUMLINES" name="EM_EFIN_MANENCUMLINE">
+        <reference local="EM_EFIN_BUDGMANENCUMLINE_ID" foreign="EFIN_BUDGET_MANENCUMLINES_ID"/>
+      </foreign-key>
+    </table>
+  </database>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
+<!-- 2017-09-28T15:20:26 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PrintElectricity_subreport4" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="3c745049-7be5-48be-8039-2cea81003537">
+	<property name="ireport.zoom" value="1.2100000000000004"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="duration" class="java.lang.String"/>
+	<parameter name="total" class="java.lang.String"/>
+	<parameter name="periodtype" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select 1 from dual]]>
+	</queryString>
+	<field name="?column?" class="java.lang.Integer"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="618">
+			<textField>
+				<reportElement x="17" y="284" width="529" height="65" uuid="48b47500-e33d-4b56-bcbe-74e440d9e18d"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["يلتزم صاحب العمل بدفع قيمة العقد بالطريقة وفي الأوقات المحددة في المادة ( السادسة والثلاثين ) من الشروط العامة للعقد مقابل قيام الطرف الثاني بتنفيذ وإتمام الأعمال المتعاقد عليها ."]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="6" y="18" width="539" height="28" uuid="a8270bd8-12fd-4287-b2fe-29320995e1ef"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16" isBold="false" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[المادة الثالثة: مدة العقد]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="412" y="143" width="133" height="28" uuid="f8cbb3bd-6218-4bd8-a470-7ece923c81c6"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16" isBold="false" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[المادة الرابعة : قيمة العقد]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="16" y="172" width="529" height="76" uuid="72c7e5f5-9e53-4aa2-8161-36ed963bd05c"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["إن القيمة الإجمالية للعقد هي"+($P{total}==null ? "" :sa.elm.ob.utility.ad_reports.NumberToArabic.convertToArabic(new BigDecimal($P{total}), "SAR"))+"ريال سعودي لقاء تنفيذ هذا العقد وفقاً للشروط والمواصفات وجداول الكميات وفئات الأسعار وغيرها من وثائق العقد ."]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="412" y="255" width="133" height="28" uuid="233f625a-cb12-4207-9916-a9c472bc2c4a"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[المادة الخامسة : الدفع]]></text>
+			</staticText>
+			<elementGroup>
+				<textField isBlankWhenNull="true">
+					<reportElement x="16" y="40" width="529" height="103" uuid="77929839-03b2-434d-967a-7ba91a78b16b"/>
+					<box rightPadding="3"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Traditional Arabic" size="14"/>
+					</textElement>
+					<textFieldExpression><![CDATA["يتعهد الطرف الثاني بصيانة الأعمال الكهربائية لطرق منطقة الرياض، وتقديم المواد والمعدات والعمال وجميع ما يلزم وفقاً لوثائق العقد وذلك طيلة مدة العقد"+" "+($P{duration}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{duration}))+" "+($P{periodtype}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{periodtype}))+" "+  "تبدأ اعتباراً من تاريخ تسليم الموقع بموجب محضر كتابي موقع عليه من قبل مندوبي صاحب العمل والطرف الثاني ."]]></textFieldExpression>
+				</textField>
+			</elementGroup>
+			<staticText>
+				<reportElement x="412" y="353" width="133" height="28" uuid="e9a0d3d8-2f5e-455f-b1bf-4125c2d4ae4c"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[المادة السادسة : مسؤولية المقاول]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="6" y="382" width="539" height="74" uuid="ebcd5b72-68b4-4ead-9f6b-8985c56fa593"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["مع عدم الإخلال بما تقضى به الأنظمة الأخرى يقر المقاول أنه لم يدفع شيئاً من المال أو أي منفعة أخرى ولم يعد بذلك في سبيل الحصول على هذا العقد ،فإن ثبت خلاف ذلك وجب استقطاع ما يثبت دفعة أو الوعد بدفعه من أي مستحقات للمقاول فضلاً عن حق صاحب العمل في إلغاء العقد دون تعويض ، وكذلك مسؤولية المقاول وموظفيه عن تلك التصرفات."]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="412" y="464" width="133" height="28" uuid="908b4752-a025-49a4-b33b-bb86460bb34e"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[المادة السابعة : نظام العقد]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="366" y="532" width="179" height="28" uuid="1f07eb3a-d842-48e5-bf7a-2ff6d3285df5"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[المادة الثامنة: تسوية الخلافات]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="4" y="497" width="541" height="22" uuid="324be44b-5c06-4495-ade4-d7311cddc346"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["يخضع هذا العقد للأنظمة المعمول بها في المملكة ويتم تفسيره وتنفيذه والفصل فيما ينشأ عنه من دعاوى بموجبها."]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="3" y="565" width="542" height="30" uuid="cd1ecda7-f166-44eb-9187-0c9f90a2a066"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["كل خلاف ينشأ عن تطبيق هذا العقد ولا يتم التوصل إلي تسويته بين الطرفين يختص ديوان المظالم بالفصل فيه ، ويكون حكمه في ذلك نهائي ."]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+</jasperReport>

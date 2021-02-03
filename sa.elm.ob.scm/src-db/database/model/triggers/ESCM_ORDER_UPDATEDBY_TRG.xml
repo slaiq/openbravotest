@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_ORDER_UPDATEDBY_TRG">
+    <trigger name="ESCM_ORDER_UPDATEDBY_TRG" table="C_ORDER" fires="before" insert="false" update="true" delete="false" foreach="row">
+      <body><![CDATA[ 	v_count NUMBER:=0;
+
+BEGIN
+    
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+	
+    IF ( :new.issotrx = 'N' ) THEN
+    	IF ( :old.updatedby <> :new.updatedby) THEN
+        	select count(usr.AD_User_ID) INTO v_count from AD_User usr join AD_User_Roles rl on usr.AD_User_ID = rl.AD_User_ID
+            	join AD_Window_Access wa on rl.AD_Role_ID = wa.AD_Role_ID
+                where wa.AD_Window_ID = '2ADDCB0DD2BF4F6DB13B21BBCCC3038C' 
+                	and wa.isreadwrite = 'Y' and usr.AD_User_ID = :new.updatedby;
+            IF ( v_count = 0 ) THEN
+            	:new.updatedby = :old.updatedby;
+                :new.updated = :old.updated;
+            END IF;
+        END IF;
+    END IF;
+  
+  
+END ESCM_ORDER_UPDATEDBY_TRG
+]]></body>
+    </trigger>
+  </database>

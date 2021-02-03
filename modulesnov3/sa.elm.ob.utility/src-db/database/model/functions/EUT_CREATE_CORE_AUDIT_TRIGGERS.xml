@@ -1,0 +1,258 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_CREATE_CORE_AUDIT_TRIGGERS">
+    <function name="EUT_CREATE_CORE_AUDIT_TRIGGERS" type="NULL">
+      <parameter name="p_pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[code TEXT ;
+  cur_triggers RECORD;
+  cur_tables RECORD;
+  cur_cols RECORD;
+  triggerName VARCHAR(30); 
+  recordIdName VARCHAR(30);
+  datatype VARCHAR(30); 
+  clientinfo NUMBER;
+  deleted NUMBER:=0;
+  created NUMBER:=0;
+  v_message VARCHAR(500);
+  v_isObps NUMBER;
+BEGIN 
+  select count(*) 
+    into v_isObps
+    from ad_system
+   where Instance_key is not null
+     and activation_key is not null;
+     
+	
+  for cur_triggers in (select *
+                         from user_triggers
+                        where trigger_name like 'au_%') 
+    loop
+    execute 'DROP TRIGGER '||cur_triggers.trigger_name||' ON '||cur_triggers.table_name;
+    execute 'DROP FUNCTION '||cur_triggers.trigger_name||'()';  
+    raise notice 'deleting %', cur_triggers.trigger_name;
+    deleted := deleted + 1;
+  end loop;
+
+  for cur_tables in ( select * from ad_table where ad_table_id in ('4D8C3B3C31D1410DA046140C9F024D17','800214','FF80818132AF937F0132AF9E94FF0013',
+                        'FF808181308EA42301308FB5F7BC0049','224','800212','333','6F98C7AB59D3410CB828DB25D638DE2C','B1B7075C46934F0A9FD4C4D0F1457B42',
+                         '84203CBEBDA349C38319C0E549751546','1004400000','C0233061EA504EFEAB0483E836BBAF31', 'B129E53BC0E747879F7BA17F0AECEC32','D1A97202E832470285C9B1EB026D54E2','319',
+                          'AC389EBD8A774AAE8223A77F692983D8','CE9AFF5F51B846AEAB0B6CBF829092CD','D4C23A17190649E7B78F55A05AF3438C', '270','226','318','259','260')
+                           order by tablename ) loop
+    triggerName := 'AU_'||SUBSTR(cur_tables.tablename,1,27);	
+    raise notice '%', triggerName;
+   
+    
+    select count(*) into clientinfo
+      from dual
+     where exists (select 1 from ad_column
+                    where ad_table_id = cur_tables.ad_table_id
+                     and lower(columnname)='ad_client_id')
+       and exists (select 1 from ad_column
+                    where ad_table_id = cur_tables.ad_table_id
+                     and lower(columnname)='ad_org_id');                     
+                     
+    
+    select columnname
+      into recordIdName
+      from ad_column
+     where ad_table_id = cur_tables.ad_table_id
+       and iskey='Y';
+    
+      code := 'create or replace FUNCTION '||triggerName||'() 
+RETURNS trigger AS
+$Body$
+DECLARE
+  V_USER_ID VARCHAR(32); 
+  V_PROCESS_TYPE VARCHAR(60);
+  V_PROCESS_ID VARCHAR(32);
+  V_RECORD_ID VARCHAR(32);
+  V_RECORD_REV NUMBER;
+  V_ACTION CHAR(1);
+  V_NEW_CHAR VARCHAR(4000) := NULL; 
+  V_OLD_CHAR VARCHAR(4000) := NULL; 
+  V_NEW_NCHAR VARCHAR(2000) := NULL; 
+  V_OLD_NCHAR VARCHAR(2000) := NULL; 
+  V_OLD_NUMBER NUMBER:= NULL;
+  V_NEW_NUMBER NUMBER:= NULL;
+  V_OLD_DATE DATE := NULL;
+  V_NEW_DATE DATE := NULL;
+  V_OLD_TEXT TEXT := NULL;
+  V_NEW_TEXT TEXT := NULL;
+  V_TIME DATE;
+  V_ORG VARCHAR(32); 
+  V_CLIENT VARCHAR(32); 
+  V_CHANGE BOOLEAN;
+  V_ISAUDITED CHAR(1);
+BEGIN 
+';
+
+if (cur_tables.ad_table_id != '100') then
+code := code ||
+'
+  SELECT ISFULLYAUDITED
+    INTO V_ISAUDITED
+    FROM AD_TABLE
+   WHERE AD_TABLE_ID = '''||cur_tables.ad_table_id||''';
+  
+';
+end if;
+
+code := code ||
+'
+  BEGIN
+    SELECT AD_USER_ID, PROCESSTYPE, PROCESSID
+      INTO V_USER_ID, V_PROCESS_TYPE, V_PROCESS_ID
+      FROM AD_CONTEXT_INFO;
+  EXCEPTION WHEN OTHERS THEN NULL;
+  END;
+  
+  V_TIME := now();
+ 
+  IF TG_OP = ''UPDATE'' THEN 
+    V_RECORD_ID := new.'||recordIdName||';
+    V_ACTION := ''U'';';
+if (clientinfo!=0) then
+code := code ||'
+    V_CLIENT := new.AD_CLIENT_ID;
+    V_ORG := new.AD_ORG_ID;';
+end if;
+code := code ||'
+  ELSIF TG_OP = ''INSERT'' THEN
+    V_RECORD_ID := new.'||recordIdName||';
+    V_ACTION := ''I'';';
+if (clientinfo!=0) then
+code := code ||'
+    V_CLIENT := new.AD_CLIENT_ID;
+    V_ORG := new.AD_ORG_ID;';
+end if;
+code := code ||'
+  ELSE
+    V_RECORD_ID := old.'||recordIdName||';
+    V_ACTION := ''D'';';
+if (clientinfo!=0) then
+code := code ||'
+    V_CLIENT := old.AD_CLIENT_ID;
+    V_ORG := old.AD_ORG_ID;';
+end if;
+code := code ||'
+  END IF;
+
+SELECT COALESCE(MAX(RECORD_REVISION),0)+1
+      INTO V_RECORD_REV
+      FROM eut_audit_trail
+     WHERE AD_TABLE_ID='''|| cur_tables.ad_table_id||'''
+       AND RECORD_ID=V_RECORD_ID;
+';
+       
+    for cur_cols in (select *
+                       from user_tab_columns u, aD_column c
+                      where table_name = upper(cur_tables.tablename)
+                        AND c.ad_table_id = cur_tables.ad_table_id
+                        and upper(c.columnname) = u.column_name
+                        AND u.data_type != 'BYTEA'
+                        and upper(c.columnname) not in ('CREATED','CREATEDBY','UPDATED', 'UPDATEDBY')
+			            and c.isexcludeaudit='N'
+                        order by c.position) loop
+
+      if (cur_tables.IsAuditInserts = 'N' and cur_cols.isKey='N' ) then
+        code := code || '
+      IF TG_OP != ''INSERT'' THEN
+      ';
+      end if;
+
+      code := code || '
+    V_Change := false;';
+      if (cur_cols.data_type in ('VARCHAR', 'BPCHAR')) then
+        datatype := 'CHAR';
+        code := code || '
+   IF TG_OP = ''UPDATE'' THEN
+     V_CHANGE = (COALESCE(new.'||cur_cols.COLUMN_NAME||',''.'') != COALESCE(old.'||cur_cols.COLUMN_NAME||',''.'') OR (new.'||cur_cols.COLUMN_NAME||' IS NULL AND old.'||cur_cols.COLUMN_NAME||'=''.'') OR (old.'||cur_cols.COLUMN_NAME||' IS NULL AND new.'||cur_cols.COLUMN_NAME||'=''.'') );
+   END IF;';
+      elsif (cur_cols.data_type in ('TIMESTAMP')) then
+        datatype := 'DATE';
+code := code || '
+   IF TG_OP = ''UPDATE'' THEN
+     V_CHANGE = COALESCE(new.'||cur_cols.COLUMN_NAME||', now()) != COALESCE(old.'||cur_cols.COLUMN_NAME||', now());
+   END IF;';
+      elsif (cur_cols.data_type in ('TEXT')) then
+        datatype := 'TEXT';
+        code := code || '
+   IF TG_OP = ''UPDATE'' THEN
+     V_CHANGE = (COALESCE(new.'||cur_cols.COLUMN_NAME||',''.'') != COALESCE(old.'||cur_cols.COLUMN_NAME||',''.'') OR (new.'||cur_cols.COLUMN_NAME||' IS NULL AND old.'||cur_cols.COLUMN_NAME||'=''.'') OR (old.'||cur_cols.COLUMN_NAME||' IS NULL AND new.'||cur_cols.COLUMN_NAME||'=''.'') );
+   END IF;';
+      else
+        datatype := 'NUMBER';
+        code := code || '
+   IF TG_OP = ''UPDATE'' THEN
+     V_CHANGE = COALESCE(new.'||cur_cols.COLUMN_NAME||', -1) != COALESCE(old.'||cur_cols.COLUMN_NAME||', -1);
+   END IF;
+';
+      end if;
+      
+      
+      code := code ||
+'
+  V_CHANGE := V_CHANGE OR (TG_OP = ''DELETE'') OR (TG_OP = ''INSERT'');
+  IF (V_CHANGE) THEN
+    IF (TG_OP in (''UPDATE'', ''INSERT'')) THEN
+      V_NEW_'||datatype||' := new.'||cur_cols.COLUMN_NAME||';
+    END IF;
+    IF (TG_OP in (''UPDATE'', ''DELETE'')) THEN
+      V_OLD_'||datatype||' := old.'||cur_cols.COLUMN_NAME||';
+    END IF;
+    
+    INSERT INTO eut_audit_trail 
+           (eut_audit_trail_id, AD_USER_ID, AD_TABLE_ID, AD_COLUMN_ID, 
+           PROCESSTYPE, PROCESS_ID, RECORD_ID, RECORD_REVISION, ACTION, 
+           EVENT_TIME, OLD_'||datatype||', NEW_'||datatype||',
+           AD_CLIENT_ID, AD_ORG_ID)
+          VALUES
+           (GET_UUID(), V_USER_ID, '''|| cur_tables.ad_table_id||''', '''||cur_cols.ad_column_id||''', 
+           v_process_type, v_process_id, v_record_id, v_record_rev, v_action, 
+           v_time, v_old_'||datatype||', v_new_'||datatype||',
+           V_CLIENT, V_ORG);
+  END IF;
+';
+
+      if (cur_tables.IsAuditInserts = 'N' and cur_cols.isKey='N' ) then
+        code := code || '
+      END IF;
+      ';
+      end if;
+
+    end loop;
+ 
+code := code ||
+'IF TG_OP = ''DELETE'' THEN RETURN OLD; ELSE RETURN NEW; END IF; 
+END
+; $Body$
+  LANGUAGE ''plpgsql'' VOLATILE';
+EXECUTE(code);
+
+ code := 
+    'CREATE TRIGGER '||triggerName||'
+      BEFORE INSERT OR UPDATE OR DELETE
+      ON '||cur_cols.table_name||'
+      FOR EACH ROW
+      EXECUTE IMMEDIATE PROCEDURE '||triggerName||'()';
+      execute(code);
+      
+    created := created + 1;
+
+  end loop;
+  
+  v_Message := '@Deleted@: '||deleted||' @Created@: '||created;
+  AD_UPDATE_PINSTANCE(p_PInstance_ID, NULL, 'N', 1, v_Message) ;
+  EXCEPTION
+WHEN OTHERS THEN
+  v_Message:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_Message) ;
+  IF (p_PInstance_ID IS NOT NULL) THEN
+     AD_UPDATE_PINSTANCE(p_PInstance_ID, NULL, 'N', 0, v_Message) ;
+  END IF;
+  RETURN;
+END EUT_CREATE_CORE_AUDIT_TRIGGERS
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_ENCUMCONTROL_CREATE">
+    <function name="EFIN_ENCUMCONTROL_CREATE" type="NULL">
+      <parameter name="pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): Priyanka Ranjan 11-10-2017
+************************************************************************/
+v_client_id VARCHAR2(32);
+v_user_id VARCHAR2(32);
+v_ResultStr VARCHAR2(2000):='';
+v_Message VARCHAR2(2000):='';
+v_reflistsearchkey VARCHAR2(60);
+v_encsource VARCHAR2(60);
+
+TYPE RECORD IS REF CURSOR;
+Cur_List RECORD;
+
+BEGIN
+
+--get client id and user id
+SELECT  i.ad_client_id,i.AD_User_ID into v_client_id,v_user_id
+      FROM AD_PInstance i 
+      WHERE i.AD_PInstance_ID=PInstance_ID ;
+
+--get Encumbrance Type which is not present already
+      FOR Cur_List IN
+      (select value from ad_ref_list 
+       where ad_reference_id ='8B295E69212844C6AF89EFB0554B6143' and isactive='Y' and value !='BE'
+        and value not in(select enc_type from efin_enc_control where ad_client_id=v_client_id)
+      )
+      LOOP
+      v_reflistsearchkey:=Cur_List.value;
+
+          -- set 'Encumbrance Source' value based on 'Encumbrance Type'
+          IF(v_reflistsearchkey = 'AEE' OR v_reflistsearchkey = 'AAE') THEN
+             v_encsource='AP';
+           ELSE IF (v_reflistsearchkey = 'DE' OR v_reflistsearchkey = 'TE') THEN
+             v_encsource='BUD';       
+           ELSE IF (v_reflistsearchkey = 'PRE' OR v_reflistsearchkey = 'POE' OR v_reflistsearchkey = 'PAE') THEN
+             v_encsource='PUR';
+           ElSE IF (v_reflistsearchkey = 'AET') THEN
+             v_encsource='HR'; 
+           END IF;
+           END IF;
+           END IF;
+           END IF;
+             
+               -- Insert records in Maintain Encumbrance Control with enable 'N'
+                  INSERT INTO efin_enc_control(efin_enc_control_id, ad_client_id, ad_org_id, isactive, 
+                       createdby, updatedby, enc_type, enc_source, encmethod_auto, 
+                       encmethod_manual)
+                VALUES (get_uuid(), v_client_id, 0, 'N', 
+                       v_user_id, v_user_id, v_reflistsearchkey, v_encsource, 'N', 'N');
+          
+        END LOOP;
+
+         --Call Advance deduction rule maintenance function
+        EFIN_ADVDEDUCTIONRULE_MT(pinstance_id);
+	v_Message:='Process Completed Successfully';
+	DBMS_OUTPUT.PUT_LINE('--<<Insertion finished>> ' || v_Message) ;
+	 --Call Penalty type function
+        EFIN_PENALTY_MT(pinstance_id);
+	v_Message:='Process Completed Successfully';
+	DBMS_OUTPUT.PUT_LINE('--<<Insertion finished>> ' || v_Message) ;
+	 --Call RDV Parameter function
+        EFIN_RDV_PARAMETERS(pinstance_id);
+	v_Message:='Process Completed Successfully';
+	DBMS_OUTPUT.PUT_LINE('--<<Insertion finished>> ' || v_Message) ;
+	 --Call RDV Type MT Function
+        EFIN_RDV_TYPE_MT(pinstance_id);
+	v_Message:='Process Completed Successfully';
+	DBMS_OUTPUT.PUT_LINE('--<<Insertion finished>> ' || v_Message) ;
+	
+        --Call Cost Center Linking FUNCTION for Link Organization
+       -- PERFORM efin_costcenter_create(pinstance_id);
+	--v_Message:='Process Completed Successfully';
+	--RAISE NOTICE '%','--<<Insertion finished>> ' || v_Message ;
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 1, v_Message) ;
+   EXCEPTION
+  WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 0, v_ResultStr) ;
+  RETURN;
+END EFIN_ENCUMCONTROL_CREATE
+]]></body>
+    </function>
+  </database>

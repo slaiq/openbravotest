@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_RDV_HOLD_HEADER_TRG">
+    <trigger name="EFIN_RDV_HOLD_HEADER_TRG" table="EFIN_RDV_HOLD_HEADER" fires="before" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_holdamt_diff NUMBER;
+v_efin_rdv_id CHARACTER VARYING(32);
+v_txn_version NUMBER;
+
+BEGIN
+v_holdamt_diff :=0;
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+IF INSERTING THEN
+		select txn_version, efin_rdv_id INTO v_txn_version, v_efin_rdv_id from efin_rdvtxn txn 
+			where txn.efin_rdvtxn_id = :new.efin_rdvtxn_id;
+        update efin_rdv_hold_header set existing_rdv_hold = existing_rdv_hold + :new.rdv_hold_amount,
+        	updated_rdv_hold_amt = updated_rdv_hold_amt + :new.rdv_hold_amount
+            where efin_rdvtxnline_id in (select efin_rdvtxnline_id from efin_rdvtxnline where 
+                         item_desc in ( select  item_desc from efin_rdvtxnline
+                                                    where efin_rdvtxnline_id=:new.efin_rdvtxnline_id)
+                          and efin_rdvtxn_id in ( select efin_rdvtxn_id from efin_rdvtxn txn 
+                        where txn_version > v_txn_version and efin_rdv_id = v_efin_rdv_id ) );
+END IF;
+
+IF UPDATING THEN
+	IF ( :new.rdv_hold_amount <> :old.rdv_hold_amount ) THEN
+    	v_holdamt_diff := :new.rdv_hold_amount - :old.rdv_hold_amount;
+		select txn_version, efin_rdv_id INTO v_txn_version, v_efin_rdv_id from efin_rdvtxn txn 
+			where txn.efin_rdvtxn_id = :new.efin_rdvtxn_id;
+        update efin_rdv_hold_header set existing_rdv_hold = existing_rdv_hold + v_holdamt_diff,
+        	updated_rdv_hold_amt = updated_rdv_hold_amt + v_holdamt_diff
+            where efin_rdvtxnline_id in (select efin_rdvtxnline_id from efin_rdvtxnline where 
+                         item_desc in ( select  item_desc from efin_rdvtxnline
+                                                    where efin_rdvtxnline_id=:new.efin_rdvtxnline_id)
+                          and efin_rdvtxn_id in ( select efin_rdvtxn_id from efin_rdvtxn txn 
+                        where txn_version > v_txn_version and efin_rdv_id = v_efin_rdv_id ) );
+    END IF;
+END IF;
+
+IF DELETING THEN
+		select txn_version, efin_rdv_id INTO v_txn_version, v_efin_rdv_id from efin_rdvtxn txn 
+			where txn.efin_rdvtxn_id = :old.efin_rdvtxn_id;
+        update efin_rdv_hold_header set existing_rdv_hold = existing_rdv_hold - :old.rdv_hold_amount,
+        	updated_rdv_hold_amt = updated_rdv_hold_amt - :old.rdv_hold_amount
+            where efin_rdvtxnline_id in (select efin_rdvtxnline_id from efin_rdvtxnline where 
+                         item_desc in ( select  item_desc from efin_rdvtxnline
+                                                    where efin_rdvtxnline_id=:old.efin_rdvtxnline_id)
+                          and efin_rdvtxn_id in ( select efin_rdvtxn_id from efin_rdvtxn txn 
+                        where txn_version > v_txn_version and efin_rdv_id = v_efin_rdv_id ) );
+END IF;
+
+END EFIN_RDV_HOLD_HEADER_TRG
+]]></body>
+    </trigger>
+  </database>

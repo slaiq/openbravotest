@@ -1,0 +1,233 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE FIN_PAYMENT">
+    <table name="FIN_PAYMENT" primaryKey="FIN_PAYMENT_KEY">
+      <column name="EM_EFIN_HIJRIPAYMENT_DATE" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_DOCUMENT_ACTION" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_NOTES" primaryKey="false" required="false" type="VARCHAR" size="2000" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_BP_BANKACCOUNT_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_BPARTNER_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_PREPAYMENT" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_MOFBANKNAME" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_MOFCHEQUENO" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_MOFCHEQUEDATE" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_MOFCHQSTATUS" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_INWARDNO" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_OUTWARDNO" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_SUPBANKIBAN" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_BANK_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_CANCELLATION" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_UPLOADMOF" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_PAYMENTREPORT" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_PAY_RECEIVE_DATE" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_PAY_RECEIVEDBY" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_BATCH_POST" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_POSTINGSEQUENCE" primaryKey="false" required="false" type="VARCHAR" size="30" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_GENERALSEQUENCE" primaryKey="false" required="false" type="VARCHAR" size="30" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_CUSNAME" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_CUSNO" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_CUSLOCATION" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_INVOICE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_BANKNOTE" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_PAYSTATUS" primaryKey="false" required="false" type="VARCHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_PAYINST" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default><![CDATA[IBAN]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_SUPBANKACCT" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_CANCEL_AMARDAFA_NO" primaryKey="false" required="false" type="VARCHAR" size="30" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_BENEFICIARY2_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_PAYMENTSEQUENCE" primaryKey="false" required="false" type="VARCHAR" size="40" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_APPLYSEQUENCE" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_PAYMENT_SEQUENCES_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_PARENT_SEQUENCES_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_CHILD_SEQUENCE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_MOFBANKNAME_TMP" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_MOFCHEQUENO_TMP" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_MOFCHEQUEDATE_TMP" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_ISLOCKED" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault><![CDATA['N']]></onCreateDefault>
+      </column>
+      <column name="EM_EFIN_BANKSENTDATE" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_RECEIVE_CHEQUE_DATE" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_BANKSENTDATE_TMP" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_REC_CHEQUE_DATE_TMP" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_MOFCHQSTATUS_TMP" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_LOCATION_CODE" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_SUBMITTED_ROLE" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="C_BP_BANKACCOUNT" name="EM_EFIN_BANKACCOUNT">
+        <reference local="EM_EFIN_BP_BANKACCOUNT_ID" foreign="C_BP_BANKACCOUNT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_BPARTNER" name="EM_EFIN_BENEFICIARY2">
+        <reference local="EM_EFIN_BENEFICIARY2_ID" foreign="C_BPARTNER_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_BP_BANKACCOUNT" name="EM_EFIN_BPBANKACCOUNT">
+        <reference local="EM_EFIN_SUPBANKACCT" foreign="C_BP_BANKACCOUNT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_CHILD_SEQUENCE" name="EM_EFIN_CHILDSEQ_FK">
+        <reference local="EM_EFIN_CHILD_SEQUENCE_ID" foreign="EFIN_CHILD_SEQUENCE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EUT_NEXT_ROLE" name="EM_EFIN_FOREIGN_ROLE">
+        <reference local="EM_EUT_NEXT_ROLE_ID" foreign="EUT_NEXT_ROLE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_BANK" name="EM_EFIN_PAYMENT_BANKID">
+        <reference local="EM_EFIN_BANK_ID" foreign="EFIN_BANK_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_BP_BANKACCOUNT" name="EM_EFIN_PAYMENT_BANKVID">
+        <reference local="EM_EFIN_SUPBANKIBAN" foreign="C_BP_BANKACCOUNT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_PARENT_SEQUENCE" name="EM_EFIN_PAYMENT_PAR_FK">
+        <reference local="EM_EFIN_PARENT_SEQUENCES_ID" foreign="EFIN_PARENT_SEQUENCE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_PAYMENT_SEQUENCES" name="EM_EFIN_PAYMENT_SEQ_FK">
+        <reference local="EM_EFIN_PAYMENT_SEQUENCES_ID" foreign="EFIN_PAYMENT_SEQUENCES_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_ROLE" name="EM_EFIN_PAYMENT_SUBMIT_ROLE">
+        <reference local="EM_EFIN_SUBMITTED_ROLE" foreign="AD_ROLE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_INVOICE" name="EM_EFIN_PAYMENTINV_FK">
+        <reference local="EM_EFIN_INVOICE_ID" foreign="C_INVOICE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_BPARTNER" name="EM_EFIN_PAYSUPPLIER">
+        <reference local="EM_EFIN_BPARTNER_ID" foreign="C_BPARTNER_ID"/>
+      </foreign-key>
+    </table>
+  </database>

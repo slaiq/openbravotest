@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_GETPARENTACCTCOM">
+    <function name="EFIN_GETPARENTACCTCOM" type="VARCHAR">
+      <parameter name="p_combination_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_parentAcctcomId character varying(32);
+v_costcenter character varying(32);
+v_ResultStr VARCHAR2(2000):='';
+
+BEGIN
+  
+     select budgetcontrol_costcenter into v_costcenter from efin_budget_ctrl_param   where     ad_client_id  = p_client_id;
+
+       if(v_costcenter is not null) then
+       select c_validcombination_id into v_parentAcctcomId from c_validcombination  where  
+        (ad_org_id||'-'||c_project_id||'-'||account_id||'-'||c_bpartner_id||'-'||c_campaign_id||'-'||
+        c_activity_id||'-'||user1_id||'-'||user2_id)= ( select (ad_org_id||'-'||c_project_id||'-'||account_id||'-'||c_bpartner_id||'-'||c_campaign_id||'-'||
+        c_activity_id||'-'||user1_id||'-'||user2_id) from c_validcombination where c_validcombination_id= p_combination_id)
+       and  c_salesregion_id  = v_costcenter  and ad_client_id  = p_client_id;
+         end if ;
+   RETURN v_parentAcctcomId;
+ 
+	 
+EXCEPTION
+WHEN OTHERS THEN
+		  
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+  RAISE;
+  RETURN v_parentAcctcomId;
+END EFIN_GETPARENTACCTCOM
+]]></body>
+    </function>
+  </database>

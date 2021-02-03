@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="4401F7A6645A4769BA8E9562826ACF9A" identifier="Purchase Order and Contracts Summary RMI">
+    <id>4401F7A6645A4769BA8E9562826ACF9A</id>
+    <active>true</active>
+    <name>Purchase Order and Contracts Summary RMI</name>
+    <tab id="62248BBBCF644C18A75B92AD8E50238C" entity-name="ADTab" identifier="Header - Purchase Order and Contracts Summary"/>
+    <filterClause>((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) </filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>POR</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

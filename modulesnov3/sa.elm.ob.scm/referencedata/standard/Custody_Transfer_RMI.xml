@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="B25A6C2035BE4EB0BBFA090126A9666E" identifier="Custody Transfer RMI">
+    <id>B25A6C2035BE4EB0BBFA090126A9666E</id>
+    <active>true</active>
+    <name>Custody Transfer RMI</name>
+    <tab id="CB9A2A4C6DB24FD19D542A78B07ED6C1" entity-name="ADTab" identifier="Custody Transfer - Custody Transfer"/>
+    <filterClause>((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) </filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>CTR</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

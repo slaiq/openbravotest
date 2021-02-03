@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="75E4710A7A844268882532E5D73B6D2A" identifier="Budget Inquiry has current budget less than encumbrance">
+    <id>75E4710A7A844268882532E5D73B6D2A</id>
+    <active>true</active>
+    <creationDate transient="true">2019-05-13T14:45:28.538Z</creationDate>
+    <createdBy transient="true" id="BCF72D95E15446FCB95F1B9333602E88" entity-name="ADUser" identifier="omar"/>
+    <updated transient="true">2019-05-14T17:35:19.601Z</updated>
+    <updatedBy transient="true" id="BCF72D95E15446FCB95F1B9333602E88" entity-name="ADUser" identifier="omar"/>
+    <name>Budget Enquiry has current budget less than encumbrance</name>
+    <tab id="4B84B7F7B6DC488F9E0B4FB754199846" entity-name="ADTab" identifier="Lines - Budget Enquiry"/>
+    <filterClause>ad_client_id=@#AD_CLIENT_ID@</filterClause>
+    <sql>SELECT efin_budgetinquiry_id AS referencekey_id,
+     uniquecode AS record_id,
+     '0' AS ad_role_id,
+     NULL AS ad_user_id,
+     uniquecode ||' has encumbrance greater than current budget' AS description,
+     'Y' AS isActive,
+      ad_org_id, 
+      ad_client_id, 
+      now() AS created,  
+      '0' AS createdBy,  
+      now() AS updated,
+      '0' AS updatedBy
+ FROM efin_budgetinquiry 
+ WHERE Current_Budget &lt; Encumbrance and (C_SalesRegion_ID in (select HQ_Budgetcontrolunit from efin_budget_ctrl_param) 
+ or C_SalesRegion_ID in (select Budgetcontrol_Costcenter from efin_budget_ctrl_param))</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+</ob:Openbravo>

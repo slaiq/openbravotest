@@ -1,0 +1,172 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_PORECPAMTPRECISION_TRG">
+    <trigger name="ESCM_PORECPAMTPRECISION_TRG" table="ESCM_INITIALRECEIPT" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+	v_totalLineAmt NUMBER;
+	v_ReceivedAmt NUMBER;
+	v_prec NUMBER;
+	v_clientId VARCHAR(32);
+    v_quantity NUMBER;
+    v_unitprice NUMBER;
+    v_accepted_qty NUMBER;
+    v_rejected_qty NUMBER;
+    v_delivered_qty NUMBER;
+    v_return_qty NUMBER;
+    v_ir_return_qty NUMBER;
+    v_total_accepted_qty NUMBER;
+    v_match_qty NUMBER;
+    v_delivered_amt NUMBER;
+    v_percentage_achieved NUMBER;
+    v_received_amount NUMBER;
+    v_match_amt NUMBER;
+    
+	BEGIN
+
+	IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+		IF (INSERTING OR UPDATING ) THEN 
+			-- To get Standard Precision from Currency by using Current Client ID
+    		select stdPrecision INTO v_prec from c_currency where c_currency_id 
+    		in (select c_currency_id from ad_client where ad_client_id  = :NEW.ad_client_id);
+			 
+			IF (INSERTING) THEN
+			v_totalLineAmt := ROUND(coalesce(:new.TOT_Line_Amt,0) , v_prec);
+			v_ReceivedAmt := ROUND(coalesce(:new.Received_Amount,0) , v_prec);
+            v_quantity := ROUND(COALESCE(:new.quantity,0),2);
+            v_unitprice := ROUND(COALESCE(:new.unitprice,0),v_prec);
+            v_accepted_qty := ROUND(COALESCE(:new.accepted_qty,0),2);
+            v_rejected_qty := ROUND(COALESCE(:new.rejected_qty,0),2);
+            v_delivered_qty := ROUND(COALESCE(:new.delivered_qty,0),2);
+            v_return_qty := ROUND(COALESCE(:new.return_qty,0),2);
+            v_ir_return_qty := ROUND(COALESCE(:new.ir_return_qty,0),2);
+            v_total_accepted_qty := ROUND(COALESCE(:new.total_accepted_qty,0),2);
+            v_match_qty := ROUND(COALESCE(:new.match_qty,0),2);
+            v_delivered_amt := ROUND(COALESCE(:new.delivered_amt,0),v_prec);
+            v_percentage_achieved := ROUND(COALESCE(:new.percentage_achieved,0),2);
+            v_match_amt := ROUND(COALESCE(:new.match_amt,0),v_prec);
+            
+			UPDATE Escm_InitialReceipt 
+			set TOT_Line_Amt = v_totalLineAmt ,Received_Amount = v_ReceivedAmt,
+            quantity = v_quantity, unitprice = v_unitprice, accepted_qty = v_accepted_qty,
+            rejected_qty = v_rejected_qty,delivered_qty = v_delivered_qty,return_qty = v_return_qty,
+            ir_return_qty = v_ir_return_qty,total_accepted_qty = v_total_accepted_qty,match_qty = v_match_qty, 
+            delivered_amt = v_delivered_amt, percentage_achieved = v_percentage_achieved,match_amt = v_match_amt
+			where Escm_InitialReceipt_id = :new.Escm_InitialReceipt_id;
+			
+			ELSE
+				IF(coalesce(:new.TOT_Line_Amt,0) <> coalesce(:old.TOT_Line_Amt,0))THEN
+					v_totalLineAmt := ROUND(:new.TOT_Line_Amt , v_prec);
+					UPDATE Escm_InitialReceipt 
+					set TOT_Line_Amt = v_totalLineAmt 
+					where Escm_InitialReceipt_id = :new.Escm_InitialReceipt_id;
+				END IF;
+				
+				IF(coalesce(:new.Received_Amount,0) <> coalesce(:old.Received_Amount,0))THEN
+					v_ReceivedAmt := ROUND(:new.Received_Amount , v_prec);
+					UPDATE Escm_InitialReceipt 
+					set Received_Amount = v_ReceivedAmt 
+					where Escm_InitialReceipt_id = :new.Escm_InitialReceipt_id;
+				END IF;
+                
+                IF( coalesce(:new.Quantity,0) <> coalesce(:old.Quantity,0)
+                  	and coalesce(:new.Quantity,0) <> ROUND(coalesce(:new.Quantity,0),2) ) THEN
+					v_quantity := ROUND(:new.quantity , 2);
+					UPDATE Escm_InitialReceipt 
+					set quantity = v_quantity 
+					where Escm_InitialReceipt_id = :new.Escm_InitialReceipt_id;
+				END IF;
+                
+                IF( coalesce(:new.unitprice,0) <> coalesce(:old.unitprice,0)
+                  	and coalesce(:new.unitprice,0) <> ROUND(coalesce(:new.unitprice,0),v_prec) ) THEN
+					v_unitprice := ROUND(:new.unitprice , v_prec);
+					UPDATE Escm_InitialReceipt 
+					set unitprice = v_unitprice
+					where Escm_InitialReceipt_id = :new.Escm_InitialReceipt_id;
+				END IF;
+                
+                IF( coalesce(:new.accepted_qty,0) <> coalesce(:old.accepted_qty,0)
+                  	and coalesce(:new.accepted_qty,0) <> ROUND(coalesce(:new.accepted_qty,0),2) ) THEN
+					v_accepted_qty := ROUND(:new.accepted_qty , 2);
+					UPDATE Escm_InitialReceipt 
+					set accepted_qty = v_accepted_qty 
+					where Escm_InitialReceipt_id = :new.Escm_InitialReceipt_id;
+				END IF;
+                
+                IF( coalesce(:new.rejected_qty,0) <> coalesce(:old.rejected_qty,0)
+                  	and coalesce(:new.rejected_qty,0) <> ROUND(coalesce(:new.rejected_qty,0),2) ) THEN
+					v_rejected_qty := ROUND(:new.rejected_qty , 2);
+					UPDATE Escm_InitialReceipt 
+					set rejected_qty = v_rejected_qty
+					where Escm_InitialReceipt_id = :new.Escm_InitialReceipt_id;
+				END IF;
+                
+                IF( coalesce(:new.delivered_qty,0) <> coalesce(:old.delivered_qty,0)
+                  	and coalesce(:new.delivered_qty,0) <> ROUND(coalesce(:new.delivered_qty,0),2) ) THEN
+					v_delivered_qty := ROUND(:new.delivered_qty , 2);
+					UPDATE Escm_InitialReceipt 
+					set delivered_qty = v_delivered_qty 
+					where Escm_InitialReceipt_id = :new.Escm_InitialReceipt_id;
+				END IF;
+                
+                 IF( coalesce(:new.return_qty,0) <> coalesce(:old.return_qty,0)
+                  	and coalesce(:new.return_qty,0) <> ROUND(coalesce(:new.return_qty,0),2) ) THEN
+					v_return_qty := ROUND(:new.return_qty , 2);
+					UPDATE Escm_InitialReceipt 
+					set return_qty = v_return_qty 
+					where Escm_InitialReceipt_id = :new.Escm_InitialReceipt_id;
+				END IF;
+                
+                IF( coalesce(:new.ir_return_qty,0) <> coalesce(:old.ir_return_qty,0)
+                  	and coalesce(:new.ir_return_qty,0) <> ROUND(coalesce(:new.ir_return_qty,0),2) ) THEN
+					v_ir_return_qty := ROUND(:new.ir_return_qty , 2);
+					UPDATE Escm_InitialReceipt 
+					set ir_return_qty = v_ir_return_qty 
+					where Escm_InitialReceipt_id = :new.Escm_InitialReceipt_id;
+				END IF;
+                
+                IF( coalesce(:new.total_accepted_qty,0) <> coalesce(:old.total_accepted_qty,0)
+                  	and coalesce(:new.total_accepted_qty,0) <> ROUND(coalesce(:new.total_accepted_qty,0),2) ) THEN
+					v_total_accepted_qty := ROUND(:new.total_accepted_qty , 2);
+					UPDATE Escm_InitialReceipt 
+					set total_accepted_qty = v_total_accepted_qty
+					where Escm_InitialReceipt_id = :new.Escm_InitialReceipt_id;
+				END IF;
+                
+                IF( coalesce(:new.match_qty,0) <> coalesce(:old.match_qty,0)
+                  	and coalesce(:new.match_qty,0) <> ROUND(coalesce(:new.match_qty,0),2) ) THEN
+					v_match_qty := ROUND(:new.match_qty , 2);
+					UPDATE Escm_InitialReceipt 
+					set match_qty = v_match_qty
+					where Escm_InitialReceipt_id = :new.Escm_InitialReceipt_id;
+				END IF;
+                
+                IF( coalesce(:new.delivered_amt,0) <> coalesce(:old.delivered_amt,0)
+                  	and coalesce(:new.delivered_amt,0) <> ROUND(coalesce(:new.delivered_amt,0),v_prec) ) THEN
+					v_delivered_amt := ROUND(:new.delivered_amt , v_prec);
+					UPDATE Escm_InitialReceipt 
+					set delivered_amt = v_delivered_amt
+					where Escm_InitialReceipt_id = :new.Escm_InitialReceipt_id;
+				END IF;
+                
+                IF( coalesce(:new.percentage_achieved,0) <> coalesce(:old.percentage_achieved,0)
+                  	and coalesce(:new.percentage_achieved,0) <> ROUND(coalesce(:new.percentage_achieved,0),v_prec) ) THEN
+					v_percentage_achieved := ROUND(:new.percentage_achieved , v_prec);
+					UPDATE Escm_InitialReceipt 
+					set percentage_achieved = v_percentage_achieved
+					where Escm_InitialReceipt_id = :new.Escm_InitialReceipt_id;
+				END IF;
+                
+                IF( coalesce(:new.match_amt,0) <> coalesce(:old.match_amt,0)
+                  	and coalesce(:new.match_amt,0) <> ROUND(coalesce(:new.match_amt,0),v_prec) ) THEN
+					v_match_amt := ROUND(:new.match_amt , v_prec);
+					UPDATE Escm_InitialReceipt 
+					set match_amt = v_match_amt
+					where Escm_InitialReceipt_id = :new.Escm_InitialReceipt_id;
+				END IF;
+                
+			END IF;
+		END IF;
+			END ESCM_PORECPAMTPRECISION_TRG
+]]></body>
+    </trigger>
+  </database>

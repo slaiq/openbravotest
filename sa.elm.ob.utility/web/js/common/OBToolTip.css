@@ -1,0 +1,91 @@
+.OBToolTip {
+    color: blue;
+    font-size: 13px;
+    font-weight: bold;
+    z-index: 1000000;
+    cursor: pointer;
+}
+.OB_ToolTip {
+    position: absolute;
+    z-index: 8000;
+    background: transparent;
+    font-family: Geneva, 'Lucida Sans', 'Lucida Grande',
+        'Lucida Sans Unicode', Verdana, sans-serif;
+}
+.OB_ToolTip .OB_ToolTip_Message {
+    position: relative;
+    padding: 7px;
+    margin-top: 5px;
+    padding-right : 0px;
+    padding-bottom: 10px;
+    font-size: inherit;
+    text-align: left;
+    font-weight: normal;
+    line-height: inherit;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    overflow-y: auto;
+    min-height: 100px;
+    border: 2px solid #a3a3a3 !important;
+    -webkit-box-shadow: 0px 0px 15px 5px #a3a3a3;
+    -moz-box-shadow: 0px 0px 15px 5px #a3a3a3;
+    box-shadow: 0px 0px 15px 5px #a3a3a3;
+    *margin-right: 0;
+    _width: expression(document.body.clientWidth > 250 ? '250px' : 'auto');
+}
+.OB_ToolTip .OB_ToolTip_Message .OB_ToolTip_Text {
+    height: 105px;
+    overflow: auto;
+    margin-top: 5px;
+    padding-right: 7px;
+    font-size: 13px;
+    font-family: tahoma,arial,helvetica,sans-serif;
+    width: 293px;
+}
+.OB_ToolTip .OB_ToolTip_Arrow {
+    position: absolute;
+    height: 12px;
+    width: 24px;
+    overflow: hidden
+}
+.OB_ToolTip .OB_ToolTip_Arrow_Bottom {
+    bottom: 0
+}
+.OB_ToolTip .OB_ToolTip_Arrow_Top {
+    top: 0
+}
+.OB_ToolTip .OB_ToolTip_Arrow div {
+    position: absolute;
+    border-style: solid;
+    border-width: 12px;
+    height: 0;
+    width: 0;
+    left: 0;
+    _border-left-color: pink;
+    _border-right-color: pink;
+    _filter: chroma(color = pink);
+}
+.OB_ToolTip .OB_ToolTip_Arrow_Bottom div {
+    top: 0;
+    _border-bottom-color: pink;
+    border-color: #a3a3a3 transparent transparent !important;
+}
+.OB_ToolTip .OB_ToolTip_Arrow_Top div {
+    bottom: 0;
+    _border-top-color: pink;
+    border-color: transparent transparent #a3a3a3 !important;
+}
+.OB_ToolTip .OB_ToolTip_Close {
+    text-decoration: none;
+    color: #000;
+    position: absolute;
+    right: 4px;
+    top: -1px;
+    font-size: inherit;
+    font-weight: bold;
+    font-size: 13px;
+}
+.OB_ToolTip .OB_ToolTip_Close:hover {
+    color: #222222;
+}

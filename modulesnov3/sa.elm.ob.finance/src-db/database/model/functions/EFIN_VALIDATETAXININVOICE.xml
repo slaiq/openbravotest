@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_VALIDATETAXININVOICE">
+    <function name="EFIN_VALIDATETAXININVOICE" type="VARCHAR">
+      <parameter name="p_orderid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_taxmethod_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_invoice_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="isrdv" type="CHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2001-2011 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************/
+  v_taxmethod_id VARCHAR(32);--OBTG:varchar2--
+  v_order_id VARCHAR(32);--OBTG:varchar2--
+  v_createddate DATE;
+  v_invoicedate DATE;
+  v_documentno VARCHAR(32);
+  v_result VARCHAR(32);--OBTG:varchar2--
+  
+  BEGIN
+   v_result:='N';
+   v_order_id:=p_orderid;
+  
+  select TO_DATE(to_char(dateacct,'YYYY-MM-DD'),'YYYY-MM-DD') into v_invoicedate from c_invoice where c_invoice_id =  p_invoice_id;
+  select documentno into v_documentno from c_Order where c_Order_id = v_order_id;
+ if(v_invoicedate >  TO_DATE('2020-06-30','YYYY-MM-DD') ) then
+   if(isRDV ='Y') then
+    select c_order_id into v_order_id from
+          c_order where documentno= v_documentno
+          and em_escm_appstatus='ESCM_AP' order by em_escm_revision desc limit 1 ;
+   end if;
+    
+   select   case when EM_Escm_Signaturedate is null then TO_DATE(to_char(dateordered,'YYYY-MM-DD'),'YYYY-MM-DD') 
+	        else   TO_DATE(to_char(EM_Escm_Signaturedate,'YYYY-MM-DD'),'YYYY-MM-DD') end into  v_createddate from c_order where c_order_id = v_order_id;
+
+  
+  if(v_createddate between TO_DATE('2020-05-11','YYYY-MM-DD') and TO_DATE('2020-06-30','YYYY-MM-DD') ) then
+   select coalesce(efin_tax_method_id,'dummy') into v_taxmethod_id from efin_tax_method where valid_TO_DATE is  null and istaxincluded =(select istaxincluded from efin_tax_method where efin_tax_method_id =(select em_escm_tax_method_id from c_order where c_order_id = p_orderid)) order by created desc limit 1;
+   if(v_taxmethod_id=p_taxmethod_id) then
+    v_result = 'Y';                                                             
+   end if;
+  else
+  v_result = 'Y';                                                             
+  end if;
+ else
+  v_result = 'Y';                                                             
+  end if;
+RETURN v_result;
+END EFIN_VALIDATETAXININVOICE
+]]></body>
+    </function>
+  </database>

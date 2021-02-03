@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_INSURANCE_DOCUMENTNO_V">
+    <view name="ESCM_INSURANCE_DOCUMENTNO_V"><![CDATA[SELECT ord.c_order_id AS escm_insurance_documentno_v_id, ord.ad_client_id, ord.ad_org_id, ord.created, ord.createdby, ord.isactive, ord.updated, ord.updatedby, ord.documentno, concat(ord.documentno, ' - ', COALESCE(ord.em_escm_notes, '')) AS description FROM c_order ord WHERE ord.em_escm_appstatus = 'ESCM_AP' AND ord.isactive = 'Y' AND ord.em_escm_ordertype IS NOT NULL AND ord.em_escm_ordertype <> 'PUR_AG']]></view>
+  </database>

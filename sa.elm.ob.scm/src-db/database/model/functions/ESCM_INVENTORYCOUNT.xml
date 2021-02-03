@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION ESCM_INVENTORYCOUNT">
+    <function name="ESCM_INVENTORYCOUNT" type="NULL">
+      <parameter name="pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_Record_ID VARCHAR2(32);
+ v_User_ID VARCHAR2(32);
+ v_Client_ID VARCHAR2(32);
+ v_Org_ID VARCHAR2(32);
+ v_Warehouse_ID VARCHAR2(32);
+ v_productName VARCHAR(60);--OBTG:VARCHAR2--
+ v_NextNo VARCHAR2(32);
+ v_NextLine NUMBER;
+ v_Count NUMBER;
+ exe_zero CHAR(1);
+ Cur_Parameter RECORD;
+ cur_inventory RECORD;
+ cur_updateInfo RECORD;
+BEGIN 
+    FOR Cur_Parameter IN
+      (SELECT i.Record_ID,i.AD_User_ID,i.AD_Client_ID,i.AD_Org_ID
+      FROM AD_PInstance i
+      LEFT JOIN AD_PInstance_Para p
+        ON i.AD_PInstance_ID=p.AD_PInstance_ID
+      WHERE i.AD_PInstance_ID=PInstance_ID
+      ORDER BY p.SeqNo
+      )
+    LOOP
+      v_Record_ID:=Cur_Parameter.Record_ID;
+      v_User_ID:=Cur_Parameter.Ad_User_Id;
+      v_Client_ID:=Cur_Parameter.AD_Client_ID;
+      v_Org_ID:=Cur_Parameter.AD_Org_ID;
+    END LOOP;
+	--insert parma to get qty > 0
+	insert into ad_pinstance_para (ad_pinstance_para_id,ad_pinstance_id,seqno,parametername,p_string,ad_client_id,ad_org_id,createdby,updatedby)
+	values(get_uuid(),pinstance_id,'10','QtyRange','>',v_Client_ID,v_Org_ID,v_User_ID,v_User_ID);
+	--call core fucnction which is used in physical inventory to add line
+ ESCM_M_INVENTORY_LISTCREATE(pinstance_id);
+	select em_escm_excludezero,m_warehouse_id into exe_zero,v_Warehouse_ID from m_inventory  where m_inventory_id = v_Record_ID;
+	--inserting 0 qty record also
+	if(exe_zero <> 'Y') then
+		for cur_inventory in(select s.m_locator_id,p.m_product_id,s.qtyonhand,p.c_uom_id from m_product p
+					inner join M_Storage_Detail s ON(s.M_Product_ID=p.M_Product_ID) 
+					LEFT JOIN m_attributeset aset ON p.m_attributeset_id = aset.m_attributeset_id
+					join m_transaction tran on tran.m_product_id = p.M_Product_ID 
+					and tran.movementdate > (SELECT date('now') - interval '1 year' AS today_in_one_year)
+					where p.AD_Client_ID=v_Client_ID and s.qtyonhand <= 0 and p.IsActive='Y' AND p.IsStocked='Y' 
+					and s.m_locator_id in (select m_locator_id from m_locator where m_warehouse_id= v_Warehouse_ID)
+					group by s.m_locator_id,p.m_product_id,s.qtyonhand)
+		loop
+			select count(M_InventoryLine_ID) into v_Count from M_InventoryLine WHERE M_Inventory_ID=v_Record_ID and M_Product_ID = cur_inventory.m_product_id and M_Locator_ID = cur_inventory.m_locator_id;
+			if(v_Count = 0) then
+				AD_Sequence_Next('M_InventoryLine', v_Client_ID, v_NextNo) ;
+				SELECT COALESCE(MAX(Line)+10, 10) INTO v_NextLine FROM M_InventoryLine WHERE M_Inventory_ID=v_Record_ID;
+				INSERT INTO M_InventoryLine(M_InventoryLine_ID, Line, AD_Client_ID, AD_Org_ID,IsActive, Created, CreatedBy, Updated,
+					UpdatedBy, M_Inventory_ID, M_Locator_ID,M_Product_ID, QtyBook, QtyCount, C_UOM_ID)
+				VALUES(v_NextNo, v_NextLine, v_Client_ID, v_Org_ID,'Y', now(), v_User_ID, now(),
+					v_User_ID, v_Record_ID, cur_inventory.m_locator_id,cur_inventory.m_product_id, cur_inventory.qtyonhand,0,cur_inventory.c_uom_id);
+			end if;
+		end loop;
+	end if;
+	for cur_updateInfo in (select m_inventoryline_id,m_product_id from m_inventoryline  where m_inventory_id = v_Record_ID)
+	loop
+		select name into v_productName from m_product where m_product_id = cur_updateInfo.m_product_id;
+		update m_inventoryline set em_escm_itemdesc=v_productName,QtyCount=0 where m_inventoryline_id = cur_updateInfo.m_inventoryline_id;
+	end loop;
+END ESCM_INVENTORYCOUNT
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.0.final using JasperReports Library version 6.5.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ProposalEvaluationCommittee" pageWidth="612" pageHeight="792" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="72625d67-0884-4052-a1ee-68aaa1341043">
+	<property name="ireport.zoom" value="1.1000000000000045"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="672"/>
+	<parameter name="inpEventId" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_DESIGN" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/opt/elm/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpClientId" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select eut_convert_to_hijri(to_char(now(),'YYYY-MM-dd')) as now,
+eut_convert_to_hijri(to_char(propevent.date_hijri,'YYYY-MM-DD')) as date_hijri,
+eut_convert_to_hijri(to_char(propevent.envelope_date,'YYYY-MM-DD')) as envelope_date,
+eut_convert_to_hijri(to_char(ann.annoucedate,'YYYY-MM-DD')) as annoucedate, propevent.eventno, propevent.bidname, to_char(propevent.approvedbudget) as approvedbudget,propevent.escm_annoucements_id,
+to_char(propevent.proposal_counts) as proposal_counts , propevent.escm_openenvcommitee_id, propevent.escm_proposalevl_event_id,
+bid.bidno,year.description as year, ann.annoucement_no, propattr.name, propevent.escm_committee_id as committeeid,
+open.eventno as opencommiteeid
+from escm_proposalevl_event  propevent
+left join escm_bidmgmt bid on bid.escm_bidmgmt_id=propevent.escm_bidmgmt_id
+left join escm_annoucements ann on ann.escm_annoucements_id=propevent.escm_annoucements_id
+left join (select * from escm_proposal_attr attr
+           join c_bpartner bp on attr.suppliername=bp.c_bpartner_id  where attr.escm_proposalevl_event_id=$P{inpEventId} order by attr.rank asc limit 1) propattr
+on propevent.escm_proposalevl_event_id=propattr.escm_proposalevl_event_id
+left join c_year year on bid.finanyear=year.c_year_id
+left join escm_openenvcommitee open on propevent.escm_openenvcommitee_id=open.escm_openenvcommitee_id
+ where propevent.escm_proposalevl_event_id =$P{inpEventId}]]>
+	</queryString>
+	<field name="now" class="java.lang.String"/>
+	<field name="date_hijri" class="java.lang.String"/>
+	<field name="envelope_date" class="java.lang.String"/>
+	<field name="annoucedate" class="java.lang.String"/>
+	<field name="eventno" class="java.lang.String"/>
+	<field name="bidname" class="java.lang.String"/>
+	<field name="approvedbudget" class="java.lang.String"/>
+	<field name="escm_annoucements_id" class="java.lang.String"/>
+	<field name="proposal_counts" class="java.lang.String"/>
+	<field name="escm_openenvcommitee_id" class="java.lang.String"/>
+	<field name="escm_proposalevl_event_id" class="java.lang.String"/>
+	<field name="bidno" class="java.lang.String"/>
+	<field name="year" class="java.lang.String"/>
+	<field name="annoucement_no" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="committeeid" class="java.lang.String"/>
+	<field name="opencommiteeid" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="752" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<subreport>
+				<reportElement positionType="Float" x="0" y="317" width="572" height="81" isRemoveLineWhenBlank="true" uuid="323e54cc-c196-4d7d-a458-e8f633330577">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpEventId">
+					<subreportParameterExpression><![CDATA[$P{inpEventId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN}+ "/sa/elm/ob/scm/ad_reports/proposalevaluation/ProposalEvaluation_subreport1.jrxml")]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" x="0" y="676" width="572" height="76" uuid="31c0c61f-2bc9-4dcd-9210-c9c6fafabea0">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<subreportParameter name="SUBREPORT_DIR"/>
+				<subreportParameter name="committee">
+					<subreportParameterExpression><![CDATA[$F{committeeid}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpEventId">
+					<subreportParameterExpression><![CDATA[$P{inpEventId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="BASE_DESIGN">
+					<subreportParameterExpression><![CDATA[$P{BASE_DESIGN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpClientId">
+					<subreportParameterExpression><![CDATA[$P{inpClientId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN}+"/sa/elm/ob/scm/ad_reports/proposalevaluation/ProposalEvaluation_subreport4.jrxml")]]></subreportExpression>
+			</subreport>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="0" y="408" width="572" height="26" uuid="f8d81ded-2777-40c5-af0d-074a5d82ddc6">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["٣ - تم فتح مظاريف العطاءات المقدمة لهذه المنافسة  وعددها ( " +" "+($F{proposal_counts}==null?"": sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{proposal_counts}))+" ) بموجب محضر لجنة فتح المظاريف رقم ("+($F{opencommiteeid}==null?"  ":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{opencommiteeid})) +") و تاريخ "+($F{envelope_date}==null?" ":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{envelope_date}.toString())+"هـ")+":"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="434" width="572" height="26" uuid="0c553361-dde0-48aa-9ce5-b54ced30facf">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[٤ - قامت لجنة فنية بمراجعة العطاءات وتدقيقها حسابيا وذكرت في تقريرها المرفق أن ترتيب العطاءات حسب الأقل سعرا بعد المراجعة]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="531" y="459" width="41" height="24" uuid="95c50ef8-901c-46fa-96a3-a38e5268c1d9">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[هو:]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" x="0" y="554" width="572" height="24" uuid="ea4e2878-3dff-422e-b800-5760dbffd41d">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["وقد جاء في تقرير اللجنة الفنية أن :"+$F{name}+"قد قدم جميع الشهادات المطلوبة نظاما."]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="392" y="597" width="180" height="24" uuid="0bf93069-599d-4f03-8f76-a9d8fe57665f">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[وعليه فإن اللجنة توصي بالاتي :]]></text>
+			</staticText>
+			<subreport>
+				<reportElement positionType="Float" x="2" y="489" width="571" height="60" uuid="e1a719a3-b6c8-4264-a80e-643c7c98afc4">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpEventId">
+					<subreportParameterExpression><![CDATA[$P{inpEventId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="BASE_DESIGN">
+					<subreportParameterExpression><![CDATA[$P{BASE_DESIGN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN}+ "/sa/elm/ob/scm/ad_reports/proposalevaluation/ProposalEvaluation_subreport2.jrxml")]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" x="0" y="633" width="571" height="23" uuid="3d6d5dd7-a764-4468-8270-70162feb8a51">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<subreportParameter name="inpEventId">
+					<subreportParameterExpression><![CDATA[$P{inpEventId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="BASE_DESIGN">
+					<subreportParameterExpression><![CDATA[$P{BASE_DESIGN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="type">
+					<subreportParameterExpression><![CDATA["FIN"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN}+ "/sa/elm/ob/scm/ad_reports/proposalevaluation/ProposalEvaluation_subreport3.jrxml")]]></subreportExpression>
+			</subreport>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="-1" y="241" width="571" height="24" uuid="99e6979d-9b8d-4e24-83d7-0e1ba06a2253"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["١-بموجب ميزانية الوزارة للعام المالي "+($F{year}==null?"   ":"( "+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{year})+")")+"  اعتمد مبلغ"+($F{approvedbudget}==null?"   ":"  "+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{approvedbudget}))+"  ريال."]]></textFieldExpression>
+			</textField>
+			<elementGroup/>
+			<elementGroup/>
+			<subreport>
+				<reportElement positionType="Float" x="0" y="581" width="572" height="15" uuid="3bb2bdb0-926f-4e53-b25b-ebe885203481">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpEventId">
+					<subreportParameterExpression><![CDATA[$P{inpEventId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="BASE_DESIGN">
+					<subreportParameterExpression><![CDATA[$P{BASE_DESIGN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="type">
+					<subreportParameterExpression><![CDATA["GEN"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN}+ "/sa/elm/ob/scm/ad_reports/proposalevaluation/ProposalEvaluation_subreport3.jrxml")]]></subreportExpression>
+			</subreport>
+			<textField>
+				<reportElement x="-1" y="217" width="571" height="24" uuid="f8992a8c-93ae-482d-af25-c7ac681293bb"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["اطلعت لجنة فحص العروض على أوراق عملية:"+"  "+($F{bidname}==null?" ":$F{bidname})+"  "+"و تبين الاتي :"]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="-2" y="265" width="573" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="c55b00cd-b4f4-4032-a682-df78fd7cfa54"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" markup="none">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA["٢ - تم طرح العملية في المنافسة العامة بالإعلان الصادر للصحف رقم"+($F{annoucement_no}==null?"   ":"  "+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{annoucement_no}))+"   "+" و تاريخ"+($F{annoucedate}==null?"   ":"  "+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{annoucedate}.toString()))+"  هـ."]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="86" y="151" width="151" height="24" uuid="8615f455-0c5d-4fb8-a631-b095630c0d49"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{date_hijri}.toString())+" هـ"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="468" y="290" width="100" height="24" uuid="a75f9a8e-db2b-4d1d-b42e-ae5ad29160be"/>
+				<box rightPadding="2"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[وصدر في جريدة :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="116" y="28" width="63" height="24" uuid="a8890e21-43b1-44a8-8b8d-414f4365f96b"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[رقم المنافسة :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="237" y="151" width="37" height="24" uuid="0588a846-977f-48e9-8256-74b93030c055"/>
+				<textElement>
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[و تاريخ :]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="27" width="116" height="24" uuid="48e84b45-6cbe-4d4f-97ba-be6d85145771"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{bidno})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="119" y="52" width="41" height="24" uuid="ac236655-69a9-407a-acf7-d6c85398cfc2"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[الصفحة :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="86" y="52" width="12" height="24" uuid="43e054f6-8f9a-4d92-b24a-742d6ab14e1f">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[من]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="353" y="67" width="217" height="33" uuid="9b19d20f-667c-4bd9-a725-f6c2575a1984"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="21"/>
+				</textElement>
+				<text><![CDATA[الإدارة العامة للمنافسات والعقود]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="98" y="52" width="21" height="24" uuid="87d66382-4154-43ab-91bf-09ce31831086">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($V{PAGE_NUMBER}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="273" y="151" width="90" height="24" uuid="066c8a63-16a6-4c71-bff4-7af627876de1"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{eventno})]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="0" y="52" width="86" height="24" uuid="15f50524-631e-4212-a95f-7a86e41ddc9e">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($V{PAGE_NUMBER}.toString())]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="72" y="114" width="358" height="37" uuid="c3024e33-8a8b-45df-9562-c5f6a46cdd20"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="24"/>
+				</textElement>
+				<text><![CDATA[محضر لجنة فحص العروض]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="3" width="116" height="24" uuid="7814d290-06d3-4986-a6db-b28f9220da7f"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{now}.toString())]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="353" y="1" width="217" height="33" uuid="234046fa-3aea-475e-af82-c61bfe5bc8c4"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="21"/>
+				</textElement>
+				<text><![CDATA[المملكة العربية السعودية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="362" y="151" width="58" height="24" uuid="6828d6bf-c9af-4af8-bd86-68f0d403934f"/>
+				<textElement>
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[رقم المحضر :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="116" y="3" width="41" height="24" uuid="dcc87c3c-c24f-4eba-af8a-0a4ad103a5e8"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[التاريخ :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="353" y="34" width="217" height="33" uuid="783df85d-8f8a-46df-9acc-a23e9026014e"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="21"/>
+				</textElement>
+				<text><![CDATA[وزارة النقل]]></text>
+			</staticText>
+		</band>
+	</detail>
+</jasperReport>

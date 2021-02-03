@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_GET_BUDGETTYPE_ACTS">
+    <function name="EUT_GET_BUDGETTYPE_ACTS" type="VARCHAR">
+      <parameter name="param_campaign" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s):  GOPALAKRISHNAN.
+************************************************************************/
+    process_parents character varying[];
+    children character varying[] := '{}';
+    new_children character varying[];
+    childact character varying;
+    Cur_Element RECORD;
+BEGIN
+FOR Cur_Element IN
+( select C_Elementvalue_ID  from efin_budgettype_acct line
+join C_Campaign on C_Campaign.C_Campaign_ID= line.C_Campaign_ID 
+where C_Campaign.C_Campaign_ID=param_campaign )
+LOOP
+process_parents := ARRAY[ Cur_Element.C_Elementvalue_ID ];
+ WHILE ( array_upper( process_parents, 1 ) IS NOT NULL ) LOOP
+        new_children := ARRAY( SELECT node_id FROM ad_treenode 
+        WHERE parent_id  = ANY( process_parents )  AND node_id <> ALL( children ) );
+        children := children || new_children;
+        process_parents := new_children;
+END LOOP;
+END LOOP ; 
+    childact:=replace(replace(replace(children::text,'{',''''),'}',''''),',',''',''');
+    RETURN childact ;
+END EUT_GET_BUDGETTYPE_ACTS
+]]></body>
+    </function>
+  </database>

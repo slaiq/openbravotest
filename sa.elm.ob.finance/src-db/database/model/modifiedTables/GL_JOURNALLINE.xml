@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE GL_JOURNALLINE">
+    <table name="GL_JOURNALLINE" primaryKey="GL_JOURNALENTRY_KEY">
+      <column name="EM_EFIN_UNIQUECODE" primaryKey="false" required="false" type="VARCHAR" size="2000" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_FUNDS_AVAILABLE" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default><![CDATA[0]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_BUDGETLINES_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_CHECKING_STAUS" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_CHECKING_STAUS_FAILURE" primaryKey="false" required="false" type="VARCHAR" size="100" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_BENEFICIARY" primaryKey="false" required="false" type="VARCHAR" size="255" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_ACCOUNT" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_UNIQUECODEVALUE" primaryKey="false" required="false" type="VARCHAR" size="2000" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="C_ELEMENTVALUE" name="EM_EFIN_ACCOUNTFK">
+        <reference local="EM_EFIN_ACCOUNT" foreign="C_ELEMENTVALUE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_BUDGETLINES" name="EM_EFIN_FOREIGN_BUDGETLINE">
+        <reference local="EM_EFIN_BUDGETLINES_ID" foreign="EFIN_BUDGETLINES_ID"/>
+      </foreign-key>
+    </table>
+  </database>

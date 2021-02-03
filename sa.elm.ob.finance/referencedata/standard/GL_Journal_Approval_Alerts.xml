@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="B3749CDC41664834A99722D265E38F19" identifier="G/L Journal Approved">
+    <id>B3749CDC41664834A99722D265E38F19</id>
+    <active>true</active>
+    <creationDate transient="true">2016-07-15T10:46:47.790Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2016-07-21T18:01:00.472Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>G/L Journal Approved</name>
+    <tab id="160" entity-name="ADTab" identifier="Header - G/L Journal"/>
+    <filterClause>referencekey_id in (select GL_Journal_id from GL_Journal ad join ad_user as usr on ad.createdby=usr.ad_user_id 
+where usr.ad_user_id in (@AD_USER_ID@) and ad.docstatus='CO')</filterClause>
+    <sql>SELECT GL_Journal_id AS referencekey_id,
+     ad_column_identifier('GL_Journal', gl_journal_id, 'en_US') AS record_id,
+     0 AS ad_role_id,
+     NULL AS ad_user_id,
+      ( ad_column_identifier('GL_Journal', gl_journal_id, 'en_US')) ||' g/l journal is Approved'  AS description,
+     'Y' AS isActive,
+      ad_org_id, 
+      ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+ FROM GL_Journal ad  where docstatus = 'CO'  and gl_journalbatch_id is not null and updated &gt;= now()-2</sql>
+    <type>D</type>
+  </ADAlertRule>
+  <ADAlertRule id="B5EAE70F082F4263B28ABF1A9A1668CD" identifier="G/l journal Waiting For Approval">
+    <id>B5EAE70F082F4263B28ABF1A9A1668CD</id>
+    <active>true</active>
+    <creationDate transient="true">2016-07-15T18:09:28.670Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2016-07-18T15:55:53.284Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>G/l journal Waiting For Approval</name>
+    <tab id="160" entity-name="ADTab" identifier="Header - G/L Journal"/>
+    <filterClause>referencekey_id in (select gl_journal_id from GL_Journal ad 
+join eut_next_role_line ln on ln.eut_next_role_id= ad.em_eut_next_role_id
+where ln.ad_role_id in (@AD_ROLE_ID@) 
+and ad.docstatus='EFIN_WFA')</filterClause>
+    <sql>SELECT GL_Journal_id AS referencekey_id,
+     ad_column_identifier('GL_Journal', gl_journal_id, 'en_US') AS record_id,
+     0 AS ad_role_id,
+     NULL AS ad_user_id,
+      ( ad_column_identifier('GL_Journal', gl_journal_id, 'en_US')) ||' g/l journal is waiting for Approval'  AS description,
+     'Y' AS isActive,
+      ad_org_id, 
+      ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+ FROM GL_Journal ad  where docstatus = 'EFIN_WFA' and gl_journalbatch_id is not null  and updated &gt;= now()-2
+</sql>
+    <type>D</type>
+  </ADAlertRule>
+</ob:Openbravo>

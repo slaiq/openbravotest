@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_ACCTSCHEMA_ELEMENT">
+    <table name="C_ACCTSCHEMA_ELEMENT" primaryKey="C_ACCTSCHEMA_ELEMENT_KEY">
+      <column name="EM_EFIN_USER1" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_USER2" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_INVISIBLE" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[Y]]></default>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="USER1" name="EM_EFIN_FOREIGN_USER1">
+        <reference local="EM_EFIN_USER1" foreign="USER1_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="USER2" name="EM_EFIN_FOREIGN_USER2">
+        <reference local="EM_EFIN_USER2" foreign="USER2_ID"/>
+      </foreign-key>
+      <unique name="EM_EFIN_UNIQ_DIMENSIONTYPE">
+        <unique-column name="ELEMENTTYPE"/>
+        <unique-column name="C_ACCTSCHEMA_ID"/>
+      </unique>
+    </table>
+  </database>

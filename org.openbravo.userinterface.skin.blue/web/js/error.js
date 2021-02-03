@@ -1,0 +1,1 @@
+var showErrors=false;function HandleErrors(d,b,c,a){if(navigator.appName=="Netscape"){document.routeEvent(a);}if(showErrors){alert("Error: \n"+d+"\n\nURL: \n"+b+"\n\n\nLine: "+c);}return true;}if(!document.all){document.captureEvents(Event.ONERROR);}window.onerror=HandleErrors;

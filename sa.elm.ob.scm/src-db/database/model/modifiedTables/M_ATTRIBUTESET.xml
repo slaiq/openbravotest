@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_ATTRIBUTESET">
+    <table name="M_ATTRIBUTESET" primaryKey="M_ATTRIBUTESET_KEY">
+      <unique name="EM_ESCM_ATSETNAME_UNQ">
+        <unique-column name="NAME"/>
+        <unique-column name="AD_CLIENT_ID"/>
+      </unique>
+    </table>
+  </database>

@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_BPARTNER">
+    <table name="C_BPARTNER" primaryKey="C_BPARTNER_KEY">
+      <column name="EM_EFIN_NATIONALITY" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_IDENTITYNAME" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_CIVILREGISTRATION" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_ZAKATCERTIFICATENO" primaryKey="false" required="false" type="VARCHAR" size="40" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_ZAKATEXPIRYDATE" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_SAGIANO" primaryKey="false" required="false" type="VARCHAR" size="40" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_SAGIAEXPIRYDATE" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_IQAMANO" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_IQAMAEXPIRYDATE" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_REASON" primaryKey="false" required="false" type="VARCHAR" size="200" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_BLACKLIST" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_NATIONALIDNUMBER" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_DOCUMENTNO" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_MOFSUPPLIERACCOUNT" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_MULPREPAYMENT_ENTITY" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_NATIONALITY_TXT" primaryKey="false" required="false" type="VARCHAR" size="100" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_SALESREGION" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_CUSTOMER_TYPE" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_ISHRSUPPLIER" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="C_SALESREGION" name="EM_EFIN_BPSALESREG">
+        <reference local="EM_EFIN_SALESREGION" foreign="C_SALESREGION_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_LOOKUP_LINE" name="EM_EFIN_CUSTOMER_TYPE_FK">
+        <reference local="EM_EFIN_CUSTOMER_TYPE" foreign="EFIN_LOOKUP_LINE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_COUNTRY" name="EM_EFIN_RELATCOUNTRY">
+        <reference local="EM_EFIN_NATIONALITY" foreign="C_COUNTRY_ID"/>
+      </foreign-key>
+      <index name="EM_EFIN_BPSALESREG" unique="false">
+        <index-column name="EM_EFIN_SALESREGION"/>
+      </index>
+      <unique name="EM_EFIN_CIVIL_NATION_UNIQUE">
+        <unique-column name="AD_CLIENT_ID"/>
+        <unique-column name="EM_EFIN_NATIONALIDNUMBER"/>
+        <unique-column name="EM_EFIN_DOCUMENTNO"/>
+      </unique>
+    </table>
+  </database>

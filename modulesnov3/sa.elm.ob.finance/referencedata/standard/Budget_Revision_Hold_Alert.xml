@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="F3FFA302DC6341E2A22BEE95ED53253A" identifier="Budget Revision Hold Alert">
+    <id>F3FFA302DC6341E2A22BEE95ED53253A</id>
+    <active>true</active>
+    <name>Budget Revision Hold Alert</name>
+    <tab id="45933B643A66458D88D6BBC85A2D28FA" entity-name="ADTab" identifier="PO Hold Plan Details - PO Hold Plan Details"/>
+    <filterClause>ad_alertrule_id in ( select ad_alertrule_id  from ad_alertrecipient
+                                                     where ad_role_id=@#AD_ROLE_ID@
+                                                      and ad_user_id=@#AD_USER_ID@ )</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>RDVRH</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

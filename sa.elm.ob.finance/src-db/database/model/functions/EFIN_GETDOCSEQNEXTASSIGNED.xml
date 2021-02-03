@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_GETDOCSEQNEXTASSIGNED">
+    <function name="EFIN_GETDOCSEQNEXTASSIGNED" type="NUMERIC">
+      <parameter name="documenttype" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="yearid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): 
+************************************************************************/
+v_ResultStr VARCHAR2(2000):='';
+v_Efin_Year_Sequence_id VARCHAR2(32);
+v_currentnext NUMBER; --OBTG:VARCHAR2--
+
+TYPE RECORD IS REF CURSOR;
+Cur_Parameter RECORD;
+BEGIN 
+   
+    -- select next assigned number based on client, doctype and yearid
+     select currentnext ,Efin_Year_Sequence_id into v_currentnext,v_Efin_Year_Sequence_id  from Efin_Year_Sequence where 
+         ad_sequence_id =(select ad_sequence_id from ad_sequence where ad_sequence.name ilike 'DocumentNo_'||documenttype and ad_sequence.ad_client_id = p_client_id limit 1)
+         and c_year_id = yearId ;
+	 
+     -- update next assigned for that yearsequence
+     update Efin_Year_Sequence set currentnext = v_currentnext+1 where Efin_Year_Sequence_id = v_Efin_Year_Sequence_id;
+
+    return v_currentnext;
+END EFIN_GETDOCSEQNEXTASSIGNED
+]]></body>
+    </function>
+  </database>

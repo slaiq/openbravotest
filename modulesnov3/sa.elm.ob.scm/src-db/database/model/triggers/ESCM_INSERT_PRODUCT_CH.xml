@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_INSERT_PRODUCT_CH">
+    <trigger name="ESCM_INSERT_PRODUCT_CH" table="M_PRODUCT" fires="after" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[
+cur_line RECORD;
+v_charac character varying(32);
+v_seq NUMBER;
+                               
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	IF  INSERTING THEN
+       	select em_escm_charac_template into v_charac from m_product  where m_product_id=:NEW.m_product_id;
+       	IF(v_charac is not null)THEN
+	
+	FOR cur_line IN (
+           select * from escm_charact_templt_line where escm_charact_templt_id =v_charac
+	)
+	LOOP
+	INSERT INTO m_product_ch(
+            m_product_ch_id, ad_client_id, ad_org_id, isactive, created, 
+            createdby, updated, updatedby, m_product_id, m_characteristic_id, seqno)
+	VALUES (get_uuid(),:NEW.ad_client_id,:NEW.ad_org_id, :NEW.isactive, :NEW.created, 
+            :NEW.createdby, :NEW.updated, :NEW.updatedby, :NEW.m_product_id, cur_line.m_characteristic_id,
+	    cur_line.line);
+	END LOOP;
+        END IF;
+        END IF;
+        
+	END ESCM_INSERT_PRODUCT_CH
+]]></body>
+    </trigger>
+  </database>

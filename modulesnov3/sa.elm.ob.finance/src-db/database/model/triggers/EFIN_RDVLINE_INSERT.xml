@@ -1,0 +1,854 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_RDVLINE_INSERT">
+    <trigger name="EFIN_RDVLINE_INSERT" table="EFIN_RDVTXN" fires="after" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[cur_lines record;
+cur_linesRef record;
+cur_parref record;
+cur_receipt record;
+v_rdvtxn_id VARCHAR(32);
+v_txntype VARCHAR(60); --
+v_order_id VARCHAR(32); --
+v_orderline_id VARCHAR(32);
+v_receiptline_id VARCHAR(32);
+v_receipt_id VARCHAR(32); --
+v_rdv_id VARCHAR(32); --
+v_parentref VARCHAR(32);
+v_rdvtxnparref VARCHAR(32);
+v_vcount NUMBER;
+v_extamt NUMBER;
+v_extqty NUMBER;
+v_newqty NUMBER;
+v_newamt NUMBER;
+v_delamt NUMBER;
+v_extpenalty NUMBER;
+v_exthold NUMBER;
+v_extadv NUMBER;
+v_extpaid NUMBER;
+v_lineNo NUMBER;
+v_validcombination VARCHAR(32);
+v_summary character(1);
+v_noadvance character(1);
+v_advancetrx character(1);
+v_receivedDate timestamp without time zone;
+v_parentline VARCHAR(32);
+v_count NUMBER;
+vp VARCHAR(32);
+v_txnapp_no VARCHAR(32);
+v_pproduct VARCHAR(32);
+v_pdesc VARCHAR(2000);
+v_punitprice NUMBER;
+v_puom VARCHAR(32);
+v_advmethod VARCHAR(32);  --
+v_poProduct VARCHAR(32);
+v_fundsava NUMBER;
+v_poqty NUMBER;
+v_delPer NUMBER;
+v_totadv NUMBER;
+v_budgetInit VARCHAR(32);
+v_uniquecode VARCHAR(32);
+v_msg VARCHAR(2000);
+v_advper NUMBER;
+v_advdeduct NUMBER;
+v_totadvpaid NUMBER;
+v_totadvrem NUMBER;
+v_productCat VARCHAR(32);
+v_disPercent NUMBER;
+v_unitpricedis NUMBER;
+v_delqty NUMBER;
+v_tempAvaQty NUMBER;
+v_rdvtxnline_id VARCHAR(32);
+v_receiptQty NUMBER;
+v_initRec_id VARCHAR(32);
+v_linenetAmt NUMBER;
+v_receiptAmt NUMBER;
+v_baseunitprice NUMBER;
+v_baseorder_id VARCHAR(32);
+v_orderqty NUMBER;
+v_LineNetAmount NUMBER;
+v_latestOrder VARCHAR(32);
+v_latestReceiptOrder VARCHAR(32);
+v_baseOrder VARCHAR(32);
+v_exstverqty NUMBER;
+v_exstveramt NUMBER;
+v_exstverpenamt NUMBER;
+v_exstverholdamt NUMBER;
+v_exstveradvded NUMBER;
+v_exstverinvamt NUMBER;
+v_totRepAmt NUMBER;
+v_totRepQty NUMBER;
+v_verUnitPrice NUMBER;
+v_receivetype VARCHAR(10);
+v_qty NUMBER;
+v_legacyadvbalpaid NUMBER;
+v_isadvexist NUMBER;
+v_totpoadvance NUMBER;
+v_prec NUMBER;
+v_clientId VARCHAR(32);
+v_isTax CHARACTER(1);
+v_taxpercent NUMBER;
+v_amtWithoutTax NUMBER;
+v_taxAmout NUMBER;
+v_tot_avail_amt NUMBER;
+v_tot_avail_qty NUMBER;
+v_newavg_price NUMBER;
+v_isorderlineparent character(1);
+BEGIN
+v_extamt := 0;
+v_extqty := 0;
+v_newqty := 0;
+v_newamt := 0;
+v_lineNo := 0;
+v_delamt := 0;
+v_extpenalty := 0;
+v_exthold := 0;
+v_extadv := 0;
+v_extpaid := 0;
+v_fundsava := 0;
+v_poqty := 0;
+v_delPer := 0;
+v_totadv := 0;
+v_advper := 0;
+v_advdeduct := 0;
+v_totadvpaid := 0;
+v_totadvrem := 0;
+v_disPercent :=0;
+v_unitpricedis := 0;
+v_summary :='N';
+v_noadvance :='N';
+v_advancetrx :='N';
+v_delqty :=0;
+v_tempAvaQty :=0;
+v_receiptQty :=0;
+v_linenetAmt :=0;
+v_receiptAmt:=0;
+v_baseunitprice:=0;
+v_orderqty:=0;
+v_LineNetAmount:=0;
+v_exstverqty :=0;
+v_exstveramt :=0;
+v_exstverpenamt :=0;
+v_exstveradvded :=0;
+v_exstverinvamt :=0;
+v_verUnitPrice :=0;
+v_qty:=0;
+v_legacyadvbalpaid:=0;
+v_isadvexist:=0;
+v_exstverholdamt:=0;
+v_taxpercent :=0;
+v_amtWithoutTax :=0;
+v_taxAmout :=0;
+v_tot_avail_amt :=0;
+v_tot_avail_qty :=0;
+v_newavg_price :=0;
+v_isorderlineparent:='N';
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+  -- Insert/Update/Delete Operation 
+	-- To get current Client ID 
+	Select ad_client_id INTO v_clientId from efin_rdvtxn 
+	where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+	-- To get Standarrd Precision from Currency by using Current Client ID
+	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+	in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+  
+  IF INSERTING THEN
+    v_rdvtxn_id = :new.efin_rdvtxn_id;
+    select hd.txn_type,c_order_id,m_inout_id,hd.efin_rdv_id,hd.adv_deduct_method,hd.tot_adv,adv_deduct_percent,noadvance, ln.isAdvancetransaction into v_txntype,v_order_id,v_receipt_id,v_rdv_id,v_advmethod,v_totadv,v_advper,v_noadvance,v_advancetrx from efin_rdvtxn ln
+    join efin_rdv hd on hd.efin_rdv_id = ln.efin_rdv_id where efin_rdvtxn_id  = v_rdvtxn_id;
+        
+    --get message 
+    select coalesce(trl.msgtext,hd.msgtext) into v_msg from ad_message hd
+    left join ad_message_trl trl on trl.ad_message_id = hd.ad_message_id and ad_language='ar_SA'
+    where hd.ad_message_id = 'A3BBA623A0E24F17BBC11E5C5DBB3D95';
+    
+    IF(v_txntype = 'PO') THEN
+          --get new version
+              select coalesce(em_Escm_base_order,c_order_id),em_escm_receivetype into v_baseOrder,v_receivetype from c_order where c_order_id = v_order_id;
+                IF (v_baseOrder is not null) THEN
+                  select c_order.c_order_id into v_latestOrder from c_order
+                    left join m_inout rep on rep.c_order_id = c_order.c_order_id and em_escm_docstatus = 'CO'
+                    where (em_Escm_base_order = v_baseOrder or c_order.c_order_id = v_baseOrder) 
+				    order by c_order.created desc ,c_order.em_escm_revision desc limit 1;
+                else
+                  v_latestOrder := v_order_id;
+                END IF;
+
+                 IF (v_baseOrder is not null) THEN
+                  select c_order.c_order_id into v_latestReceiptOrder from c_order
+                    join m_inout rep on rep.c_order_id = c_order.c_order_id and em_escm_docstatus = 'CO'
+                    where (em_Escm_base_order = v_baseOrder or c_order.c_order_id = v_baseOrder) 
+					order by c_order.created desc ,c_order.em_escm_revision desc limit 1;
+                else
+                  v_latestReceiptOrder := v_order_id;
+                END IF;
+
+             --    select coalesce(em_escm_legacy_adv_payment_amt,em_escm_advpaymnt_amt)
+             --   into  v_totadv from c_order where  c_order_id=v_latestOrder;  --changed 
+				
+				
+				select case when coalesce(em_escm_legacy_adv_payment_amt,0) >0 then coalesce(em_escm_legacy_adv_payment_amt,0)
+                             when coalesce(em_escm_advpaymnt_amt,0) > 0 then coalesce(em_escm_advpaymnt_amt,0)
+                            else 0
+                            end as advamt
+                into  v_totadv from c_order where  c_order_id=v_latestOrder;  --changed
+				
+                
+      IF(:new.txn_version = 0 and v_noadvance = 'N' and v_advancetrx='Y') THEN
+        select m_product_category_id into v_productCat from m_product_category  where em_efin_isadvance = 'Y' and ad_client_id =:new.ad_client_id;
+        IF(v_productCat is null or v_productCat='') THEN
+          RAISE_APPLICATION_ERROR(-20000, '@Efin_NoAdv_PCategory@');
+        END IF;
+        IF v_totadv > 0 THEN
+        
+		select em_escm_istax into v_isTax from c_order where c_order_id = v_latestOrder;
+		IF(v_isTax = 'Y')THEN
+			select taxpercent into v_taxpercent from c_order ord
+			join efin_tax_method tax on ord.em_escm_tax_method_id = tax.efin_tax_method_id  where  
+			c_order_id = v_latestOrder;
+
+			--to calc amount wihtout tax
+			v_amtWithoutTax = (v_totadv/(1+(v_taxpercent/100)));
+			v_taxAmout = ROUND((v_totadv - v_amtWithoutTax),v_prec);
+		END IF;
+
+		v_totadv:=ROUND(v_totadv, v_prec);
+		
+          insert into efin_rdvtxnline(efin_rdvtxnline_id,ad_client_id,ad_org_id,createdby,updatedby,trxln_no,trxapp_no,efin_rdvtxn_id,efin_rdv_id,type,applicable_method,
+          match,match_amt,item_desc,deliver_amt,netmatch_amt,advamt_rem,line_status,isadvance,m_product_category_id,line_taxamt,match_qty)
+          values (get_uuid(),:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,0,'0-1',v_rdvtxn_id,:new.efin_rdv_id,'SA',v_advmethod,
+          'Y',(v_totadv),v_msg,v_totadv,v_totadv,v_totadv,'FM','Y',v_productCat,coalesce(v_taxAmout,0),1);
+  
+          update efin_rdvtxn set match_amt = ROUND(v_totadv, v_prec), netmatch_amt = ROUND(v_totadv, v_prec),line_taxamt = ROUND(v_taxAmout, v_prec)where efin_rdvtxn_id = v_rdvtxn_id;
+        END IF;
+        v_productCat = '';
+
+      END IF;
+
+           IF(v_advancetrx='N') THEN
+            
+      FOR cur_lines in (
+      select oln.em_escm_prodescription as description,coalesce(em_escm_qty_delivered,0) as qty, (oln.linenetamt/oln.qtyordered) as unitprice ,
+                oln.c_uom_id,oln.c_orderline_id,hd.em_escm_receivingtype,coalesce(em_escm_amt_delivered,0) as deliveredamt,hd.em_escm_receivetype,oln.line
+      from escm_initialreceipt ln  join m_inout hd on hd.m_inout_id = ln.m_inout_id
+       join c_orderline oln on (oln.c_orderline_id = ln.c_orderline_id OR oln.c_order_id = hd.c_order_id) AND (oln.em_escm_qtyporec > 0 or em_escm_amtporec > 0)
+        where hd.c_doctype_id in (select c_doctype_id from c_doctype  where em_escm_isporeceipt = 'Y' and ad_client_id =:new.ad_client_id )
+        and hd.c_order_id = v_latestReceiptOrder and hd.em_escm_receivingtype in ('DEL','SR','PROJ') and hd.em_escm_docstatus = 'CO' and ln.issummary='N'
+        group by oln.em_escm_prodescription,oln.em_escm_negot_unit_price,oln.c_uom_id,oln.c_orderline_id,hd.em_escm_receivingtype,em_escm_amt_delivered
+            ,hd.em_escm_receivetype order by oln.created desc
+            )
+      LOOP
+      select coalesce(em_escm_issummarylevel,'N') into  v_isorderlineparent from c_orderline  where c_orderline_id=cur_lines.c_orderline_id;
+      if(v_isorderlineparent='N') then 
+        v_productCat = '';
+        
+     
+                                v_lineNo = cur_lines.line;
+                                
+                                --unit price based on inc/dec in versions.
+               IF v_receivetype = 'QTY' THEN
+                               /* select sum(delivered_qty-coalesce(ref.match_qty,0)),sum((delivered_qty-coalesce(ref.match_qty,0))*unitprice) into v_totRepQty,v_totRepAmt from escm_initialreceipt ln 
+                                join m_inout hd on hd.m_inout_id = ln.m_inout_id
+                                join c_orderline oln on oln.c_orderline_id = ln.c_orderline_id
+                                left join (select sum(match_qty) as match_qty ,escm_initialreceipt_id from efin_rdvtxnline_Ref 
+                                           group by escm_initialreceipt_id ) as ref on ref.escm_initialreceipt_id = ln.escm_initialreceipt_id                
+                                where hd.c_doctype_id in (select c_doctype_id from c_doctype  where em_escm_isporeceipt = 'Y' ) 
+                                and hd.em_escm_receivingtype in ('IR','SR','PROJ') and hd.em_escm_docstatus = 'CO'
+                                and  ln.c_orderline_id in 
+                                        (select c_orderline_id from c_orderline where (c_order_id in (
+                                select c_order_id from c_order where em_Escm_base_order = v_baseOrder ) 
+                                or c_order_id= v_baseOrder ) and line = v_lineNo) and ln.issummary='N'
+                                group by oln.line;*/
+                                
+                                /*IF v_totRepQty > 0 THEN
+                                  v_verUnitPrice := v_totRepAmt/v_totRepQty;
+                                END IF;*/
+                                
+                   /*  select unitprice into v_verUnitPrice from escm_initialreceipt ln 
+                     join m_inout hd on hd.m_inout_id = ln.m_inout_id
+                      where hd.c_doctype_id in (select c_doctype_id from c_doctype  where em_escm_isporeceipt = 'Y' ) 
+                      and hd.em_escm_receivingtype in ('IR','SR','PROJ') and hd.em_escm_docstatus = 'CO'
+                      and  ln.c_orderline_id in 
+                                (select c_orderline_id from c_orderline where (c_order_id in (
+                                select c_order_id from c_order where em_Escm_base_order = v_baseOrder and em_escm_appstatus = 'ESCM_AP') 
+                                or c_order_id= v_baseOrder ) and line = v_lineNo) and ln.issummary='N'
+                                order by ln.created desc limit 1;     */
+                                v_tot_avail_amt:=0;
+                                v_tot_avail_qty:=0;
+                                v_newavg_price :=0;
+                      FOR cur_receipt in (       
+                      select unitprice, (delivered_qty-match_qty) as available_qty from escm_initialreceipt ln 
+                      join m_inout hd on hd.m_inout_id = ln.m_inout_id
+                      where hd.c_doctype_id in (select c_doctype_id from c_doctype  where em_escm_isporeceipt = 'Y' ) 
+                      and hd.em_escm_receivingtype in ('IR','SR','PROJ') and hd.em_escm_docstatus = 'CO'
+                      and  ln.c_orderline_id in 
+                                (select c_orderline_id from c_orderline where (c_order_id in (
+                                select c_order_id from c_order where em_Escm_base_order = v_baseOrder and em_escm_appstatus = 'ESCM_AP') 
+                                or c_order_id= v_baseOrder ) and line = v_lineNo) and ln.issummary='N')
+                                --order by ln.created desc limit 1;  
+                      LOOP       
+                          --  v_avail_amt =cur_receipt.unitprice * cur_receipt.available_qty;
+                            v_tot_avail_amt = v_tot_avail_amt+(cur_receipt.unitprice * cur_receipt.available_qty);
+                            v_tot_avail_qty = v_tot_avail_qty + cur_receipt.available_qty;
+                      END LOOP;
+                      IF v_tot_avail_qty > 0 THEN
+
+                      v_newavg_price = ROUND((v_tot_avail_amt/v_tot_avail_qty),v_prec);
+                      END IF;
+                                
+                                
+        END IF;
+
+                                
+        select em_efin_c_validcombination_id,em_escm_issummarylevel,em_escm_parentline_id,qtyordered,m_product_id,em_escm_podiscount,linenetamt into v_validcombination,v_summary,v_parentline,v_poqty,v_poProduct,v_disPercent,v_linenetAmt from c_orderline where c_orderline_id = cur_lines.c_orderline_id;
+        select count(efin_rdvtxn_id) into v_vcount from efin_rdvtxn where efin_rdv_id  = v_rdv_id;
+        select efin_budgetint_id into v_budgetInit from efin_rdv  where efin_rdv_id  = v_rdv_id;
+        --get funds available.
+        select efin_getfundsavailable(v_validcombination,v_budgetInit) into v_fundsava from dual;
+
+        --get receive date
+        select movementdate into v_receivedDate from m_inout  where c_order_id = v_latestReceiptOrder and em_escm_receivingtype in ('DEL','SR','PROJ') and em_escm_docstatus = 'CO' order by movementdate desc limit 1;
+        /*--get unitprice with discount
+                IF v_disPercent > 0 THEN
+                v_unitpricedis = cur_lines.unitprice - (cur_lines.unitprice*(v_disPercent/100));
+        else
+                v_unitpricedis = cur_lines.unitprice;
+                END IF;*/
+                IF v_receivetype = 'QTY' THEN
+              
+                  v_unitpricedis = v_newavg_price;
+                else
+                   v_unitpricedis = trunc(cur_lines.unitprice,2);
+                   cur_lines.qty:=1;
+                END IF;
+                select c_orderline_id,sum(match_qty),sum(match_amt),sum(penalty_amt),sum(adv_deduct),sum(inv_amt),sum(Holdamt)
+                into v_orderline_id,v_extqty,v_extamt,v_extpenalty,v_extadv,v_extpaid,v_exthold
+          from efin_rdvtxnline  where efin_rdvtxn_id in (
+          select efin_rdvtxn_id from efin_rdvtxn where efin_rdv_id  = v_rdv_id and efin_rdvtxn_id <> v_rdvtxn_id)
+          and c_orderline_id = cur_lines.c_orderline_id
+          group by c_orderline_id;
+                --existing version order line match qy   
+                     select sum(match_qty),sum(match_amt) ,sum(penalty_amt) ,sum(adv_deduct) ,sum(inv_amt),sum(Holdamt) into 
+                     v_exstverqty,v_exstveramt,v_exstverpenamt,v_exstveradvded,v_exstverinvamt,v_exstverholdamt from c_orderline oln
+                join efin_rdvtxnline tln on tln.c_orderline_id = oln.c_orderline_id
+                where tln.c_orderline_id <> cur_lines.c_orderline_id
+                               and (c_order_id in ( select c_order_id from c_order 
+                                 where em_Escm_base_order = v_baseOrder and em_escm_appstatus = 'ESCM_AP') 
+                      or c_order_id= v_baseOrder ) 
+                            and oln.line=v_lineNo
+                            group by oln.line;
+            --get legacy advance balance paid
+                select (coalesce(legacy_totaladv_paid,0) - coalesce(Legacy_Advance_Balance,0)) into v_legacyadvbalpaid from efin_rdv where efin_rdv_id=:new.efin_rdv_id;
+        -- get advance version is exist or not
+                 select count(efin_rdvtxn_id) into v_isadvexist from efin_rdvtxn where efin_rdv_id = :new.efin_rdv_id and isadvancetransaction='Y';
+      
+                v_extqty:=(coalesce(v_extqty,0)+ coalesce(v_exstverqty,0)) ;
+        v_extamt:=ROUND((coalesce(v_extamt,0)+ coalesce(v_exstveramt,0)), v_prec);
+
+        v_extpenalty :=ROUND((coalesce(v_extpenalty,0)+ coalesce(v_exstverpenamt,0)), v_prec);
+                v_exthold :=ROUND((coalesce(v_exthold,0)+ coalesce(v_exstverholdamt,0)), v_prec);
+               -- IF advance transaction version is exist THEN no need to consider lagacy balance
+                IF(v_isadvexist>0)THEN
+        v_extadv :=(coalesce(v_extadv,0)+ coalesce(v_exstveradvded,0));
+                ELSE
+                 -- IF advance transaction version not exist THEN  need to consider lagacy balance
+                v_extadv :=ROUND((coalesce(v_extadv,0)+ coalesce(v_exstveradvded,0)+ coalesce(v_legacyadvbalpaid)), v_prec);
+                END IF;
+        v_extpaid :=ROUND((coalesce(v_extpaid,0)+ coalesce(v_exstverinvamt,0)), v_prec);
+                IF(cur_lines.em_escm_receivingtype='PROJ' and  cur_lines.em_escm_receivetype='AMT') THEN
+                v_delamt := ROUND(cur_lines.deliveredamt, v_prec);
+        v_delPer := ROUND((cur_lines.deliveredamt/v_linenetAmt)*100, v_prec);
+                v_extqty:=0;
+                ELSE
+        v_delamt := ROUND(cur_lines.qty * v_unitpricedis, v_prec);
+        v_delPer := ROUND((cur_lines.qty/v_poqty)*100, v_prec);
+                END IF;
+        --IF(cur_lines.qty > v_extqty) THEN
+        --new concept
+        IF(v_parentline is not null and v_parentline <> '') THEN
+        vp := v_parentline;
+
+        while (vp is not null and vp <> '')
+        LOOP
+          --chk parent already exst
+          select count(efin_rdvtxnline_id) into v_count from efin_rdvtxnline where efin_rdvtxn_id = v_rdvtxn_id and c_orderline_id = vp;
+                    IF(v_count = 0) THEN
+            select line,m_product_id,em_escm_prodescription,(linenetamt/qtyordered) as priceactual,c_uom_id,em_escm_parentline_id
+            into v_lineNo,v_pproduct,v_pdesc,v_punitprice,v_puom,v_parentline
+            from c_orderline  where c_orderline_id = vp;
+            select m_product_category_id into v_productCat from m_product  where m_product_id = v_pproduct;
+          
+            v_txnapp_no := v_lineNo || '-'  || :new.txn_version ;
+            
+            insert into efin_rdvtxnline(efin_rdvtxnline_id,ad_client_id,ad_org_id,createdby,updatedby,trxln_no,trxapp_no,efin_rdvtxn_id,efin_rdv_id,type,
+            m_product_id,item_desc, m_product_category_id,unit_price,c_uom_id,comp_uom,delay_uom,received_date,c_orderline_id,issummary)
+            values (get_uuid(),:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,v_lineNo,v_txnapp_no,v_rdvtxn_id,:new.efin_rdv_id,'SR',
+            v_pproduct,v_pdesc,v_productCat,v_punitprice,v_puom,v_puom,v_puom,v_receivedDate,vp,'Y');
+            vp := v_parentline; 
+          else
+            vp = '';
+          END IF;
+        END LOOP;
+        END IF; 
+        --END IF;
+        v_productCat = '';
+                
+        --IF line exst THEN reduce ext qty
+        select line into v_lineNo from c_orderline where c_orderline_id = cur_lines.c_orderline_id;
+        select m_product_category_id into v_productCat from m_product  where m_product_id = v_poProduct;
+                 select sum(adv_deduct) into v_totadvpaid from efin_rdvtxnline  where efin_rdv_id  = :new.efin_rdv_id; --and trxln_no = cur_lines.line;
+
+        v_totadvpaid := ROUND(coalesce(v_totadvpaid,0), v_prec);
+
+                -- IF advance transaction version is exist THEN no need to consider lagacy balance
+                IF(v_isadvexist>0)THEN
+                v_totadvpaid := ROUND(v_totadvpaid, v_prec);
+                ELSE
+                 -- IF advance transaction version not exist THEN  need to consider lagacy balance
+                v_totadvpaid := ROUND(v_totadvpaid+v_legacyadvbalpaid, v_prec);
+                END IF;
+
+                
+                --get base PO id from version IF selected verison in base version only THEN get PO id
+               
+                select coalesce(em_escm_base_order,c_order_id),coalesce(em_escm_legacy_adv_payment_amt,em_escm_advpaymnt_amt)
+                into v_baseorder_id,v_totpoadvance from c_order where  c_order_id=v_latestOrder;  --changed 
+                  -- IF advance transaction version is exist THEN no need to consider lagacy advance payment
+                IF(v_isadvexist>0)THEN
+                select netmatch_amt into v_totpoadvance from efin_rdvtxn where efin_rdv_id = :new.efin_rdv_id and isadvancetransaction='Y';
+                 END IF;
+                 
+                -- get inFORmation from base version PO
+                select (linenetamt/qtyordered),qtyordered ,coalesce(linenetamt,0) into v_baseunitprice,v_orderqty,v_LineNetAmount from c_orderline where c_order_id=v_baseorder_id and line=v_lineNo;
+            IF(cur_lines.em_escm_receivingtype='PROJ' and  cur_lines.em_escm_receivetype='AMT') THEN
+              /* IF(v_baseorder_id is not null ) THEN
+                   
+                     IF(v_LineNetAmount is null) THEN                    
+                         v_totadvrem = 0;
+                     ELSE
+                     IF(cur_lines.deliveredamt > v_LineNetAmount ) THEN 
+              v_totadvrem := ((v_LineNetAmount) * ( v_advper/100)) - v_totadvpaid;      
+                ELSE
+                           v_totadvrem :=   v_totpoadvance  - v_totadvpaid;
+                      END IF;
+                    END IF;
+                ELSE
+                v_totadvrem := ((cur_lines.deliveredamt) * ( v_advper/100)) - v_totadvpaid;
+                 END IF;*/
+                 
+                  v_totadvrem :=   ROUND(v_totpoadvance  - v_totadvpaid, v_prec);
+             ELSE
+                  -- advance remaining amount calculation from base version
+                    /* IF(v_baseorder_id is not null ) THEN                   
+                        IF(v_baseunitprice is null) THEN -- IF line not present in base version 
+                         v_totadvrem = 0;
+                         ELSE
+                         -- IF qty changed in new version not amount and PO Receipt Delivered full qty THEN 
+                         --it should take base version qty FOR calculate advance remaining amount
+                         -- IF not full qty delivered in PO Receipt THEN should take PO Receipt qty                       
+                           IF(v_orderqty > cur_lines.qty) THEN
+                          v_qty =  cur_lines.qty; -- PO Receipt qty - case IF base version qty is more than PO Receipt qty
+                           ELSE
+                          v_qty = v_orderqty; -- base version qty - case IF PO Receipt qty is more than base verison qty bcz of increase qty in new version
+                          END IF;
+                         --v_totadvrem := ((cur_lines.qty * v_baseunitprice) * ( v_advper/100)) - v_totadvpaid;
+                        -- v_totadvrem := ((v_qty * v_baseunitprice) * ( v_advper/100)) - v_totadvpaid;
+                        v_totadvrem :=   v_totpoadvance  - v_totadvpaid;
+                         END IF;
+                     ELSE
+                         v_totadvrem := ((cur_lines.qty * v_unitpricedis) * ( v_advper/100)) - v_totadvpaid;
+                    END IF;*/
+                     v_totadvrem :=   ROUND(v_totpoadvance  - v_totadvpaid, v_prec);
+                END IF;
+        v_txnapp_no := v_lineNo || '-' || :new.txn_version;
+        IF(v_vcount > 1) THEN     
+          --IF(cur_lines.qty > v_extqty) THEN
+                      IF(cur_lines.em_escm_receivingtype='PROJ' and  cur_lines.em_escm_receivetype='AMT') THEN
+            v_newqty := cur_lines.qty;
+            v_newamt := ROUND(cur_lines.deliveredamt - v_extamt, v_prec);
+                        ELSE
+                        v_newqty := cur_lines.qty - v_extqty;
+            v_newamt := ROUND(v_newqty * v_unitpricedis, v_prec);
+                        END IF;
+                        IF(v_advmethod = 'PE' and v_noadvance = 'N' and v_advancetrx='Y') THEN
+              v_advdeduct = ROUND(v_newamt * ( v_advper/100), v_prec);
+            END IF;
+
+          --new change, while insert qty should be 0.
+          v_newqty := 0;
+          v_newamt := 0;
+          v_advdeduct := 0;
+          v_rdvtxnline_id := get_uuid();
+                    
+          insert into efin_rdvtxnline
+                    (efin_rdvtxnline_id,ad_client_id,ad_org_id,createdby,updatedby,trxln_no,
+                     trxapp_no,efin_rdvtxn_id,efin_rdv_id,type,eximatch_qty,eximatch_amt,
+                     exipenalty_amt,Existing_Hold_Amount,exiadv_deduct,applicable_method,
+          match_qty,match_amt,inv_amt,adv_deduct,advamt_rem,total_deduct,m_product_id,item_desc, m_product_category_id,unit_price,del_qty,deliver_amt,netmatch_amt,c_uom_id,comp_uom,delay_uom,c_validcombination_id,c_orderline_id,received_date,line_status,funds_available,completion_per)
+          values (v_rdvtxnline_id,:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,v_lineNo,v_txnapp_no,
+                            v_rdvtxn_id,:new.efin_rdv_id,'SR',v_extqty,v_extamt,v_extpenalty,v_exthold,v_extadv,v_advmethod,
+          v_newqty,v_newamt,v_extpaid,v_advdeduct,v_totadvrem,v_advdeduct,v_poProduct,cur_lines.description,v_productCat,v_unitpricedis,cur_lines.qty,v_delamt,(v_newamt-v_advdeduct),cur_lines.c_uom_id,cur_lines.c_uom_id,cur_lines.c_uom_id,v_validcombination,
+          cur_lines.c_orderline_id,v_receivedDate,'FM',v_fundsava,v_delPer);
+          --END IF;
+
+          update efin_rdvtxn set netmatch_amt = netmatch_amt + (v_newamt - v_advdeduct),adv_deduct = (adv_deduct + v_advdeduct), tot_deduct = (tot_deduct + v_advdeduct),match_amt = match_amt + v_newamt where efin_rdvtxn_id = v_rdvtxn_id;
+        else
+          v_orderline_id := cur_lines.c_orderline_id;
+                   IF(cur_lines.em_escm_receivingtype='PROJ' and  cur_lines.em_escm_receivetype='AMT') THEN
+          v_newqty := cur_lines.qty;
+          v_newamt := ROUND(cur_lines.deliveredamt, v_prec);
+                    ELSE 
+                    v_newqty := cur_lines.qty;
+          v_newamt := ROUND(v_newqty * v_unitpricedis, v_prec);
+                    END IF;
+          IF(v_advmethod = 'PE' and v_noadvance = 'N' and v_advancetrx='Y') THEN
+            v_advdeduct = ROUND(v_newamt * ( v_advper/100), v_prec);
+          END IF; 
+
+          --new change, while insert qty should be 0.
+          v_newqty := 0;
+          v_newamt := 0;
+          v_advdeduct := 0;
+          v_rdvtxnline_id := get_uuid();
+                    
+          insert into efin_rdvtxnline(efin_rdvtxnline_id,ad_client_id,ad_org_id,createdby,updatedby,trxln_no,trxapp_no,efin_rdvtxn_id,efin_rdv_id,type,eximatch_qty,eximatch_amt,exipenalty_amt,Existing_Hold_Amount,exiadv_deduct,applicable_method,
+          match_qty,match_amt,inv_amt,adv_deduct,advamt_rem,total_deduct,m_product_id,item_desc,m_product_category_id,unit_price,del_qty,deliver_amt,netmatch_amt,c_uom_id,comp_uom,delay_uom,c_validcombination_id,c_orderline_id,received_date,line_status,funds_available,completion_per)
+          values (v_rdvtxnline_id,:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,v_lineNo,v_txnapp_no,v_rdvtxn_id,:new.efin_rdv_id,'SR',v_extqty,v_extamt,v_extpenalty,v_exthold,v_extadv,v_advmethod,
+          v_newqty,v_newamt,v_extpaid,v_advdeduct,v_totadvrem,v_advdeduct,v_poProduct,cur_lines.description,v_productCat,v_unitpricedis,cur_lines.qty,v_delamt,(v_newamt-v_advdeduct),cur_lines.c_uom_id,cur_lines.c_uom_id,cur_lines.c_uom_id,v_validcombination,
+          cur_lines.c_orderline_id,v_receivedDate,'FM',v_fundsava,v_delPer);
+                    
+          update efin_rdvtxn set netmatch_amt = ROUND(netmatch_amt + (v_newamt - v_advdeduct), v_prec),adv_deduct = ROUND((adv_deduct + v_advdeduct), v_prec), tot_deduct = ROUND((tot_deduct + v_advdeduct), v_prec),
+          match_amt = ROUND(match_amt + v_newamt , v_prec)where efin_rdvtxn_id = v_rdvtxn_id;
+                
+        END IF;
+                
+                
+                --insert line ref
+                    FOR cur_linesRef in (
+                    select ln.escm_initialreceipt_id,(delivered_qty-match_qty) as qty,ln.c_orderline_id ,(delivered_amt-match_amt)  as amount
+          from escm_initialreceipt ln join m_inout hd on hd.m_inout_id = ln.m_inout_id
+          --join c_orderline oln on oln.c_orderline_id = ln.c_orderline_id
+            where hd.c_doctype_id in (select c_doctype_id from c_doctype  where em_escm_isporeceipt = 'Y' and ad_client_id =:new.ad_client_id )
+          and (hd.c_order_id in ( select c_order_id from c_order where em_Escm_base_order = v_baseOrder and em_escm_appstatus = 'ESCM_AP') 
+                or c_order_id= v_baseOrder ) and line = v_lineNo
+                         and hd.em_escm_receivingtype in ('IR','SR','PROJ') and hd.em_escm_docstatus = 'CO' --and ((quantity-return_qty)- match_qty) > 0 
+                    and ln.issummary='N' )
+                    LOOP
+                     -- select ((quantity-return_qty)-match_qty) into v_tempAvaQty  from escm_initialreceipt where escm_initialreceipt_id = cur_linesRef.receipt_id;
+                      insert into efin_rdvtxnline_Ref (efin_rdvtxnline_ref_id,ad_client_id,ad_org_id,createdby,updatedby,efin_rdvtxnline_id,escm_initialreceipt_id,match_qty,available_qty,match_amt, available_amt)
+                      values(get_uuid(),:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,v_rdvtxnline_id,cur_linesRef.escm_initialreceipt_id,0,cur_linesRef.qty,0,cur_linesRef.amount);
+                    END LOOP;
+		END IF;
+      END LOOP; 
+      -- update adv remaining in trxn
+            update efin_rdvtxn set advamt_rem = ROUND(advamt_rem + v_totadvrem, v_prec) where efin_rdvtxn_id = v_rdvtxn_id;
+      --update parent id FOR tree structure
+      FOR cur_parref in (
+      select c_orderline_id,efin_rdvtxnline_id from efin_rdvtxnline  where efin_rdvtxn_id  = v_rdvtxn_id)
+      LOOP
+        select em_escm_parentline_id into v_parentref from c_orderline where c_orderline_id  = cur_parref.c_orderline_id;
+        select efin_rdvtxnline_id into v_rdvtxnparref from efin_rdvtxnline where c_orderline_id = v_parentref and efin_rdvtxn_id  = v_rdvtxn_id;
+
+        update efin_rdvtxnline set efin_parent_id = v_rdvtxnparref where efin_rdvtxnline_id = cur_parref.efin_rdvtxnline_id;
+      END LOOP;
+     END IF;        
+    END IF;
+
+    IF(v_txntype = 'POS') THEN
+    
+      FOR cur_lines in (
+      select oln.em_escm_prodescription as description,delivered_qty as qty,(oln.linenetamt/oln.qtyordered) as unitprice ,oln.c_uom_id,oln.c_orderline_id ,
+                hd.movementdate,ln.escm_initialreceipt_id,ln.source_ref,
+                hd.em_escm_receivingtype,delivered_amt as deliveredamt,hd.em_escm_receivetype
+      from escm_initialreceipt ln join m_inout hd on hd.m_inout_id = ln.m_inout_id
+      join c_orderline oln on oln.c_orderline_id = ln.c_orderline_id
+        where hd.c_order_id = v_order_id and hd.m_inout_id = v_receipt_id --and hd.em_escm_receivingtype in ('DEL','SR') 
+        and hd.em_escm_docstatus = 'CO' and ln.issummary='N')
+      LOOP
+            
+        v_productCat = '';
+        select em_efin_c_validcombination_id,em_escm_issummarylevel,em_escm_parentline_id,qtyordered,m_product_id,em_escm_podiscount,linenetamt into v_validcombination,v_summary,v_parentline,v_poqty,v_poProduct,v_disPercent ,v_linenetAmt from c_orderline where c_orderline_id = cur_lines.c_orderline_id;
+        select count(efin_rdvtxn_id) into v_vcount from efin_rdvtxn where efin_rdv_id  = v_rdv_id;
+        select efin_budgetint_id into v_budgetInit from efin_rdv  where efin_rdv_id  = v_rdv_id;
+        --get funds available.
+        select efin_getfundsavailable(v_validcombination,v_budgetInit) into v_fundsava from dual;
+        --get receive date        
+        select escm_initialreceipt_id,sum(match_qty),sum(match_amt),sum(penalty_amt),sum(Existing_Hold_Amount),sum(adv_deduct),sum(inv_amt) into v_receiptline_id,v_extqty,v_extamt,
+                v_extpenalty,v_exthold,v_extadv,v_extpaid
+          from efin_rdvtxnline  where efin_rdvtxn_id  in(
+          select efin_rdvtxn_id from efin_rdvtxn where efin_rdv_id  = v_rdv_id and efin_rdvtxn_id <> v_rdvtxn_id)
+          and escm_initialreceipt_id = cur_lines.escm_initialreceipt_id
+          group by escm_initialreceipt_id;
+                    
+                /*--get unitprice with discount
+                IF v_disPercent > 0 THEN
+                  v_unitpricedis = cur_lines.unitprice - (cur_lines.unitprice*(v_disPercent/100));
+        else
+                  v_unitpricedis = cur_lines.unitprice;
+                END IF;*/
+        v_unitpricedis = cur_lines.unitprice;
+        v_extqty:=coalesce(v_extqty,0);
+        v_extamt:=ROUND(coalesce(v_extamt,0), v_prec);
+        v_extpenalty :=ROUND(coalesce(v_extpenalty,0), v_prec);
+                v_exthold :=coalesce(v_exthold,0);
+        v_extadv :=ROUND(coalesce(v_extadv,0), v_prec);
+        v_extpaid :=ROUND(coalesce(v_extpaid,0), v_prec);
+                 IF(cur_lines.em_escm_receivingtype='PROJ' and  cur_lines.em_escm_receivetype='AMT') THEN                
+        v_delamt := ROUND(cur_lines.deliveredamt, v_prec);
+        v_delPer := ROUND((cur_lines.deliveredamt/v_linenetAmt)*100, v_prec);
+                v_extqty:=0;
+                ELSE
+                v_delamt := cur_lines.qty * v_unitpricedis;
+        v_delPer := (cur_lines.qty/v_poqty)*100;
+                END IF;
+        
+        --IF(cur_lines.qty > v_extqty) THEN
+        --new concept
+        IF(v_parentline is not null and v_parentline <> '') THEN
+        vp := v_parentline;
+        
+        while (vp is not null and vp <> '')
+        LOOP
+          --chk parent already exst
+          select count(efin_rdvtxnline_id) into v_count from efin_rdvtxnline where efin_rdvtxn_id = v_rdvtxn_id and c_orderline_id = vp;
+          IF(v_count = 0) THEN
+            select line,m_product_id,em_escm_prodescription, (linenetamt/qtyordered) as priceactual,c_uom_id,em_escm_parentline_id
+            into v_lineNo,v_pproduct,v_pdesc,v_punitprice,v_puom,v_parentline
+            from c_orderline  where c_orderline_id = vp;
+            select m_product_category_id into v_productCat from m_product  where m_product_id = v_pproduct;
+
+            v_txnapp_no := v_lineNo || '-'  || :new.txn_version ;
+            --select * from efin_rdvtxnline where escm_initialreceipt_id 
+            insert into efin_rdvtxnline(efin_rdvtxnline_id,ad_client_id,ad_org_id,createdby,updatedby,trxln_no,trxapp_no,efin_rdvtxn_id,efin_rdv_id,type,
+            m_product_id,item_desc,m_product_category_id,unit_price,c_uom_id,comp_uom,delay_uom,received_date,c_orderline_id,escm_initialreceipt_id,issummary)
+            values (get_uuid(),:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,v_lineNo,v_txnapp_no,v_rdvtxn_id,:new.efin_rdv_id,'SR',
+            v_pproduct,v_pdesc,v_productCat,v_punitprice,v_puom,v_puom,v_puom, cur_lines.movementdate,vp,cur_lines.escm_initialreceipt_id,'Y');
+            vp := v_parentline; 
+          else
+            vp = '';
+          END IF;
+        END LOOP;
+        END IF; 
+        --END IF;
+        v_productCat = '';
+        --IF line exst THEN reduce ext qty
+        select line into v_lineNo from c_orderline where c_orderline_id = cur_lines.c_orderline_id;
+        select m_product_category_id into v_productCat from m_product  where m_product_id = v_poProduct;
+        v_txnapp_no := v_lineNo || '-' || :new.txn_version;
+        IF(v_vcount > 1) THEN     
+          --IF(cur_lines.qty > v_extqty) THEN
+                      IF(cur_lines.em_escm_receivingtype='PROJ' and  cur_lines.em_escm_receivetype='AMT') THEN 
+                      v_newqty := cur_lines.qty;
+            v_newamt := ROUND(cur_lines.deliveredamt - v_extamt, v_prec);
+                      ELSE
+            v_newqty := cur_lines.qty - v_extqty;
+            v_newamt := ROUND(v_newqty * v_unitpricedis, v_prec);
+                       END IF;
+
+          --new change, while insert qty should be 0.
+          v_newqty := 0;
+          v_newamt := 0;
+          v_rdvtxnline_id := get_uuid();
+
+          insert into efin_rdvtxnline(efin_rdvtxnline_id,ad_client_id,ad_org_id,createdby,updatedby,trxln_no,trxapp_no,efin_rdvtxn_id,efin_rdv_id,type,eximatch_qty,eximatch_amt,
+                                                exipenalty_amt,Existing_Hold_Amount,exiadv_deduct,applicable_method,
+          match_qty,match_amt,inv_amt,m_product_id,item_desc,m_product_category_id,unit_price,del_qty,deliver_amt,netmatch_amt,c_uom_id,comp_uom,delay_uom,c_validcombination_id,c_orderline_id,escm_initialreceipt_id,received_date,line_status,funds_available,completion_per)
+          values (v_rdvtxnline_id,:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,v_lineNo,v_txnapp_no,v_rdvtxn_id,:new.efin_rdv_id,'SR',v_extqty,v_extamt,v_extpenalty,v_exthold,v_extadv,v_advmethod,
+          v_newqty,v_newamt,v_extpaid,v_poProduct,cur_lines.description,v_productCat,v_unitpricedis,cur_lines.qty,v_delamt,v_newamt,cur_lines.c_uom_id,cur_lines.c_uom_id,cur_lines.c_uom_id,v_validcombination,
+          cur_lines.c_orderline_id,cur_lines.escm_initialreceipt_id, cur_lines.movementdate,'FM',v_fundsava,v_delPer);
+          --END IF;
+
+          update efin_rdvtxn set netmatch_amt = ROUND(netmatch_amt + v_newamt, v_prec),
+          match_amt = ROUND(match_amt + v_newamt, v_prec) where efin_rdvtxn_id = v_rdvtxn_id;
+
+        else
+          v_orderline_id := cur_lines.c_orderline_id;
+                     IF(cur_lines.em_escm_receivingtype='PROJ' and  cur_lines.em_escm_receivetype='AMT') THEN
+                     v_newqty := cur_lines.qty;
+           v_newamt := ROUND(cur_lines.deliveredamt, v_prec);
+                     ELSE 
+          v_newqty := cur_lines.qty;
+          v_newamt := ROUND(v_newqty * v_unitpricedis, v_prec);
+                    END IF;
+
+          --new change, while insert qty should be 0.
+          v_newqty := 0;
+          v_newamt := 0;
+          v_rdvtxnline_id := get_uuid();
+
+          insert into efin_rdvtxnline(efin_rdvtxnline_id,ad_client_id,ad_org_id,createdby,updatedby,trxln_no,trxapp_no,efin_rdvtxn_id,efin_rdv_id,type,eximatch_qty,eximatch_amt,exipenalty_amt,Existing_Hold_Amount,exiadv_deduct,applicable_method,
+          match_qty,match_amt,inv_amt,m_product_id,item_desc,m_product_category_id,unit_price,del_qty,deliver_amt,netmatch_amt,c_uom_id,comp_uom,delay_uom,c_validcombination_id,c_orderline_id,escm_initialreceipt_id,received_date,line_status,funds_available,completion_per)
+          values (v_rdvtxnline_id,:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,v_lineNo,v_txnapp_no,v_rdvtxn_id,:new.efin_rdv_id,'SR',v_extqty,v_extamt,
+                            v_extpenalty,
+                            v_exthold,v_extadv,v_advmethod,
+          v_newqty,v_newamt,v_extpaid,v_poProduct,cur_lines.description,v_productCat,v_unitpricedis,cur_lines.qty,v_delamt,v_newamt,cur_lines.c_uom_id,cur_lines.c_uom_id,cur_lines.c_uom_id,v_validcombination,
+          cur_lines.c_orderline_id,cur_lines.escm_initialreceipt_id, cur_lines.movementdate,'FM',v_fundsava,v_delPer);
+
+          update efin_rdvtxn set netmatch_amt = ROUND(netmatch_amt + v_newamt, v_prec),
+          match_amt = ROUND(match_amt + v_newamt, v_prec) where efin_rdvtxn_id = v_rdvtxn_id;
+                
+        END IF;
+
+        --insert line ref
+                    select (delivered_qty-match_qty) as qty  ,(delivered_amt-match_amt)  into v_receiptQty,v_receiptAmt
+          from escm_initialreceipt ln 
+                    join m_inout hd on hd.m_inout_id = ln.m_inout_id
+                    where ln.escm_initialreceipt_id =cur_lines.escm_initialreceipt_id;
+                                                            
+                    insert into efin_rdvtxnline_Ref (efin_rdvtxnline_ref_id,ad_client_id,ad_org_id,createdby,updatedby,efin_rdvtxnline_id,escm_initialreceipt_id,match_qty,available_qty,match_amt, available_amt)
+                    values(get_uuid(),:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,v_rdvtxnline_id,cur_lines.escm_initialreceipt_id,0,v_receiptQty,0,v_receiptAmt);
+                    
+
+      END LOOP; 
+      
+      --update parent id FOR tree structure
+      FOR cur_parref in (
+      select c_orderline_id,efin_rdvtxnline_id from efin_rdvtxnline  where efin_rdvtxn_id  = v_rdvtxn_id)
+      LOOP
+        select em_escm_parentline_id into v_parentref from c_orderline where c_orderline_id  = cur_parref.c_orderline_id;
+        select efin_rdvtxnline_id into v_rdvtxnparref from efin_rdvtxnline where c_orderline_id = v_parentref and efin_rdvtxn_id  = v_rdvtxn_id;
+
+        update efin_rdvtxnline set efin_parent_id = v_rdvtxnparref where efin_rdvtxnline_id = cur_parref.efin_rdvtxnline_id;
+      END LOOP;
+                  
+    END IF;
+    
+    IF(v_txntype = 'POD') THEN
+      FOR cur_lines in (select ln.m_product_id,ln.description,delivered_qty as qty,unitprice,c_uom_id,parent_line,issummary,escm_initialreceipt_id,
+      source_ref,hd.movementdate,hd.em_escm_receivingtype,delivered_amt as deliveredamt,hd.em_escm_receivetype
+        from escm_initialreceipt ln 
+        join m_inout hd on hd.m_inout_id = ln.m_inout_id
+        where ln.m_inout_id = v_receipt_id --and hd.em_escm_receivingtype in ('DEL','SR') 
+                              and hd.em_escm_docstatus = 'CO' and ln.issummary='N')
+      LOOP
+
+        v_productCat = '';
+        select count(efin_rdvtxn_id) into v_vcount from efin_rdvtxn where efin_rdv_id  = v_rdv_id;
+
+        select escm_initialreceipt_id,coalesce(sum(match_qty),0),coalesce(sum(match_amt),0),sum(penalty_amt),sum(Holdamt),sum(adv_deduct),sum(inv_amt) into v_receiptline_id,
+        v_extqty,v_extamt,v_extpenalty,v_exthold,v_extadv,v_extpaid 
+          from efin_rdvtxnline  where efin_rdvtxn_id in(
+          select efin_rdvtxn_id from efin_rdvtxn where efin_rdv_id  = v_rdv_id and efin_rdvtxn_id <> v_rdvtxn_id)
+          and escm_initialreceipt_id = cur_lines.escm_initialreceipt_id
+          group by escm_initialreceipt_id;
+
+        v_extqty:=coalesce(v_extqty,0);
+        v_extamt:=ROUND(coalesce(v_extamt,0), v_prec);
+        v_extpenalty :=ROUND(coalesce(v_extpenalty,0), v_prec);
+        v_exthold :=ROUND(coalesce(v_exthold,0), v_prec);
+        v_extadv :=ROUND(coalesce(v_extadv,0), v_prec);
+        v_extpaid := ROUND(coalesce(v_extpaid,0), v_prec);
+        IF((cur_lines.em_escm_receivingtype='PROJ' OR cur_lines.em_escm_receivingtype='SR') and  cur_lines.em_escm_receivetype='AMT') THEN  
+		v_delamt := ROUND(cur_lines.deliveredamt, v_prec);	
+	v_extqty:=0;
+	ELSE
+		v_delamt := ROUND(cur_lines.qty * coalesce(cur_lines.unitprice,0), v_prec);
+	END IF;
+        --IF(cur_lines.qty > v_extqty) THEN
+        IF(cur_lines.parent_line is not null and cur_lines.parent_line <> '') THEN
+        vp := cur_lines.parent_line;
+        while (vp is not null and vp <> '')
+        LOOP
+        --chk parent already exst
+        
+          select count(efin_rdvtxnline_id) into v_count from efin_rdvtxnline where efin_rdvtxn_id = v_rdvtxn_id and escm_initialreceipt_id = vp;
+          IF(v_count = 0) THEN
+            select line,m_product_id,description,unitprice,c_uom_id,parent_line
+            into v_lineNo,v_pproduct,v_pdesc,v_punitprice,v_puom,v_parentline
+            from escm_initialreceipt  
+            where escm_initialreceipt_id = vp;
+            select m_product_category_id into v_productCat from m_product  where m_product_id = v_pproduct;
+            
+            v_txnapp_no := v_lineNo || '-'  || :new.txn_version ;
+            
+            insert into efin_rdvtxnline(efin_rdvtxnline_id,ad_client_id,ad_org_id,createdby,updatedby,trxln_no,trxapp_no,efin_rdvtxn_id,efin_rdv_id,type,
+            m_product_id,item_desc,m_product_category_id,unit_price,c_uom_id,comp_uom,delay_uom,received_date,escm_initialreceipt_id,issummary)
+            values (get_uuid(),:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,v_lineNo,v_txnapp_no,v_rdvtxn_id,:new.efin_rdv_id,'SR',
+            v_pproduct,v_pdesc,v_productCat,v_punitprice,v_puom,v_puom,v_puom,cur_lines.movementdate,vp,'Y');
+            vp := v_parentline; 
+          else
+            vp = '';
+          END IF;
+        END LOOP;
+        END IF;
+             -- END IF;
+              v_productCat = '';
+        select line into v_lineNo from escm_initialreceipt where escm_initialreceipt_id = cur_lines.escm_initialreceipt_id;
+        --IF line exst THEN reduce ext qty
+        select m_product_category_id into v_productCat from m_product  where m_product_id = cur_lines.m_product_id;
+        v_txnapp_no := v_lineNo || '-' || :new.txn_version;
+        IF(v_vcount > 1) THEN
+                
+          --IF(cur_lines.qty > v_extqty) THEN
+          IF((cur_lines.em_escm_receivingtype='PROJ' OR cur_lines.em_escm_receivingtype='SR' )and  cur_lines.em_escm_receivetype='AMT') THEN 
+          v_newqty := cur_lines.qty;
+		v_newamt := ROUND(cur_lines.deliveredamt - v_extamt, v_prec);
+	  ELSE
+            v_newqty := cur_lines.qty - v_extqty;
+            v_newamt :=ROUND( v_newqty * coalesce(cur_lines.unitprice,0), v_prec);
+	  END IF;
+          --new change, while insert qty should be 0.
+          v_newqty := 0;
+          v_newamt := 0;
+          v_rdvtxnline_id := get_uuid();
+
+          insert into efin_rdvtxnline(efin_rdvtxnline_id,ad_client_id,ad_org_id,createdby,updatedby,trxln_no,trxapp_no,efin_rdvtxn_id,efin_rdv_id,type,eximatch_qty,eximatch_amt,exipenalty_amt,Existing_Hold_Amount,exiadv_deduct,applicable_method,
+          match_qty,match_amt,inv_amt,m_product_id,item_desc,m_product_category_id,unit_price,del_qty,deliver_amt,netmatch_amt,c_uom_id,comp_uom,delay_uom,escm_initialreceipt_id,received_date,line_status,completion_per)
+          values (v_rdvtxnline_id,:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,v_lineNo,v_txnapp_no,v_rdvtxn_id,:new.efin_rdv_id,'SR',v_extqty,v_extamt,v_extpenalty,v_exthold,v_extadv,v_advmethod,
+          v_newqty,v_newamt,v_extpaid,cur_lines.m_product_id, cur_lines.description,v_productCat,coalesce(cur_lines.unitprice,0),cur_lines.qty,v_delamt,v_newamt,cur_lines.c_uom_id,cur_lines.c_uom_id,cur_lines.c_uom_id,
+          cur_lines.escm_initialreceipt_id,cur_lines.movementdate,'FM',100);
+                
+          --END IF;
+          update efin_rdvtxn set netmatch_amt = netmatch_amt + v_newamt,match_amt = match_amt + v_newamt where efin_rdvtxn_id = v_rdvtxn_id;
+          
+        else
+        
+        IF(cur_lines.em_escm_receivingtype='PROJ' and  cur_lines.em_escm_receivetype='AMT') THEN
+        v_newqty := cur_lines.qty;
+		v_newamt := ROUND(cur_lines.deliveredamt, v_prec);
+        ELSE 
+          v_newqty := cur_lines.qty;
+          v_newamt := ROUND(v_newqty * coalesce(cur_lines.unitprice,0), v_prec);
+	END IF;
+          --new change, while insert qty should be 0.
+          v_newqty := 0;
+          v_newamt := 0;
+          v_rdvtxnline_id := get_uuid();
+
+          insert into efin_rdvtxnline(efin_rdvtxnline_id,ad_client_id,ad_org_id,createdby,updatedby,trxln_no,trxapp_no,efin_rdvtxn_id,efin_rdv_id,type,eximatch_qty,eximatch_amt,exipenalty_amt,Existing_Hold_Amount,exiadv_deduct,applicable_method,
+          match_qty,match_amt,inv_amt,m_product_id,item_desc,m_product_category_id,unit_price,del_qty,deliver_amt,netmatch_amt,c_uom_id,comp_uom,delay_uom,escm_initialreceipt_id,received_date,line_status,completion_per)
+          values (v_rdvtxnline_id,:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,v_lineNo,v_txnapp_no,v_rdvtxn_id,:new.efin_rdv_id,'SR',v_extqty,v_extamt,v_extpenalty,v_exthold,v_extadv,v_advmethod,
+          v_newqty,v_newamt,v_extpaid,cur_lines.m_product_id,cur_lines.description,v_productCat,coalesce(cur_lines.unitprice,0),cur_lines.qty,v_delamt,v_newamt,cur_lines.c_uom_id,cur_lines.c_uom_id,cur_lines.c_uom_id,cur_lines.escm_initialreceipt_id,
+          cur_lines.movementdate,'FM',100);
+
+          update efin_rdvtxn set netmatch_amt = ROUND(netmatch_amt + v_newamt, v_prec),
+          match_amt = ROUND(match_amt + v_newamt, v_prec) where efin_rdvtxn_id = v_rdvtxn_id;
+              
+        END IF;
+                  --insert line ref
+                    select (delivered_qty-match_qty) as qty ,(delivered_amt-match_amt) into v_receiptQty,v_receiptAmt
+          from escm_initialreceipt ln 
+                    join m_inout hd on hd.m_inout_id = ln.m_inout_id
+            where ln.escm_initialreceipt_id =cur_lines.escm_initialreceipt_id;
+                    insert into efin_rdvtxnline_Ref (efin_rdvtxnline_ref_id,ad_client_id,ad_org_id,createdby,updatedby,efin_rdvtxnline_id,escm_initialreceipt_id,match_qty,available_qty,match_amt,available_amt)
+                    values(get_uuid(),:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,v_rdvtxnline_id,cur_lines.escm_initialreceipt_id,0,v_receiptQty,0,v_receiptAmt);
+                                                     
+                
+      END LOOP;
+        
+      --update parent id FOR tree structure
+      FOR cur_parref in (
+      select escm_initialreceipt_id,efin_rdvtxnline_id from efin_rdvtxnline  where efin_rdvtxn_id  = v_rdvtxn_id)
+      LOOP
+        select parent_line into v_parentref from escm_initialreceipt where escm_initialreceipt_id = cur_parref.escm_initialreceipt_id ;
+
+        select efin_rdvtxnline_id into v_rdvtxnparref from efin_rdvtxnline where escm_initialreceipt_id = v_parentref and efin_rdvtxn_id  = v_rdvtxn_id;
+
+        update efin_rdvtxnline set efin_parent_id = v_rdvtxnparref where efin_rdvtxnline_id = cur_parref.efin_rdvtxnline_id;
+      END LOOP;
+    END IF;
+  END IF;
+
+  END EFIN_RDVLINE_INSERT
+]]></body>
+    </trigger>
+  </database>

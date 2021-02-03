@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_C_ORDER_REPORT_V">
+    <view name="ESCM_C_ORDER_REPORT_V"><![CDATA[SELECT ord.c_order_id AS escm_c_order_report_v_id, ord.ad_client_id, ord.ad_org_id, ord.isactive, ord.created, ord.createdby, ord.updated, ord.updatedby, (COALESCE(ord.documentno, '') || ' - ') || ord.em_escm_revision AS documentrevisionno, ord.documentno FROM c_order ord WHERE ord.em_escm_revision = ((SELECT max(c1.em_escm_revision) AS max FROM c_order c1 WHERE c1.documentno = ord.documentno))]]></view>
+  </database>

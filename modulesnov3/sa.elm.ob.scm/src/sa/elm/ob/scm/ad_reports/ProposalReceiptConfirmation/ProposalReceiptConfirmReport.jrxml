@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.0.final using JasperReports Library version 6.5.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ProposalReceiptConfirmReport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="af604163-f412-4cbe-b9c7-82679fe5d7f0">
+	<property name="ireport.zoom" value="1.3310000000000006"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="144"/>
+	<parameter name="Proposalid" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select pm.proposalno,bm.bidno as bidno,bm.bidname as bidname,concat(bp.name,'-',pm.subcontractors) as value,eut_convert_to_hijri(to_char(now(),'YYYY-MM-dd')) as today,
+concat((SELECT EXTRACT(DOW FROM  pm.submissiondate::date)),'-', to_char((eut_cnvrttohjr_yyyymmdd(to_char(pm.submissiondate,'YYYY-MM-DD'))):: date,'DD/MM/YYYY'),' ','هـ','-',(pm.submissiontime)) as submissiondate,pm.envelopcounts as enpcount
+from
+escm_proposalmgmt pm left join escm_bidmgmt bm on pm .escm_bidmgmt_id = bm.escm_bidmgmt_id
+left join c_bpartner bp on bp.c_bpartner_id = pm.supplier where pm.escm_proposalmgmt_id = $P{Proposalid} and
+pm.Proposalstatus='SUB']]>
+	</queryString>
+	<field name="proposalno" class="java.lang.String"/>
+	<field name="bidno" class="java.lang.String"/>
+	<field name="bidname" class="java.lang.String"/>
+	<field name="value" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<field name="today" class="java.lang.String"/>
+	<field name="submissiondate" class="java.lang.String"/>
+	<field name="enpcount" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="226" splitType="Stretch">
+			<staticText>
+				<reportElement x="378" y="73" width="165" height="33" uuid="560d65ea-1db7-422a-aad5-5aba5bd648c3"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="21" isBold="false" isPdfEmbedded="false"/>
+				</textElement>
+				<text><![CDATA[المملكة العربية السعودية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="378" y="104" width="165" height="33" uuid="2e422fa7-ce16-4cb5-8581-d5fe24d5d788"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="21" isBold="false"/>
+				</textElement>
+				<text><![CDATA[وزارة النقل]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="378" y="139" width="165" height="33" uuid="3a9195d7-ae81-4ccf-bce0-27c74dd997ee"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="21" isBold="false"/>
+				</textElement>
+				<text><![CDATA[إدارة المناقصات والعقود]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="103" y="149" width="40" height="23" uuid="2bd05d58-c5ad-4cbe-a9f8-84357cf1ceea"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[التاريخ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="93" y="149" width="10" height="23" uuid="fcd9c00e-5b84-483b-900f-f569aba62393"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="175" y="172" width="180" height="33" uuid="e875c57f-811f-4a0c-aba4-bcd0d0974cef"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="21" isBold="false" isPdfEmbedded="false"/>
+				</textElement>
+				<text><![CDATA[إيصال استلام العطاء]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="23" y="149" width="70" height="23" uuid="d781db22-3c0e-439f-9d53-67a1443874f9"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{today}.toString())]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="414" splitType="Stretch">
+			<staticText>
+				<reportElement x="501" y="10" width="52" height="24" uuid="4e728507-4f51-4ba8-834c-c9a6b1a0e054"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[رقم العطاء ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="495" y="40" width="58" height="24" uuid="698ace0f-e6c2-46ff-83de-104136788712"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[رقم المنافسة ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="489" y="73" width="64" height="24" uuid="f9a8ea07-11fa-4d2d-ba33-c1936b0ce966"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[اسم المنافسة ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="482" y="105" width="72" height="24" uuid="3a24208e-447e-44be-80d4-9538b7b31b98"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[اسم مقدم العرض ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="446" y="141" width="107" height="24" uuid="97376526-cc94-4dd0-a2a5-a36ebfcef184"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[تاريخ و وقت تقديم العطاء ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="497" y="177" width="56" height="24" uuid="9893bf20-0073-457c-be3c-faf042f351f3"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[عدد الظروف ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="502" y="10" width="5" height="24" uuid="a0dedb4f-4eff-4586-9315-d0ad4c599dc0"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="493" y="40" width="5" height="24" uuid="01fcb8f1-d5a2-499b-aeeb-310a8405bfa2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="491" y="73" width="6" height="24" uuid="134a33d5-5482-44d1-afe1-33400a6f2cbb"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="439" y="141" width="7" height="24" uuid="d0c3e4af-e83b-4f46-99b1-533c665c34e8"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="489" y="177" width="8" height="24" uuid="701b4eaa-460c-4b07-b79b-eb94564cc710"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="10" width="501" height="24" uuid="c4bbfb90-6a8a-47b3-96b9-5ce251d5ed34"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{proposalno}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="40" width="493" height="24" uuid="22941dc6-b18c-4651-98e0-edd812e4b792"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{bidno}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="-12" y="73" width="501" height="24" uuid="dda23b76-cbc8-4c5e-9ca3-8915a45c8e25"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bidname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2" y="105" width="472" height="24" uuid="19f97902-539e-44f5-a942-8666e2355af5"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{value}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1" y="141" width="438" height="24" uuid="15e6b18c-8735-41e6-bd7c-0040ae699839"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertNumbertoArabicwithmonthsandweekdays($F{submissiondate}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1" y="177" width="488" height="24" uuid="8d6b43da-6323-4155-995f-e43d39a72549"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{enpcount}.toString())]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="210" y="211" width="50" height="24" uuid="ecb85f08-f378-4f09-b42a-9ba8c41569e2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[اسم المستلم ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="210" y="242" width="40" height="24" uuid="7336ea8e-6be5-4197-bc35-2fa40d7e02db"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[التوقيــــــــع ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="204" y="211" width="6" height="24" uuid="1213865b-083d-46f3-a346-091178ecd884"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="204" y="242" width="6" height="24" uuid="a236c266-80bf-4f0e-9f5b-dce0f5e2875e"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="211" width="184" height="24" uuid="7489bd7c-7875-490e-ad3a-7a273b7c9d42"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[........................................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="242" width="184" height="24" uuid="3374f444-82ec-408a-83b8-3bf1717b184e"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[........................................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="502" y="224" width="41" height="24" uuid="a88e8373-0caa-4d47-bbe7-9e526d8f4e73"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[حرر في ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="495" y="224" width="7" height="24" uuid="1b7afd41-61f4-456c-b140-5418ecafa560"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="395" y="224" width="100" height="24" uuid="c5d59542-87a5-429f-8a9b-b454f5e229e4"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[..............................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="204" width="555" height="94" uuid="b365c7d7-9fe5-4905-9e1f-76cf92f2aa8e"/>
+				<box rightPadding="4">
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="474" y="105" width="8" height="24" uuid="0ee8b516-09ea-4df0-90b1-e97f346b451e"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="1" width="555" height="204" uuid="6186629b-c216-4d33-a740-8073e0e974ea"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+		</band>
+	</detail>
+</jasperReport>

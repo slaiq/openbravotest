@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PrintElectricity_subreport2" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="7a4222ad-4c66-438d-87a1-93c4581c2f57">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="195"/>
+	<parameter name="SignatureDate" class="java.lang.String"/>
+	<parameter name="vendorpobox" class="java.lang.String"/>
+	<parameter name="proposaldate" class="java.lang.String"/>
+	<parameter name="motperson" class="java.lang.String"/>
+	<parameter name="contractsigncity" class="java.lang.String"/>
+	<parameter name="registryno" class="java.lang.String"/>
+	<parameter name="registrydate" class="java.lang.String"/>
+	<parameter name="vendorpostalcode" class="java.lang.String"/>
+	<parameter name="registrycity" class="java.lang.String"/>
+	<parameter name="vendorname" class="java.lang.String"/>
+	<parameter name="project" class="java.lang.String"/>
+	<parameter name="BASE_DESIGN" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="bplocname" class="java.lang.String"/>
+	<parameter name="signatureday" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select 1 from dual]]>
+	</queryString>
+	<field name="?column?" class="java.lang.Integer"/>
+	<columnHeader>
+		<band height="660">
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="11" y="262" width="531" height="51" uuid="b4e7ce75-d4d5-4452-8483-72c858e2b093"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["تم الاتفاق في مدينة"+ ($P{contractsigncity}==null?"  ":"  "+$P{contractsigncity}+" ")+"في يوم"+ ($P{SignatureDate}==null?"  ":"  "+sa.elm.ob.utility.ad_reports.NumberToWords.getWeekdaysInArabic(Integer.parseInt($P{signatureday}))+" ")+"الموافق"+(sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{SignatureDate})==null?"  ":"  "+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{SignatureDate})+" ")+"بين كل من :"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="11" y="234" width="531" height="22" uuid="78dbf7ea-78fb-4643-83ec-341ffeb7372c"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[بعون الله تعالى]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="11" y="194" width="531" height="33" uuid="0946afdf-bb5d-46d4-a47b-ef400450c2fe"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="21" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[وثيقة العقد الأساسية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="154" y="71" width="244" height="40" uuid="ee07c8c2-c83c-4539-ad46-eafdc60918da"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="21" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[وثيقة العقد الأساسية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="11" y="166" width="531" height="33" uuid="29f795da-772a-4333-a0a1-2917f7efde27"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="21" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[مشروع صيانة الأعمال الكهربائية لطرق منطقة الرياض]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="11" y="318" width="531" height="54" uuid="b563ac74-1517-4bd9-8b4c-9c9bc1bfd91c"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["أولاً : وزارة النقل ويمثلها "+($P{motperson}==null?"  ":"  "+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{motperson})+" ")+" المشار إليه فيما" + " بعد بصاحب العمل ( طرف أول )"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="11" y="373" width="531" height="70" uuid="add7d368-e0f7-4440-9172-4cc00f261cdb"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["ثانياً :"+($P{vendorname}==null?"  ":"  "+$P{vendorname}+" ")+"المسجلة تحت رقم"+($P{registryno}==null?"  ":"  "+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{registryno})+" ")+"بتاريخ"+($P{registrydate}==null?"  ":"  "+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{registrydate})+" ")+"هـ بمدينة"+($P{registrycity}==null?"  ":"  "+$P{registrycity}+" ")+"ومقرهـا القانوني"+($P{bplocname}==null?"  ":"  "+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{bplocname})+" ")+"ومتخذة عنواناً لها في المملكة ص ب"+($P{vendorpobox}==null?"  ":"  "+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{vendorpobox})+" ")+"الرمز البريدى"+($P{vendorpostalcode}==null?"  ":"  "+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{vendorpostalcode})+" ")+"ويمثلها"+" وينوب عنها بصفته ( طرف ثاني ) ."]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="154" y="30" width="244" height="38" uuid="826fdaaf-0cb7-4a08-990c-5ab38984e346"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="21" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[الباب الثالث]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" x="11" y="477" width="531" height="160" uuid="682e7e82-de0a-40b7-b6f3-322b52a2b84c"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["لما كان ( الطرف الأول ) يرغب في " +($P{project}==null?"  ":"  "+$P{project}+" ")+" التي طرحت في منافسة عامة وتقدم لها( الطرف الثاني ) بعرضه المؤرخ"+($P{proposaldate}==null?"  ":"  "+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{proposaldate})+" ")+"هـ، للقيام بتنفيذ تلك الأعمال بعد اطلاعه على جميع شروط ومواصفات العقد وجميع الوثائق ووقوفه على المواقع، وبعلمه بما تضمنه نظام المنافسات والمشتريات الحكومية الصادر بالمرسوم الملكي رقم ( م / ٥٨ ) وتاريخ" + " ٤ / ٩ / ١٤٢٧هـ، ولائحته التنفيذية الصادرة بقرار وزير المالية والاقتصاد الوطني رقم ( ٣٦٢ ) وتاريخ ٢٠ / ٢ / ١٤٢٨هـ، وما صدر عليه من تعديلات وقرارات وتعاميم وتعليمات ."]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="11" y="445" width="531" height="29" uuid="ca0835a8-1f1e-420d-ab81-271cd632f3cc"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[ويشمل هذا التعبير من يخلف المتعهد ومن يصرح له بإحالة العقد اليه.]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+</jasperReport>

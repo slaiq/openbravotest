@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_POLINE_PROPOSALDEL_TRG">
+    <trigger name="ESCM_POLINE_PROPOSALDEL_TRG" table="C_ORDERLINE" fires="after" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[v_count NUMBER;
+v_proposal_id VARCHAR2(60);
+Cur_Distribution RECORD;
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	IF DELETING THEN
+	--if we delete line regarding proposal then the header proposal no should update as null
+	select count(c_order.c_order_id) into v_count from c_order left join c_orderline on c_order.c_order_id = c_orderline.c_order_id
+	where c_order.c_order_id = :old.c_order_id and c_orderline.em_escm_proposalmgmt_id is not null;
+	if(v_count=0) then 
+	v_proposal_id = :old.em_escm_proposalmgmt_id;
+	for Cur_Distribution IN ( select escm_pgmt_distribution_id from escm_pgmt_distribution where escm_proposalmgmt_id = v_proposal_id)
+	loop
+	update escm_pgmt_distribution set c_order_id = null where escm_pgmt_distribution_id = Cur_Distribution.escm_pgmt_distribution_id;
+	end loop;
+	update c_order set em_escm_proposalmgmt_id = null,em_escm_proposaldate = null, em_escm_proposalno = null,em_escm_bidmgmt_id = null
+	where c_order.c_order_id = :old.c_order_id;
+	end if;	
+        end if;
+	
+	END ESCM_POLINE_PROPOSALDEL_TRG
+]]></body>
+    </trigger>
+  </database>

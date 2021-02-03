@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="OpenEnvelopeCommittee_subreport3" pageWidth="555" pageHeight="802" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="457ac13f-698c-4edb-a4ec-33a92dd2860c">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Crosstab Data Text" hAlign="Center"/>
+	<parameter name="inpCommitteeId" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select string_agg(emp_name, ', ') as emp_name,
+regexp_replace(repeat('------------------,', (count(emp_name)::integer)), ',+$', '') as signature,
+lktypln.name, value
+from escm_committee_members cmem left join escm_deflookups_typeln lktypln on lktypln.escm_deflookups_typeln_id=cmem.membertype
+left join escm_deflookups_type lktyp on lktyp.escm_deflookups_type_id=lktypln.escm_deflookups_type_id
+where escm_committee_id=$P{inpCommitteeId} and lktyp.reference='CMT' and (name='President' or value='P') group by lktypln.name, value]]>
+	</queryString>
+	<field name="emp_name" class="java.lang.String"/>
+	<field name="signature" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="value" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<columnHeader>
+		<band height="30">
+			<staticText>
+				<reportElement x="0" y="0" width="150" height="30" uuid="5a88a028-c9de-4272-ba02-1846e0c85b5b"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[رئيــــــس اللجنــــــــــة]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<summary>
+		<band height="120">
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="60" width="150" height="60" isPrintWhenDetailOverflows="true" uuid="aa477b3c-5396-4e42-b1c4-8842a66b6aaa"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{signature}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="150" height="60" isPrintWhenDetailOverflows="true" uuid="25c5f2d9-4260-408f-a89b-a9759a91df02"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{emp_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="150" height="60" isPrintWhenDetailOverflows="true" uuid="6b0b968f-9ec6-4eb4-b27c-1595ab896fdb"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="60" width="150" height="60" isPrintWhenDetailOverflows="true" uuid="2a8e5b44-3d73-48ef-b2e1-9b9b84437333"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

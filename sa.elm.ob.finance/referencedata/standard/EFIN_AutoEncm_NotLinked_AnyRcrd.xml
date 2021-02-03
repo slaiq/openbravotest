@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="CE6482BAA3B84AC6907AF9023EB2DD53" identifier="Auto Encumbrance not linked to any record">
+    <id>CE6482BAA3B84AC6907AF9023EB2DD53</id>
+    <active>true</active>
+    <name>Auto Encumbrance not linked to any record</name>
+    <tab id="9CBD55F879EA4DCAA4E944C0B7DC03D4" entity-name="ADTab" identifier="Header - Encumbrance"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select 
+ result.Efin_Budget_Manencum_id AS referencekey_id,
+      result.documentno AS record_id,
+     0 AS ad_role_id,
+     NULL AS ad_user_id,
+     result.description||' -'||result.documentno||', Auto Encumbrance not linked to any '||result.desc AS description,
+     'Y' AS isActive,
+      result.ad_org_id, 
+      result.ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+from (
+    --PO
+    select 'PO' as desc,'Purchase Order' as description,documentno,Efin_Budget_Manencum_id,ad_org_id,ad_client_id from Efin_Budget_Manencum 
+    where  Encum_Method='A'
+    and Encum_Type='POE' and encum_stage='POE'
+    and Efin_Budget_Manencum_id   not in (select EM_Efin_Budget_Manencum_ID  from c_order
+                       where EM_Efin_Budget_Manencum_ID is not null)
+    union
+    --PR
+    select 'PR' as desc,'Purchase Requisition' as description,documentno,Efin_Budget_Manencum_id,ad_org_id,ad_client_id from Efin_Budget_Manencum where  Encum_Method='A'
+    and Encum_Type='PRE' 
+    and Efin_Budget_Manencum_id not in (select EM_Efin_Budget_Manencum_ID  from m_requisition
+                       where EM_Efin_Budget_Manencum_ID is not null)
+    and encum_stage='PRE'
+
+    union
+    --Proposal 
+    select 'Proposal' as desc,'Proposal' as description,documentno,Efin_Budget_Manencum_id,ad_org_id,ad_client_id from Efin_Budget_Manencum where  Encum_Method='A'
+    and Encum_Type='PAE' 
+    and Efin_Budget_Manencum_id not in (select EM_Efin_Encumbrance_ID  from escm_proposalmgmt
+                       where EM_Efin_Encumbrance_ID is not null)
+    and encum_stage='PAE'
+
+    union
+    --invoice 
+    select 'Invoice' as desc,'Invoice' as description,documentno,Efin_Budget_Manencum_id,ad_org_id,ad_client_id from 
+    Efin_Budget_Manencum 
+    where  Encum_Method='A'
+    and Encum_Type='AEE' 
+    and c_campaign_id='11F9670AC2DC499885BAE97494C595AD'
+    and Efin_Budget_Manencum_id not in (
+    select Efin_Budget_Manencum_id from Efin_Budget_Manencum 
+    where  Encum_Method='A'
+    and Encum_Type='AEE' 
+    and c_campaign_id='11F9670AC2DC499885BAE97494C595AD'
+    and Efin_Budget_Manencum_id 
+      in (select EM_Efin_Manualencumbrance_ID 
+                      from c_invoice
+                      where EM_Efin_Manualencumbrance_ID is not null 
+                      and em_efin_budget_type='F' )  )
+    and Efin_Budget_Manencum_id not in(select EM_Efin_Funds_Encumbrance_ID from
+                      c_invoice where EM_Efin_Funds_Encumbrance_ID is not null)
+
+)result</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

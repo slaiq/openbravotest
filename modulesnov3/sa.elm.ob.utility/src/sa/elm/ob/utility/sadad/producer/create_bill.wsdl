@@ -1,0 +1,78 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:sch="http://elm.sa/grp/soap" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://elm.sa/grp/soap" targetNamespace="http://elm.sa/grp/soap">
+<wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://elm.sa/grp/soap">
+<xs:complexType name="sadadBillDetail">
+<xs:sequence>
+<xs:element minOccurs="0" name="BillAmount" type="xs:decimal"/>
+<xs:element minOccurs="0" name="MOT_SubAccount" type="xs:int"/>
+</xs:sequence>
+</xs:complexType>
+<xs:element name="sadadBillRequest">
+<xs:complexType>
+<xs:sequence>
+<xs:element minOccurs="0" name="ApplicationType" type="xs:int"/>
+<xs:element minOccurs="0" name="CustomerName" nillable="true" type="xs:string"/>
+<xs:element minOccurs="0" name="CustomerType" type="xs:int"/>
+<xs:element minOccurs="0" name="IDNo" nillable="true" type="xs:string"/>
+<xs:element minOccurs="0" name="IDType" type="xs:int"/>
+<xs:element minOccurs="0" name="MainAccount" type="xs:int"/>
+<xs:element minOccurs="0" name="MobileNo" nillable="true" type="xs:string"/>
+<xs:element minOccurs="0" name="Notes" nillable="true" type="xs:string"/>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="SaddadBillDetail" nillable="true" type="tns:sadadBillDetail"/>
+<xs:element minOccurs="0" name="TotalBillAmount" type="xs:decimal"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="sadadBillResponse">
+<xs:complexType>
+<xs:sequence>
+<xs:element minOccurs="0" name="ErrorMessage" nillable="true" type="xs:string"/>
+<xs:element minOccurs="0" name="HasError" type="xs:boolean"/>
+<xs:element minOccurs="0" name="NewBillNumber" type="xs:int"/>
+</xs:sequence>
+</xs:complexType>
+</xs:element>
+<xs:element name="serviceAccount" nillable="true" type="tns:ServiceAccount"/>
+<xs:complexType name="ServiceAccount">
+<xs:sequence>
+<xs:element minOccurs="0" name="Password" nillable="true" type="xs:string"/>
+<xs:element minOccurs="0" name="ServiceKey" nillable="true" type="xs:string"/>
+<xs:element minOccurs="0" name="UserName" nillable="true" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+</xs:schema>
+</wsdl:types>
+<wsdl:message name="sadadBillResponse">
+<wsdl:part element="tns:sadadBillResponse" name="sadadBillResponse"/>
+</wsdl:message>
+<wsdl:message name="sadadBillRequest">
+<wsdl:part element="tns:sadadBillRequest" name="sadadBillRequest"/>
+</wsdl:message>
+<wsdl:message name="saddadBillRequest_Headers">
+<wsdl:part name="serviceAccount" element="tns:serviceAccount"/>
+</wsdl:message>
+<wsdl:portType name="SadadPort">
+<wsdl:operation name="sadadBill">
+<wsdl:input message="tns:sadadBillRequest" name="sadadBillRequest"/>
+<wsdl:output message="tns:sadadBillResponse" name="sadadBillResponse"/>
+</wsdl:operation>
+</wsdl:portType>
+<wsdl:binding name="SadadPortSoap11" type="tns:SadadPort">
+<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+<wsdl:operation name="sadadBill">
+<soap:operation soapAction=""/>
+<wsdl:input name="sadadBillRequest">
+<soap:header message="tns:saddadBillRequest_Headers" part="serviceAccount" use="literal"/>
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output name="sadadBillResponse">
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+</wsdl:binding>
+<wsdl:service name="SadadPortService">
+<wsdl:port binding="tns:SadadPortSoap11" name="SadadPortSoap11">
+<soap:address location="http://localhost:8090/openbravo/soapws"/>
+</wsdl:port>
+</wsdl:service>
+</wsdl:definitions>

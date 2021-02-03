@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_INSERT_FUNDS_REQUEST">
+    <function name="EFIN_INSERT_FUNDS_REQUEST" type="NULL">
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s):Gopalakrishnan
+************************************************************************/
+	
+	cursor_budget RECORD;
+	year_v character varying(32);
+	budget_def_v character varying(32);
+	period_v character varying(32);
+	trans_period_name_v character varying(60);
+	v_funds_id character varying(32);
+	parenid_v character varying(32);
+	parent_encum NUMBER;
+
+BEGIN
+ ALTER TABLE efin_budgetinquiry DISABLE TRIGGER ALL; 
+ 
+select c_year_id into year_v from c_year where c_year_id='9EF3BC3B76C44188AAD2584C83F9B4C6';
+--c_year_id in (
+--select c_year_id from c_period where now() between startdate and enddate )
+
+select efin_budgetint_id into budget_def_v from efin_budgetint where c_year_id='9EF3BC3B76C44188AAD2584C83F9B4C6';
+--c_year_id=year_v
+
+select c_period_id into period_v from c_period where startdate= (select min(startdate) 
+from c_period where c_year_id='9EF3BC3B76C44188AAD2584C83F9B4C6' 
+--c_year_id=year_v
+);
+
+
+select name into trans_period_name_v from c_period where now() between startdate and enddate;
+
+v_funds_id = get_uuid();
+
+INSERT INTO public.efin_fundsreq(
+	efin_fundsreq_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby, documentno, 
+	trxtype, trxdate, dateacct, transactionperiod, c_campaign_id, c_year_id, note, description, 
+	action, docstatus, transaction_org, efin_budgetint_id, uniquecodefilter, efin_budgetadj_id,
+	efin_budget_transfertrx_id, eut_next_role_id, ad_role_id, reject, revoke, 
+	isreserve, orgreq_funds_type, efin_budget_id, efin_forward, efin_forward_revoke, 
+	efin_req_more_info, efin_rmi_revoke, eut_forward_id, eut_reqmoreinfo_id)
+
+values(
+	v_funds_id, 'FFEFCBB01E1F412886CB69CDBDD81774','0' , 'Y', 
+	now(), '100', now(), '100', '500000001_test', 
+	'BCUR', now(), now(), trans_period_name_v, '8CFC8D85BC484DC7AFB75E3DA60FE30F', 
+	year_v, '', '', 'RE', 'CO', 'D67E1FAA6B9445758EE62BAB1A211C3A', 
+	budget_def_v, 'N', null,
+	null, null, 'D276B8C8F5984648A4A144CA7D07A3C2', 
+	'N', 'N', 'Y', 'OD', null, 
+	'N', 'N', 'N', 
+	'N', null, null);
+	
+	
+for cursor_budget in (	
+select inq.efin_budgetinquiry_id,comb.em_efin_uniquecode as code_990 ,
+	replace(comb.em_efin_uniquecode,'-990-','-999-') as code_999 ,
+(disdec_amt-disinc_amt) as distribution_amount ,
+comb.c_validcombination_id as codeid_990,comb_999.c_validcombination_id as codeid_999,
+comb.em_efin_uniquecodename as name_990,comb_999.em_efin_uniquecodename as name_999,
+inq.current_budget as current_budget,inq.funds_available,
+comb_999.account_id,comb_999.c_bpartner_id,comb_999.ad_orgtrx_id,
+	comb_999.c_salesregion_id,comb_999.c_project_id,comb_999.c_campaign_id,
+	comb_999.c_activity_id,comb_999.user1_id,comb_999.user2_id,inq.encumbrance as encum_amount,
+	comb_999.em_efin_uniquecode
+from efin_budgetinquiry inq
+join c_validcombination comb on comb.c_validcombination_id =inq.c_validcombination_id
+join c_validcombination comb_999 on comb_999.em_efin_uniquecode= replace(comb.em_efin_uniquecode,'-990-','-999-')
+where inq.efin_budgetint_id='D8D5FA6B54E345B0B0331BC5764BDFAC'
+and inq.c_salesregion_id in (select HQ_Budgetcontrolunit from efin_budget_ctrl_param ) 
+and inq.c_campaign_id='8CFC8D85BC484DC7AFB75E3DA60FE30F'
+and inq.c_validcombination_id='4D56CDB043864DBC9E35980FD5559457'
+)
+
+loop
+
+select efin_budgetinquiry_id ,encumbrance into parenid_v,parent_encum 
+from efin_budgetinquiry where efin_budgetint_id=budget_def_v
+and c_validcombination_id=cursor_budget.codeid_990;
+
+update efin_budgetinquiry set disdec_amt=cursor_budget.distribution_amount
+where efin_budgetinquiry_id=parenid_v;
+
+
+
+--insert the values into funds request lines
+INSERT INTO public.efin_fundsreqline(
+	efin_fundsreqline_id, ad_client_id, ad_org_id, isactive, created,
+	createdby, updated, updatedby, efin_fundsreq_id, fromaccount, toaccount, 
+	increase, decrease, dist_type, percentage, req_type, isdistribute,
+	fromuniquecodename, touniquecodename, status, failure_reason, 
+	current_budget, funds_available, description)
+values(
+	get_uuid(), 'FFEFCBB01E1F412886CB69CDBDD81774', '0', 'Y', now(),
+	'100', now(), '100', v_funds_id, cursor_budget.codeid_990, cursor_budget.codeid_999, 
+	cursor_budget.distribution_amount, cursor_budget.distribution_amount, 
+	'MAN', 0, 'DIST', 'Y',
+	cursor_budget.name_990, cursor_budget.name_999, 'SCS', '', 
+	cursor_budget.current_budget,cursor_budget.current_budget, 'moved from last year');
+	
+	--insert the values into inquiry line
+	 INSERT INTO efin_budgetinquiry(efin_budgetinquiry_id, ad_client_id, ad_org_id, isactive, created,
+           createdby, updated, updatedby, uniquecode, 
+          c_salesregion_id, user1_id, user2_id, c_activity_id, c_elementvalue_id,
+          c_campaign_id, current_budget, funds_available,  
+		c_project_id, c_bpartner_id,c_validcombination_id, uniquecodename,disinc_amt,disdec_amt,
+          isdistribute,efin_budgetint_id,parent_id,encumbrance )
+          values(
+          get_uuid(), 'FFEFCBB01E1F412886CB69CDBDD81774' ,cursor_budget.ad_orgtrx_id , 
+			  'Y', now(),'100', now(), '100', cursor_budget.em_efin_uniquecode,
+          cursor_budget.c_salesregion_id,cursor_budget.user1_id, 
+			  cursor_budget.user2_id, cursor_budget.c_activity_id, 
+			  cursor_budget.account_id, cursor_budget.c_campaign_id,
+           cursor_budget.distribution_amount,cursor_budget.funds_available, 
+			  cursor_budget.c_project_id,
+			  cursor_budget.c_bpartner_id,
+			  cursor_budget.codeid_999, cursor_budget.name_999 ,
+            cursor_budget.distribution_amount,0,'Y',budget_def_v,parenid_v,cursor_budget.encum_amount );
+		
+end loop;
+ALTER TABLE efin_budgetinquiry ENABLE TRIGGER ALL;
+END EFIN_INSERT_FUNDS_REQUEST
+]]></body>
+    </function>
+  </database>

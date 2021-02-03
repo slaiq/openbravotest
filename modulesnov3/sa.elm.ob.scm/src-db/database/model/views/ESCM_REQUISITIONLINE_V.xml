@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_REQUISITIONLINE_V">
+    <view name="ESCM_REQUISITIONLINE_V"><![CDATA[SELECT reqln.m_requisitionline_id AS escm_requisitionline_v_id, reqln.ad_client_id, reqln.ad_org_id, reqln.isactive, reqln.created, reqln.createdby, reqln.updated, reqln.updatedby, reqln.c_bpartner_id, reqln.c_currency_id, reqln.changestatus, reqln.c_uom_id, reqln.dateplanned, reqln.description, reqln.discount, reqln.em_escm_accountno_amt, reqln.em_escm_awarded_qty, reqln.em_escm_bidmgmt_qty, reqln.em_escm_cancel_date, reqln.em_escm_cancelledby, reqln.em_escm_cancel_reason, reqln.em_escm_isproposal, reqln.line, (COALESCE(reqln.line, 0) || '-') || COALESCE(reqln.description, '') AS code, reqln.m_requisition_id, reqln.m_product_id FROM m_requisitionline reqln]]></view>
+  </database>

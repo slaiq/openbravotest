@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_TRANSACTION_STOCK_V">
+    <view name="ESCM_TRANSACTION_STOCK_V"><![CDATA[SELECT p.m_product_id || l.m_locator_id AS escm_transaction_stock_v_id, l.ad_client_id, l.ad_org_id, l.isactive, p.created, p.createdby, p.updated, p.updatedby, p.m_product_id, COALESCE(sum(sd.qtyonhand), 0) AS qtyonhand, COALESCE(sum(sd.qtyorderonhand), 0) AS qtyorderonhand, COALESCE(sum(sd.preqtyonhand), 0) AS preqtyonhand, COALESCE(sum(sd.preqtyorderonhand), 0) AS preqtyorderonhand, p.c_uom_id, p.m_attributesetinstance_id, l.m_locator_id FROM m_product p JOIN m_storage_detail sd ON sd.m_product_id = p.m_product_id JOIN m_locator l ON sd.m_locator_id = l.m_locator_id WHERE p.isactive = 'Y' GROUP BY p.m_product_id, l.m_locator_id]]></view>
+  </database>

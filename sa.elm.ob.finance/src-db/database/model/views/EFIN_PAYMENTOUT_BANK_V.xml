@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_PAYMENTOUT_BANK_V">
+    <view name="EFIN_PAYMENTOUT_BANK_V"><![CDATA[SELECT ba.c_bp_bankaccount_id AS efin_paymentout_bank_v_id, ba.ad_client_id, ba.ad_org_id, ba.isactive, ba.created, ba.createdby, ba.updated, ba.updatedby, COALESCE(ba.iban, '') AS name, ba.c_bpartner_id AS bpartner, ba.em_efin_bank_id AS bank FROM c_bp_bankaccount ba]]></view>
+  </database>

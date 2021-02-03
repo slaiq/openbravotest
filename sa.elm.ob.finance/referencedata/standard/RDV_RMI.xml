@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="32FFF17B181C42CDA372BFCF7A8E2724" identifier="RDV Advance RMI">
+    <id>32FFF17B181C42CDA372BFCF7A8E2724</id>
+    <active>true</active>
+    <creationDate transient="true">2019-02-11T19:09:56.882Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-02-19T13:08:57.676Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>RDV Advance RMI</name>
+    <tab id="FDBA56F9D57A4F988F4CC6F3577428B9" entity-name="ADTab" identifier="Advance Transaction Version - Receipt Delivery Verification"/>
+    <filterClause>((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) </filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>RDAR</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+  <ADAlertRule id="50E16A0A0DB640549F46A7904E30A232" identifier="RDV Transaction RMI">
+    <id>50E16A0A0DB640549F46A7904E30A232</id>
+    <active>true</active>
+    <creationDate transient="true">2019-02-11T19:09:56.880Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-02-19T13:09:33.911Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>RDV Transaction RMI</name>
+    <tab id="A0F3A7D17A834A93B3BD4D2C40E77AFE" entity-name="ADTab" identifier="Transaction versions - Receipt Delivery Verification"/>
+    <filterClause>((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) </filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>RDVR</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

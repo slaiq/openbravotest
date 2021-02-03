@@ -1,0 +1,247 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_INSERT_POLINES">
+    <trigger name="EFIN_INSERT_POLINES" table="C_INVOICE" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Trigger to Insert line in invoice based on selected po in Po Match
+* Contributor(s):  Gowtham.
+************************************************************************/
+cur_lines record;
+v_invoice_id VARCHAR(32);
+v_po_id VARCHAR(32);
+v_lineNo NUMBER;
+v_netamt NUMBER;
+v_lineamtwithdiscount NUMBER;
+v_fundsavailable NUMBER;
+v_fb_fundsavailable NUMBER;
+v_account_id VARCHAR(32);
+v_elementvalue_id VARCHAR(32);
+v_bpartner_id VARCHAR(32);
+v_salesregion_id VARCHAR(32);
+v_project_id VARCHAR(32);
+v_campaign_id VARCHAR(32);
+v_activity_id VARCHAR(32);
+v_user1_id VARCHAR(32);
+v_user2_id VARCHAR(32);
+v_receive_type VARCHAR(5);
+v_budget_type VARCHAR(32);
+v_taxamt  NUMBER;
+v_taxmethod_id VARCHAR(32);
+v_taxpercent NUMBER;
+v_isincluded CHAR(1);
+v_uuid VARCHAR(32);
+v_taxbeneficiary VARCHAR(32);
+v_fundscombination VARCHAR(32);
+v_istax CHAR(1);
+v_linetaxamt NUMBER;
+v_taxbaseamt NUMBER;
+v_precision  NUMBER;
+v_unitprice NUMBER;
+v_headertaxamt NUMBER;
+v_diffrenceamt NUMBER;
+v_ordertaxmethod_id character varying(32);
+v_oldtaxpercent NUMBER;
+
+BEGIN
+v_lineNo :=0;
+v_netamt :=0;
+v_taxamt :=0;
+v_istax :='N';
+v_linetaxamt:=0;
+v_taxbaseamt:=0;
+v_precision:=3;
+v_unitprice:=0;
+v_headertaxamt:=0;
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+	-- Insert/Update Operation	
+    IF (INSERTING OR UPDATING) THEN
+    	IF (:new.em_efin_invoicetype_txt='POM') THEN
+
+        	IF (INSERTING OR (UPDATING AND :new.em_efin_c_order_id <> coalesce(:old.em_efin_c_order_id,'1'))) THEN
+             
+              v_invoice_id = :new.c_invoice_id;
+              v_po_id = :new.em_efin_c_order_id;
+              v_headertaxamt:=0;
+              
+              select coalesce(stdprecision,3) into v_precision  from c_invoice inv join ad_org org on org.ad_org_id= inv.ad_org_id
+              join c_currency cur on cur.c_currency_id = org.c_currency_id
+              where inv.c_invoice_id=v_invoice_id;
+              
+              IF(v_precision is null) THEN
+              v_precision:=2;
+              END IF;
+              
+              select em_escm_receivetype,em_escm_tax_method_id into v_receive_type,v_taxmethod_id from c_order where c_order_id = :new.em_efin_c_order_id;
+
+              if(:new.em_efin_tax_method_id is not null) then
+				select taxpercent into v_oldtaxpercent from efin_tax_method where efin_tax_method_id=v_taxmethod_id;																			 
+				v_ordertaxmethod_id :=v_taxmethod_id;																	 
+                v_taxmethod_id:=:new.em_efin_tax_method_id;
+              end if;
+																							 			
+           
+              IF (v_taxmethod_id is not null ) THEN
+              	select taxpercent,istaxincluded,c_bpartner_id into v_taxpercent,v_isincluded,v_taxbeneficiary from efin_tax_method where efin_tax_method_id=v_taxmethod_id;
+              END IF;
+              
+              IF (v_receive_type = 'QTY') THEN
+                
+                for cur_lines in (select * from c_orderline where c_order_id = v_po_id and em_escm_issummarylevel='N' and (qtyordered - qtyinvoiced - em_escm_legacy_qty_delivered) > 0 )
+                
+                loop
+                    v_lineNo := v_lineNo +10;
+                       
+                    select em_efin_fundscombination ,account_id,c_bpartner_id,c_salesregion_id,c_project_id,c_campaign_id,c_activity_id,user1_id,user2_id into 
+                	v_fundscombination,v_elementvalue_id,v_bpartner_id,v_salesregion_id,v_project_id,v_campaign_id,v_activity_id,v_user1_id,v_user2_id
+                	from c_validcombination where c_validcombination_id = cur_lines.EM_Efin_C_Validcombination_ID;
+                     
+                    select C_Glitem_id into v_account_id from C_Glitem where ad_client_id = :new.ad_client_id order by created desc limit 1;
+                    
+					select efin_getfundsavailable(cur_lines.EM_Efin_C_Validcombination_ID,:new.em_efin_budgetint_id) into v_fundsavailable;
+                    v_lineamtwithdiscount=(cur_lines.linenetamt/cur_lines.QtyOrdered);
+																					 
+																							 
+					if(cur_lines.em_escm_net_unitprice!=0) then
+                    
+					   v_netamt = cur_lines.em_escm_net_unitprice*(cur_lines.QtyOrdered - cur_lines.qtyinvoiced - cur_lines.em_escm_legacy_qty_delivered);	
+					else 
+					   v_netamt = v_lineamtwithdiscount*(cur_lines.QtyOrdered - cur_lines.qtyinvoiced - cur_lines.em_escm_legacy_qty_delivered);																		 																	 
+					end if;						
+          
+                    if(v_ordertaxmethod_id!=v_taxmethod_id) then
+                       v_netamt= round((((cur_lines.em_escm_net_unitprice/(1+(v_oldtaxpercent/100)))*((v_taxpercent/100)))+(cur_lines.em_escm_net_unitprice/(1+(v_oldtaxpercent/100))))*(cur_lines.QtyOrdered - cur_lines.qtyinvoiced - cur_lines.em_escm_legacy_qty_delivered),2);
+                    end if;
+
+                  -- raise exception '%', cur_lines.em_escm_net_unitprice;
+					--v_netamt = cur_lines.PriceActual*(cur_lines.QtyOrdered - cur_lines.qtyinvoiced);
+
+                   -- Task no:7840 subtract the tax amount into line net amount
+                     
+                      IF(cur_lines.em_escm_line_taxamt >0 and v_taxmethod_id is not null) THEN
+                      
+                          v_taxamt:= round((v_netamt - (v_netamt/(1+(v_taxpercent/100)))),v_precision);
+                          v_linetaxamt:=v_taxamt;
+                          IF (v_isincluded ='Y') THEN
+                           v_taxbaseamt:=round(v_netamt,v_precision);
+                          ELSE
+                          v_taxbaseamt:=round((v_netamt-v_taxamt),v_precision);
+                          END IF;
+
+
+																							 
+																							 
+                          v_istax:='Y';
+                      END IF;
+                        select em_efin_budgettype into v_budget_type from c_campaign where c_campaign_id = v_campaign_id and em_efin_budgettype ='C';
+                        --raise exception '%',v_budget_type;
+																							 
+                         v_unitprice:=round(((cur_lines.linenetamt-coalesce(v_linetaxamt,0) )/cur_lines.QtyOrdered),2);
+				   if(v_ordertaxmethod_id!=v_taxmethod_id) then
+                         v_unitprice:=trunc(((v_netamt-coalesce(v_linetaxamt,0) )/cur_lines.QtyOrdered),2);
+                    end if;												   
+                       IF (v_budget_type='C') THEN
+				         v_fb_fundsavailable:=(select efin_getfundsavailable(v_fundscombination,:new.em_efin_budgetint_id));
+			END IF;
+				--raise exception '%',v_fb_fundsavailable;
+                   select get_uuid() into v_uuid from dual;
+				   v_diffrenceamt:= round(v_netamt - (cur_lines.QtyOrdered - cur_lines.qtyinvoiced - cur_lines.em_escm_legacy_qty_delivered) *v_unitprice-v_linetaxamt,2);
+                 --raise exception '%',v_diffrenceamt;
+                   insert into c_invoiceline (c_invoiceline_id,c_invoice_id,ad_client_id,ad_org_id,createdby,updatedby,Line,priceactual,gross_unit_price,linenetamt,QtyInvoiced,em_efin_amtinvoiced,
+                                                   em_efin_c_validcombination_id,em_efin_c_elementvalue_id,em_efin_c_salesregion_id,em_efin_c_campaign_id,c_project_id,em_efin_c_activity_id,
+                                                   em_efin_c_bpartner_id,user1_id,user2_id,financial_invoice_line,account_id,em_efin_funds_available,em_efin_isPOM,c_orderline_id,em_efin_calculate_tax,taxbaseamt,taxamt,em_efin_fb_funds_available)
+                    values(v_uuid,:new.c_invoice_id,:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,v_lineNo,v_unitprice,v_unitprice,((cur_lines.QtyOrdered - cur_lines.qtyinvoiced - cur_lines.em_escm_legacy_qty_delivered) *v_unitprice)+v_diffrenceamt,(cur_lines.QtyOrdered - cur_lines.qtyinvoiced - cur_lines.em_escm_legacy_qty_delivered),(v_netamt-v_taxamt),
+                                cur_lines.EM_Efin_C_Validcombination_ID,v_elementvalue_id,v_salesregion_id,v_campaign_id,v_project_id,v_activity_id,v_bpartner_id,v_user1_id,v_user2_id,'Y',v_account_id,v_fundsavailable,'Y',cur_lines.c_orderline_id,v_istax,v_taxbaseamt,v_linetaxamt,v_fb_fundsavailable);
+
+                    
+                    -- Task no:7840 insert the tax line separately
+                    IF(v_taxamt >0) THEN 
+                     v_headertaxamt :=v_headertaxamt+ v_taxamt;
+                        insert into c_invoiceline (c_invoiceline_id,c_invoice_id,ad_client_id,ad_org_id,createdby,updatedby,Line,priceactual,gross_unit_price,linenetamt,QtyInvoiced,em_efin_amtinvoiced,
+                                                   em_efin_c_validcombination_id,em_efin_c_elementvalue_id,em_efin_c_salesregion_id,em_efin_c_campaign_id,c_project_id,em_efin_c_activity_id,
+                                                   em_efin_c_bpartner_id,user1_id,user2_id,financial_invoice_line,account_id,em_efin_funds_available,em_efin_isPOM,c_orderline_id,em_efin_istax,em_efin_c_invoiceline_id,em_efin_beneficiary2_id,c_bpartner_id,em_efin_fb_funds_available)
+                        values(get_uuid(),:new.c_invoice_id,:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby, v_lineNo +5,v_taxamt,v_taxamt,v_taxamt,(cur_lines.QtyOrdered - cur_lines.qtyinvoiced - cur_lines.em_escm_legacy_qty_delivered),v_taxamt,
+                                cur_lines.EM_Efin_C_Validcombination_ID,v_elementvalue_id,v_salesregion_id,v_campaign_id,v_project_id,v_activity_id,v_bpartner_id,v_user1_id,v_user2_id,'Y',v_account_id,v_fundsavailable,'Y',cur_lines.c_orderline_id,'Y',v_uuid,:new.c_bpartner_id,v_taxbeneficiary,v_fb_fundsavailable);
+                     END  IF;
+                     
+                end loop;
+                
+                ELSE IF (v_receive_type = 'AMT') THEN
+                
+                	for cur_lines in (select * from c_orderline where c_order_id = v_po_id and em_escm_issummarylevel='N' and (LineNetAmt - em_efin_amtinvoiced) > 0)
+                	
+                    loop
+                        
+                        v_lineNo := v_lineNo +10;
+                       
+                        select em_efin_fundscombination,account_id,c_bpartner_id,c_salesregion_id,c_project_id,c_campaign_id,c_activity_id,user1_id,user2_id into 
+                        v_fundscombination,v_elementvalue_id,v_bpartner_id,v_salesregion_id,v_project_id,v_campaign_id,v_activity_id,v_user1_id,v_user2_id
+                        from c_validcombination where c_validcombination_id = cur_lines.EM_Efin_C_Validcombination_ID;
+
+                        select C_Glitem_id into v_account_id from C_Glitem where ad_client_id = :new.ad_client_id order by created desc limit 1;
+
+                        select efin_getfundsavailable(cur_lines.EM_Efin_C_Validcombination_ID,:new.em_efin_budgetint_id) into v_fundsavailable;
+                     --   v_lineamtwithdiscount=cur_lines.linenetamt/cur_lines.QtyOrdered;
+                     --   v_netamt = v_lineamtwithdiscount*(cur_lines.QtyOrdered - cur_lines.qtyinvoiced);
+                        v_netamt = cur_lines.LineNetAmt - (cur_lines.em_escm_legacy_amt_delivered+ cur_lines.em_efin_amtinvoiced);
+                        --v_netamt = cur_lines.PriceActual*(cur_lines.QtyOrdered - cur_lines.qtyinvoiced);
+ 				        if(v_ordertaxmethod_id!=v_taxmethod_id) then
+                          v_netamt= (round(cur_lines.em_escm_net_unitprice/(1+(v_oldtaxpercent/100)),2)*((v_taxpercent/100))+round(cur_lines.em_escm_net_unitprice/(1+(v_oldtaxpercent/100)),2));
+                        end if;
+						
+						v_unitprice:= v_netamt;
+                			
+                
+                      -- Task no:7840 subtract the tax amount into line net amount
+                      
+                        IF(cur_lines.em_escm_line_taxamt >0 and v_taxmethod_id is not null) THEN
+                            v_taxamt:=round((v_netamt - (v_netamt/(1+(v_taxpercent/100)))),v_precision);
+                            v_linetaxamt:=v_taxamt;
+                            IF (v_isincluded ='Y') THEN
+                           		v_taxbaseamt:=round(v_netamt,v_precision);
+                          	ELSE
+                          		v_taxbaseamt:=round((v_netamt-v_taxamt),v_precision);
+                          	END IF;
+                            v_istax:='Y';
+                 	   END IF;
+                          select get_uuid() into v_uuid from dual;
+                          select em_efin_budgettype into v_budget_type from c_campaign where c_campaign_id = v_campaign_id and em_efin_budgettype ='C';
+                        --raise exception '%',v_budget_type;
+                        IF (v_budget_type='C') THEN
+                          v_fb_fundsavailable:=(select efin_getfundsavailable(v_fundscombination,:new.em_efin_budgetint_id));
+                         END IF; 
+				--raise exception '%',v_fb_fundsavailable;
+                        insert into c_invoiceline (c_invoiceline_id,c_invoice_id,ad_client_id,ad_org_id,createdby,updatedby,Line,priceactual,gross_unit_price,linenetamt,QtyInvoiced,em_efin_amtinvoiced,
+                                                   em_efin_c_validcombination_id,em_efin_c_elementvalue_id,em_efin_c_salesregion_id,em_efin_c_campaign_id,c_project_id,em_efin_c_activity_id,
+                                                   em_efin_c_bpartner_id,user1_id,user2_id,financial_invoice_line,account_id,em_efin_funds_available,em_efin_isPOM,c_orderline_id,em_efin_calculate_tax,taxbaseamt,taxamt,em_efin_fb_funds_available)
+
+                        values(v_uuid,:new.c_invoice_id,:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,v_lineNo,(v_netamt-v_taxamt),(v_netamt-v_taxamt),(v_netamt-v_taxamt),cur_lines.QtyOrdered,(cur_lines.LineNetAmt - (cur_lines.em_escm_legacy_amt_delivered+ cur_lines.em_efin_amtinvoiced))-coalesce(v_taxamt,0),
+                                cur_lines.EM_Efin_C_Validcombination_ID,v_elementvalue_id,v_salesregion_id,v_campaign_id,v_project_id,v_activity_id,v_bpartner_id,v_user1_id,v_user2_id,'Y',v_account_id,v_fundsavailable,'Y',cur_lines.c_orderline_id,v_istax,v_taxbaseamt,v_linetaxamt,v_fb_fundsavailable);
+
+                    	-- Task no:7840 insert the tax line separately
+                        IF(v_taxamt >0) THEN 
+                         
+                          v_lineNo := v_lineNo +10;
+                         
+                           v_headertaxamt :=v_headertaxamt+ v_taxamt;
+                             insert into c_invoiceline (c_invoiceline_id,c_invoice_id,ad_client_id,ad_org_id,createdby,updatedby,Line,priceactual,gross_unit_price,linenetamt,QtyInvoiced,em_efin_amtinvoiced,
+                                                           em_efin_c_validcombination_id,em_efin_c_elementvalue_id,em_efin_c_salesregion_id,em_efin_c_campaign_id,c_project_id,em_efin_c_activity_id,
+                                                           em_efin_c_bpartner_id,user1_id,user2_id,financial_invoice_line,account_id,em_efin_funds_available,em_efin_isPOM,c_orderline_id,em_efin_istax,em_efin_c_invoiceline_id,em_efin_beneficiary2_id,c_bpartner_id,em_efin_fb_funds_available)
+
+                                values(get_uuid(),:new.c_invoice_id,:new.AD_Client_ID,:new.ad_org_id,:new.createdby,:new.updatedby,v_lineNo,v_taxamt,v_taxamt,v_taxamt,cur_lines.QtyOrdered,v_taxamt,
+                                        cur_lines.EM_Efin_C_Validcombination_ID,v_elementvalue_id,v_salesregion_id,v_campaign_id,v_project_id,v_activity_id,v_bpartner_id,v_user1_id,v_user2_id,'Y',v_account_id,v_fundsavailable,'Y',cur_lines.c_orderline_id,'Y',v_uuid,:new.c_bpartner_id,v_taxbeneficiary,v_fb_fundsavailable);
+					  END IF;
+                    
+                    end loop;
+                    
+                END IF;
+                END IF;
+                 update c_invoice set em_efin_tax_amount  =v_headertaxamt where c_invoice_id = v_invoice_id; 
+		END IF;
+        END IF;
+       END IF;       	
+
+	END EFIN_INSERT_POLINES
+]]></body>
+    </trigger>
+  </database>

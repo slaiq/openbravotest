@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_UPDATE_GRP_SPENT">
+    <function name="EFIN_UPDATE_GRP_SPENT" type="NULL">
+      <parameter name="p_new_budget_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): Poongodi 27.12.17
+************************************************************************/
+v_client_id VARCHAR2(32);
+v_user_id VARCHAR2(32);
+v_ResultStr VARCHAR2(2000):='';
+v_message VARCHAR(2000):='';--OBTG:VARCHAR2--
+v_controlunit VARCHAR2(32):='';
+v_uniquecode VARCHAR2(32);
+v_parentid VARCHAR2(32);
+v_amount NUMBER;
+v_deptfund character(1);
+v_isvirtual character(1);
+
+v_isuniquecodepresent  NUMBER;
+v_parentacctcomId VARCHAR2(32);
+v_budgetInqId VARCHAR2(32);
+v_salesregion_id VARCHAR2(32);
+v_uniquecodename VARCHAR2(2000);
+v_elementvalue_id VARCHAR2(32);
+v_project_id VARCHAR2(32);
+v_campaign_id VARCHAR2(32);
+v_bpartner_id VARCHAR2(32);
+v_activity_id VARCHAR2(32);
+v_user1_id VARCHAR2(32);
+v_user2_id VARCHAR2(32);
+v_org_id VARCHAR2(32);
+v_uniquecode_no VARCHAR2(2000);
+
+v_budget_int_id VARCHAR2(32);
+
+TYPE RECORD IS REF CURSOR;
+Cur RECORD;
+
+BEGIN
+ 
+ update efin_budgetinquiry set grp_spent=0;
+      --Disable all trigger using in budget enq line
+  ALTER TABLE efin_budgetinquiry DISABLE TRIGGER efin_budgetinquiry_trg;
+  ALTER TABLE public.efin_budgetinquiry DISABLE TRIGGER efin_budgetinquiryneg_trg;
+  ALTER TABLE public.efin_budgetinquiry DISABLE TRIGGER efin_updatebudinq_actualtrg;
+    
+for cur in (
+  
+  
+select sum(coalesce(funds.spent_amt,0)) as grp_spent , costComb.c_validcombination_id,costcomb.em_efin_uniquecode
+from efin_budgetinquiry cost
+join c_validcombination costComb on cost.c_validcombination_id=costComb.c_validcombination_id
+left join efin_budgetinquiry funds on costComb.em_efin_fundscombination = funds.c_validcombination_id
+and funds.efin_budgetint_id=cost.efin_budgetint_id
+where cost.efin_budgetint_id= 'D8D5FA6B54E345B0B0331BC5764BDFAC'
+and cost.c_campaign_id='8CFC8D85BC484DC7AFB75E3DA60FE30F'
+  group by  costComb.c_validcombination_id
+order by costComb.account_id ,costComb.c_campaign_id desc
+  
+  )
+loop 
+
+update efin_budgetinquiry set grp_spent= cur.grp_spent
+where c_validcombination_id=cur.c_validcombination_id and efin_budgetint_id=p_new_budget_id;
+
+ end loop;
+   --Enable all trigger using in budget enq line
+  ALTER TABLE efin_budgetinquiry ENABLE TRIGGER efin_budgetinquiry_trg;
+  ALTER TABLE public.efin_budgetinquiry ENABLE TRIGGER efin_budgetinquiryneg_trg;
+  ALTER TABLE public.efin_budgetinquiry ENABLE TRIGGER efin_updatebudinq_actualtrg;
+  
+  return;
+  end
+]]></body>
+    </function>
+  </database>

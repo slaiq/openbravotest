@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_REQUISITION_TRG">
+    <trigger name="ESCM_REQUISITION_TRG" table="M_REQUISITION" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[
+/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2008-2014 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************/
+  v_OldDeptID VARCHAR(60) ;--OBTG:VARCHAR2--
+  v_NewDeptID VARCHAR(60) ;--OBTG:VARCHAR2--
+  v_parentID VARCHAR(32) ;--OBTG:VARCHAR2--
+      
+BEGIN
+    
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+
+
+  IF INSERTING OR UPDATING THEN
+    v_NewDeptID := :new.em_escm_department_id;
+  END IF;
+  IF UPDATING OR DELETING THEN
+    v_OldDeptID := :old.em_escm_department_id;
+  END IF;
+
+  IF (INSERTING) THEN
+    SELECT escm_getagencyOrg(v_NewDeptID,:new.ad_client_id) into v_parentID;
+    IF(v_parentID<>' ') THEN
+     UPDATE m_requisition SET em_escm_agencyorg =v_parentID WHERE m_requisition_id = :new.m_requisition_id;
+    END IF;
+  END IF;
+
+END ESCM_REQUISITION_TRG
+]]></body>
+    </trigger>
+  </database>

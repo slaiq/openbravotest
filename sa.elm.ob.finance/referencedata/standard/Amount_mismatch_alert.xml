@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="D691147FC2BC412DA31ED867872CFCFB" identifier="Amount mismatch alert">
+    <id>D691147FC2BC412DA31ED867872CFCFB</id>
+    <active>true</active>
+    <creationDate transient="true">2016-08-02T17:56:25.795Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2016-08-04T12:08:52.457Z</updated>
+    <updatedBy transient="true" id="F2B35122EEE74F688D1578A1BB6B7958" entity-name="ADUser" identifier="Useralert1"/>
+    <name>Amount mismatch alert</name>
+    <tab id="855704CC1F22486A8EC85EE09C48309D" entity-name="ADTab" identifier="Lines - Budget Inquiry"/>
+    <filterClause xsi:nil="true"/>
+    <sql>SELECT efin_budgetlines_id AS referencekey_id,
+      bd.budgetname|| '-' ||b.line AS record_id,
+     0 AS ad_role_id,
+     NULL AS ad_user_id,
+     b.uniquecode||' amount spent is mismatching.' AS description,
+     'Y' AS isActive,
+      b.ad_org_id, 
+      b.ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+ FROM efin_budgetlines as b join (
+select a.amt1,a.amt2,a.lineid,a.bdid from (select sum(actu.amount)as amt1,(sum(act.amtacctdr)-sum(act.amtacctcr)) as amt2,act.account_id,
+ ln.c_elementvalue_id,ln.efin_budgetlines_id  as lineid,ln.efin_budget_id as bdid from fact_acct   act
+ join gl_journalline jln on jln.gl_journal_id= act.record_id
+ join efin_budget_actual  actu on actu.gl_journalline_id= jln.gl_journalline_id 
+ and actu.efin_budgetlines_id = jln.em_efin_budgetlines_id
+join efin_budgetlines ln on  ln.efin_budgetlines_id = jln.em_efin_budgetlines_id and  ln.c_elementvalue_id= act.account_id
+group by act.account_id, ln.c_elementvalue_id, ln.efin_budgetlines_id) a where a.amt1!=a.amt2) c 
+on c.lineid=b.efin_budgetlines_id LEFT
+join efin_budget bd on bd.efin_budget_id=c.bdid</sql>
+    <type>D</type>
+  </ADAlertRule>
+</ob:Openbravo>

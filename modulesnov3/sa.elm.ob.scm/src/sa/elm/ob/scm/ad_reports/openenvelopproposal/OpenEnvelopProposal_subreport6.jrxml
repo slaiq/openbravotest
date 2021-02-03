@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.0.final using JasperReports Library version 6.5.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="OpenEnvelopProposal_subreport6" pageWidth="1143" pageHeight="555" orientation="Landscape" columnWidth="1143" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="f7c456fe-f05d-4859-b1db-26c205e6cc69">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="inpOpnEnvCmtId" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/opt/erp/projects/elm/WebContent/src-loc/design/sa/elm/ob/scm/ad_reports/openenvelopproposal/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_DESIGN" class="java.lang.String"/>
+	<parameter name="RealPath" class="java.lang.String"/>
+	<parameter name="status" class="java.lang.String"/>
+	<parameter name="CheckBoxImagePath" class="java.lang.String"/>
+	<parameter name="UncheckedImagePath" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select comments, pattr.netprice, pattr.discount, gross_price, concat(bp.name,'-',pm.subcontractors) as supplier, pattr.line, pattr.escm_proposal_attr_id
+from escm_proposal_attr pattr
+left join escm_proposalmgmt pm on pm.escm_proposalmgmt_id=pattr.escm_proposalmgmt_id
+left join c_bpartner bp on bp.c_bpartner_id=pattr.suppliername
+where pattr.escm_openenvcommitee_id =$P{inpOpnEnvCmtId}]]>
+	</queryString>
+	<field name="comments" class="java.lang.String"/>
+	<field name="netprice" class="java.math.BigDecimal"/>
+	<field name="discount" class="java.math.BigDecimal"/>
+	<field name="gross_price" class="java.math.BigDecimal"/>
+	<field name="supplier" class="java.lang.String"/>
+	<field name="line" class="java.math.BigDecimal"/>
+	<field name="escm_proposal_attr_id" class="java.lang.String"/>
+	<detail>
+		<band height="91">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="760" y="57" width="111" height="33" uuid="82dd4956-723e-4348-83be-aff352d3b27b"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{netprice}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="871" y="0" width="100" height="90" uuid="c4cec7c9-9d87-412e-9eb1-ed291d3db640"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{supplier}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="760" y="27" width="111" height="30" uuid="87900614-113b-4236-bf25-8b3a70f633e5">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{discount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="971" y="0" width="122" height="90" uuid="a0a50a99-14bc-42ab-be06-bd35240e41ec"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{supplier}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="1093" y="0" width="50" height="90" uuid="23b26b71-a1f6-4aab-be2f-a04c57f33610"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{line}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="760" y="1" width="111" height="26" uuid="e638970a-5fa8-44c7-9886-755d09b8c7ea">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box rightPadding="4">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.75" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.75" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{gross_price}]]></textFieldExpression>
+			</textField>
+			<rectangle>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="341" y="0" width="418" height="91" uuid="dcdc4ddf-4bbf-4ac4-87b0-cced157c9647"/>
+			</rectangle>
+			<subreport>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="340" y="1" width="419" height="90" uuid="7559bb75-d8f6-45e9-9335-32ecaafd6d7a"/>
+				<subreportParameter name="inpProposalAttrId">
+					<subreportParameterExpression><![CDATA[$F{escm_proposal_attr_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{BASE_DESIGN} + "/sa/elm/ob/scm/ad_reports/openenvelopproposal/OpenEnvelopProposal_subreport6_subreport1.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="0" y="1" width="340" height="90" uuid="ae313be1-dd0f-4c5f-a02d-55379f6caccc"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="CheckBoxImagePath">
+					<subreportParameterExpression><![CDATA[$P{CheckBoxImagePath}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpProposalAttrId">
+					<subreportParameterExpression><![CDATA[$F{escm_proposal_attr_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="status">
+					<subreportParameterExpression><![CDATA[$P{status}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="RealPath">
+					<subreportParameterExpression><![CDATA[$P{RealPath}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="BASE_DESIGN">
+					<subreportParameterExpression><![CDATA[$P{BASE_DESIGN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="UncheckedImagePath">
+					<subreportParameterExpression><![CDATA[$P{UncheckedImagePath}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{BASE_DESIGN} + "/sa/elm/ob/scm/ad_reports/openenvelopproposal/OpenEnvelopProposal_subreport6_subreport2.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+</jasperReport>

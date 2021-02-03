@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_GETPARENTELEMENTLIST">
+    <function name="EFIN_GETPARENTELEMENTLIST" type="VARCHAR">
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_element_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[vp VARCHAR2(32);
+vEl VARCHAR2(32);
+vTree VARCHAR2(32);
+v_matchelm VARCHAR2(32);
+v_subacct VARCHAR(40);
+BEGIN
+    SELECT ad_tree_id INTO vTree FROM ad_tree WHERE ad_client_id = p_client_id AND treetype='EV';
+    vEl := p_element_id;
+    vp := p_element_id;
+    WHILE (vp is not null and vp <> '')
+    LOOP
+	select fnd.c_elementvalue_id into v_matchelm from
+	(select c_elementvalue_id
+	from efin_budgettype_acct
+	where c_campaign_id =(select c_campaign_id from c_campaign where em_efin_budgettype in ('F') and ad_client_id='DF05F3A0117C4A4BB5F262D195E516BC')
+	and c_elementvalue_id in (vp)) fnd
+	join
+	(select c_elementvalue_id
+	from efin_budgettype_acct
+	where c_campaign_id =(select c_campaign_id from c_campaign where em_efin_budgettype in ('C') and ad_client_id='DF05F3A0117C4A4BB5F262D195E516BC')
+	and c_elementvalue_id in (vp)) cst
+	on fnd.c_elementvalue_id=cst.c_elementvalue_id;
+
+	if v_matchelm is not null Then
+		exit;
+	end if;
+	SELECT parent_id INTO vp FROM ad_treenode WHERE node_id = vp AND ad_tree_id = vTree;
+	
+    End LOOP ;
+    if v_matchelm is not null Then
+	select value into v_subacct from c_project where c_project_id=(select em_efin_project_id from c_elementvalue where c_elementvalue_id=vEl);
+    else
+	v_subacct :='';
+    end if;
+    RETURN  v_subacct;
+END EFIN_GETPARENTELEMENTLIST
+]]></body>
+    </function>
+  </database>

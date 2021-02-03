@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.0.final using JasperReports Library version 6.5.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="InquiringPayment" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="8fc6f0d7-d109-4494-a226-3a7f9d72b378">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<parameter name="paramFromDate" class="java.lang.String"/>
+	<parameter name="paramToDate" class="java.lang.String"/>
+	<parameter name="accoutparam" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="auxAccountParam" class="java.lang.String">
+		<defaultValueExpression><![CDATA[$P{accoutparam}=="null"?"":" and e.c_elementvalue_id='"+$P{accoutparam}+"'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="bpartnerparam" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="auxBpartnerparam" class="java.lang.String">
+		<defaultValueExpression><![CDATA[$P{bpartnerparam}=="null"?"":" and bp.c_bpartner_id='"+$P{bpartnerparam}+"'"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select inv.dateinvoiced as date , bp.name as name , inv.documentno as doc , inv.GrandTotal as grandtotal , inv.description as desc
+ , e.value as value , acttr.em_efin_acctseq as acctseq,eut_convert_to_hijri(to_char(now(),'YYYY-MM-dd')) as now
+from c_invoice inv
+left join c_bpartner bp on bp.c_bpartner_id = inv.c_bpartner_id
+left join fin_payment fin on fin.em_efin_invoice_id = inv.c_invoice_id
+left join c_invoiceline ln on ln.c_invoice_id = inv.c_invoice_id
+left join c_elementvalue e on e.c_elementvalue_id=ln.em_efin_c_elementvalue_id
+left join fin_payment_schedule sch on sch.c_invoice_id=inv.c_invoice_id
+left join fin_payment_detail_v dev on dev.fin_payment_sched_inv_v_id=sch.fin_payment_schedule_id
+left join fin_finacc_transaction tr on tr.fin_finacc_transaction_id=dev.fin_payment_id
+left join fact_acct acttr on acttr.record_id=tr.fin_finacc_transaction_id
+where inv.dateinvoiced between eut_convertto_gregorian(to_char(to_date( $P{paramFromDate} ,'YYYY-MM-DD'),'DD-MM-YYYY'))
+and eut_convertto_gregorian(to_char(to_date( $P{paramToDate} ,'YYYY-MM-DD'),'DD-MM-YYYY'))
+ $P!{auxAccountParam}  $P!{auxBpartnerparam} 
+group by inv.dateinvoiced,bp.name,inv.documentno,inv.GrandTotal,inv.description,e.value,acttr.em_efin_acctseq]]>
+	</queryString>
+	<field name="date" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="doc" class="java.lang.String"/>
+	<field name="grandtotal" class="java.math.BigDecimal"/>
+	<field name="desc" class="java.lang.String"/>
+	<field name="value" class="java.lang.String"/>
+	<field name="acctseq" class="java.lang.String"/>
+	<field name="now" class="java.lang.String"/>
+	<variable name="totalgrand" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{grandtotal}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="154" splitType="Stretch">
+			<staticText>
+				<reportElement x="670" y="20" width="121" height="30" uuid="666b1e2c-4cc2-457e-8d27-3e69311991d0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[وزارة النقل]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="640" y="55" width="161" height="31" uuid="43a6c9af-c69c-43eb-8eb2-8ae2cb4cc494"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الادارة العامة للشؤون المالية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="470" y="80" width="81" height="30" uuid="0face108-d905-49dc-9ec4-2696fd996871"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[من تاريخ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="260" y="80" width="90" height="30" uuid="770dcfe1-ac82-41dd-aaea-13273176b71e">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الى تاريخ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="80" y="20" width="50" height="30" uuid="aefbb1b7-368e-4506-832e-e54768e8c15d"/>
+				<textElement>
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[التاريخ :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="80" y="50" width="50" height="30" uuid="8bbb8cf2-7d97-4231-ab5b-309c539ecc6e"/>
+				<textElement>
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الصفحة :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="50" width="80" height="30" uuid="b044b079-f746-48b4-9f55-ad34778b04f5"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($V{PAGE_NUMBER}.toString())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="20" width="80" height="30" uuid="91ecbd43-52ac-443a-be01-bdfc9c710836"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{now}.toString())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="350" y="80" width="120" height="30" uuid="2accd85e-8439-4031-9b25-82cad4cdd546"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{paramFromDate}.toString())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="141" y="80" width="119" height="30" uuid="a3f3a83d-f0f4-4eae-95a7-636d219b476a"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{paramToDate}.toString())]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch">
+			<staticText>
+				<reportElement x="710" y="11" width="91" height="21" uuid="8bd5e317-4e38-49e1-9767-a0396ac64b67"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[حركات الحساب :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="511" y="11" width="190" height="21" uuid="4312af85-8c4f-45eb-ab98-de0d036a6fc3"/>
+				<box leftPadding="2" rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{accoutparam}=="null"?"":$F{value})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="440" y="11" width="71" height="21" uuid="d9b07211-b506-4878-b330-0a143778d1ca"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[المستفيد :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="260" y="11" width="171" height="21" uuid="89e5b606-e65b-4cd2-9706-4b149586099a"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{bpartnerparam}=="null"?"":$F{name}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="24" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<staticText>
+				<reportElement x="720" y="0" width="81" height="24" uuid="07d2e155-2a0c-4f9a-a8e8-fc0c0956793b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[رقم الحصر]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="640" y="0" width="80" height="24" uuid="c02cf159-d1fb-418f-a14c-2d8bc9c26c81">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[رقم الدفع]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="559" y="0" width="81" height="24" uuid="c602d8fc-1086-4e5c-8409-dc39d45cd41c">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[رقم التسوية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="480" y="0" width="79" height="24" uuid="74eef04b-b8e4-4ad6-b04b-0e5cf99d3ec5">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[التاريخ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="400" y="0" width="80" height="24" uuid="4c4f62ed-44c5-4370-ae7e-98c78b3a946c">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[المبلغ الدائن]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="0" width="400" height="24" uuid="36514bc0-09b9-45f4-98d7-9c1437500174">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[البيان]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="24" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField>
+				<reportElement x="720" y="0" width="81" height="24" uuid="c3252f10-3e98-4e7c-872f-5179dda05d57">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{doc}.toString())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="640" y="0" width="80" height="24" uuid="b0ac047f-8160-44c5-ba63-81e0b9ca3034">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="559" y="0" width="81" height="24" uuid="498510ed-4e51-4374-a4be-3bee76ddea2b">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{acctseq}==null?"":$F{acctseq}.toString())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="480" y="0" width="79" height="24" uuid="8109827f-f3ce-469e-a33d-e77ad2a9e4a1">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{date}.toString())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="400" y="0" width="80" height="24" uuid="d1a5f6c0-82ee-46a6-9b4b-0571d9c6343b">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{grandtotal}.toString())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="400" height="24" uuid="cc9bf297-6711-4a5b-9d18-b347f58f20fe">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box rightPadding="5">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{desc}==null?"":$F{desc}.toString())]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="42" splitType="Stretch">
+			<staticText>
+				<reportElement x="483" y="7" width="90" height="21" uuid="eb94cf4b-32db-4103-b450-30a254d5f740"/>
+				<textElement>
+					<font fontName="Traditional Arabic" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الإجمالي :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="380" y="7" width="100" height="21" uuid="96205833-2c8c-4a57-8d0a-b27c69a9dbea">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($V{totalgrand}.toString())]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

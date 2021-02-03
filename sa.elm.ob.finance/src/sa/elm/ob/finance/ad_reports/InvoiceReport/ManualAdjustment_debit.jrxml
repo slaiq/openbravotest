@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ManualAdjustment_debit" pageWidth="593" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="593" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="5a5d3dd0-1abe-47f5-a74e-4eadb06162ba">
+	<property name="ireport.zoom" value="1.8150000000000004"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="DOCUMENT_ID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+	array_to_string(array_agg(decdebit),E'\r\n') as debitdecilist,
+	replace(array_to_string(array_agg(' '||floor((debitamt*100)-(decdebit*100))),CHR(10)),' 0',' 00') as debitintlist,
+	array_to_string(array_agg(desp),CHR(10)) as acctentys,to_number(to_char((array_agg(floor(sumdebitamt)))[1])) as sumdebitint,
+	to_number((array_agg(replace(to_char(floor(((sumdebitamt)-(floor(sumdebitamt)))*100)) ,'0','00')))[1]) as sumdecidebit,
+	array_to_string(array_agg(naturalacct),E'\r\n') as naturalacct,array_to_string(array_agg(project),E'\r\n')as project
+	from
+	(select round(fc.amtsourcedr,2) as debitamt,nullif(floor(fc.amtsourcedr),'0') as decdebit,
+	(select e.name from c_elementvalue e where  fc.account_id=e.c_elementvalue_id) as desp,
+	(select e.value from c_elementvalue e where fc.account_id=e.c_elementvalue_id ) as naturalacct,
+	case when fc.amtsourcedr>0 then  (select sum(fc.amtsourcedr) from fact_acct fc join
+	c_invoice inv on inv.c_invoice_id =fc.record_id join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+	where fc.record_id = $P{DOCUMENT_ID} and fc.amtsourcedr>0) else null end  as sumdebitamt,
+	p.value as project from  fact_acct fc
+	join c_invoice  inv on inv.c_invoice_id=fc.record_id
+	join c_project p on p.C_Project_ID =fc.C_Project_ID
+        where fc.record_id = $P{DOCUMENT_ID} and fc.amtsourcedr>0 and docstatus not in ('DR', 'EFIN_RDR', 'EFIN_WFA')) debit group by debitamt, decdebit]]>
+	</queryString>
+	<field name="debitdecilist" class="java.lang.String"/>
+	<field name="debitintlist" class="java.lang.String"/>
+	<field name="acctentys" class="java.lang.String"/>
+	<field name="sumdebitint" class="java.math.BigDecimal"/>
+	<field name="sumdecidebit" class="java.math.BigDecimal"/>
+	<field name="naturalacct" class="java.lang.String"/>
+	<field name="project" class="java.lang.String"/>
+	<variable name="project" class="java.lang.String">
+		<variableExpression><![CDATA[$F{project}]]></variableExpression>
+	</variable>
+	<variable name="TotalDebit" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{sumdebitint}]]></variableExpression>
+		<initialValueExpression><![CDATA[]]></initialValueExpression>
+	</variable>
+	<variable name="TotalDebitDecimal" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{sumdecidebit}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="15">
+			<elementGroup>
+				<staticText>
+					<reportElement x="341" y="0" width="20" height="15" forecolor="#000000" uuid="14c6853b-3361-4a5b-896a-30eba4a0fcbe"/>
+					<box>
+						<leftPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font size="8"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="0" y="0" width="50" height="15" forecolor="#000000" uuid="920dbfd6-343b-4e5b-9347-e0794f03543c"/>
+					<box>
+						<leftPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font size="8"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="361" y="0" width="116" height="15" forecolor="#000000" uuid="53283fdd-41e8-47ef-87f3-5ead2589f083"/>
+					<box>
+						<leftPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font size="8"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="477" y="0" width="116" height="15" forecolor="#000000" uuid="c7a491d7-0136-40f6-b751-8394b8374f28"/>
+					<box>
+						<leftPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font size="8"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="70" y="0" width="50" height="15" forecolor="#000000" uuid="4db9ce17-07fc-4fdb-b57d-f79fd6fc15bc"/>
+					<box>
+						<leftPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font size="8"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="120" y="0" width="20" height="15" forecolor="#000000" uuid="2d775592-d0ef-470b-b58b-bbe17ccd5d09"/>
+					<box>
+						<leftPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font size="8"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="291" y="0" width="50" height="15" forecolor="#000000" uuid="f6b2733e-a99e-4a98-b13e-226d46485221"/>
+					<box>
+						<leftPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font size="8"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="271" y="0" width="20" height="15" forecolor="#000000" uuid="9438e870-28b7-49d8-829b-d15a3dad64bb"/>
+					<box>
+						<leftPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font size="8"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="50" y="0" width="20" height="15" forecolor="#000000" uuid="f6e4b5b1-c3ba-4aba-a4a3-35c25eed3562"/>
+					<box>
+						<leftPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font size="8"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="140" y="0" width="81" height="15" forecolor="#FF3333" uuid="6234ed61-02bb-42bd-9603-543ed50253fe"/>
+					<textElement textAlignment="Center">
+						<font size="8"/>
+					</textElement>
+					<text><![CDATA[Dr]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="221" y="0" width="50" height="15" forecolor="#000000" uuid="a0502ae3-004e-46aa-ad1b-d2650ebbbde7"/>
+					<box>
+						<leftPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font size="8"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+			</elementGroup>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<elementGroup>
+				<textField isStretchWithOverflow="true" pattern="###0.00" isBlankWhenNull="true">
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="271" y="0" width="20" height="15" isRemoveLineWhenBlank="true" uuid="e48fd763-3fb3-4098-ab0d-b3ca42f08dd3">
+						<printWhenExpression><![CDATA[$F{acctentys}!=null && !$F{acctentys}.equals("")]]></printWhenExpression>
+					</reportElement>
+					<box rightPadding="2">
+						<bottomPen lineWidth="0.0"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Top">
+						<font fontName="Arial Unicode MS" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{debitintlist}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="477" y="0" width="116" height="15" uuid="44837a0a-b0ea-4ffc-8682-d1c0d6b764bf">
+						<printWhenExpression><![CDATA[$F{acctentys}!=null && !$F{acctentys}.equals("")]]></printWhenExpression>
+					</reportElement>
+					<box rightPadding="3">
+						<leftPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Top">
+						<font fontName="Arial Unicode MS" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{naturalacct}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="361" y="0" width="116" height="15" isRemoveLineWhenBlank="true" uuid="b0bd6a92-ad33-4bd8-9c5e-0b33d086fe1f">
+						<printWhenExpression><![CDATA[$F{acctentys}!=null && !$F{acctentys}.equals("")]]></printWhenExpression>
+					</reportElement>
+					<box rightPadding="2">
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.0"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Top">
+						<font fontName="Arial Unicode MS" size="8" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{project}.equals("Default") ? "" : $V{project}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="140" y="0" width="81" height="15" uuid="3f1fbb92-0c95-451b-b458-3c0aa8a1be6e">
+						<printWhenExpression><![CDATA[$F{acctentys}!=null && !$F{acctentys}.equals("")]]></printWhenExpression>
+					</reportElement>
+					<box rightPadding="2">
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.0"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font fontName="Arial Unicode MS" size="8"/>
+						<paragraph firstLineIndent="1"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{acctentys}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="221" y="0" width="50" height="15" isRemoveLineWhenBlank="true" uuid="fa72a144-bc2e-4581-b42e-8f08a209a4cc">
+						<printWhenExpression><![CDATA[$F{acctentys}!=null && !$F{acctentys}.equals("")]]></printWhenExpression>
+					</reportElement>
+					<box rightPadding="2">
+						<bottomPen lineWidth="0.0"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Top">
+						<font fontName="Arial Unicode MS" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{debitdecilist}]]></textFieldExpression>
+				</textField>
+			</elementGroup>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="50" height="15" uuid="70cc5172-ea01-45d4-8ad7-7de4d4001c3e">
+					<printWhenExpression><![CDATA[$F{acctentys}!=null && !$F{acctentys}.equals("")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<leftPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="50" y="0" width="20" height="15" uuid="a08d5e8a-f346-4a4d-8de3-ea5194ef2dd7">
+					<printWhenExpression><![CDATA[$F{acctentys}!=null && !$F{acctentys}.equals("")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<leftPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="70" y="0" width="50" height="15" uuid="cbfa938e-acb2-4031-bb03-f4d0a7fd3d82">
+					<printWhenExpression><![CDATA[$F{acctentys}!=null && !$F{acctentys}.equals("")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<leftPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="291" y="0" width="50" height="15" uuid="dec77081-2895-49c9-a6f3-3fa215539929">
+					<printWhenExpression><![CDATA[$F{acctentys}!=null && !$F{acctentys}.equals("")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<leftPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="341" y="0" width="20" height="15" uuid="06ea0fff-9933-42e8-96a0-2ece2bc08745">
+					<printWhenExpression><![CDATA[$F{acctentys}!=null && !$F{acctentys}.equals("")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<leftPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="120" y="0" width="20" height="15" uuid="da781134-dfa0-416f-9c84-14db8d54255d">
+					<printWhenExpression><![CDATA[$F{acctentys}!=null && !$F{acctentys}.equals("")]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<leftPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="15">
+			<textField isStretchWithOverflow="true" pattern="###0.00" isBlankWhenNull="true">
+				<reportElement x="341" y="0" width="20" height="15" uuid="56e34808-3a8b-497a-97fb-f563d7cdbe11"/>
+				<box rightPadding="2">
+					<leftPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($V{TotalDebitDecimal}.compareTo(BigDecimal.ZERO)==0) ?"00":$V{TotalDebitDecimal}.toString()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="140" y="0" width="81" height="15" forecolor="#FF3333" uuid="61aee106-d00e-4441-bab1-2a1347821adb"/>
+				<box>
+					<pen lineColor="#000000"/>
+					<topPen lineColor="#000000"/>
+					<leftPen lineWidth="0.75" lineColor="#000000"/>
+					<bottomPen lineColor="#000000"/>
+					<rightPen lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Dr-Total]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="291" y="0" width="50" height="15" uuid="63bf4ed9-c814-4b79-b44d-fadbe1b896e7"/>
+				<box rightPadding="2">
+					<leftPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{TotalDebit}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="50" height="15" uuid="beba13c1-991f-4159-8c44-0766a88d7641"/>
+				<box>
+					<leftPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="0" width="20" height="15" uuid="103e6fc7-b694-49ab-9517-8fad48ff9f85"/>
+				<box>
+					<leftPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="70" y="0" width="50" height="15" uuid="0ca6a295-1775-417b-b355-6cb4d35a6747"/>
+				<box>
+					<leftPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="120" y="0" width="20" height="15" uuid="68fb5e76-e7c9-4795-88e8-dec309b565de"/>
+				<box>
+					<leftPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="221" y="0" width="50" height="15" uuid="0e31d36a-15fe-4586-aed9-de2cec7475e2"/>
+				<box>
+					<leftPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="271" y="0" width="20" height="15" uuid="78c0c9f6-c08f-46de-85d2-d44f68da8e92"/>
+				<box>
+					<leftPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="361" y="0" width="116" height="15" uuid="4e0dfb8e-8e34-45e3-b8e1-17a8f1d1e4be"/>
+				<box>
+					<leftPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="477" y="0" width="116" height="15" uuid="b2043997-db0b-4c47-96b6-0e4fc3955c28"/>
+				<box>
+					<leftPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+	<noData>
+		<band/>
+	</noData>
+</jasperReport>

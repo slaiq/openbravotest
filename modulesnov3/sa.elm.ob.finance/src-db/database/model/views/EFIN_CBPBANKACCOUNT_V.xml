@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_CBPBANKACCOUNT_V">
+    <view name="EFIN_CBPBANKACCOUNT_V"><![CDATA[SELECT account.c_bp_bankaccount_id AS efin_cbpbankaccount_v_id, account.ad_client_id, account.ad_org_id, account.isactive, account.created, account.createdby, account.updated, account.updatedby, account.em_efin_bank_id, CASE WHEN account.bankformat = 'IBAN' THEN account.iban ELSE account.accountno END AS accountno, account.c_bpartner_id FROM c_bp_bankaccount account]]></view>
+  </database>

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_BUDG_TRANSFER_TRG">
+    <trigger name="EFIN_BUDG_TRANSFER_TRG" table="EFIN_BUDGET_TRANSFER" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_BudgTransferId VARCHAR2(32);
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+
+IF(TG_OP='INSERT' OR TG_OP='UPDATE') THEN
+	update efin_budgetlines set  increase_amt=increase_amt+:NEW.amount ,decrease_amt=decrease_amt+:NEW.dec_amount
+	 where efin_budgetlines_id= :new.efin_budgetlines_id;
+END IF;
+IF(TG_OP='DELETE') THEN
+	update efin_budgetlines set  increase_amt=increase_amt-:old.amount,decrease_amt=decrease_amt-:old.dec_amount
+	 where efin_budgetlines_id= :old.efin_budgetlines_id;
+END IF;
+END EFIN_BUDG_TRANSFER_TRG
+]]></body>
+    </trigger>
+  </database>

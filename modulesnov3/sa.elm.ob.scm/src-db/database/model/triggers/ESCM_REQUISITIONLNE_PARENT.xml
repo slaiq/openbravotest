@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_REQUISITIONLNE_PARENT">
+    <trigger name="ESCM_REQUISITIONLNE_PARENT" table="M_REQUISITIONLINE" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_parentId VARCHAR2(32);
+v_SumOfChildPrice NUMBER;
+v_issecured character(1);
+v_SumOfChildPrice_original NUMBER;
+v_NoOfChilds NUMBER;
+v_uomId VARCHAR2(32);
+BEGIN
+
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF DELETING THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+
+    IF  INSERTING OR  UPDATING THEN
+	IF (:NEW.em_escm_parentlineno IS NOT NULL) THEN		
+		--Update summary level and quantity for parent
+		select c_uom_id into v_uomId from c_uom where x12de355  ilike 'EA' and ad_client_id in ('0', :NEW.ad_client_id);
+		select em_escm_issecured into v_issecured from m_requisition where  m_requisition_id  = :NEW.m_requisition_id;
+		update m_requisitionline set em_escm_issummary= 'Y', qty= 1, c_uom_id= v_uomId,em_efin_c_validcombination_id = null,em_efin_uniquecodename='' where m_requisitionline_id = :NEW.em_escm_parentlineno;
+
+		--Update sum of child amount in all parents
+		v_parentId:= :NEW.em_escm_parentlineno;
+		WHILE(v_parentId IS NOT NULL) LOOP 
+			select sum(LineNetAmt) into v_SumOfChildPrice from m_requisitionline where em_escm_parentlineno = v_parentId;
+			if(v_issecured ='Y') then
+			select sum(to_number(convert_from(decode(em_escm_unitprice, 'base64'), 'UTF8') )) into v_SumOfChildPrice_original from m_requisitionline where em_escm_parentlineno = v_parentId;
+			else
+			v_SumOfChildPrice_original =0;
+		    end if;
+								 
+			update m_requisitionline set priceactual = v_SumOfChildPrice,em_escm_unitprice = encode(v_SumOfChildPrice_original::character varying::bytea,'base64'),
+			 LineNetAmt = v_SumOfChildPrice where m_requisitionline_id = v_parentId;
+
+			select em_escm_parentlineno into v_parentId from m_requisitionline where m_requisitionline_id = v_parentId;
+		END LOOP;
+	END IF;
+    END IF;
+    
+    IF  UPDATING OR DELETING  THEN
+	IF (:OLD.em_escm_parentlineno IS NOT NULL) THEN
+		IF (DELETING OR coalesce(:NEW.em_escm_parentlineno, '')<>coalesce(:OLD.em_escm_parentlineno, '')) THEN
+			--Check the old parent is parent for any other childs
+			select count(m_requisitionline_id) into v_NoOfChilds from m_requisitionline where em_escm_parentlineno = :OLD.em_escm_parentlineno;
+
+			IF (v_NoOfChilds > 0) THEN
+				--Update new sum of child amount in all parents
+				v_parentId:= :OLD.em_escm_parentlineno;
+				WHILE(v_parentId IS NOT NULL) LOOP 
+					select sum(LineNetAmt) into v_SumOfChildPrice from m_requisitionline where em_escm_parentlineno = v_parentId;
+					
+					update m_requisitionline set priceactual = v_SumOfChildPrice,em_escm_unitprice = encode(v_SumOfChildPrice_original::character varying::bytea,'base64'),
+					 LineNetAmt = v_SumOfChildPrice where m_requisitionline_id = v_parentId;
+
+					select em_escm_parentlineno into v_parentId from m_requisitionline where m_requisitionline_id = v_parentId;
+				END LOOP;
+			ELSE
+				--Update summary level to 'N', if it is no more parent for any child
+				update m_requisitionline set em_escm_issummary= 'N', priceactual = 0,em_escm_unitprice = encode(v_SumOfChildPrice_original::character varying::bytea,'base64'),
+			        LineNetAmt = 0 where m_requisitionline_id = :OLD.em_escm_parentlineno;
+			END IF;	
+		END IF;
+	END IF;			
+    END IF;
+
+    END ESCM_REQUISITIONLNE_PARENT
+]]></body>
+    </trigger>
+  </database>

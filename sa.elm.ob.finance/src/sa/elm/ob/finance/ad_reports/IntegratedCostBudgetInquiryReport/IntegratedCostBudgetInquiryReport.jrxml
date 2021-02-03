@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 7.1.0.final using JasperReports Library version 6.4.3  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="IntegratedCostBudgetInquiryReport" pageWidth="2010" pageHeight="1190" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="1970" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="441c1dba-bc17-4dc0-a544-68bb8e50f5fa">
+	<property name="ireport.zoom" value="0.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="ParentAccountId" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DeptId" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SubAccountId" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpcCampaignId_IN" class="java.lang.String"/>
+	<parameter name="inpOrg" class="java.lang.String"/>
+	<parameter name="inpClient" class="java.lang.String"/>
+	<parameter name="BASE_DESIGN" class="java.lang.String"/>
+	<parameter name="inpBudgetType" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select 1 from dual]]>
+	</queryString>
+	<field name="?column?" class="java.lang.Integer"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="39">
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="0" width="411" height="39" forecolor="#000000" backcolor="#BFBFBF" uuid="91ebe360-c456-47fa-89de-3ce5aeedbbb2">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box leftPadding="5">
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Integrated Cost Budget Inquiry Report]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="61" splitType="Stretch">
+			<subreport overflowType="Stretch">
+				<reportElement positionType="Float" x="0" y="1" width="1005" height="60" isRemoveLineWhenBlank="true" uuid="938ca96f-a5c7-486c-a13a-4f235c47ef3b">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<subreportParameter name="inpcCampaignId_IN">
+					<subreportParameterExpression><![CDATA[$P{inpcCampaignId_IN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="DeptId">
+					<subreportParameterExpression><![CDATA[$P{DeptId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpClient">
+					<subreportParameterExpression><![CDATA[$P{inpClient}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpOrg">
+					<subreportParameterExpression><![CDATA[$P{inpOrg}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpBudgetType">
+					<subreportParameterExpression><![CDATA[$P{inpBudgetType}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="SubAccountId">
+					<subreportParameterExpression><![CDATA[$P{SubAccountId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="ParentAccountId">
+					<subreportParameterExpression><![CDATA[$P{ParentAccountId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/finance/ad_reports/IntegratedCostBudgetInquiryReport/IntegratedCostBudgetInquirySubreportCost.jrxml")]]></subreportExpression>
+			</subreport>
+			<subreport overflowType="Stretch">
+				<reportElement positionType="Float" x="979" y="1" width="1000" height="60" isRemoveLineWhenBlank="true" uuid="4b83a386-3385-41e2-9225-6ed224221f53">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<printWhenExpression><![CDATA[$P{inpBudgetType}.equals("C")]]></printWhenExpression>
+				</reportElement>
+				<subreportParameter name="inpcCampaignId_IN">
+					<subreportParameterExpression><![CDATA[$P{inpcCampaignId_IN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="DeptId">
+					<subreportParameterExpression><![CDATA[$P{DeptId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpClient">
+					<subreportParameterExpression><![CDATA[$P{inpClient}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpOrg">
+					<subreportParameterExpression><![CDATA[$P{inpOrg}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpBudgetType">
+					<subreportParameterExpression><![CDATA[$P{inpBudgetType}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="SubAccountId">
+					<subreportParameterExpression><![CDATA[$P{SubAccountId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="ParentAccountId">
+					<subreportParameterExpression><![CDATA[$P{ParentAccountId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/finance/ad_reports/IntegratedCostBudgetInquiryReport/IntegratedCostBudgetInquirySubreportFund.jrxml")]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+</jasperReport>

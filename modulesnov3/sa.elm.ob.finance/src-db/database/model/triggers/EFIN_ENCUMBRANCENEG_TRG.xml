@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_ENCUMBRANCENEG_TRG">
+    <trigger name="EFIN_ENCUMBRANCENEG_TRG" table="EFIN_BUDGET_MANENCUMLINES" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+v_message  VARCHAR2(2000);
+v_budgettype VARCHAR2(60);
+
+BEGIN
+
+	IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+	
+	IF UPDATING or INSERTING THEN
+  
+
+               -- Throw the error if negative value are present while inserting or updating records in Budget Enquiry
+		IF((coalesce(:new.amount,0) < 0) or (coalesce(:new.enc_decrease,0) < 0) or
+		(coalesce(:new.enc_increase,0) < 0 ) or (coalesce(:new.used_amount,0) < 0) )
+		THEN
+		
+		--Throw error negative value not allow
+			  raise exception '%','@EFIN_Negative_Not_Allowed@' ;	
+
+		END IF;
+
+		
+	END IF;
+	
+	END EFIN_ENCUMBRANCENEG_TRG
+]]></body>
+    </trigger>
+  </database>

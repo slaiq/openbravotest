@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MaterialIssueRequestA4" pageWidth="864" pageHeight="609" orientation="Landscape" whenNoDataType="NoDataSection" columnWidth="858" leftMargin="3" rightMargin="3" topMargin="5" bottomMargin="7" isSummaryWithPageHeaderAndFooter="true" uuid="3b0089b5-6d55-4b9b-9a13-bb08c95e3769">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/opt/erp/elm/WebContent/src-loc/design/sa/elm/ob/scm/ad_reports/materialissuerequest/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpMaterialReqId" class="java.lang.String"/>
+	<parameter name="BASE_DESIGN" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select issreq.client, issreq.organization,issreq.orgid, issreq.depname, issreq.beneficiary,issreq.benfvalue, issreq.warehouse, issreq.betype,
+issreq.documentno, issreq.transaction_date, issreq.request_manager, issreq.inventory_mgr,issreq.dno,
+issreq.warehouse_keeper, issreq.receiver, issreq.final_approver, issreq.currentdate, issreq.line,
+issreq.product, issreq.description, issreq.item_type, issreq.uomcode, issreq.requested_qty,
+issreq.delivered_qty, issreq.note, issreq.unitprice, issreq.totalamt,(issreq.benfvalue || concat(' - ' , substring(issreq.benfname, length(issreq.benfvalue ) + 2))) as benidname,issreq.sales_desc,issreq.beneficiary_type
+from
+(select cl.name as client, org.name as organization, org.ad_org_id  as orgid, orgdep.name as depname, benf.name as benfname,benf.btype as betype,substring(benf.name, length(benf.value ) + 2) as beneficiary, benf.value as benfvalue, wrh.name as warehouse,
+metrq.Specno as documentno,SUBSTR(metrq.documentno, LENGTH(metrq.documentno) - 3,4) as dno, eut_cnvrttohjr_YYYYMMDD(to_char(metrq.transaction_date,'YYYY-MM-DD')) as transaction_date,
+request_manager, inventory_mgr, warehouse_keeper, receiver, final_approver,
+eut_cnvrttohjr_YYYYMMDD(to_char(now(),'YYYY-MM-DD')) as currentdate,metrq.sales_desc,metrq.beneficiary_type,
+metrqln.line, prd.value as product, metrqln.description, item_type, coalesce(uomtrl.name, uom.name) as uomcode,
+requested_qty, delivered_qty, (select note from obuiapp_note where record_id=(select escm_material_reqln_id
+from escm_Material_Reqln where escm_material_request_id=$P{inpMaterialReqId}
+and escm_material_reqln_id=metrqln.escm_material_reqln_id) order by created desc limit 1) as note,
+unitprice, (unitprice*delivered_qty) as totalamt,row_number() OVER ()::integer as rnum
+from escm_material_request metrq
+left join ad_client cl using (ad_client_id)
+left join ad_org org on org.ad_org_id = metrq.ad_org_id
+left join m_warehouse wrh using (m_warehouse_id)
+left join Escm_Beneficiary_V benf on benf.Escm_Beneficiary_V_ID = metrq.beneficiary_name
+left join c_bpartner bp on bp.value = benf.value and bp.ad_client_id=metrq.ad_client_id
+left join ad_org orgdep on orgdep.value = bp.em_ehcm_department_code and bp.ad_client_id = orgdep.ad_client_id
+left join Escm_Material_Reqln metrqln on metrqln.escm_material_request_id=metrq.escm_material_request_id
+left join m_product prd on prd.m_product_id=metrqln.m_product_id
+left join c_uom uom on uom.c_uom_id=metrqln.c_uom_id
+left join c_uom_trl uomtrl on uomtrl.c_uom_id=uom.c_uom_id and uomtrl.ad_language  ='ar_SA'
+where metrq.escm_material_request_id = $P{inpMaterialReqId} and metrqln.onhand_qty>0)issreq
+full join ( select ''::character varying as ad_client_id, b.sno
+from (select generate_series(1, (select ceil(((select count(escm_material_reqln_id)
+from escm_material_reqln where escm_material_request_id=$P{inpMaterialReqId}))::numeric / 12) * 12):: integer) as sno)b ) alllns on issreq.rnum = alllns.sno
+order by issreq.line]]>
+	</queryString>
+	<field name="client" class="java.lang.String"/>
+	<field name="organization" class="java.lang.String"/>
+	<field name="orgid" class="java.lang.String"/>
+	<field name="depname" class="java.lang.String"/>
+	<field name="beneficiary" class="java.lang.String"/>
+	<field name="benfvalue" class="java.lang.String"/>
+	<field name="warehouse" class="java.lang.String"/>
+	<field name="betype" class="java.lang.String"/>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="transaction_date" class="java.lang.String"/>
+	<field name="request_manager" class="java.lang.String"/>
+	<field name="inventory_mgr" class="java.lang.String"/>
+	<field name="dno" class="java.lang.String"/>
+	<field name="warehouse_keeper" class="java.lang.String"/>
+	<field name="receiver" class="java.lang.String"/>
+	<field name="final_approver" class="java.lang.String"/>
+	<field name="currentdate" class="java.lang.String"/>
+	<field name="line" class="java.math.BigDecimal"/>
+	<field name="product" class="java.lang.String"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="item_type" class="java.lang.String"/>
+	<field name="uomcode" class="java.lang.String"/>
+	<field name="requested_qty" class="java.math.BigDecimal"/>
+	<field name="delivered_qty" class="java.math.BigDecimal"/>
+	<field name="note" class="java.lang.String"/>
+	<field name="unitprice" class="java.math.BigDecimal"/>
+	<field name="totalamt" class="java.math.BigDecimal"/>
+	<field name="benidname" class="java.lang.String"/>
+	<field name="sales_desc" class="java.lang.String"/>
+	<field name="beneficiary_type" class="java.lang.String"/>
+	<variable name="receiver" class="java.lang.String" calculation="First">
+		<variableExpression><![CDATA[$F{receiver}]]></variableExpression>
+	</variable>
+	<variable name="warehousekeeper" class="java.lang.String" calculation="First">
+		<variableExpression><![CDATA[$F{warehouse_keeper}]]></variableExpression>
+	</variable>
+	<variable name="inventorymgr" class="java.lang.String" calculation="First">
+		<variableExpression><![CDATA[$F{inventory_mgr}]]></variableExpression>
+	</variable>
+	<variable name="requestmgr" class="java.lang.String" calculation="First">
+		<variableExpression><![CDATA[$F{request_manager}]]></variableExpression>
+	</variable>
+	<variable name="currentdate" class="java.lang.String" calculation="First">
+		<variableExpression><![CDATA[$F{currentdate}]]></variableExpression>
+	</variable>
+	<variable name="finalapprover" class="java.lang.String" calculation="First">
+		<variableExpression><![CDATA[$F{final_approver}]]></variableExpression>
+	</variable>
+	<pageHeader>
+		<band height="106">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="634" y="69" width="166" height="17" isPrintWhenDetailOverflows="true" uuid="72967f70-9402-487e-ba38-ecf6493a7d0f"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{beneficiary_type}.equals("SA")?$F{sales_desc}:(($F{betype}.equals("D"))?$F{beneficiary}:$F{depname})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="608" y="35" width="191" height="17" isPrintWhenDetailOverflows="true" uuid="7ac5012b-fd87-4c01-9796-336786686d67"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{client}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="613" y="87" width="186" height="17" isPrintWhenDetailOverflows="true" uuid="60f390d9-6b1b-4d5a-adab-dcadfc23d7ad"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{warehouse}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="39" y="72" width="30" height="21" uuid="bad0ac12-146e-45cf-83f8-3ef01980b6b4"/>
+				<box rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" ص"+"  "+$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report" isBlankWhenNull="true">
+				<reportElement x="9" y="72" width="30" height="21" isPrintWhenDetailOverflows="true" uuid="36438c36-ac8d-46bf-aca5-5c71aaa0589a"/>
+				<box rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}+"  "+" من"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="-3" y="50" width="82" height="21" uuid="fa7dc187-bc7d-44de-b992-161d6e0ee635"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{transaction_date}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="-3" y="29" width="82" height="21" uuid="ed7f1ff2-3430-435c-91ba-5506d942e339"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentno}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="635" y="52" width="155" height="17" isPrintWhenDetailOverflows="true" uuid="501d3cbb-cc87-4ac1-9b9c-8a2f45d54aef"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{organization}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="150" y="30" width="51" height="21" uuid="88eaaa11-0f48-4e02-b7c5-70bf5dde95f9"/>
+				<textFieldExpression><![CDATA[$F{dno}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="58" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="24" splitType="Stretch">
+			<break>
+				<reportElement x="0" y="23" width="800" height="1" uuid="be0a0911-2def-44da-9a56-279eed8f46f1">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$V{REPORT_COUNT}==12]]></printWhenExpression>
+				</reportElement>
+			</break>
+			<textField pattern="#,##0" isBlankWhenNull="true">
+				<reportElement x="88" y="0" width="63" height="24" uuid="9878e32e-e8fb-4828-9655-1497c2f48e71">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{totalamt}.intValue()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="88" height="24" uuid="cd8c7054-2cbf-4df0-a4e9-014a23c9fdac">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{note}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="323" y="0" width="43" height="24" uuid="bd88ba06-e24b-4732-8770-073643ce6962">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{uomcode}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="372" y="0" width="26" height="24" uuid="bdad3d27-ba52-4f8b-9b40-603c70a24489">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{item_type}.equals("CON")?"X":""]]></textFieldExpression>
+			</textField>
+			<textField pattern="00" isBlankWhenNull="true">
+				<reportElement x="212" y="0" width="15" height="24" uuid="4fd40ca0-9565-4f43-a033-6e163dc883a9">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{unitprice}.subtract(new BigDecimal($F{unitprice}.intValue())) ).multiply(new  java.math.BigDecimal ("100"))]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0" isBlankWhenNull="true">
+				<reportElement x="168" y="0" width="44" height="24" uuid="32a88521-3ac6-4b22-aacb-df6d69b37a52">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{unitprice}.intValue()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="227" y="0" width="48" height="24" uuid="1239c787-670b-4ed8-b5dd-fa35f8709127">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{delivered_qty}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="275" y="0" width="45" height="24" uuid="c4537d63-24ce-4d1c-87cf-39243f54b1b6">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{requested_qty}]]></textFieldExpression>
+			</textField>
+			<textField pattern="00" isBlankWhenNull="true">
+				<reportElement x="151" y="0" width="17" height="24" uuid="c85f5319-6fc7-4029-9463-cce8d3398004">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{totalamt}.subtract(new BigDecimal($F{totalamt}.intValue())) ).multiply(new  java.math.BigDecimal ("100"))]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="399" y="0" width="28" height="24" uuid="2552f6eb-c809-4f80-9784-8c2bae6908e3">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{item_type}.equals("CUS")?"X":""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="425" y="0" width="244" height="24" uuid="28e1c573-34d0-435f-8fba-b5e504c3d758">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="672" y="0" width="148" height="24" uuid="33818f1d-356d-4fde-9dc5-646e81264406">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{product}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="820" y="0" width="38" height="24" uuid="71c18eef-790b-4a06-be3d-2d0bc62e7b15">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{line}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="130">
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="100" width="126" height="20" uuid="b88ae172-09e6-49f6-aec3-8430e7560fd5"/>
+				<box>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{finalapprover}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="400" y="29" width="185" height="23" uuid="e9b2dfaa-a2d9-4cdb-b96c-813179eb4e00"/>
+				<box>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{inventorymgr}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="585" y="29" width="204" height="23" uuid="fdf3a364-0a17-4939-88e1-b2ff3825aa5f"/>
+				<box>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{requestmgr}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="29" width="201" height="23" uuid="08aaa24f-bea5-40b4-aeee-4c753d4bdc68"/>
+				<box>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{receiver}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="201" y="29" width="199" height="23" uuid="a8578425-e24d-47f0-918d-f545c36044cf"/>
+				<box>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{warehousekeeper}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnFooter>
+	<noData>
+		<band height="48">
+			<staticText>
+				<reportElement x="0" y="-1" width="836" height="49" uuid="8849d1d1-eb4f-408c-8839-5e6051d30574"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="15" isBold="true"/>
+				</textElement>
+				<text><![CDATA[لاتوجد بيانات]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

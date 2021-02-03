@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CleaningContracts" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="f7846be0-4a4e-40c6-87cb-c5efb190b0c6">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="50"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/opt/elm/modules/sa.elm.ob.scm/src/sa/elm/ob/scm/ad_reports/cleaningContract/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="OrderId" class="java.lang.String"/>
+	<parameter name="BASE_DESIGN" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[select eut_convert_to_hijri(to_char( po.em_escm_signaturedate,'YYYY-MM-DD')) as signaturedate,city.name as cityname,
+to_char(po.em_escm_signaturedate,'dd-MM-yyyy') as siggredate,po.em_escm_motcontperson as motcontperson,
+bpcert.certificatenumber as commercialregno,eut_convert_to_hijri(to_char( bpcert.registrydate,'YYYY-MM-DD')) as registrydate,
+bpcert.registrycity,bp.name as bpname,loc.address2 as postalpo,loc.postal as postalcode,emp.title as contposition,
+concat(emp.firstname, ' ', emp.lastname) as contname,emp.EM_Escm_Authorization_Number as authno,eut_convert_to_hijri(to_char( emp.EM_Escm_Authorization_Date,'YYYY-MM-DD'))
+as authdate,po.em_escm_projectname as projname,eut_convert_to_hijri(to_char( po.em_escm_proposaldate,'YYYY-MM-DD')) as proposaldate,
+po.documentno as contractno,eut_convert_to_hijri(to_char( po.em_escm_contractstartdate,'YYYY-MM-DD')) as contractdate,to_char( po.em_escm_contractstartdate,'DD-MM-YYYY') as contractdategrego,
+po.em_escm_contractduration||' '||coalesce(reftrl.name,ref.name)  as duration,po.grandtotal as totalamt,po.em_escm_motcontposition as motconpostion,
+concat((SELECT EXTRACT(DOW FROM  po.em_escm_signaturedate::date))) as signatureday,clientinfo.your_company_document_image
+from c_order po
+left join ad_client cl on cl.ad_client_id = po.ad_client_id
+left join ad_clientinfo clientinfo on cl.ad_client_id = clientinfo.ad_client_id
+left join c_city city on city.c_city_id = po.em_escm_c_city_id
+left join c_bpartner bp on bp.c_bpartner_id=po.c_bpartner_id
+left join C_BPartner_Location bploc on bploc.c_bpartner_id=bp.c_bpartner_id
+and  po.C_BPartner_Location_ID = bploc.C_BPartner_Location_id
+left join c_location loc on loc.c_location_id = bploc.c_location_id
+left join ad_ref_list ref on ref.value = po.em_escm_periodtype and ref.ad_reference_id='B3AD28238D4E42E09E479800A48E4880'
+left join ad_ref_list_trl reftrl on reftrl.ad_ref_list_id = ref.ad_ref_list_id
+left join ad_user emp on emp.c_bpartner_id = bp.c_bpartner_id
+and emp.created = (select max(created) from ad_user where ad_user.c_bpartner_id=bp.c_bpartner_id)
+left join (select name, value, escm_deflookups_typeln_id, cert.c_bpartner_id, cert.certificatenumber,cert.registrydate,cert.registrycity
+from escm_deflookups_typeln lkln
+join escm_deflookups_type typ on lkln.escm_deflookups_type_id=typ.escm_deflookups_type_id
+right join escm_certificates cert on cert.certificatename=lkln.escm_deflookups_typeln_id
+where reference ='CN' and typ.isactive='Y' and (value ilike '%CRN%'
+or escm_deflookups_typeln_id='E1A43F37E4FD41DC95530AB0DD6ED707')) bpcert on bpcert.c_bpartner_id=bp.c_bpartner_id
+where po.c_order_id = $P{OrderId}]]>
+	</queryString>
+	<field name="signaturedate" class="java.lang.String"/>
+	<field name="cityname" class="java.lang.String"/>
+	<field name="siggredate" class="java.lang.String"/>
+	<field name="motcontperson" class="java.lang.String"/>
+	<field name="commercialregno" class="java.math.BigDecimal"/>
+	<field name="registrydate" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:ONCREATEDEFAULT:SYSDATE--]]></fieldDescription>
+	</field>
+	<field name="registrycity" class="java.lang.String"/>
+	<field name="bpname" class="java.lang.String"/>
+	<field name="postalpo" class="java.lang.String"/>
+	<field name="postalcode" class="java.lang.String"/>
+	<field name="contposition" class="java.lang.String"/>
+	<field name="contname" class="java.lang.String"/>
+	<field name="authno" class="java.lang.String"/>
+	<field name="authdate" class="java.lang.String"/>
+	<field name="projname" class="java.lang.String"/>
+	<field name="proposaldate" class="java.lang.String"/>
+	<field name="contractno" class="java.lang.String"/>
+	<field name="contractdate" class="java.lang.String"/>
+	<field name="contractdategrego" class="java.lang.String"/>
+	<field name="duration" class="java.lang.String"/>
+	<field name="totalamt" class="java.math.BigDecimal"/>
+	<field name="motconpostion" class="java.lang.String"/>
+	<field name="signatureday" class="java.lang.String"/>
+	<field name="your_company_document_image" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="23" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="20"/>
+	</pageHeader>
+	<detail>
+		<band height="400" splitType="Stretch">
+			<subreport>
+				<reportElement x="0" y="0" width="555" height="39" uuid="0fa6d079-3811-43eb-85f7-80c1ad559d50"/>
+				<subreportParameter name="img">
+					<subreportParameterExpression><![CDATA[$F{your_company_document_image}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/scm/ad_reports/cleaningContract/CleaningContracts_subreport1.jrxml")]]></subreportExpression>
+			</subreport>
+			<break>
+				<reportElement x="0" y="39" width="555" height="1" uuid="2be91f60-5acc-402a-a701-2936173d72a2"/>
+			</break>
+			<subreport>
+				<reportElement x="0" y="53" width="555" height="150" uuid="8496d841-7f8c-4d84-8b21-613535edac82"/>
+				<subreportParameter name="contractdate">
+					<subreportParameterExpression><![CDATA[$F{contractdate}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="contractno">
+					<subreportParameterExpression><![CDATA[$F{contractno}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="postalcode">
+					<subreportParameterExpression><![CDATA[$F{postalcode}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="signaturedate">
+					<subreportParameterExpression><![CDATA[$F{signaturedate}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="commercialregno">
+					<subreportParameterExpression><![CDATA[$F{commercialregno}.toPlainString()]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="registrycity">
+					<subreportParameterExpression><![CDATA[$F{registrycity}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="contractdategrego">
+					<subreportParameterExpression><![CDATA[$F{contractdategrego}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="postalpo">
+					<subreportParameterExpression><![CDATA[$F{postalpo}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="authdate">
+					<subreportParameterExpression><![CDATA[$F{authdate}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="projname">
+					<subreportParameterExpression><![CDATA[$F{projname}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="siggredate">
+					<subreportParameterExpression><![CDATA[$F{siggredate}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="signatureday">
+					<subreportParameterExpression><![CDATA[$F{signatureday}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="contname">
+					<subreportParameterExpression><![CDATA[$F{contname}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="contposition">
+					<subreportParameterExpression><![CDATA[$F{contposition}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="registrydate">
+					<subreportParameterExpression><![CDATA[$F{registrydate}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="cityname">
+					<subreportParameterExpression><![CDATA[$F{cityname}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="bpname">
+					<subreportParameterExpression><![CDATA[$F{bpname}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="motcontperson">
+					<subreportParameterExpression><![CDATA[$F{motcontperson}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="authno">
+					<subreportParameterExpression><![CDATA[$F{authno}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="proposaldate">
+					<subreportParameterExpression><![CDATA[$F{proposaldate}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/scm/ad_reports/cleaningContract/CleaningContracts_subreport2.jrxml")]]></subreportExpression>
+			</subreport>
+			<break>
+				<reportElement x="0" y="203" width="555" height="1" uuid="9fbe87ce-bc13-4cc4-8e77-ff53305f6cd3"/>
+			</break>
+			<subreport>
+				<reportElement x="0" y="204" width="555" height="107" uuid="c50f0e59-b4df-4c7c-a697-6630bac6ad43"/>
+				<subreportParameter name="totalamt">
+					<subreportParameterExpression><![CDATA[$F{totalamt}.toPlainString()]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="duration">
+					<subreportParameterExpression><![CDATA[$F{duration}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="projname">
+					<subreportParameterExpression><![CDATA[$F{projname}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/scm/ad_reports/cleaningContract/CleaningContracts_subreport3.jrxml")]]></subreportExpression>
+			</subreport>
+			<break>
+				<reportElement x="0" y="311" width="555" height="1" uuid="5c823316-14cf-4ea1-b21d-1982461a3e75"/>
+			</break>
+			<subreport>
+				<reportElement x="0" y="312" width="555" height="88" uuid="0ccebc0a-03d0-47b8-8ff5-052335628ab3"/>
+				<subreportParameter name="contname">
+					<subreportParameterExpression><![CDATA[$F{contname}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="totalamt">
+					<subreportParameterExpression><![CDATA[$F{totalamt}.toPlainString()]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="contposition">
+					<subreportParameterExpression><![CDATA[$F{contposition}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="motcontperson">
+					<subreportParameterExpression><![CDATA[$F{motcontperson}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="motconpostion">
+					<subreportParameterExpression><![CDATA[$F{motconpostion}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/scm/ad_reports/cleaningContract/CleaningContracts_subreport4.jrxml")]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="32" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="357" height="32" uuid="1ca02301-d902-4b4b-b563-819cef1a70a0"/>
+				<textElement>
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($V{PAGE_NUMBER}.toString())]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

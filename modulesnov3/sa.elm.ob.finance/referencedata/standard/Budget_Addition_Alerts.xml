@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="18865AF56DCD490AB94FCF2EBA44B31E" identifier="Budget Addition approved">
+    <id>18865AF56DCD490AB94FCF2EBA44B31E</id>
+    <active>true</active>
+    <creationDate transient="true">2016-06-30T11:37:33.845Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2016-07-01T15:53:44.182Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Budget Addition approved</name>
+    <tab id="824A0EEEA1064286B0C24011414F8601" entity-name="ADTab" identifier="Budget Addition - Budget Addition"/>
+    <filterClause>referencekey_id in (select efin_budgetadd_id from efin_budgetadd ad join ad_user as usr on ad.createdby=usr.ad_user_id 
+where usr.ad_user_id in (@AD_USER_ID@) and ad.status='APP')</filterClause>
+    <sql>SELECT efin_budgetadd_id AS referencekey_id,
+     ad_column_identifier('EFIN_BudgetAdd', efin_budgetadd_id, 'en_US') AS record_id,
+     0 AS ad_role_id,
+     NULL AS ad_user_id,
+     (select budgetname from efin_budget bt where bt.efin_budget_id=ad.efin_budget_id) ||' budget addition is Approved'  AS description,
+     'Y' AS isActive,
+      ad_org_id, 
+      ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+ FROM efin_budgetadd ad  where status = 'APP' and updated &gt;= now()-2</sql>
+    <type>D</type>
+  </ADAlertRule>
+  <ADAlertRule id="790AB5AFB0D846FBAFD71080DEA04A3E" identifier="Budget Addition waiting for approval">
+    <id>790AB5AFB0D846FBAFD71080DEA04A3E</id>
+    <active>true</active>
+    <creationDate transient="true">2016-06-30T12:25:06.837Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2016-07-01T15:54:08.333Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Budget Addition waiting for approval</name>
+    <tab id="824A0EEEA1064286B0C24011414F8601" entity-name="ADTab" identifier="Budget Addition - Budget Addition"/>
+    <filterClause>referencekey_id in (select efin_budgetadd_id from efin_budgetadd ad 
+join eut_next_role_line ln on ln.eut_next_role_id= ad.eut_next_role_id
+where ln.ad_role_id in (@AD_ROLE_ID@) 
+and ad.status='IA')</filterClause>
+    <sql>SELECT efin_budgetadd_id AS referencekey_id,
+     ad_column_identifier('EFIN_BudgetAdd', efin_budgetadd_id, 'en_US') AS record_id,
+     0 AS ad_role_id,
+     NULL AS ad_user_id,
+     (select budgetname from efin_budget bt where bt.efin_budget_id=ad.efin_budget_id) ||' budget addition is waiting for approval'  AS description,
+     'Y' AS isActive,
+      ad_org_id, 
+      ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+ FROM efin_budgetadd ad where status = 'IA' and updated &gt;= now()-2</sql>
+    <type>D</type>
+  </ADAlertRule>
+  <ADAlertRule id="F798EF886FA548599162C107BEC0B5DB" identifier="Budget Addition sent for rework">
+    <id>F798EF886FA548599162C107BEC0B5DB</id>
+    <active>true</active>
+    <creationDate transient="true">2016-06-30T12:23:39.59Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2016-07-01T15:53:58.592Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Budget Addition sent for rework</name>
+    <tab id="824A0EEEA1064286B0C24011414F8601" entity-name="ADTab" identifier="Budget Addition - Budget Addition"/>
+    <filterClause>referencekey_id in (select efin_budgetadd_id from efin_budgetadd ad join ad_user as usr on ad.createdby=usr.ad_user_id 
+where usr.ad_user_id in (@AD_USER_ID@) and ad.status='RW')</filterClause>
+    <sql>SELECT efin_budgetadd_id AS referencekey_id,
+     ad_column_identifier('EFIN_BudgetAdd', efin_budgetadd_id, 'en_US') AS record_id,
+     0 AS ad_role_id,
+     NULL AS ad_user_id,
+     (select budgetname from efin_budget bt where bt.efin_budget_id=ad.efin_budget_id) ||' budget addition is sent for Rework'  AS description,
+     'Y' AS isActive,
+      ad_org_id, 
+      ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+ FROM efin_budgetadd ad where status = 'RW' and updated &gt;= now()-2</sql>
+    <type>D</type>
+  </ADAlertRule>
+</ob:Openbravo>

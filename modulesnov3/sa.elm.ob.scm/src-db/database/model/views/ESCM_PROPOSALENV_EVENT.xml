@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_PROPOSALENV_EVENT">
+    <view name="ESCM_PROPOSALENV_EVENT"><![CDATA[SELECT prop.escm_proposal_attr_id AS escm_proposalenv_event_id, prop.ad_client_id, prop.ad_org_id, prop.isactive, prop.created, prop.createdby, prop.updated, prop.updatedby, prop.line, prop.gross_price, prop.c_currency_id, prop.discount, prop.discountamt, prop.netprice, prop.representative_name, prop.comments, comm.eventno, comm.todaydate, comm.preparername, pm.escm_proposalmgmt_id, comm.escm_openenvcommitee_id FROM escm_proposal_attr prop JOIN escm_openenvcommitee comm ON comm.escm_openenvcommitee_id = prop.escm_openenvcommitee_id JOIN escm_proposalmgmt pm ON pm.escm_proposalmgmt_id = prop.escm_proposalmgmt_id OR pm.escm_baseproposal_id = prop.escm_proposalmgmt_id WHERE comm.status = 'CO']]></view>
+  </database>

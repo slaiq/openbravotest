@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="2200B5BF59854C82A6E225E6FD74CA14" identifier="Budget Enquiry Actual Amount Not Matches">
+    <id>2200B5BF59854C82A6E225E6FD74CA14</id>
+    <active>true</active>
+    <creationDate transient="true">2019-03-19T20:46:39.608Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-04-10T18:26:57.202Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Budget Enquiry Actual Amount Not Matches</name>
+    <tab id="4B84B7F7B6DC488F9E0B4FB754199846" entity-name="ADTab" identifier="Lines - Budget Enquiry"/>
+    <filterClause>ad_client_id=@#AD_CLIENT_ID@</filterClause>
+    <sql>SELECT checkencum.efin_budgetinquiry_id AS referencekey_id,
+     int.name ||'-'||comb.em_efin_uniquecode  AS record_id,
+     '0' AS ad_role_id,
+     NULL AS ad_user_id,
+     comb.em_efin_uniquecode ||' encumbrance amount does not matches with sum of child accounts' AS description,
+     'Y' AS isActive,
+      checkencum.ad_org_id, 
+      checkencum.ad_client_id, 
+      now() AS created,  
+      '0' AS createdBy,  
+      now() AS updated,
+      '0' AS updatedBy 
+from 
+(select efin_budgetinquiry_id, c_validcombination_id, budinq.efin_budgetint_id, encumbrance, 
+ budinq.ad_org_id, budinq.ad_client_id from efin_budgetinquiry budinq
+join efin_budget_ctrl_param bccc on bccc.budgetcontrol_costcenter=budinq.c_salesregion_id
+where efin_budgetinquiry_id in (select case when spent_amt&lt;&gt;(select coalesce(sum(spent_amt), 0) from efin_budgetinquiry inq
+where parent_id=budinq.efin_budgetinquiry_id 
+   group by parent_id) then budinq.efin_budgetinquiry_id else null end)
+group by budinq.efin_budgetint_id, budinq.efin_budgetinquiry_id, budinq.c_validcombination_id
+union
+select efin_budgetinquiry_id, c_validcombination_id, budinq.efin_budgetint_id, encumbrance, 
+ budinq.ad_org_id, budinq.ad_client_id from efin_budgetinquiry budinq
+join efin_budget_ctrl_param bccc on bccc.hq_budgetcontrolunit=budinq.c_salesregion_id
+where efin_budgetinquiry_id in (select case when spent_amt&lt;&gt;(select coalesce(sum(spent_amt),0) from efin_budgetinquiry inq
+where parent_id=budinq.efin_budgetinquiry_id 
+group by parent_id) then budinq.efin_budgetinquiry_id else null end)
+group by budinq.efin_budgetint_id, budinq.efin_budgetinquiry_id, budinq.c_validcombination_id) checkencum
+left join efin_budgetint int on int.efin_budgetint_id=checkencum.efin_budgetint_id
+left join c_validcombination comb on comb.c_validcombination_id=checkencum.c_validcombination_id</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+  <ADAlertRule id="3F743D86C59E408E8F6F8C0536909E8B" identifier="Funds Available In Negative">
+    <id>3F743D86C59E408E8F6F8C0536909E8B</id>
+    <active>true</active>
+    <creationDate transient="true">2019-03-19T20:46:39.608Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2019-03-19T20:46:39.608Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Funds Available In Negative</name>
+    <tab id="4B84B7F7B6DC488F9E0B4FB754199846" entity-name="ADTab" identifier="Lines - Budget Enquiry"/>
+    <filterClause>ad_client_id=@#AD_CLIENT_ID@</filterClause>
+    <sql>SELECT efin_budgetinquiry_id AS referencekey_id,
+     int.name ||'-'||comb.em_efin_uniquecode  AS record_id,
+     '0' AS ad_role_id,
+     NULL AS ad_user_id,
+     comb.em_efin_uniquecode ||' account funds available is in negative ' AS description,
+     'Y' AS isActive,
+      enq.ad_org_id, 
+      enq.ad_client_id, 
+      now() AS created,  
+      '0' AS createdBy,  
+      now() AS updated,
+      '0' AS updatedBy
+ FROM efin_budgetinquiry enq
+ left join c_validcombination comb on comb.c_validcombination_id=enq.c_validcombination_id
+ left join efin_budgetint int on int.efin_budgetint_id=enq.efin_budgetint_id
+ WHERE funds_available &lt; 0</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+  <ADAlertRule id="88AD3D6A5BC44F9DBB95884436CE99BF" identifier="Budget Enquiry Encumbrance Not Matches">
+    <id>88AD3D6A5BC44F9DBB95884436CE99BF</id>
+    <active>true</active>
+    <creationDate transient="true">2019-03-19T20:46:39.607Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-04-10T18:26:57.204Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Budget Enquiry Encumbrance Not Matches</name>
+    <tab id="4B84B7F7B6DC488F9E0B4FB754199846" entity-name="ADTab" identifier="Lines - Budget Enquiry"/>
+    <filterClause>ad_client_id=@#AD_CLIENT_ID@</filterClause>
+    <sql>SELECT checkencum.efin_budgetinquiry_id AS referencekey_id,
+int.name ||'-'||comb.em_efin_uniquecode AS record_id, 
+ '0' AS ad_role_id, 
+ NULL AS ad_user_id,
+ comb.em_efin_uniquecode ||' encumbrance amount does not matches with sum of child accounts' AS description,
+ 'Y' AS isActive,
+ checkencum.ad_org_id,
+ checkencum.ad_client_id, 
+ now() AS created, 
+ '0' AS createdBy, 
+ now() AS updated,
+ '0' AS updatedBy 
+from (select efin_budgetinquiry_id, budinq.c_validcombination_id, budinq.efin_budgetint_id, encumbrance, budinq.ad_org_id, 
+budinq.ad_client_id from efin_budgetinquiry budinq
+left join efin_budget_ctrl_param bccc on bccc.budgetcontrol_costcenter=budinq.c_salesregion_id
+where efin_budgetinquiry_id in (select case when (encumbrance-(select sum(revamt) from efin_encum_details_v encum
+where encum.c_validcombination_id=budinq.c_validcombination_id
+and encum.encum_type='TE' and encum.efin_budgetint_id = budinq.efin_budgetint_id group by encum.c_validcombination_id))&lt;&gt;
+(select coalesce(sum(encumbrance), 0) from efin_budgetinquiry inq
+where parent_id=budinq.efin_budgetinquiry_id group by parent_id) then budinq.efin_budgetinquiry_id else null end)
+group by budinq.efin_budgetint_id, budinq.efin_budgetinquiry_id, budinq.c_validcombination_id
+union
+select efin_budgetinquiry_id, budinq.c_validcombination_id, budinq.efin_budgetint_id, encumbrance, budinq.ad_org_id, 
+budinq.ad_client_id from efin_budgetinquiry budinq
+left join efin_budget_ctrl_param bccc on bccc.hq_budgetcontrolunit=budinq.c_salesregion_id
+where efin_budgetinquiry_id in (select case when (encumbrance-(select sum(revamt) from efin_encum_details_v encum
+where encum.c_validcombination_id=budinq.c_validcombination_id
+and encum.encum_type='TE' and encum.efin_budgetint_id = budinq.efin_budgetint_id group by encum.c_validcombination_id))&lt;&gt;
+(select coalesce(sum(encumbrance),0) from efin_budgetinquiry inq
+where parent_id=budinq.efin_budgetinquiry_id group by parent_id) then budinq.efin_budgetinquiry_id else null end)
+group by budinq.efin_budgetint_id, budinq.efin_budgetinquiry_id, budinq.c_validcombination_id) checkencum
+left join efin_budgetint int on int.efin_budgetint_id=checkencum.efin_budgetint_id
+left join c_validcombination comb on comb.c_validcombination_id=checkencum.c_validcombination_id</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+  <ADAlertRule id="EA0743007596401382DF61174A469C08" identifier="BCU Funds available -ve">
+    <id>EA0743007596401382DF61174A469C08</id>
+    <active>true</active>
+    <creationDate transient="true">2020-04-20T10:21:48.401Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-04-20T16:19:32.60Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>BCU Funds available -ve</name>
+    <tab id="4B84B7F7B6DC488F9E0B4FB754199846" entity-name="ADTab" identifier="Lines - Budget Enquiry"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select 
+ be.efin_budgetinquiry_id AS referencekey_id,
+ be.uniquecode AS record_id,
+ '0' AS ad_role_id,
+ NULL AS ad_user_id,
+ 'BCU funds available is negative - &lt;'||(coalesce(be.current_budget, 0)-coalesce(be.disdec_amt, 0)+coalesce(be.disinc_amt, 0)-((coalesce(be.encumbrance, 0))-coalesce(sum(child.encumbrance),0))-(coalesce(be.spent_amt, 0)-coalesce(sum(child.spent_amt),0)))||'&gt;' AS description,
+ 'Y' AS isActive,
+ be.ad_org_id, 
+ be.ad_client_id, 
+ now() AS created, 
+ '0' AS createdBy, 
+ now() AS updated,
+ '0' AS updatedBy 
+from efin_budgetinquiry be
+join c_validcombination vc on be.c_validcombination_id=vc.c_validcombination_id
+left join  efin_budgetinquiry  child on child.parent_id = be.efin_budgetinquiry_id
+where vc.c_salesregion_id 
+in (select b.hq_budgetcontrolunit from efin_budget_ctrl_param b where b.ad_client_id = be.ad_client_id) 
+group by be.current_budget, be.disdec_amt, be.disinc_amt
+,be.encumbrance,be.spent_amt,be.efin_budgetinquiry_id
+having  (coalesce(be.current_budget, 0)-coalesce(be.disdec_amt, 0)+coalesce(be.disinc_amt, 0)-((coalesce(be.encumbrance, 0))-coalesce(sum(child.encumbrance),0))-(coalesce(be.spent_amt, 0)-coalesce(sum(child.spent_amt),0))) &lt;0</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

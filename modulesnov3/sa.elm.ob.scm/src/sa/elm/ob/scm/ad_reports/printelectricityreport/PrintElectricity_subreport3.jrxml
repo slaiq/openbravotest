@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
+<!-- 2017-09-28T15:22:11 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PrintElectricity_subreport3" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="4150bbf8-9747-4b0f-beb0-2fbbe7ec6997">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="147"/>
+	<parameter name="contractdate" class="java.lang.String"/>
+	<parameter name="contractno" class="java.lang.String"/>
+	<parameter name="projectcity" class="java.lang.String"/>
+	<parameter name="BASE_DESIGN" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[select 1 from dual]]>
+	</queryString>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="644">
+			<textField>
+				<reportElement x="2" y="10" width="545" height="99" uuid="98bb8c34-083f-4888-9bf0-6357109e3aff"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["ولما كان عرض ( الطرف الثاني ) قد اقترن بقبول الطرف الأول ( صاحب العمل ) وفقاً لما جاء في خطاب الترسية رقم"+(sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{contractno})==null?"  ":"  "+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{contractno})+" ")+"وبتاريخ"+(sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{contractdate})==null?"  ":"  "+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($P{contractdate})+" ")+"هـ، فقد اتفق الطرفان على تنفيذ العمل وفقا لشروط العقد التالية :"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="360" y="107" width="187" height="28" uuid="ece09b4d-450d-4774-9142-d3576e5330d5"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[المادة الأولي : الغرض من العقد]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="2" y="135" width="545" height="65" uuid="3d4f09f9-372d-4a56-9952-1518ec3cfb63"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["إن الغرض من هذا العقد هو صيانة الأعمال الكهربائية لطرق منطقة"+($P{projectcity}==null?"  ":"  "+$P{projectcity}+" ")+"، ويشمل ذلك تقديم المواد والمعدات والعمال وجميع الأشياء اللازمة لتشغيل المعدات والأجهزة وفقاً لشروط العقد ووثائقه."]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="354" y="205" width="193" height="28" uuid="3d248ab9-3286-400b-bb95-46c721e94543"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[المادة الثانية : وثائق العقد]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="305" y="242" width="242" height="28" uuid="ba8b7af1-0f93-434e-aedd-c3aa295ebd73"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[٢/١ - يتألف هذا العقد من الوثائق الآتية :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="354" y="273" width="193" height="28" uuid="624073a3-7122-4f07-a022-e3b8a1f55863"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[أ . وثيقة العقد الأساسية .]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="354" y="305" width="193" height="28" uuid="016e1888-b4df-4139-b6bd-e52fdaf03808"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[ب . الشروط الخاصة.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="354" y="337" width="193" height="28" uuid="0d6fc4e0-b2ff-4961-a6fa-b260f00384ec"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[ج . الشروط العامة .]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="354" y="368" width="193" height="28" uuid="b0e71417-f640-4beb-92f7-a39558f7310a"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[د . المواصفات .]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="354" y="399" width="193" height="28" uuid="dce59620-15c1-4df5-bb93-9b454386aa9f"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[ه . جداول الكميات وفئات الأسعار .]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="250" y="430" width="297" height="28" uuid="95d3118c-1f66-4070-9053-d4797b225376"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[و . المخططات و الرسومات وكتيبات التشغيل والصيانة ( إن وجدت ) .]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="137" y="462" width="410" height="28" uuid="f94e7f08-ea4b-4529-bed6-64eebb63a4ad"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[ز . خطاب الترسية أو قبول العرض .]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="137" y="494" width="410" height="28" uuid="33e3e862-b252-4118-84e1-86b60831f6d9"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[ح . الملاحق ( إن وجدت ) .]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="8" y="525" width="539" height="28" uuid="5d73ad9b-ecc4-483d-bfc9-c8291fadb758"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[ط . نماذج الضمانات البنكية التي يصدرها وزير المالية والاقتصاد الوطني .]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="8" y="555" width="539" height="39" uuid="35254830-c3bc-4663-8406-028d8ea98dbb"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[٢/٢ - تشكل هذه الوثائق وحدة متكاملة وتعد كل وثيقة منها جزءً من العقد بحيث تفسر وتتمم الوثائق المذكورة أعلاه بعضها بعضا .]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="8" y="600" width="539" height="35" uuid="9fcb1168-5b7b-45c6-82a9-da6313f5db15"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[٢/٣ - في حالة وجود تعارض بين وثائق العقد ، فإن الوثيقة المتقدمة تسود علي الوثيقة التي تليها في الترتيب الوارد في الفقرة الأولي من هذه المادة.]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+</jasperReport>

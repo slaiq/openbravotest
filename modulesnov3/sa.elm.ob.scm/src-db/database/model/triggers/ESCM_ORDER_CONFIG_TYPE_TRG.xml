@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_ORDER_CONFIG_TYPE_TRG">
+    <trigger name="ESCM_ORDER_CONFIG_TYPE_TRG" table="C_ORDER" fires="before" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_order_id VARCHAR2(60);
+v_ordertype VARCHAR2(60);
+v_org_id VARCHAR2(60);
+v_status VARCHAR2(60);
+v_confCount NUMBER; --OBTG:VARCHAR2--
+BEGIN
+
+v_confCount :=0;
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	
+	IF  INSERTING or UPDATING THEN
+		
+        v_order_id = :NEW.C_Order_ID;
+		v_org_id = :NEW.AD_ORG_ID;
+        
+        select count(escm_poorder_config_id) into v_confCount from escm_poorder_config where ad_org_id = v_org_id and ad_client_id = :NEW.AD_CLIENT_ID;
+        if v_confCount = 0 then
+           select agency_hq_org into v_org_id from efin_budget_ctrl_param where ad_client_id =:NEW.AD_CLIENT_ID  limit 1;            
+           select count(escm_poorder_config_id) into v_confCount from escm_poorder_config where ad_org_id = v_org_id and ad_client_id = :NEW.AD_CLIENT_ID;
+             
+             if(v_confCount=0) then
+               v_org_id ='0';
+             end if;
+            
+        end if;
+        select coalesce(ordertype,'PUR') into v_ordertype
+        from escm_poorder_config where :new.grandtotal >= minvalue and ad_org_id = v_org_id and ad_client_id = :NEW.AD_CLIENT_ID order by minvalue desc limit 1;
+
+            IF (:NEW.em_escm_base_order is null) THEN
+		--Update the ordertype in Purchase order header        
+        if :new.em_escm_ispurchaseagreement = 'N' then
+			:new.em_escm_ordertype := coalesce(v_ordertype,'PUR');
+        end if;
+		--update contract attributes as blank when v_ordertype=='PUR'
+		IF(v_ordertype='PUR' and :new.em_escm_ispurchaseagreement = 'N' and :new.em_escm_iscreateposubmit='N') THEN
+			  :new.em_escm_contractstartdate :=null;
+			  :new.em_escm_contractenddate := null;
+			  :new.em_escm_contractduration := null;
+			  :new.em_escm_onboarddateh := null;
+			  :new.em_escm_onboarddategreg :=null;
+			  :new.em_escm_advpaymnt_percntge := 0;
+			  :new.em_escm_advpaymnt_amt := 0;
+			  :new.em_escm_acctno := null;
+	  
+		END IF;
+	   END IF;     
+	END IF;
+	IF DELETING THEN
+        select em_escm_appstatus into v_status from c_order where c_order_id = :old.c_order_id;
+        if(v_status<>'DR' and v_status<>'ESCM_REJ' and v_status<>'ESCM_RA') then
+        	raise exception '%','@ESCM_POContractDelete@';
+        else 
+        	delete from escm_purorderacthist where c_order_id = :old.c_order_id;
+        end if;
+	END IF;
+	
+	END ESCM_ORDER_CONFIG_TYPE_TRG
+]]></body>
+    </trigger>
+  </database>

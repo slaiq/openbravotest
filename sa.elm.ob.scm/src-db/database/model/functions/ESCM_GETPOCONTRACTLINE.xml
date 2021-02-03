@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION ESCM_GETPOCONTRACTLINE">
+    <function name="ESCM_GETPOCONTRACTLINE" type="VARCHAR">
+      <parameter name="parentid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[parentArray character varying[] := ARRAY[ parentId ];
+    childArray character varying[] := '{}';
+    newChildArray character varying[];
+    childLines character varying;
+BEGIN
+    WHILE ( array_upper( parentArray, 1 ) IS NOT NULL ) LOOP
+        newChildArray := ARRAY( SELECT c_orderline_id FROM c_orderline 
+        WHERE em_escm_parentline_id  = ANY( parentArray )  AND c_orderline_id <> ALL( childArray ) );
+        childArray := childArray || newChildArray;
+        parentArray := newChildArray;
+    END LOOP;
+    childLines:=replace(replace(replace(childArray::text,'{',''''),'}',''''),',',''',''');
+    RETURN childLines ;
+END ESCM_GETPOCONTRACTLINE
+]]></body>
+    </function>
+  </database>

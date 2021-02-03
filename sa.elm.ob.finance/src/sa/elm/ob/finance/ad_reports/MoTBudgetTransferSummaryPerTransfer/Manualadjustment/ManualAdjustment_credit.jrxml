@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ManualAdjustment_credit" columnDirection="RTL" pageWidth="680" pageHeight="680" columnWidth="680" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="efc90481-ffb4-46a0-b2ca-fc63cdc2fddd">
+	<property name="ireport.zoom" value="0.8467108950806659"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="inpGlJournalId" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpClientId" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select creditdecimal, creditint, sumcreditdecim, sumcreditint, wholedesc, project, naturalacct
+from
+((select
+replace(array_to_string(array_agg(' '||floor((creditamt*100)-(deccredit*100))),CHR(10)),' 0',' 00') as creditdecimal,
+array_to_string(array_agg(deccredit),E'\r\n') as creditint,
+to_number((array_agg(replace(to_char(floor(((sumcreditamt)-(floor(sumcreditamt)))*100)),'0','00') ))[1]) as sumcreditdecim,
+to_number(to_char((array_agg(floor(sumcreditamt)))[1])) as sumcreditint,
+array_to_string(array_agg(wholedesc),'') as wholedesc,
+array_to_string(array_agg(subacct),E'\r\n') as project,
+array_to_string(array_agg(natacct),E'\r\n') as naturalacct
+from
+(select round(gll.amtsourcecr,2) as creditamt,nullif(floor(gll.amtsourcecr),'0') as deccredit,
+case when gll.amtsourcecr>0 then (select sum(gll.amtsourcecr) from gl_journalline gll join C_ValidCombination vc on
+vc.C_ValidCombination_ID=gll.C_ValidCombination_ID join c_elementvalue e on e.c_elementvalue_id=vc.account_id
+where gll.gl_journal_id  =$P{inpGlJournalId} and gl.ad_client_id =$P{inpClientId} and gll.amtsourcecr>0) else null end  as sumcreditamt,
+e.value as natacct, p.value as project, e.name||'-'||p.name||'-'||gll.description as wholedesc,
+(select efin_getparentelementlist(gl.ad_client_id, e.c_elementvalue_id)) as subacct
+from  gl_journal gl join gl_journalline  gll on gll.gl_journal_id=gl.gl_journal_id
+join c_project p on p.C_Project_ID =gll.C_Project_ID
+left join c_elementvalue e on e.c_elementvalue_id=gll.em_efin_account
+where gl.gl_journal_id  = $P{inpGlJournalId} and gl.ad_client_id =$P{inpClientId}  and gll.amtsourcecr>0) credit)
+
+union
+(select
+replace(array_to_string(array_agg(' '||floor((creditamt*100)-(deccredit*100))),CHR(10)),' 0',' 00') as creditdecimal,
+array_to_string(array_agg(deccredit),E'\r\n') as creditint,
+to_number((array_agg(replace(to_char(floor(((sumcreditamt)-(floor(sumcreditamt)))*100)),'0','00') ))[1]) as sumcreditdecim,
+to_number(to_char((array_agg(floor(sumcreditamt)))[1])) as sumcreditint,
+array_to_string(array_agg(wholedesc),'') as wholedesc,
+array_to_string(array_agg(subacct),E'\r\n') as project,
+array_to_string(array_agg(natacct),E'\r\n') as naturalacct
+from (select round(fc.amtsourcecr,2) as creditamt,nullif(floor(fc.amtsourcecr),'0') as deccredit,
+case when fc.amtsourcecr>0 then (select sum(fc.amtsourcecr) from fact_acct fc
+join c_invoice inv on inv.c_invoice_id =fc.record_id
+join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.record_id  =$P{inpGlJournalId} and inv.ad_client_id =$P{inpClientId} and fc.amtsourcecr>0) else null end  as sumcreditamt,
+e.value as natacct, p.value as project,
+e.name||'-'||p.name||'  '|| (select array_to_string(array_agg(description),E'\r\n') from c_invoice where c_invoice_id=inv.c_invoice_id) as wholedesc,
+(select efin_getparentelementlist(inv.ad_client_id, e.c_elementvalue_id)) as subacct
+from  fact_acct fc join c_invoice  inv on inv.c_invoice_id=fc.record_id
+left join c_project p on p.C_Project_ID =fc.C_Project_ID
+left join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.record_id  =$P{inpGlJournalId}  and inv.ad_client_id =$P{inpClientId} and fc.amtsourcecr>0) credit)
+
+union
+(select
+replace(array_to_string(array_agg(' '||floor((creditamt*100)-(deccredit*100))),CHR(10)),' 0',' 00') as creditdecimal,
+array_to_string(array_agg(deccredit),E'\r\n') as creditint,
+to_number((array_agg(replace(to_char(floor(((sumcreditamt)-(floor(sumcreditamt)))*100)),'0','00') ))[1]) as sumcreditdecim,
+to_number(to_char((array_agg(floor(sumcreditamt)))[1])) as sumcreditint,
+array_to_string(array_agg(wholedesc),'') as wholedesc,
+array_to_string(array_agg(subacct),E'\r\n') as project,
+array_to_string(array_agg(natacct),E'\r\n') as naturalacct
+from (select round(fc.amtsourcecr,2) as creditamt,nullif(floor(fc.amtsourcecr),'0') as deccredit,
+case when fc.amtsourcecr>0 then (select sum(fc.amtsourcecr) from fact_acct fc
+join fin_reconciliation recon on recon.fin_reconciliation_id =fc.record_id
+join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.record_id  =$P{inpGlJournalId} and recon.ad_client_id =$P{inpClientId} and fc.amtsourcecr>0) else null end  as sumcreditamt,
+e.value as natacct, p.value as project, e.name||'-'||p.name||'-'||recon.em_efin_description as wholedesc,
+(select efin_getparentelementlist(recon.ad_client_id, e.c_elementvalue_id)) as subacct
+from  fact_acct fc
+join fin_reconciliation recon on recon.fin_reconciliation_id=fc.record_id
+left join c_project p on p.C_Project_ID =fc.C_Project_ID
+left join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.record_id  =$P{inpGlJournalId}  and recon.ad_client_id =$P{inpClientId} and fc.amtsourcecr>0) credit)
+
+union
+(select
+replace(array_to_string(array_agg(' '||floor((creditamt*100)-(deccredit*100))),CHR(10)),' 0',' 00') as creditdecimal,
+array_to_string(array_agg(deccredit),E'\r\n') as creditint,
+to_number((array_agg(replace(to_char(floor(((sumcreditamt)-(floor(sumcreditamt)))*100)),'0','00') ))[1]) as sumcreditdecim,
+to_number(to_char((array_agg(floor(sumcreditamt)))[1])) as sumcreditint,
+array_to_string(array_agg(wholedesc),'') as wholedesc,
+array_to_string(array_agg(subacct),E'\r\n') as project,
+array_to_string(array_agg(natacct),E'\r\n') as naturalacct
+from (select round(fc.amtacctcr,2) as creditamt,nullif(floor(fc.amtacctcr),'0') as deccredit,
+case when fc.amtacctcr>0 then (select sum(fc.amtacctcr) from fact_acct fc
+join FIN_Finacc_Transaction  tran on tran.FIN_Finacc_Transaction_id =fc.record_id
+join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.record_id  =$P{inpGlJournalId} and fc.docbasetype='PRJ' and tran.ad_client_id =$P{inpClientId} and fc.amtacctcr>0) else null end  as sumcreditamt,
+e.value as natacct, p.value as project, e.name||'-'||p.name||'-'||tran.description as wholedesc,
+(select efin_getparentelementlist(tran.ad_client_id, e.c_elementvalue_id)) as subacct
+from  fact_acct fc
+join FIN_Finacc_Transaction  tran on tran.FIN_Finacc_Transaction_id=fc.record_id
+left join c_project p on p.C_Project_ID =fc.C_Project_ID
+left join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.record_id  =$P{inpGlJournalId}  and fc.docbasetype='PRJ' and tran.ad_client_id =$P{inpClientId}  and fc.amtacctcr>0) credit)
+
+union
+(select
+replace(array_to_string(array_agg(' '||floor((creditamt*100)-(deccredit*100))),CHR(10)),' 0',' 00') as creditdecimal,
+array_to_string(array_agg(deccredit),E'\r\n') as creditint,
+to_number((array_agg(replace(to_char(floor(((sumcreditamt)-(floor(sumcreditamt)))*100)),'0','00') ))[1]) as sumcreditdecim,
+to_number(to_char((array_agg(floor(sumcreditamt)))[1])) as sumcreditint,
+array_to_string(array_agg(wholedesc),'') as wholedesc,
+array_to_string(array_agg(subacct),E'\r\n') as project,
+array_to_string(array_agg(natacct),E'\r\n') as naturalacct
+from (select round(fc.amtsourcecr,2) as creditamt,nullif(floor(fc.amtsourcecr),'0') as deccredit,
+case when fc.amtsourcecr>0 then (select sum(fc.amtsourcecr) from fact_acct fc
+join fin_reconciliation recon on recon.fin_reconciliation_id =fc.record_id
+join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.record_id  =$P{inpGlJournalId} and Docstatus='EFIN_UREC' and recon.ad_client_id = $P{inpClientId} and fc.amtsourcecr>0) else null end  as sumcreditamt,
+e.value as natacct, p.value as project, e.name||'-'||p.name||'-'||recon.em_efin_description as wholedesc,
+(select efin_getparentelementlist(recon.ad_client_id, e.c_elementvalue_id)) as subacct
+from  fact_acct fc
+join fin_reconciliation recon on recon.fin_reconciliation_id=fc.record_id
+left join c_project p on p.C_Project_ID =fc.C_Project_ID
+left join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.record_id  =$P{inpGlJournalId}  and Docstatus='EFIN_UREC' and recon.ad_client_id =$P{inpClientId}  and fc.amtsourcecr>0) credit)
+
+union
+(select
+replace(array_to_string(array_agg(' '||floor((creditamt*100)-(deccredit*100))),CHR(10)),' 0',' 00') as creditdecimal,
+array_to_string(array_agg(deccredit),E'\r\n') as creditint,
+to_number((array_agg(replace(to_char(floor(((sumcreditamt)-(floor(sumcreditamt)))*100)),'0','00') ))[1]) as sumcreditdecim,
+to_number(to_char((array_agg(floor(sumcreditamt)))[1])) as sumcreditint,
+array_to_string(array_agg(wholedesc),'') as wholedesc,
+array_to_string(array_agg(subacct),E'\r\n') as project,
+array_to_string(array_agg(natacct),E'\r\n') as naturalacct
+from (select round(sum(fc.amtsourcecr),2) as creditamt,nullif(floor(sum(fc.amtsourcecr)),'0') as deccredit,
+case when fc.amtsourcecr>0 then    (select sum(fc.amtsourcecr) from fact_acct fc
+join fin_payment payin on payin.fin_payment_id =fc.record_id
+join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.em_efin_documentno =$P{inpGlJournalId} and fc.docbasetype ='ARR' and fc.ad_client_id =$P{inpClientId} and fc.amtsourcecr>0) else null end  as sumcreditamt,
+e.value as natacct, p.value as project, e.name||'-'||p.name||'-'||payin.description as wholedesc,
+(select efin_getparentelementlist(payin.ad_client_id, e.c_elementvalue_id)) as subacct
+from  fact_acct fc
+join fin_payment payin on payin.fin_payment_id=fc.record_id
+left join c_project p on p.C_Project_ID =fc.C_Project_ID
+left join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.em_efin_documentno =$P{inpGlJournalId} and fc.docbasetype ='ARR' and fc.ad_client_id =$P{inpClientId} and fc.amtsourcecr>0
+group by sumcreditamt,project,e.value,e.name,p.name,payin.description, e.c_elementvalue_id, payin.ad_client_id) credit)) as gladjcr
+where naturalacct is not null]]>
+	</queryString>
+	<field name="creditdecimal" class="java.lang.String"/>
+	<field name="creditint" class="java.lang.String"/>
+	<field name="sumcreditdecim" class="java.math.BigDecimal"/>
+	<field name="sumcreditint" class="java.math.BigDecimal"/>
+	<field name="wholedesc" class="java.lang.String"/>
+	<field name="project" class="java.lang.String"/>
+	<field name="naturalacct" class="java.lang.String"/>
+	<variable name="project" class="java.lang.String">
+		<variableExpression><![CDATA[$F{project}]]></variableExpression>
+	</variable>
+	<variable name="TotalCredit" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{sumcreditint}]]></variableExpression>
+	</variable>
+	<variable name="TotalCreditDecimal" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{sumcreditdecim}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="60" splitType="Stretch">
+			<textField>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="145" y="0" width="25" height="60" uuid="ba1d5e11-32ed-46c6-a33c-7210cb49c4ce"/>
+				<box leftPadding="2" rightPadding="2">
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{sumcreditdecim}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="170" y="0" width="140" height="60" isPrintWhenDetailOverflows="true" uuid="331cea76-a12f-456d-98ae-eff5eae4ab6f"/>
+				<box rightPadding="2">
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{wholedesc}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="480" y="0" width="100" height="60" uuid="cdaa8ce7-b1d0-4a79-a7ba-08f935b91454"/>
+				<box rightPadding="3">
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{project})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="false">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="395" y="0" width="60" height="60" uuid="0ca5f33b-6579-44c7-8a5f-16feaeb18444"/>
+				<box topPadding="0" leftPadding="0" bottomPadding="0" rightPadding="2">
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="###0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="370" y="0" width="25" height="60" uuid="24e92d77-81e1-4350-8038-b110f9302c2a"/>
+				<box topPadding="0" leftPadding="0" bottomPadding="0" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Dashed"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="580" y="0" width="100" height="60" uuid="235904d1-b922-49b9-8355-ee77ef27929f"/>
+				<box rightPadding="3">
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{naturalacct})]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="85" y="0" width="60" height="60" uuid="03f8f829-06fe-473d-9ce1-96e2d0868b90"/>
+				<box leftPadding="2" rightPadding="2">
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{sumcreditint}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="false">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="455" y="0" width="25" height="60" uuid="7c876e52-8891-4799-a9b9-8b9feee826fe"/>
+				<box topPadding="0" leftPadding="0" bottomPadding="0" rightPadding="2">
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="310" y="0" width="60" height="60" uuid="58c8c9b3-4a1e-456e-9dd0-7e3b8f7b127f"/>
+				<box topPadding="0" leftPadding="0" bottomPadding="0" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Dashed"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="###0.00">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="60" y="0" width="25" height="60" uuid="11d96bbc-047b-4755-b3c1-21868e63d1d1"/>
+				<box leftPadding="2" rightPadding="2">
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{creditdecimal})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="60" height="60" uuid="6a8357ba-ea3e-469e-8e8b-b0aa0db45191"/>
+				<box leftPadding="2" rightPadding="2">
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{creditint})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="1">
+			<line>
+				<reportElement x="-1" y="0" width="680" height="1" uuid="a2a45034-41b9-4643-89d4-89eb9f3b748c"/>
+			</line>
+		</band>
+	</summary>
+</jasperReport>

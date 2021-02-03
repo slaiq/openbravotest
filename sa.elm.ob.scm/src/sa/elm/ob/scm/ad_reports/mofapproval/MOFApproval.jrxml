@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.0.final using JasperReports Library version 6.5.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MOFApproval" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="08c2447b-1aef-424a-8612-b46ecccbfafa">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="96"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#FFBFBF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="inpPhotoCopiesList" uuid="8d40d550-9d28-419e-8cfd-e5f42a387447">
+		<parameter name="inpPhotoCopiesList" class="java.util.List">
+			<defaultValueExpression><![CDATA[new java.util.ArrayList()]]></defaultValueExpression>
+		</parameter>
+		<field name="seqNo" class="java.lang.String"/>
+		<field name="awardLookUp" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="inpPhotoCopiesList" class="java.util.List">
+		<defaultValueExpression><![CDATA[new java.util.ArrayList()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpPOId" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/opt/erp/projects/mot/WebContent/src-loc/design/sa/elm/ob/scm/ad_reports/mofapproval/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_DESIGN" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select bid.bidno as bidno,concat(bp.name, '-',prpmg.subcontractors)as suppliername,em_escm_projectname as projectname, grandtotal as conttotalamt,prpmg.escm_proposalmgmt_id,
+em_escm_contractduration, case when em_escm_periodtype='DT' then 'يوم' when em_escm_periodtype='MT' then 'شهر'
+when em_escm_periodtype='MTH' then 'شهر(هـ)' when em_escm_periodtype='MTG' then 'شهر(م)' end as periodtype,
+yr.description as finyear, accountno, budgetprojname
+from
+escm_proposalmgmt prpmg 
+left join c_order ord on ord.em_escm_proposalmgmt_id=prpmg.escm_proposalmgmt_id
+left join escm_bidmgmt bid on ord.em_escm_bidmgmt_id=bid.escm_bidmgmt_id
+left join c_bpartner bp on bp.c_bpartner_id=ord.c_bpartner_id
+left join c_year yr on yr.c_year_id= ord.em_escm_finanyear
+left join escm_pgmt_distribution dist on dist.c_order_id=ord.c_order_id
+where ord.c_order_id=$P{inpPOId}]]>
+	</queryString>
+	<field name="bidno" class="java.lang.String"/>
+	<field name="suppliername" class="java.lang.String"/>
+	<field name="projectname" class="java.lang.String"/>
+	<field name="conttotalamt" class="java.math.BigDecimal"/>
+	<field name="em_escm_contractduration" class="java.math.BigDecimal"/>
+	<field name="periodtype" class="java.lang.String"/>
+	<field name="finyear" class="java.lang.String"/>
+	<field name="accountno" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<field name="budgetprojname" class="java.lang.String"/>
+	<title>
+		<band height="161" splitType="Stretch">
+			<staticText>
+				<reportElement x="352" y="89" width="203" height="39" uuid="4c2fc4c0-9d12-4c4d-921b-0579f59925be"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16"/>
+				</textElement>
+				<text><![CDATA[إدارة المنافسات والعقود]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="140" width="292" height="20" uuid="281ca2af-5527-4b13-bac0-d5fd6e511492"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["الموضوع :طلب الموافقة على المشروع, منافسة رقم "+" ("+($F{bidno}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{bidno}))+")."]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="50"/>
+	</pageHeader>
+	<detail>
+		<band height="115" splitType="Stretch">
+			<printWhenExpression><![CDATA[$V{REPORT_COUNT}==1]]></printWhenExpression>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="54" width="537" height="20" uuid="922fd9a9-bac5-4545-86d7-9a81f25c9b0e"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["نبعث لكم برفقه نسختين من مشروع العقد والمواصفات الخاصة وجداول الكميات المطلوب إبرامه مع شركة"+" "+($F{suppliername}==null?"":$F{suppliername})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="497" y="95" width="58" height="20" uuid="18533821-b672-421c-993a-0371cb8262c5"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" ("+($F{em_escm_contractduration}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{em_escm_contractduration}.toString()))+") "+($F{periodtype}==null?"":$F{periodtype})]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="74" width="555" height="20" uuid="22ba746b-1a45-4ce1-b28b-4d3936fc1f19"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["لعملية"+" "+($F{projectname}==null?"":$F{projectname})+" "+"بمبلغ"+" ("+($F{conttotalamt}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{conttotalamt}.toString()))+") "+" ريال, وعلى أساس أن يتم التنفيذ خلال"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="34" width="555" height="20" uuid="e3fdda06-b8c8-4bb5-8914-f074182b8280"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[السلام عليكم ورحمة الله وبركاته,,,]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="180" y="0" width="375" height="20" uuid="d4b761d9-4078-40de-aa54-995cc3416bbe"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[سعادة وكيل وزارة المالية للشؤون المالية والحسابات]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="0" width="180" height="20" uuid="e4783cd2-ef27-490f-a5e0-def8e9f68476"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[المحترم]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="4" y="94" width="497" height="20" uuid="557972ef-718f-4ad9-8962-cdf9ac5bf6c7"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<text><![CDATA[, وقد تم الارتباط بقيمة هذه العملية على اعتماد المشروع :]]></text>
+			</staticText>
+		</band>
+		<band height="20">
+			<printWhenExpression><![CDATA[$V{REPORT_COUNT}==1]]></printWhenExpression>
+			<subreport>
+				<reportElement x="0" y="0" width="555" height="20" uuid="17a97bd4-235f-4c3e-8ede-102b8b98eb71">
+					<printWhenExpression><![CDATA[$V{REPORT_COUNT}==1]]></printWhenExpression>
+				</reportElement>
+				<subreportParameter name="inpPOId">
+					<subreportParameterExpression><![CDATA[$P{inpPOId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/scm/ad_reports/mofapproval/MOFApproval_subreport1.jrxml")]]></subreportExpression>
+			</subreport>
+		</band>
+		<band height="230">
+			<printWhenExpression><![CDATA[$V{REPORT_COUNT}==1]]></printWhenExpression>
+			<componentElement>
+				<reportElement key="table" x="1" y="180" width="555" height="50" uuid="63464197-28eb-4597-9c25-92353fd62cae"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="inpPhotoCopiesList" uuid="c351633b-af22-4041-a928-f35d00aa0416">
+						<datasetParameter name="inpPhotoCopiesList">
+							<datasetParameterExpression><![CDATA[$P{inpPhotoCopiesList}]]></datasetParameterExpression>
+						</datasetParameter>
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{inpPhotoCopiesList})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:column width="90" uuid="751fe70d-5ea6-49ad-b87d-18815ba945cd">
+						<jr:tableHeader height="20" rowSpan="1"/>
+						<jr:detailCell height="30" rowSpan="1"/>
+					</jr:column>
+					<jr:column width="464" uuid="98ed355f-7922-4dd7-bcb1-13c34c0b47ea">
+						<jr:tableHeader height="20" rowSpan="1"/>
+						<jr:detailCell height="30" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="464" height="30" uuid="20cab428-83a9-48ff-8372-9c504b501de7"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName="Traditional Arabic" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{awardLookUp}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+			<staticText>
+				<reportElement x="0" y="32" width="523" height="20" uuid="2e85c741-a719-46fb-acbc-25c59990b0ef"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ نأمل اتخاذ اللازم.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="145" y="55" width="172" height="20" uuid="32179d54-5725-48a5-9094-30be3d4676ce"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ولكم تحياتي ,,,]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="555" height="20" uuid="0e732789-54f5-4c4b-b71d-7061565617c1"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["بميزانية الوزارة للعام المالي"+" "+($F{finyear}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{finyear}))+" "+"هــ."]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="1" y="84" width="172" height="96" uuid="87206757-563a-4ef6-aef4-2f9bbe5d7568"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[المشرف العام
+على الإدارة العامة للموارد البشرية والخدمات المساندة
+نعيم بن عبد العزيز الشبانة]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="50"/>
+	</pageFooter>
+</jasperReport>

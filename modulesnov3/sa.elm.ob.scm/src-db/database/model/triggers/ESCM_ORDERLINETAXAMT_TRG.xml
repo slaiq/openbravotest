@@ -1,0 +1,217 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_ORDERLINETAXAMT_TRG">
+    <trigger name="ESCM_ORDERLINETAXAMT_TRG" table="C_ORDERLINE" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[
+v_totalLineTaxAmt NUMBER;
+v_order_id varchar(32);
+v_oldLineTaxAmt NUMBER;
+v_newLineTaxAmt NUMBER;
+v_recType VARCHAR(32);
+v_orderType VARCHAR(32);
+v_releaseQty NUMBER;
+v_releaseAmt NUMBER;
+v_taxPercent NUMBER;
+v_prec NUMBER;
+v_client_id VARCHAR(32);
+v_linenetamt NUMBER;
+v_unitTax NUMBER;
+v_netUnitPrice NUMBER;
+v_grossLineNetAmt NUMBER;
+v_calQtyUnitPrice NUMBER;
+v_calTax_UnitPrice NUMBER;
+v_roundDiffOnInv NUMBER;
+v_initialAmtInclusive   NUMBER;
+v_unitpriceAftChang NUMBER;
+v_isinclusiveTax character(1);
+v_proposal_id character varying(32);
+v_revision_no NUMBER;
+BEGIN
+
+v_prec := 2;
+v_taxPercent :=0;
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+    --while deleting,insert or update  then update total line amt in PO header
+    IF (INSERTING OR UPDATING ) THEN
+    v_order_id = :NEW.C_Order_ID;
+    v_client_id = :NEW.AD_Client_ID;
+    ELSE
+    v_order_id = :OLD.C_Order_ID;
+    v_client_id = :OLD.AD_Client_ID;
+    END IF;
+    
+      -- To get Standard Precision from Currency by using Current Client ID
+    select stdPrecision INTO v_prec from c_currency where c_currency_id 
+    in (select c_currency_id from ad_client where ad_client_id  = v_client_id);
+    
+     IF (INSERTING OR DELETING ) THEN
+      
+         
+         select COALESCE(sum(EM_Escm_Line_Taxamt),'0') into v_totalLineTaxAmt from C_OrderLine
+         where C_Order_ID = v_order_id and em_escm_issummarylevel = 'N';
+         
+         update C_Order set EM_Escm_Total_Taxamt = v_totalLineTaxAmt 
+         where  c_order_id = v_order_id ;
+       
+       IF(DELETING) then
+        select coalesce(sum(em_escm_initial_unitprice*qtyordered),0),coalesce(sum(em_escm_unitprice_afterchag*qtyordered),0) into v_initialAmtInclusive,v_unitpriceAftChang from c_orderline 
+        where  em_escm_issummarylevel ='N' and c_order_id=:old.c_order_id;
+         update c_order set em_escm_initialamtinclusive= v_initialAmtInclusive,em_escm_totpoafterchngprice=v_unitpriceAftChang  where c_order_id=:old.c_order_id;
+  
+       END IF;
+           
+         
+     END IF;
+     IF (UPDATING ) THEN
+       select EM_Escm_Receivetype,EM_Escm_Ordertype into v_recType,v_orderType from
+         c_order where c_order_id = v_order_id;
+         
+     v_oldLineTaxAmt=coalesce(:OLD.EM_Escm_Line_Taxamt,0);
+     v_newLineTaxAmt=coalesce(:NEW.EM_Escm_Line_Taxamt,0);
+     
+     
+    select Taxpercent into v_taxPercent from c_order ord join EFIN_Tax_Method tax on ord.EM_Escm_Tax_Method_ID = tax.Efin_Tax_Method_ID
+        where ord.EM_Escm_Istax = 'Y' and ord.c_order_id = v_order_id;
+     
+        IF(v_oldLineTaxAmt <> v_newLineTaxAmt OR (coalesce(:NEW.em_escm_parentline_id, '') <> coalesce(:OLD.em_escm_parentline_id, '')))THEN
+            
+            select COALESCE(sum(EM_Escm_Line_Taxamt),'0') into v_totalLineTaxAmt from C_OrderLine
+            where C_Order_ID = v_order_id and em_escm_issummarylevel = 'N';
+           
+            update C_Order set EM_Escm_Total_Taxamt = v_totalLineTaxAmt 
+            where  c_order_id = v_order_id ;
+
+      END IF;    
+      if(coalesce(:old.em_escm_releaseqty,0) <> coalesce(:new.em_escm_releaseqty,0)) then
+      
+         if(v_recType = 'QTY' and v_orderType = 'PUR_AG') then
+             if (v_taxPercent > 0) then
+                select COALESCE(sum((em_escm_releaseqty * PriceActual) + (em_escm_releaseqty * PriceActual * (v_taxPercent/100))),'0') into v_releaseQty from C_OrderLine
+                       where C_Order_ID = v_order_id and em_escm_issummarylevel = 'N';
+             else
+                 select COALESCE(sum(em_escm_releaseqty * PriceActual),'0') into v_releaseQty from C_OrderLine
+                       where C_Order_ID = v_order_id and em_escm_issummarylevel = 'N';
+             end if;
+                
+              update C_Order set em_escm_releaseamount = v_releaseQty 
+              where  c_order_id = v_order_id ; 
+          end if;
+      end if;
+      if(coalesce(:old.em_escm_releaseamt,0) <> coalesce(:new.em_escm_releaseamt,0)) then
+       if(v_recType = 'AMT' and v_orderType = 'PUR_AG') then
+            select COALESCE(sum(em_escm_releaseamt),'0') into v_releaseAmt from C_OrderLine
+               where C_Order_ID = v_order_id and em_escm_issummarylevel = 'N';
+              update C_Order set em_escm_releaseamount = v_releaseAmt 
+              where  c_order_id = v_order_id ; 
+           
+         end if;
+       end if;
+      
+     END IF;
+     
+     IF (INSERTING ) THEN
+     
+      select Taxpercent,tax.istaxincluded  into v_taxPercent,v_isinclusiveTax from c_order ord join EFIN_Tax_Method tax on ord.EM_Escm_Tax_Method_ID = tax.Efin_Tax_Method_ID
+      where ord.EM_Escm_Istax = 'Y' and ord.c_order_id = v_order_id;
+	  
+	  select EM_Escm_Proposalmgmt_ID ,em_escm_revision into v_proposal_id,v_revision_no from c_order where c_order_id = v_order_id;
+     
+	  v_linenetamt := ROUND(COALESCE(:new.linenetamt,0),v_prec);
+      
+       -- new changes
+       v_unitTax:= round(:NEW.EM_Escm_Line_Taxamt/:new.qtyordered,v_prec);
+       v_netUnitPrice=TRUNC(v_linenetamt/:new.qtyordered,2);
+      -- raise exception '%',v_netUnitPrice;
+       --v_netUnitPrice= round(v_linenetamt/new.qtyordered,v_prec);
+	   if(v_isinclusiveTax='Y' and v_proposal_id is not null and v_revision_no=0)
+	   then
+	   v_grossLineNetAmt=(:new.em_escm_initial_unitprice*:new.qtyordered)-(:new.em_escm_line_taxamt);
+	   else
+       v_grossLineNetAmt= :new.qtyordered*:new.priceactual ;
+	   end if;
+       v_taxpercent:= coalesce(v_taxpercent,0);
+      --- raise exception '%',v_grossLineNetAmt;
+       --calculate round of diff on invoice
+              v_calQtyUnitPrice = round(v_netUnitPrice/(1+(v_taxpercent/100)),2)*:new.qtyordered;
+              v_calTax_UnitPrice = (v_netUnitPrice-(round(v_netUnitPrice/(1+(v_taxpercent/100)),2)))*:new.qtyordered;
+              v_roundDiffOnInv = :new.linenetamt-(v_calQtyUnitPrice+v_calTax_UnitPrice);
+       --end new changes
+       update c_orderline set linenetamt = v_linenetamt,em_escm_unittax=v_unitTax ,em_escm_line_total_updated=v_grossLineNetAmt,
+       em_escm_net_unitprice=v_netUnitPrice  , em_escm_rounddiff_invoice=v_roundDiffOnInv   where c_orderline_id = :NEW.C_Orderline_ID;
+       
+         select coalesce(sum(em_escm_initial_unitprice*qtyordered),0),coalesce(sum(em_escm_unitprice_afterchag*qtyordered),0) into v_initialAmtInclusive,v_unitpriceAftChang from c_orderline
+         where em_escm_issummarylevel ='N' and  c_order_id=:new.c_order_id;
+         update c_order set em_escm_initialamtinclusive= v_initialAmtInclusive,em_escm_totpoafterchngprice=v_unitpriceAftChang  where c_order_id=:new.c_order_id;
+         
+     END IF;
+     
+      IF (UPDATING ) THEN
+      
+       select Taxpercent into v_taxPercent from c_order ord join EFIN_Tax_Method tax on ord.EM_Escm_Tax_Method_ID = tax.Efin_Tax_Method_ID
+        where ord.EM_Escm_Istax = 'Y' and ord.c_order_id = v_order_id;
+        v_taxpercent:= coalesce(v_taxpercent,0);
+
+        IF(:old.linenetamt <> :new.linenetamt and :new.linenetamt <> round(:new.linenetamt,v_prec)) THEN
+          :new.linenetamt := round(:new.linenetamt,v_prec);
+            
+            -- new changes
+             v_netUnitPrice=TRUNC(v_linenetamt/:new.qtyordered,2);
+          -- v_netUnitPrice= round(new.linenetamt/new.qtyordered,v_prec);
+           v_calQtyUnitPrice = round(v_netUnitPrice/(1+(v_taxpercent/100)),2)*:new.qtyordered;
+           v_calTax_UnitPrice = (v_netUnitPrice-(round(v_netUnitPrice/(1+(v_taxpercent/100)),2)))*:new.qtyordered;
+           v_roundDiffOnInv = :new.linenetamt-(v_calQtyUnitPrice+v_calTax_UnitPrice);
+           -- end new changes
+           
+          update c_orderline set linenetamt = round(:new.linenetamt,v_prec),
+          em_escm_net_unitprice=v_netUnitPrice, em_escm_rounddiff_invoice=v_roundDiffOnInv where c_orderline_id = :NEW.C_Orderline_ID;
+        
+        END IF;
+        
+          -- new changes
+           IF(:old.linenetamt <> :new.linenetamt ) THEN
+
+            --calculate round of diff on invoice
+             v_netUnitPrice=TRUNC(:new.linenetamt/:new.qtyordered,2);
+			 --v_netUnitPrice= round( new.linenetamt/new.qtyordered,v_prec);
+             v_calQtyUnitPrice = round(v_netUnitPrice/(1+(v_taxpercent/100)),2)*:new.qtyordered;
+              v_calTax_UnitPrice = (v_netUnitPrice-(round(v_netUnitPrice/(1+(v_taxpercent/100)),2)))*:new.qtyordered;
+              v_roundDiffOnInv = :new.linenetamt-(v_calQtyUnitPrice+v_calTax_UnitPrice);
+           update c_orderline set  em_escm_net_unitprice=v_netUnitPrice, em_escm_rounddiff_invoice=v_roundDiffOnInv  where c_orderline_id = :NEW.C_Orderline_ID;
+           END IF;
+           --end new changes
+ 
+         IF(:old.em_escm_line_total_updated <> :new.em_escm_line_total_updated 
+           and :new.em_escm_line_total_updated <> round(:new.em_escm_line_total_updated,v_prec)
+          ) THEN
+           :new.em_escm_line_total_updated := round(:new.em_escm_line_total_updated,v_prec);
+          update c_orderline set em_escm_line_total_updated = round(:new.em_escm_line_total_updated,v_prec) where c_orderline_id = :NEW.C_Orderline_ID;
+        END IF;
+        
+        -- new changes
+        IF(:old.qtyordered<> :new.qtyordered or  :old.priceactual<> :new.priceactual) then
+        v_grossLineNetAmt= :new.qtyordered*:new.priceactual ;
+         update c_orderline set em_escm_line_total_updated = v_grossLineNetAmt where c_orderline_id = :NEW.C_Orderline_ID;
+         END IF;
+         
+           IF((:old.EM_Escm_Line_Taxamt <> :new.EM_Escm_Line_Taxamt) or (:old.qtyordered<> :new.qtyordered) OR   (:old.priceactual<> :new.priceactual) or (:old.em_escm_initial_unitprice<> :new.em_escm_initial_unitprice))THEN
+            v_unitTax:= round(:new.EM_Escm_Line_Taxamt/:new.qtyordered,v_prec);
+            update c_orderline set em_escm_unittax=v_unitTax where c_orderline_id=:new.c_orderline_id;
+            END IF;
+         
+         IF(:old.em_escm_initial_unitprice <> :new.em_escm_initial_unitprice or :old.qtyordered<> :new.qtyordered ) then
+         
+         select coalesce(sum(em_escm_initial_unitprice*qtyordered),0) into v_initialAmtInclusive from c_orderline 
+         where em_escm_issummarylevel ='N' and  c_order_id=:new.c_order_id;
+         update c_order set em_escm_initialamtinclusive= v_initialAmtInclusive  where c_order_id=:new.c_order_id;
+         end if;
+  
+         IF(:old.em_escm_unitprice_afterchag <> :new.em_escm_unitprice_afterchag or :old.qtyordered<> :new.qtyordered ) then
+         select coalesce(sum(em_escm_unitprice_afterchag*qtyordered),0) into v_unitpriceAftChang from c_orderline 
+         where em_escm_issummarylevel ='N' and  c_order_id=:new.c_order_id;
+         update c_order set em_escm_totpoafterchngprice= v_unitpriceAftChang  where c_order_id=:new.c_order_id;
+         end if;
+         
+       END IF;
+    END ESCM_ORDERLINETAXAMT_TRG
+]]></body>
+    </trigger>
+  </database>

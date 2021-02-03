@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_GETPARENTACCT">
+    <function name="EUT_GETPARENTACCT" type="VARCHAR">
+      <parameter name="use_child" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="parentid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[process_child character varying[] := ARRAY[ use_child ]; 
+    parent character varying[] := '{}';   
+    new_parent character varying[];   
+    parentact character varying;
+         BEGIN   
+          WHILE ( array_upper( process_child, 1 ) IS NOT NULL ) LOOP   
+		new_parent := ARRAY( SELECT parent_id FROM ad_treenode      
+		WHERE node_id  = ANY( process_child )  AND parent_id <> ALL( parent ) ); 
+                parent := parent || new_parent; 
+                process_child := new_parent;   
+            EXIT WHEN ( select count(substring(process_child ::text,parentId))=1 from dual);
+           END LOOP;   
+           
+	parentact:=replace(replace(replace(parent::text,'{',''''),'}',''''),',',''',''');  
+RETURN parentact ;
+END EUT_GETPARENTACCT
+]]></body>
+    </function>
+  </database>

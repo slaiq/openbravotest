@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_ACCOUNTPARENTCHANGE_TRG">
+    <trigger name="EFIN_ACCOUNTPARENTCHANGE_TRG" table="AD_TREENODE" fires="after" insert="false" update="true" delete="false" foreach="row">
+      <body><![CDATA[    v_nodeid VARCHAR(32);
+    v_parentid VARCHAR(32);
+    v_treetype VARCHAR(60);
+    v_isSummary CHAR(1);
+    BEGIN
+     IF(UPDATING) THEN
+	IF (:NEW.parent_id <> :OLD.parent_id) THEN
+		select node_id, :NEW.parent_id,tr.treetype into v_nodeid, v_parentid,v_treetype from ad_tree tr join ad_treenode trn on tr.ad_tree_id = trn.ad_tree_id 
+			where tr.treetype = 'EV' 
+			and node_id = :NEW.node_id
+			and tr.ad_client_id = :NEW.ad_client_id;
+        select IsSummary into v_isSummary from c_elementvalue where c_elementvalue_id = v_nodeid and ad_client_id = :NEW.ad_client_id;
+		IF ( v_treetype = 'EV') THEN 
+        	IF (v_parentid = '0' and v_isSummary = 'N') THEN
+        		RAISE_APPLICATION_ERROR(-20000, '@EFIN_NoAccountParent@');
+        	ELSE
+        		Update c_validcombination set em_efin_AccountParent=v_parentid where account_id = v_nodeid and ad_client_id = :NEW.ad_client_id;
+        	END IF;
+		END IF;
+	END IF;
+     END IF;
+     IF DELETING THEN 
+	select node_id into v_nodeid from ad_tree tr join ad_treenode trn on tr.ad_tree_id = trn.ad_tree_id 
+			where tr.treetype = 'EV'
+			and node_id = :OLD.node_id
+			and tr.ad_client_id = :OLD.ad_client_id;
+	IF ( v_treetype = 'EV') THEN 
+		Update c_validcombination set em_efin_AccountParent=null where account_id = v_nodeid and ad_client_id = :OLD.ad_client_id;
+	END IF;
+     END IF;
+     IF DELETING THEN RETURN OLD; ELSE RETURN NEW; END IF;
+     END EFIN_ACCOUNTPARENTCHANGE_TRG
+]]></body>
+    </trigger>
+  </database>

@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="F1C9E6A632C0463495754F4A12387803" identifier="Encumbrance has Lower Amount than Contract">
+    <id>F1C9E6A632C0463495754F4A12387803</id>
+    <active>true</active>
+    <name>Encumbrance has Lower Amount than Contract</name>
+    <tab id="62248BBBCF644C18A75B92AD8E50238C" entity-name="ADTab" identifier="Header - Purchase Order and Contracts Summary"/>
+    <filterClause xsi:nil="true"/>
+    <sql>SELECT a.orderId AS referencekey_id,
+     ad_column_identifier('c_order',a.orderId , 'en_US') AS record_id,
+     '0' AS ad_role_id,
+     NULL AS ad_user_id,
+     'Encumbrance ('||a.encumbrancenumber || ') has Amount lesser than contract (' || a.contract_numbers || ')' AS description,
+     'Y' AS isActive,
+      a.orgId as ad_org_id, 
+      a.clientId ad_client_id, 
+      now() AS created,  
+      '0' AS createdBy,  
+      now() AS updated,
+      '0' AS updatedBy FROM (
+	SELECT round(SUM(ol.linenetamt),2) AS line_net_amount,
+    	   round(lines.system_updated_amt,2) AS system_updated_amount,
+    	   encum.documentno AS encumbrancenumber,
+           string_agg(DISTINCT ord.documentno,';') AS contract_numbers,
+           ord.c_order_id AS orderId,
+           ord.ad_org_id AS orgId,
+           ord.ad_client_id as clientId
+	FROM c_order ord
+	JOIN (SELECT MAX(em_escm_revision) AS revison_no,documentno
+		  FROM c_order ord GROUP BY documentno ) lv 
+      ON lv.documentno=ord.documentno AND ord.em_escm_revision=lv.revison_no
+	JOIN c_orderline ol 
+      ON ol.c_order_id=ord.c_order_id
+	JOIN efin_budget_manencum encum 
+      ON ord.em_efin_budget_manencum_id=encum.efin_budget_manencum_id
+	JOIN efin_budget_manencumlines lines 
+      ON lines.efin_budget_manencum_id=encum.efin_budget_manencum_id AND ol.em_efin_bud_encumlines_id=lines.efin_budget_manencumlines_id
+	WHERE ord.EM_Escm_Appstatus='ESCM_AP' AND encum.isreservedfund='Y'
+	GROUP BY lines.efin_budget_manencumlines_id,
+          	 encum.efin_budget_manencum_id,
+             ord.c_order_id,
+             ord.ad_org_id,
+             ord.ad_client_id
+    ) a 
+WHERE a.line_net_amount &gt;  a.system_updated_amount</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+</ob:Openbravo>

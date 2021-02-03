@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_ENCUMBARANCEHISTORY">
+    <trigger name="EFIN_ENCUMBARANCEHISTORY" table="EFIN_BUDGET_ENCUM" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Trigger to update the encumbarance amount in bugetlines
+* Contributor(s):  Gopalakrishnan.
+************************************************************************/
+v_fundsavailable NUMBER; --OBTG:VARCHAR2--
+v_encamount NUMBER; --OBTG:VARCHAR2--
+v_Message VARCHAR2(2000):='';
+v_reduceAmt NUMBER; --OBTG:VARCHAR2--
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+	-- Insert Operation
+	
+	IF INSERTING THEN
+	--check negative funds availabe
+	IF(:NEW.C_INVOICE_ID IS NULL ) THEN 
+	select funds_available into v_fundsavailable from efin_budgetlines where efin_budgetlines_id =:new.efin_budgetlines_id ;
+	if((v_fundsavailable-:new.amount)<0) then
+	 RAISE_APPLICATION_ERROR(-20000, '@Efin_Fundsavailabe_Negative@');
+	 v_Message:= '@ERROR=' ||'@Efin_Fundsavailabe_Negative@' ;
+	 AD_UPDATE_PINSTANCE(get_uuid(), NULL, 'N', 0, v_Message) ;
+	 end if;
+	 end if;
+
+		update efin_budgetlines  set encumbrance=encumbrance+:new.amount, funds_available=(funds_available-:new.amount) 
+		where efin_budgetlines_id =:new.efin_budgetlines_id;
+	END IF;
+	
+	IF UPDATING THEN
+
+	v_reduceAmt:=:old.amount- :new.amount;
+	if(v_reduceAmt >0) then 
+	update efin_budgetlines  set encumbrance=encumbrance-v_reduceAmt, funds_available=(funds_available+v_reduceAmt) 
+		where efin_budgetlines_id =:new.efin_budgetlines_id;
+	else if(v_reduceAmt <0) then
+
+	update efin_budgetlines  set encumbrance=encumbrance+abs(v_reduceAmt), funds_available=(funds_available-(abs(v_reduceAmt))) 
+		where efin_budgetlines_id =:new.efin_budgetlines_id;
+	END IF;
+	END IF;
+	END IF;
+	
+	IF DELETING THEN
+	update efin_budgetlines  set encumbrance=encumbrance-:old.amount, funds_available=(funds_available+:old.amount) 
+		where efin_budgetlines_id =:old.efin_budgetlines_id;
+	END IF;
+	
+	END EFIN_ENCUMBARANCEHISTORY
+]]></body>
+    </trigger>
+  </database>

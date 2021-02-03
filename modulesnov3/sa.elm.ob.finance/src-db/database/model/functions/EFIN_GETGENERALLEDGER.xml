@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_GETGENERALLEDGER">
+    <function name="EFIN_GETGENERALLEDGER" type="VARCHAR">
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_count NUMBER:=0;
+v_acctschema VARCHAR(32);
+vTree VARCHAR2(32);
+BEGIN
+
+select count(c_acctschema_id) into v_count from ad_org where ad_org_id=p_org_id and ad_client_id=p_client_id;
+	IF(v_count = 0)THEN
+			SELECT ad_tree_id  INTO vTree  
+			FROM ad_tree 
+			WHERE ad_client_id=p_client_id
+			AND treetype='OO';
+
+			      WHILE (p_org_id is not null and p_org_id <> '')
+			      LOOP
+				SELECT parent_id INTO p_org_id
+				FROM ad_treenode
+				WHERE node_id = p_org_id
+				AND ad_tree_id = vTree;
+
+				IF p_org_id is not null THEN
+				select count(c_acctschema_id) into v_count from ad_org where ad_org_id=p_org_id and ad_client_id=p_client_id;
+				if(v_count > 0) Then
+					select c_acctschema_id into v_acctschema from ad_org where ad_org_id=p_org_id and ad_client_id=p_client_id;
+				End if;
+					
+				EXIT WHEN v_count is not null;
+
+				END IF;
+				END LOOP;
+	ELSE IF(v_count > 0) THEN
+		select c_acctschema_id into v_acctschema from ad_org where ad_org_id=p_org_id and ad_client_id=p_client_id;
+	END IF;
+	END IF;
+	return v_acctschema;
+END EFIN_GETGENERALLEDGER
+]]></body>
+    </function>
+  </database>

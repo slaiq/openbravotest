@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_PROPOSALMGMT_LINE_V">
+    <view name="ESCM_PROPOSALMGMT_LINE_V"><![CDATA[SELECT lne.escm_proposalmgmt_line_id AS escm_proposalmgmt_line_v_id, lne.ad_client_id, lne.ad_org_id, lne.description, lne.ismanual, lne.c_uom_id, lne.escm_proposalmgmt_id, lne.isactive, lne.created, lne.createdby, lne.updated, lne.updatedby, lne.m_product_category_id, lne.m_product_id, lne.issummarylevel, lne.movementqty, lne.line, (COALESCE(lne.line, 0) || ' - ') || COALESCE(lne.description, '') AS code FROM escm_proposalmgmt_line lne]]></view>
+  </database>

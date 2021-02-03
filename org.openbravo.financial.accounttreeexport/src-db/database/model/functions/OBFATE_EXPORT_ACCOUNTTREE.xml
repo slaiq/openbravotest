@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION OBFATE_EXPORT_ACCOUNTTREE">
+    <function name="OBFATE_EXPORT_ACCOUNTTREE" type="NULL">
+      <parameter name="p_c_elementvalue_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_cacctschema_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2011 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************/
+
+  V_EXPORT_ORDER NUMBER;
+  V_DEFAULT VARCHAR2(225);
+  V_AD_CLIENT_ID VARCHAR2(32);
+  V_AD_ORG_ID VARCHAR2(32);
+  V_C_ELEMENT_ID VARCHAR2(32);
+  V_COUNT NUMBER;
+  V_DEFAULT_ACCOUNT VARCHAR2(32);
+
+  TYPE RECORD IS REF CURSOR;
+  CUR_TREE_ELEM RECORD;
+
+BEGIN
+
+  SELECT MAX(S.AD_CLIENT_ID), MAX(S.AD_ORG_ID), MAX(SE.C_ELEMENT_ID), MAX(SE.C_ELEMENTVALUE_ID), COUNT(1)
+  INTO V_AD_CLIENT_ID, V_AD_ORG_ID, V_C_ELEMENT_ID, V_DEFAULT_ACCOUNT, V_COUNT
+  FROM C_ACCTSCHEMA S LEFT JOIN C_ACCTSCHEMA_ELEMENT SE ON S.C_ACCTSCHEMA_ID = SE.C_ACCTSCHEMA_ID
+  WHERE S.C_ACCTSCHEMA_ID = P_CACCTSCHEMA_ID
+  AND SE.ELEMENTTYPE = 'AC'
+  GROUP BY S.AD_CLIENT_ID, S.AD_ORG_ID, SE.C_ELEMENT_ID, SE.C_ELEMENTVALUE_ID;
+  
+  IF (V_COUNT > 1) THEN
+    RAISE_APPLICATION_ERROR(-20000, '@OBFATE_MultipleAccountsInAcctSchema@' || ' ' || P_CACCTSCHEMA_ID);
+  END IF;
+
+  IF (P_C_ELEMENTVALUE_ID <> '0') THEN
+    SELECT MAX(EXPORT_ORDER) + 10
+    INTO V_EXPORT_ORDER
+    FROM OBFATE_FIN_TREE_TO_CSV;
+
+    INSERT INTO OBFATE_FIN_TREE_TO_CSV (EXPORT_ORDER, VALUE, NAME, DESCRIPTION, ACCOUNTTYPE, ACCOUNTSIGN, ISDOCCONTROLLED,
+      ISSUMMARY, PARENT_VALUE, ELEMENTLEVEL, OPERANDS, OBFATE_FIN_TREE_TO_CSV_ID, AD_CLIENT_ID, AD_ORG_ID, ISACTIVE,
+      CREATED, CREATEDBY, UPDATED, UPDATEDBY, SHOWVALUECOND, ISALWAYSSHOWN) 
+    SELECT COALESCE(V_EXPORT_ORDER, 10) AS EXPORT_ORDER, VALUE, NAME, DESCRIPTION, ACCOUNTTYPE, ACCOUNTSIGN,
+      ISDOCCONTROLLED, ISSUMMARY, (SELECT PEV.VALUE FROM C_ELEMENTVALUE PEV WHERE PEV.C_ELEMENTVALUE_ID = TN.PARENT_ID) AS PARENT,
+      ELEMENTLEVEL, OBFATE_GETOPERANDS(P_C_ELEMENTVALUE_ID), GET_UUID(), V_AD_CLIENT_ID, V_AD_ORG_ID, EV.ISACTIVE, now(), '0', now(),
+      '0', SHOWVALUECOND, ISALWAYSSHOWN
+    FROM C_ELEMENTVALUE EV LEFT JOIN AD_TREENODE TN ON EV.C_ELEMENTVALUE_ID = TN.NODE_ID
+    WHERE EV.C_ELEMENTVALUE_ID = P_C_ELEMENTVALUE_ID
+      AND TN.AD_TREE_ID=(
+          SELECT AD_TREE_ID FROM AD_TREE WHERE AD_CLIENT_ID = (SELECT S.AD_CLIENT_ID FROM C_ACCTSCHEMA S WHERE S.C_ACCTSCHEMA_ID = P_CACCTSCHEMA_ID) AND TREETYPE = 'EV'
+          );
+  ELSE
+    DELETE FROM OBFATE_FIN_TREE_TO_CSV;
+  END IF;  
+
+  FOR CUR_TREE_ELEM IN
+  (
+   SELECT EV.VALUE, EV.C_ELEMENTVALUE_ID
+   FROM AD_TREENODE TN LEFT JOIN C_ELEMENTVALUE EV ON EV.C_ELEMENTVALUE_ID = TN.NODE_ID
+   WHERE TN.AD_TREE_ID=(
+   SELECT AD_TREE_ID FROM AD_TREE WHERE AD_CLIENT_ID = (SELECT S.AD_CLIENT_ID FROM C_ACCTSCHEMA S WHERE S.C_ACCTSCHEMA_ID = P_CACCTSCHEMA_ID) AND TREETYPE = 'EV'
+   ) AND TN.PARENT_ID = P_C_ELEMENTVALUE_ID
+   AND EV.C_ELEMENT_ID = V_C_ELEMENT_ID
+   AND TN.ISACTIVE='Y' AND EV.ISACTIVE='Y'
+   ORDER BY SEQNO ASC
+  )
+  LOOP
+    OBFATE_EXPORT_ACCOUNTTREE(CUR_TREE_ELEM.C_ELEMENTVALUE_ID, P_CACCTSCHEMA_ID);
+  END LOOP;
+  
+  IF (P_C_ELEMENTVALUE_ID = '0') THEN
+    OBFATE_GETDEFAULT(P_CACCTSCHEMA_ID);
+    
+    UPDATE OBFATE_FIN_TREE_TO_CSV SET DEFAULT_ACCOUNT = 'DEFAULT_ACCT' 
+    WHERE VALUE = (SELECT VALUE 
+      FROM C_ELEMENTVALUE 
+      WHERE C_ELEMENTVALUE_ID = V_DEFAULT_ACCOUNT);
+  END IF;
+END OBFATE_EXPORT_ACCOUNTTREE
+]]></body>
+    </function>
+  </database>

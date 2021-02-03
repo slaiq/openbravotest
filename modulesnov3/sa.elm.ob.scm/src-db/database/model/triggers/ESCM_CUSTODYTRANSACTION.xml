@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_CUSTODYTRANSACTION">
+    <trigger name="ESCM_CUSTODYTRANSACTION" table="ESCM_CUSTODY_TRANSACTION" fires="after" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[v_inoutline_id VARCHAR2(32); 
+v_type VARCHAR2(32); 
+v_inout_id VARCHAR2(32); 
+v_status  VARCHAR2(32); 
+v_iscustody VARCHAR2(32); 
+v_Message    VARCHAR(60);
+v_custodyqty NUMBER;
+v_movementqty NUMBER;
+BEGIN
+
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF DELETING THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+    
+	-- Delete Operation	
+	IF  DELETING  THEN 
+	v_inoutline_id = :old.m_inoutline_id;
+	select  m_inout_id,movementqty into v_inout_id ,v_movementqty from m_inoutline where m_inoutline_id  = v_inoutline_id;
+		select em_escm_receivingtype,em_escm_docstatus,coalesce(em_escm_iscustody_transfer,'N') into 
+		v_type,v_status,v_iscustody from m_inout  where  m_inout_id =v_inout_id;
+	END IF;
+	
+	IF  (DELETING AND (v_type='INR' OR v_type='IRT' OR v_type='LD' OR (v_type='IR' and v_iscustody='Y'))) THEN 
+	IF((v_type='INR' OR v_type='IRT' OR v_type='LD' OR (v_type='IR' and v_iscustody='Y')) and v_status<>'CO') THEN
+	select qty into v_custodyqty from escm_mrequest_custody where escm_mrequest_custody_id = :old.escm_mrequest_custody_id;
+	v_custodyqty:= v_movementqty - v_custodyqty;
+	IF(v_movementqty<> v_custodyqty and :old.m_inoutline_id is not null) THEN
+	update m_inoutline set movementqty=v_custodyqty where m_inoutline_id  = v_inoutline_id;
+	
+	END IF;
+	
+	ELSE
+	 RAISE_APPLICATION_ERROR(-20000, '@ESCM_POReceipt_CantDel@');
+	 v_Message:= '@ERROR=' ||'@ESCM_POReceipt_CantDel@' ;
+	 AD_UPDATE_PINSTANCE(get_uuid(), NULL, 'N', 0, v_Message) ;
+	END IF; 
+	END IF; 
+END ESCM_CUSTODYTRANSACTION
+]]></body>
+    </trigger>
+  </database>

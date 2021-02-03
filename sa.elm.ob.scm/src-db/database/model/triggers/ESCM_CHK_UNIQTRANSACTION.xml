@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_CHK_UNIQTRANSACTION">
+    <trigger name="ESCM_CHK_UNIQTRANSACTION" table="M_TRANSACTION" fires="before" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[  v_count       NUMBER;
+
+BEGIN
+  v_count:= 0;
+  IF (AD_isTriggerEnabled() = 'N') THEN RETURN;
+  END IF;
+  
+  if (:new.em_escm_transactiontype='RDR' or :new.em_escm_transactiontype='RER') then
+  	select count(m_transaction_id) into v_count from m_transaction where em_escm_initialreceipt_id = :new.em_escm_initialreceipt_id;
+    if(v_count > 0)then
+        raise exception '%','@Escm_ChkUniqTransaction';
+    end if;
+  end if;
+  
+  if (:new.em_escm_transactiontype='IRT' or :new.em_escm_transactiontype='MIT') then
+  	select count(m_transaction_id) into v_count from m_transaction where em_escm_material_reqln_id = :new.em_escm_material_reqln_id;
+    if (v_count > 0) then
+        raise exception '%','@Escm_ChkUniqTransaction@';
+    end if;
+  end if;
+  
+  if :new.em_escm_transactiontype='INR' then
+  	select count(m_transaction_id) into v_count from m_transaction where M_InOutLine_ID = :new.M_InOutLine_ID;
+    if(v_count > 0)then
+        raise exception '%','@Escm_ChkUniqTransaction@';
+    end if;
+  end if;
+
+END ESCM_CHK_UNIQTRANSACTION
+]]></body>
+    </trigger>
+  </database>

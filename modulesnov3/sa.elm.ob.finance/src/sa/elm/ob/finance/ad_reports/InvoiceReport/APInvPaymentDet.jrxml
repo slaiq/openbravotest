@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" columnCount="3" printOrder="Horizontal" pageWidth="390" pageHeight="802" columnWidth="130" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="e4b08709-02f1-4edb-a60a-63641f461b6b">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="DOCUMENT_ID" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select distinct  -- dev.paymentno  as pay
+(select EM_Efin_Paymentsequence from fin_payment where fin_payment_id = dev.fin_payment_id limit 1)  as pay
+ , acttr.em_efin_acctseq as accountseq ,
+(select max(substr(hijri_date, 7,2)||'-'||substr(hijri_date, 5,2)||'-'||substr(hijri_date, 1,4)) as v_hijri_date
+from eut_hijri_dates where gregorian_date = TO_DATE(to_char(tr.dateacct, 'YYYY-MM-DD'),'YYYY-MM-DD')) as date,
+(select distinct acttr.em_efin_acctseq
+from c_invoice inv 
+left join fin_payment fin on fin.em_efin_invoice_id = inv.c_invoice_id
+left join fin_finacc_transaction tr on tr.fin_finacc_transaction_id=fin.fin_payment_id
+left join fact_acct acttr on acttr.record_id=tr.fin_finacc_transaction_id
+where inv.c_invoice_id= $P{DOCUMENT_ID}  and acttr.em_efin_acctseq is not null) as pp
+from  c_invoice inv
+left join fin_payment_schedule sch on sch.c_invoice_id=inv.c_invoice_id
+left join fin_payment_detail_v dev on dev.fin_payment_sched_inv_v_id=sch.fin_payment_schedule_id
+left join fin_finacc_transaction tr on tr.fin_finacc_transaction_id=dev.fin_payment_id
+left join fact_acct acttr on acttr.record_id=tr.fin_finacc_transaction_id
+where inv.c_invoice_id= $P{DOCUMENT_ID}  and dev.status<>'EFIN_CAN' 
+order by acttr.em_efin_acctseq]]>
+	</queryString>
+	<field name="pay" class="java.lang.String"/>
+	<field name="accountseq" class="java.lang.String"/>
+	<field name="date" class="java.lang.String"/>
+	<field name="pp" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="13">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<staticText>
+				<reportElement positionType="Float" x="60" y="0" width="70" height="13" uuid="5f58c8cd-53b1-48b8-9b17-46f21442e865">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[سحب أمر دفع / شيك رقم :]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="0" width="60" height="13" uuid="dbe874b8-b70a-4fb7-a153-f59f9e9983e8">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="4">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{pay})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="30">
+			<staticText>
+				<reportElement positionType="Float" x="242" y="15" width="80" height="13" uuid="89acd199-ea33-4541-98de-92c5d85a9de3"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[وقيـد بدفتـر اليوميـة برقـم :]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="187" y="15" width="67" height="13" uuid="86350121-ac2b-4446-9d35-ad5afdd70bed"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{pp})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="155" y="15" width="28" height="13" uuid="b64d65a1-a982-4625-9ab6-4ab73aacfc5e"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<text><![CDATA[بتاريخ]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="101" y="15" width="58" height="13" uuid="db24c153-94ad-44ce-8d0a-7eabf8eb6401">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{date}==null?"":$F{date})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="153" y="2" width="51" height="13" uuid="21f43568-465f-443b-b32b-13b7c278fb14">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[توقيع المختص:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="204" y="2" width="58" height="13" uuid="2fdffa2d-374f-4c0c-9f59-112c59318290">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{date}==null?"":$F{date})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="262" y="2" width="31" height="13" uuid="95eb8e4d-6fa3-4020-93c8-94bbf45449d1">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[وتاريخ:]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+</jasperReport>

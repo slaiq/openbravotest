@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_ELEMENTVALUE_TRG">
+    <trigger name="EFIN_ELEMENTVALUE_TRG" table="C_ELEMENTVALUE" fires="after" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved. 
+* Trigger for After Insert child account-
+* update department fund with parent department fund value
+* Contributor(s):  Priyanka Ranjan.
+************************************************************************/
+v_deptfundparent VARCHAR2(60);
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	-- Insert Operation
+	IF INSERTING THEN
+
+	--After Insert child account update department fund with parent department fund value
+	--get parent account department fund value
+	select em_efin_isdeptfund into v_deptfundparent from c_elementvalue where c_elementvalue_id in 
+	(select parent_id from ad_treenode where node_id =:new.c_elementvalue_id and ad_client_id=:new.ad_client_id);
+	
+        -- update dept fund   
+         update c_elementvalue set em_efin_isdeptfund=v_deptfundparent where c_elementvalue_id=:new.c_elementvalue_id ;
+	END IF;	
+	IF DELETING THEN RETURN OLD; ELSE RETURN NEW; END IF;
+END EFIN_ELEMENTVALUE_TRG
+]]></body>
+    </trigger>
+  </database>

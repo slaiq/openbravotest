@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_PROPOSALMGMT_TAX_TRG">
+    <trigger name="ESCM_PROPOSALMGMT_TAX_TRG" table="ESCM_PROPOSALMGMT" fires="before" insert="false" update="true" delete="false" foreach="row">
+      <body><![CDATA[BEGIN
+     IF AD_isTriggerEnabled()='N' THEN 
+        IF DELETING THEN 
+            RETURN OLD; 
+        ELSE 
+            RETURN NEW; 
+        END IF; 
+     END IF;
+    -- remove the tax method id istax is unchecked 
+     IF (UPDATING)THEN
+         IF((:old.Istax <> :new.Istax) AND (:new.Istax='N'))THEN
+           :new.Efin_Tax_Method_ID := null;
+           :new.calculate_taxlines := 'N';
+           :new.istaxidentify :='N';
+         END IF;
+     END IF;
+     
+    IF DELETING THEN 
+    	RETURN OLD; 
+    ELSE 
+    	RETURN NEW; 
+    END IF;
+END ESCM_PROPOSALMGMT_TAX_TRG
+]]></body>
+    </trigger>
+  </database>

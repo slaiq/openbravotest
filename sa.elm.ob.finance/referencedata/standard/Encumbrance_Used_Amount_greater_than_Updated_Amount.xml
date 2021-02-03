@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="988CD71654CC4A6891CFF1F16209E544" identifier="Used Amount greater than Updated Amount Alert">
+    <id>988CD71654CC4A6891CFF1F16209E544</id>
+    <active>true</active>
+    <creationDate transient="true">2019-03-13T16:14:58.621Z</creationDate>
+    <createdBy transient="true" id="BCF72D95E15446FCB95F1B9333602E88" entity-name="ADUser" identifier="Omar"/>
+    <updated transient="true">2019-03-13T16:14:58.621Z</updated>
+    <updatedBy transient="true" id="BCF72D95E15446FCB95F1B9333602E88" entity-name="ADUser" identifier="Omar"/>
+    <name>Used Amount greater than Updated Amount Alert</name>
+    <tab id="9CBD55F879EA4DCAA4E944C0B7DC03D4" entity-name="ADTab" identifier="Header - Encumbrance"/>
+    <filterClause xsi:nil="true"/>
+    <sql>SELECT a.Efin_Budget_Manencum_id AS referencekey_id,
+      a.documentno AS record_id,
+     0 AS ad_role_id,
+     NULL AS ad_user_id,
+     'Encumbrance, Used amount is greater than Updated amount in '||a.documentno AS description,
+     'Y' AS isActive,
+      b.ad_org_id, 
+      b.ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+ FROM Efin_Budget_Manencum a left join Efin_Budget_Manencumlines b on a.Efin_Budget_Manencum_id=b.Efin_Budget_Manencum_id
+ where b.used_amount &gt; b.revamount order by b.created desc </sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+</ob:Openbravo>

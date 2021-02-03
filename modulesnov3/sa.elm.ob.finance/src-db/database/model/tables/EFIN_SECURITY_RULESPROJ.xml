@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+  <database name="TABLE EFIN_SECURITY_RULESPROJ">
+    <table name="EFIN_SECURITY_RULESPROJ" primaryKey="EFIN_SECURITY_RULESPROJ_ID">
+      <column name="EFIN_SECURITY_RULESPROJ_ID" primaryKey="true" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_CLIENT_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_ORG_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="ISACTIVE" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[Y]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EFIN_SECURITY_RULES_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="TYPE" primaryKey="false" required="true" type="VARCHAR" size="60" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="FROMPROJECT" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="TOPROJECT" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="FROMCODE" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="TOCODE" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="AD_CLIENT" name="EFIN_SECURITY_RULESPROJ_CLI">
+        <reference local="AD_CLIENT_ID" foreign="AD_CLIENT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_PROJECT" name="EFIN_SECURITY_RULESPROJ_FRM">
+        <reference local="FROMPROJECT" foreign="C_PROJECT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_SECURITY_RULES" name="EFIN_SECURITY_RULESPROJ_HE">
+        <reference local="EFIN_SECURITY_RULES_ID" foreign="EFIN_SECURITY_RULES_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_ORG" name="EFIN_SECURITY_RULESPROJ_ORG">
+        <reference local="AD_ORG_ID" foreign="AD_ORG_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_PROJECT" name="EFIN_SECURITY_RULESPROJ_TO">
+        <reference local="TOPROJECT" foreign="C_PROJECT_ID"/>
+      </foreign-key>
+      <index name="EFIN_SECRULE_PROJR_INDEX" unique="false">
+        <index-column name="EFIN_SECURITY_RULES_ID"/>
+      </index>
+      <check name="EFIN_CHK_SECRULE_PROJ"><![CDATA[(TYPE = 'IN' OR TYPE = 'EX' AND TYPE <> 'INC') AND FROMPROJECT IS NOT NULL AND TOPROJECT IS NOT NULL OR TYPE = 'INC' AND TYPE <> 'EX' AND TYPE <> 'IN' AND FROMCODE IS NOT NULL AND TOCODE IS NOT NULL]]></check>
+      <check name="EFIN_CHKCD_SECRULE_PROJ"><![CDATA[FROMCODE <= TOCODE]]></check>
+    </table>
+  </database>

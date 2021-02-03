@@ -1,0 +1,601 @@
+# HG changeset patch
+# User Gowtham <gowtham@qualiantech.com>
+# Date 1600679314 -10800
+#      Mon Sep 21 12:08:34 2020 +0300
+# Node ID ef664fa86ba1b1c272003b6f0b80a6ec2bcb29e2
+# Parent  54b793f66bceaf8d1ad080fda9fcc66670fe9aba
+epm 2service
+
+diff --git a/src/sa/elm/ob/utility/epm/dto/AddExtractProjectRequestDto.java b/src/sa/elm/ob/utility/epm/dto/AddExtractProjectRequestDto.java
+new file mode 100644
+--- /dev/null
++++ b/src/sa/elm/ob/utility/epm/dto/AddExtractProjectRequestDto.java
+@@ -0,0 +1,89 @@
++package sa.elm.ob.utility.epm.dto;
++
++import java.math.BigDecimal;
++
++public class AddExtractProjectRequestDto {
++
++  private BigDecimal extractValue;
++  private String extractValueDate;
++  private BigDecimal exchangeValue;
++  private String exchangeValueDate;
++  private String gRPNumber;
++  private String extractNo;
++  private BigDecimal deductionDownPayment;
++  private BigDecimal otherDiscounts;
++  private String exchangeNo;
++
++  public BigDecimal getExtractValue() {
++    return extractValue;
++  }
++
++  public void setExtractValue(BigDecimal extractValue) {
++    this.extractValue = extractValue;
++  }
++
++  public String getExtractValueDate() {
++    return extractValueDate;
++  }
++
++  public void setExtractValueDate(String extractValueDate) {
++    this.extractValueDate = extractValueDate;
++  }
++
++  public BigDecimal getExchangeValue() {
++    return exchangeValue;
++  }
++
++  public void setExchangeValue(BigDecimal exchangeValue) {
++    this.exchangeValue = exchangeValue;
++  }
++
++  public String getExchangeValueDate() {
++    return exchangeValueDate;
++  }
++
++  public void setExchangeValueDate(String exchangeValueDate) {
++    this.exchangeValueDate = exchangeValueDate;
++  }
++
++  public String getgRPNumber() {
++    return gRPNumber;
++  }
++
++  public void setgRPNumber(String gRPNumber) {
++    this.gRPNumber = gRPNumber;
++  }
++
++  public String getExtractNo() {
++    return extractNo;
++  }
++
++  public void setExtractNo(String extractNo) {
++    this.extractNo = extractNo;
++  }
++
++  public BigDecimal getDeductionDownPayment() {
++    return deductionDownPayment;
++  }
++
++  public void setDeductionDownPayment(BigDecimal deductionDownPayment) {
++    this.deductionDownPayment = deductionDownPayment;
++  }
++
++  public BigDecimal getOtherDiscounts() {
++    return otherDiscounts;
++  }
++
++  public void setOtherDiscounts(BigDecimal otherDiscounts) {
++    this.otherDiscounts = otherDiscounts;
++  }
++
++  public String getExchangeNo() {
++    return exchangeNo;
++  }
++
++  public void setExchangeNo(String exchangeNo) {
++    this.exchangeNo = exchangeNo;
++  }
++
++}
+diff --git a/src/sa/elm/ob/utility/epm/dto/AddProjectRequestDto.java b/src/sa/elm/ob/utility/epm/dto/AddProjectRequestDto.java
+new file mode 100644
+--- /dev/null
++++ b/src/sa/elm/ob/utility/epm/dto/AddProjectRequestDto.java
+@@ -0,0 +1,93 @@
++package sa.elm.ob.utility.epm.dto;
++
++import java.math.BigDecimal;
++
++public class AddProjectRequestDto {
++
++  private Integer projectPlaceId;
++  private String name;
++  private String year; // 2019,
++  private String contractSignDate_Georgian;// 2019-10-29,
++  private BigDecimal projectApprovedValue;
++  private BigDecimal valueFinalContract;
++  private String numberOfBaptism;
++  private BigDecimal valueApprovedExtracts;
++  private String gRPNumber;
++
++  public AddProjectRequestDto() {
++
++  }
++
++  public Integer getProjectPlaceId() {
++    return projectPlaceId;
++  }
++
++  public void setProjectPlaceId(Integer projectPlaceId) {
++    this.projectPlaceId = projectPlaceId;
++  }
++
++  public String getName() {
++    return name;
++  }
++
++  public void setName(String name) {
++    this.name = name;
++  }
++
++  public String getYear() {
++    return year;
++  }
++
++  public void setYear(String year) {
++    this.year = year;
++  }
++
++  public String getContractSignDate_Georgian() {
++    return contractSignDate_Georgian;
++  }
++
++  public void setContractSignDate_Georgian(String contractSignDate_Georgian) {
++    this.contractSignDate_Georgian = contractSignDate_Georgian;
++  }
++
++  public BigDecimal getProjectApprovedValue() {
++    return projectApprovedValue;
++  }
++
++  public void setProjectApprovedValue(BigDecimal projectApprovedValue) {
++    this.projectApprovedValue = projectApprovedValue;
++  }
++
++  public BigDecimal getValueFinalContract() {
++    return valueFinalContract;
++  }
++
++  public void setValueFinalContract(BigDecimal valueFinalContract) {
++    this.valueFinalContract = valueFinalContract;
++  }
++
++  public String getNumberOfBaptism() {
++    return numberOfBaptism;
++  }
++
++  public void setNumberOfBaptism(String numberOfBaptism) {
++    this.numberOfBaptism = numberOfBaptism;
++  }
++
++  public BigDecimal getValueApprovedExtracts() {
++    return valueApprovedExtracts;
++  }
++
++  public void setValueApprovedExtracts(BigDecimal valueApprovedExtracts) {
++    this.valueApprovedExtracts = valueApprovedExtracts;
++  }
++
++  public String getgRPNumber() {
++    return gRPNumber;
++  }
++
++  public void setgRPNumber(String gRPNumber) {
++    this.gRPNumber = gRPNumber;
++  }
++
++}
+diff --git a/src/sa/elm/ob/utility/epm/dto/AddProjectResponseDto.java b/src/sa/elm/ob/utility/epm/dto/AddProjectResponseDto.java
+new file mode 100644
+--- /dev/null
++++ b/src/sa/elm/ob/utility/epm/dto/AddProjectResponseDto.java
+@@ -0,0 +1,49 @@
++package sa.elm.ob.utility.epm.dto;
++
++import com.fasterxml.jackson.annotation.JsonProperty;
++
++public class AddProjectResponseDto {
++
++  @JsonProperty("isSuccess")
++  private boolean isSuccess;
++  private AddProjectErrorResponse errors;
++
++  public boolean isSuccess() {
++    return isSuccess;
++  }
++
++  public void setSuccess(boolean isSuccess) {
++    this.isSuccess = isSuccess;
++  }
++
++  public AddProjectErrorResponse getErrors() {
++    return errors;
++  }
++
++  public void setErrors(AddProjectErrorResponse errors) {
++    this.errors = errors;
++  }
++
++}
++
++class AddProjectErrorResponse {
++  private int Code;
++  private String Description;
++
++  public int getCode() {
++    return Code;
++  }
++
++  public void setCode(int code) {
++    Code = code;
++  }
++
++  public String getDescription() {
++    return Description;
++  }
++
++  public void setDescription(String description) {
++    Description = description;
++  }
++
++}
+diff --git a/src/sa/elm/ob/utility/epm/service/EmpServiceImpl.java b/src/sa/elm/ob/utility/epm/service/EmpServiceImpl.java
+new file mode 100644
+--- /dev/null
++++ b/src/sa/elm/ob/utility/epm/service/EmpServiceImpl.java
+@@ -0,0 +1,319 @@
++package sa.elm.ob.utility.epm.service;
++
++import java.io.File;
++import java.math.BigDecimal;
++import java.text.SimpleDateFormat;
++import java.util.ArrayList;
++import java.util.Date;
++import java.util.HashMap;
++import java.util.List;
++
++import org.openbravo.base.provider.OBProvider;
++import org.openbravo.base.session.OBPropertiesProvider;
++import org.openbravo.client.application.report.ReportingUtils;
++import org.openbravo.client.application.report.ReportingUtils.ExportType;
++import org.openbravo.dal.core.OBContext;
++import org.openbravo.dal.service.OBDal;
++import org.openbravo.database.ConnectionProvider;
++import org.openbravo.erpCommon.businessUtility.Preferences;
++import org.openbravo.model.common.enterprise.OrganizationInformation;
++import org.openbravo.model.common.invoice.Invoice;
++import org.openbravo.model.common.order.Order;
++import org.openbravo.service.db.DalConnectionProvider;
++import org.openbravo.utils.Replace;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++import org.springframework.core.io.FileSystemResource;
++import org.springframework.http.HttpEntity;
++import org.springframework.http.HttpHeaders;
++import org.springframework.http.HttpStatus;
++import org.springframework.http.MediaType;
++import org.springframework.http.ResponseEntity;
++import org.springframework.stereotype.Service;
++import org.springframework.util.LinkedMultiValueMap;
++import org.springframework.util.MultiValueMap;
++import org.springframework.web.client.RestTemplate;
++
++import com.fasterxml.jackson.databind.ObjectMapper;
++
++import sa.elm.ob.finance.EfinRDVTransaction;
++import sa.elm.ob.finance.ad_process.PurchaseInvoice.PurchaseInvoiceSubmitUtils;
++import sa.elm.ob.utility.WebserviceTrackerHeader;
++import sa.elm.ob.utility.epm.dto.AddExtractProjectRequestDto;
++import sa.elm.ob.utility.epm.dto.AddProjectRequestDto;
++import sa.elm.ob.utility.epm.dto.AddProjectResponseDto;
++
++@Service
++public class EmpServiceImpl implements EpmService {
++
++  private static final Logger log = LoggerFactory.getLogger(EmpServiceImpl.class);
++
++  RestTemplate restTemplate = new RestTemplate();
++
++  /**
++   * Add Project EPM Web service
++   */
++  @Override
++  public void addProject(Order order, Integer cityProjectId, BigDecimal valueApprovedExtracts) {
++    AddProjectRequestDto requestDto = new AddProjectRequestDto();
++    ResponseEntity<AddProjectResponseDto> result = null;
++    ObjectMapper objMap = new ObjectMapper();
++    String request = "";
++
++    try {
++      requestDto.setProjectPlaceId(cityProjectId);
++      requestDto.setName(order.getDescription());
++      if (order.getEfinBudgetint() != null && order.getEfinBudgetint().getDescription() != null) {
++        requestDto.setYear(order.getEfinBudgetint().getDescription());
++      }
++      requestDto.setContractSignDate_Georgian(formatDate(order.getEscmSignaturedate()));
++      requestDto.setProjectApprovedValue(order.getEscmTotPoUpdatedAmt());
++      requestDto.setValueFinalContract(order.getGrandTotalAmount());
++      requestDto.setNumberOfBaptism(order.getEscmReferenceNo());
++      requestDto.setValueApprovedExtracts(valueApprovedExtracts);
++      requestDto.setgRPNumber(order.getDocumentNo());
++      request = requestDto != null ? objMap.writeValueAsString(requestDto) : null;
++
++      String url = Preferences.getPreferenceValue("ESCM_EPM_Project_URL", true,
++          OBContext.getOBContext().getCurrentClient(),
++          OBContext.getOBContext().getCurrentOrganization(), null, null, null);
++
++      log.debug("---------Emp Add Project Calling Webservice------------");
++
++      result = restTemplate.postForEntity(url, requestDto, AddProjectResponseDto.class);
++      log.debug("Emp Add Project Webservice response code " + result.getStatusCode());
++      if (result != null && result.getStatusCode() == HttpStatus.OK) {
++        log.debug("Emp Add Project Webservice :" + result.getBody().isSuccess());
++      }
++    } catch (Exception e) {
++      log.error("Emp Add Project Webservice Excception :", e);
++    } finally {
++      addProjectDBLog(result, request);
++    }
++  }
++
++  private void addProjectDBLog(ResponseEntity<AddProjectResponseDto> result, String request) {
++    try {
++      OBContext.setAdminMode(true);
++      ObjectMapper objMap = new ObjectMapper();
++      String response = result != null ? objMap.writeValueAsString(result) : null;
++
++      WebserviceTrackerHeader header = OBProvider.getInstance().get(WebserviceTrackerHeader.class);
++      header.setOrganization(OBContext.getOBContext().getCurrentOrganization());
++      header.setClient(OBContext.getOBContext().getCurrentClient());
++      header.setRequestnumber(null);
++      header.setResponse(response);
++      header.setResponseerrormessage(request);// logging request, because no field present.
++      header.setWebservicename("AddEpmProject");
++      OBDal.getInstance().save(header);
++      OBDal.getInstance().flush();
++
++    } catch (Exception e) {
++      OBDal.getInstance().rollbackAndClose();
++      log.error("addProjectDBLog Exception :", e);
++    } finally {
++      OBContext.restorePreviousMode();
++    }
++
++  }
++
++  private String formatDate(Date date) {
++    String dateFormat = null;
++    if (date != null) {
++      SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
++      dateFormat = formatter.format(date);
++    }
++
++    return dateFormat;
++  }
++
++  @Override
++  public void addExtractProject(Invoice invoice) {
++    ResponseEntity<AddProjectResponseDto> result = null;
++    AddExtractProjectRequestDto requestDto = new AddExtractProjectRequestDto();
++    ObjectMapper objMap = new ObjectMapper();
++    String request = "", url = "";
++    try {
++      EfinRDVTransaction rdvTxn = invoice.getEfinRdvtxn();
++      requestDto.setExtractValue(rdvTxn.getMatchAmt());
++      requestDto.setExtractValueDate(formatDate(rdvTxn.getCertificateDate()));
++      requestDto.setExchangeValue(rdvTxn.getNetmatchAmt());
++      requestDto.setExchangeValueDate(formatDate(invoice.getInvoiceDate()));
++      requestDto.setgRPNumber(rdvTxn.getEfinRdv().getSalesOrder().getDocumentNo());
++      requestDto.setExtractNo(rdvTxn.getCertificateNo());
++      requestDto.setDeductionDownPayment(rdvTxn.getADVDeduct());
++      requestDto.setOtherDiscounts(rdvTxn.getHoldamount().add(rdvTxn.getPenaltyAmt()));
++      requestDto.setExchangeNo(invoice.getDocumentNo());
++      request = requestDto != null ? objMap.writeValueAsString(requestDto) : null;
++
++      log.debug("---------Emp addExtractProject Calling Webservice------------");
++
++      url = Preferences.getPreferenceValue("ESCM_EPM_ExtractPrj_URL", false,
++          OBContext.getOBContext().getCurrentClient(),
++          OBContext.getOBContext().getCurrentOrganization(), OBContext.getOBContext().getUser(),
++          OBContext.getOBContext().getRole(), null);
++      // String url =
++      // "http://epmdashboard.mot.gov.sa/EPMProjectAPI/api/ProjectAPI/AddExtractsInProject";
++
++      result = restTemplate.postForEntity(url, requestDto, AddProjectResponseDto.class);
++      log.debug("Emp Add Project Webservice response code " + result.getStatusCode());
++      if (result != null && result.getStatusCode() == HttpStatus.OK) {
++        log.debug("Emp addExtractProject Webservice :" + result.getBody().isSuccess());
++      }
++    } catch (Exception e) {
++      log.error("Emp addExtractProject Webservice Excception :", e);
++    } finally {
++      addProjectDBLog(result, request);
++    }
++  }
++
++  @Override
++  public void addExtractPDFRdv(Invoice invoice) {
++    // TODO Auto-generated method stub
++    String reportGeneratedDate = new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
++    String hijriDate = sa.elm.ob.utility.util.Utility.convertTohijriDate(reportGeneratedDate);
++    HashMap<String, Object> designParameters = new HashMap<String, Object>();
++    HashMap<Object, Object> exportParameters = new HashMap<Object, Object>();
++    ResponseEntity<AddProjectResponseDto> result = null;
++    String strOutput = "pdf", responseData = "", imageFlag = "N", requestString = "", url = "";
++    String strReportName = "@basedesign@/sa/elm/ob/finance/ad_reports/RDVSummary/RDVSummary_1.jrxml";
++    try {
++      ConnectionProvider conn = new DalConnectionProvider(false);
++      final ExportType expType = ExportType.getExportType(strOutput.toUpperCase());
++      String strBaseDesign = PurchaseInvoiceSubmitUtils.getBaseDesignPath();
++      strReportName = Replace.replace(strReportName, "@basedesign@", strBaseDesign);
++      String directory = OBPropertiesProvider.getInstance().getOpenbravoProperties()
++          .getProperty("attach.path");
++      OrganizationInformation objInfo = invoice.getOrganization().getOrganizationInformationList()
++          .get(0);
++      // check org have image
++      if (objInfo != null) {
++        if (objInfo.getYourCompanyDocumentImage() != null) {
++          imageFlag = "Y";
++        }
++      }
++      EfinRDVTransaction transaction = invoice.getEfinRdvtxn();
++      String filePathWithName = directory + "/" + "RDVSummary" + "-" + hijriDate + "." + strOutput;
++      designParameters.put("BASE_DESIGN", strBaseDesign);
++      designParameters.put("inpImageFlag", imageFlag);
++      designParameters.put("inpOrgId", transaction.getOrganization().getId());
++      designParameters.put("Version_Id", transaction.getId());
++      designParameters.put("Efin_Rdv_ID", transaction.getEfinRdv().getId());
++      designParameters.put("TXN_Type", transaction.getEfinRdv().getTXNType());
++
++      File outputFile = new File(filePathWithName);
++
++      ReportingUtils.exportJR(strReportName, expType, designParameters, outputFile, false, conn,
++          null, exportParameters);
++      FileSystemResource fileSystemResource = new FileSystemResource(new File(filePathWithName));
++      // String url = "http://epmdashboard.mot.gov.sa/EPMProjectAPI/api/ProjectAPI/SaveAttachment";
++      url = Preferences.getPreferenceValue("ESCM_EPM_ExtractPrjAttach_URL", false,
++          OBContext.getOBContext().getCurrentClient(),
++          OBContext.getOBContext().getCurrentOrganization(), OBContext.getOBContext().getUser(),
++          OBContext.getOBContext().getRole(), null);
++
++      // delete file in Local Grp location
++      outputFile.delete();
++
++      // send to EPM
++      List<MediaType> acceptableMediaTypes = new ArrayList<MediaType>();
++      acceptableMediaTypes.add(MediaType.MULTIPART_FORM_DATA);
++      HttpHeaders httpHeaders = new HttpHeaders();
++      httpHeaders.set("Accept-Charset", "utf-8");
++      // httpHeaders.add("Cookie", sessionToken);
++      httpHeaders.setAccept(acceptableMediaTypes);
++
++      MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
++      map.add("file", fileSystemResource);
++      map.add("refType", "26");
++      map.add("refId", invoice.getSalesOrder().getDocumentNo());
++
++      HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<MultiValueMap<String, Object>>(
++          map, httpHeaders);
++      requestString = request.toString();
++      // ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
++
++      result = restTemplate.postForEntity(url, request, AddProjectResponseDto.class);
++      System.out.println("response EPM addExtractPDFInvoice: " + result.toString());
++      // log.error("response EPM:" + response.toString());
++
++      log.debug("Emp addExtractPDFRdv response code " + result.getStatusCode());
++      if (result != null && result.getStatusCode() == HttpStatus.OK) {
++        log.debug("Emp addExtractPDFRdv Webservice :" + result.getBody().isSuccess());
++      }
++    } catch (Exception e) {
++      log.error("Emp Add Project Webservice Generating report RDV:", e);
++    } finally {
++      addProjectDBLog(result, requestString);
++    }
++  }
++
++  @Override
++  public void addExtractPDFInvoice(Invoice invoice) {
++    // TODO Auto-generated method stub
++
++    ConnectionProvider conn = new DalConnectionProvider(false);
++    HashMap<String, Object> designParameters = new HashMap<String, Object>();
++    HashMap<Object, Object> exportParameters = new HashMap<Object, Object>();
++    ResponseEntity<AddProjectResponseDto> result = null;
++    String strOutput = "pdf", responseData = "", requestString = "", url = "";
++    String strReportName = "@basedesign@/sa/elm/ob/finance/ad_reports/InvoiceReport/APInvoiceReport.jrxml";
++    try {
++      final ExportType expType = ExportType.getExportType(strOutput.toUpperCase());
++      String strBaseDesign = PurchaseInvoiceSubmitUtils.getBaseDesignPath();
++      strReportName = Replace.replace(strReportName, "@basedesign@", strBaseDesign);
++      String directory = OBPropertiesProvider.getInstance().getOpenbravoProperties()
++          .getProperty("attach.path");
++      String filePathWithName = directory + "/" + "Invoice" + "_" + (invoice.getDocumentNo()) + "."
++          + strOutput;
++      designParameters.put("DOCUMENT_ID", invoice.getId());
++      designParameters.put("BASE_DESIGN", strBaseDesign);
++
++      File outputFile = new File(filePathWithName);
++
++      ReportingUtils.exportJR(strReportName, expType, designParameters, outputFile, false, conn,
++          null, exportParameters);
++      FileSystemResource fileSystemResource = new FileSystemResource(new File(filePathWithName));
++      // String url = "http://epmdashboard.mot.gov.sa/EPMProjectAPI/api/ProjectAPI/SaveAttachment";
++      url = Preferences.getPreferenceValue("ESCM_EPM_ExtractPrjAttach_URL", false,
++          OBContext.getOBContext().getCurrentClient(),
++          OBContext.getOBContext().getCurrentOrganization(), OBContext.getOBContext().getUser(),
++          OBContext.getOBContext().getRole(), null);
++
++      // delete file in Local Grp location
++      outputFile.delete();
++
++      // send to EPM
++      List<MediaType> acceptableMediaTypes = new ArrayList<MediaType>();
++      acceptableMediaTypes.add(MediaType.MULTIPART_FORM_DATA);
++      HttpHeaders httpHeaders = new HttpHeaders();
++      httpHeaders.set("Accept-Charset", "utf-8");
++      // httpHeaders.add("Cookie", sessionToken);
++      httpHeaders.setAccept(acceptableMediaTypes);
++
++      MultiValueMap<String, Object> map = new LinkedMultiValueMap<String, Object>();
++      map.add("file", fileSystemResource);
++      map.add("refType", "27");
++      map.add("refId", invoice.getSalesOrder().getDocumentNo());
++
++      HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<MultiValueMap<String, Object>>(
++          map, httpHeaders);
++      requestString = request.toString();
++      // ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
++
++      result = restTemplate.postForEntity(url, request, AddProjectResponseDto.class);
++      System.out.println("response EPM addExtractPDFInvoice: " + result.toString());
++      // log.error("response EPM:" + response.toString());
++
++      log.debug("Emp addExtractPDFInvoice response code " + result.getStatusCode());
++      if (result != null && result.getStatusCode() == HttpStatus.OK) {
++        log.debug("Emp addExtractPDFInvoice Webservice :" + result.getBody().isSuccess());
++      }
++    } catch (Exception e) {
++      log.error("Emp Add Project Webservice Generating report Invoice:", e);
++    } finally {
++      addProjectDBLog(result, requestString);
++    }
++  }
++
++}
+diff --git a/src/sa/elm/ob/utility/epm/service/EpmService.java b/src/sa/elm/ob/utility/epm/service/EpmService.java
+new file mode 100644
+--- /dev/null
++++ b/src/sa/elm/ob/utility/epm/service/EpmService.java
+@@ -0,0 +1,18 @@
++package sa.elm.ob.utility.epm.service;
++
++import java.math.BigDecimal;
++
++import org.openbravo.model.common.invoice.Invoice;
++import org.openbravo.model.common.order.Order;
++
++public interface EpmService {
++
++  void addProject(Order order, Integer cityProjectId, BigDecimal valueApprovedExtracts);
++
++  void addExtractProject(Invoice invoice);
++
++  void addExtractPDFRdv(Invoice invoice);
++
++  void addExtractPDFInvoice(Invoice invoice);
++
++}

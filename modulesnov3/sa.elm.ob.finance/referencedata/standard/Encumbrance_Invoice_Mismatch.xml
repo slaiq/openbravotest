@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8'?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="3F6AA47B359A41608C51CFD0B1B67162" identifier="Encumbrance Invoice Mismatch">
+    <id>3F6AA47B359A41608C51CFD0B1B67162</id>
+    <active>true</active>
+    <name>Encumbrance Invoice Mismatch</name>
+    <tab id="A2E25351FBFF41CB949EDF35DE875B73" entity-name="ADTab" identifier="Lines - Encumbrance"/>
+    <filterClause xsi:nil="true"/>
+    <sql>SELECT encum_line.Efin_Budget_Manencumlines_id AS referencekey_id,
+     ad_column_identifier('Efin_Budget_Manencumlines',encum_line.Efin_Budget_Manencumlines_id , 'en_US') AS record_id,
+     '0' AS ad_role_id,
+     NULL AS ad_user_id,
+     'Encumbrance - ' || encum.documentno  ||' Used amount MIsmatch with Invoice '  AS description,
+     'Y' AS isActive,
+      encum_line.ad_org_id, 
+      encum_line.ad_client_id, 
+      now() AS created,  
+      '0' AS createdBy,  
+      now() AS updated,
+      '0' AS updatedBy
+from 
+  Efin_Budget_Manencumlines encum_line 
+  join Efin_Budget_Manencum encum on encum_line.Efin_Budget_Manencum_id = encum.Efin_Budget_Manencum_id 
+  join (
+    select 
+      inv_line.em_efin_c_validcombination_id as validcombination, 
+      inv.EM_Efin_Manualencumbrance_ID as encum_id, 
+      inv.c_currency_id as cur_id, 
+      inv_line.LineNetAmt as netamt, 
+      inv.em_efin_isreserved as isreserved, 
+      inv.DocStatus as DocStatus 
+    from 
+      c_invoice inv 
+      join C_InvoiceLine inv_line on inv_line.c_invoice_id = inv.c_invoice_id
+  ) invoice on invoice.encum_id = encum.Efin_Budget_Manencum_id 
+  and invoice.validcombination = encum_line.c_validcombination_id 
+  left join c_currency cur ON cur.c_currency_id = invoice.cur_id 
+  join ad_client cli ON cli.ad_client_id = encum.ad_client_id 
+  left join c_conversion_rate rate ON rate.c_currency_id = invoice.cur_id 
+  AND rate.c_currency_id_to = cli.c_currency_id 
+  AND rate.ad_client_id = encum.ad_client_id 
+where 
+  invoice.isreserved = 'Y' 
+  and invoice.DocStatus != 'EFIN_CA' 
+  and encum.Encum_Type != 'AAE' 
+group by 
+  encum.documentno, 
+  encum_line.Efin_Budget_Manencumlines_id, 
+  encum.Efin_Budget_Manencum_id, 
+  encum.documentno, 
+  invoice.cur_id, 
+  cli.c_currency_id, 
+  rate.multiplyrate 
+having 
+  CASE WHEN invoice.cur_id = cli.c_currency_id THEN SUM(invoice.netamt) ELSE (rate.multiplyrate) * SUM(invoice.netamt) END &lt;&gt; used_amount</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+</ob:Openbravo>

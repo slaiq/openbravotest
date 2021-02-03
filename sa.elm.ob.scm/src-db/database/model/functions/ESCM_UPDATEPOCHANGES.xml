@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION ESCM_UPDATEPOCHANGES">
+    <function name="ESCM_UPDATEPOCHANGES" type="NULL">
+      <body><![CDATA[v_po_factor VARCHAR2(32);
+ v_po_changeType VARCHAR2(32);
+ ClientRecord RECORD;
+ OrderRecord RECORD;
+ OrderLine RECORD;
+
+BEGIN 
+	v_po_factor := null;
+    v_po_changeType := null;
+    
+	FOR ClientRecord IN (select distinct ad_client_id from c_order)
+    LOOP
+    
+	--Get Chnage type percentage
+	select escm_deflookups_typeln_id into v_po_changeType from escm_deflookups_typeln where escm_deflookups_type_id=
+	(select escm_deflookups_type_id from escm_deflookups_type 
+      where isactive='Y' and reference ='POCHGTYP' and ad_client_id =ClientRecord.ad_client_id ) and value='02';
+      
+ 	--Get Decrease Fact Lookup Id
+	select escm_deflookups_typeln_id into v_po_factor from escm_deflookups_typeln where escm_deflookups_type_id=
+	(select escm_deflookups_type_id from escm_deflookups_type 
+              where isactive='Y' and reference ='POCHGFACT' and ad_client_id =ClientRecord.ad_client_id ) and value='01';
+              
+	IF (coalesce(v_po_changeType,'') <> '' and coalesce(v_po_factor,'') <> '') then
+	--get distinct Header
+   /* FOR OrderRecord IN (select distinct hd.c_order_id,em_escm_podiscount from c_order hd 
+    join c_orderline ln on ln.c_order_id = hd.c_order_id where em_escm_podiscount <> 0 and hd.ad_client_id = ClientRecord.ad_client_id)
+    LOOP
+    	--Get Line
+    	FOR OrderLine IN (select c_orderline_id from c_orderline where c_order_id = OrderRecord.c_order_id and em_escm_podiscount <> 0  )
+    	LOOP*/
+        
+        	update c_orderline set  em_escm_po_change_type = v_po_changeType,em_escm_po_change_factor = v_po_factor, 
+            em_escm_po_change_value = em_escm_podiscount
+            where em_escm_podiscount <> 0;
+        --END LOOP;
+        
+    --END LOOP;
+    END IF;
+    END LOOP;
+END ESCM_UPDATEPOCHANGES
+]]></body>
+    </function>
+  </database>

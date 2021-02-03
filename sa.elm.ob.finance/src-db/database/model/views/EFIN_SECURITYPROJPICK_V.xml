@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_SECURITYPROJPICK_V">
+    <view name="EFIN_SECURITYPROJPICK_V"><![CDATA[SELECT (((org.value || '-') || val.value) || '-') || val.name AS name, val.c_project_id AS efin_securityprojpick_v_id, val.created, val.createdby, val.updated, val.updatedby, val.ad_client_id, val.ad_org_id, val.isactive, val.value FROM c_project val JOIN ad_org org ON org.ad_org_id = val.ad_org_id ORDER BY org.value, val.value]]></view>
+  </database>

@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_PRPSLNAMTPRECISION_TRG">
+    <trigger name="ESCM_PRPSLNAMTPRECISION_TRG" table="ESCM_PROPOSALMGMT_LINE" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+v_totalLineAmt NUMBER;
+v_netprice NUMBER;
+v_NegotUnitPrice NUMBER;
+v_discountAmount NUMBER;
+v_LineTaxamt NUMBER;
+v_prec NUMBER;
+v_clientId VARCHAR(32);
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+		-- To get current Client ID 
+		Select ad_client_id INTO v_clientId from escm_proposalmgmt_line 
+		where escm_proposalmgmt_line_id = :new.escm_proposalmgmt_line_id;
+		-- To get Standarrd Precision from Currency by using Current Client ID
+		select stdPrecision INTO v_prec from c_currency where c_currency_id 
+		in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+
+	IF (INSERTING) THEN
+		
+		v_netprice := ROUND(coalesce(:new.Netprice,0) , v_prec);
+		v_NegotUnitPrice := ROUND(coalesce(:new.Negot_Unit_Price,0) , v_prec);
+		v_discountAmount := ROUND(coalesce(:new.Discountmount,0) , v_prec);
+		v_LineTaxamt := ROUND(coalesce(:new.Line_Taxamt,0) , v_prec);
+		v_totalLineAmt := ROUND(:new.Line_Total , v_prec);
+        
+		UPDATE escm_proposalmgmt_line 
+		set Line_Total = v_totalLineAmt,
+		Netprice = v_netprice,
+		Negot_Unit_Price = v_NegotUnitPrice,
+		Discountmount = v_discountAmount,
+		Line_Taxamt = v_LineTaxamt
+		where escm_proposalmgmt_line_id = :new.escm_proposalmgmt_line_id;
+END IF;
+IF (UPDATING) THEN
+		IF(:new.Line_Total <> :old.Line_Total)THEN
+				IF(coalesce(:new.Netprice,0) <> coalesce(:old.Netprice,0))THEN
+					v_netprice := ROUND(coalesce(:new.Netprice,0) , v_prec);
+                    else
+                    v_netprice = coalesce(:old.Netprice,0);
+				END IF;
+                IF(coalesce(:new.Negot_Unit_Price,0) <> coalesce(:old.Negot_Unit_Price,0))THEN
+					v_NegotUnitPrice := ROUND(coalesce(:new.Negot_Unit_Price,0) , v_prec);
+                    else
+                    v_NegotUnitPrice = coalesce(:old.Negot_Unit_Price,0);
+				END IF;
+				IF(coalesce(:new.Discountmount,0) <> coalesce(:old.Discountmount,0))THEN
+					v_discountAmount := ROUND(coalesce(:new.Discountmount,0) , v_prec);
+					else
+					v_discountAmount :=ROUND(coalesce(:old.Discountmount,0) , v_prec);
+					
+				END IF;
+				
+				
+				IF(coalesce(:new.Line_Taxamt,0) <> coalesce(:old.Line_Taxamt,0))THEN
+					v_LineTaxamt := ROUND(coalesce(:new.Line_Taxamt,0) , v_prec);
+                      else
+                    v_LineTaxamt = coalesce(:old.Line_Taxamt,0);
+				END IF;
+
+				v_totalLineAmt := ROUND(:new.Line_Total , v_prec);
+
+				UPDATE escm_proposalmgmt_line 
+				set Line_Total = v_totalLineAmt,
+				Netprice = v_netprice,
+				Negot_Unit_Price = v_NegotUnitPrice,
+				Discountmount = v_discountAmount,
+				Line_Taxamt = v_LineTaxamt
+				where escm_proposalmgmt_line_id = :new.escm_proposalmgmt_line_id;
+	END IF;
+    End if;
+
+	END ESCM_PRPSLNAMTPRECISION_TRG
+]]></body>
+    </trigger>
+  </database>

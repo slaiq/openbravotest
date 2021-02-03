@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_BUDGET_TRANSFER_TRG">
+    <function name="EFIN_BUDGET_TRANSFER_TRG" type="VARCHAR">
+      <body><![CDATA[v_BudgTransferId VARCHAR2(32);
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN IF TG_OP = 'DELETE' THEN RETURN OLD; ELSE RETURN NEW; END IF; END IF;
+
+
+IF(TG_OP='INSERT' OR TG_OP='UPDATE') THEN
+	IF(NEW.amount > 0) THEN
+	update efin_budgetlines set  increase_amt=increase_amt+NEW.amount where efin_budgetlines_id= new.efin_budgetlines_id;
+	ELSE
+	update efin_budgetlines set  decrease_amt=decrease_amt+(abs(NEW.amount)) where efin_budgetlines_id= new.efin_budgetlines_id;
+	END IF;
+
+END IF;
+IF(TG_OP='DELETE') THEN
+	IF(NEW.amount > 0) THEN
+	update efin_budgetlines set  increase_amt=increase_amt-old.amount where efin_budgetlines_id= old.efin_budgetlines_id;
+	ELSE
+	update efin_budgetlines set  decrease_amt=decrease_amt-(abs(old.amount)) where efin_budgetlines_id= old.efin_budgetlines_id;
+	END IF;
+END IF;
+IF TG_OP = 'DELETE' THEN RETURN OLD; ELSE RETURN NEW; END IF;
+END EFIN_BUDGET_TRANSFER_TRG
+]]></body>
+    </function>
+  </database>

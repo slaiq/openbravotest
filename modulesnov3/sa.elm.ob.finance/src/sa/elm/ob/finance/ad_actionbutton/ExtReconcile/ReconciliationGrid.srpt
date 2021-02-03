@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * All Rights Reserved.
+ * Contributor(s): Gopalakrishnan
+ *************************************************************************
+-->
+<span id="sectionLinesDetail">
+  <input type="hidden" name="inpRecordPaymentAmtxx" value="" id="fieldRecordPaymentAmt"/>
+  <input type="hidden" name="inpRecordDepositAmtxx" value="" id="fieldRecordDepositAmt"/>
+  <input type="hidden" name="inpRecordBankNamexx" value="" id="fieldRecordBankName"/>
+  <input type="hidden" name="inpRecordChequeNoxx" value="" id="fieldRecordChequeNo"/>
+  <input type="hidden" name="inpChequeStatusxx" value="" id="fieldRecordChequeStatus"/>
+  <input type="hidden" name="inpChequeDatexx" value="" id="fieldRecordChequeDate"/>
+  <input type="hidden" name="inpRecordIsReceiptxx" value="" id="fieldRecordIsReceipt"/>
+  <tr id="funcEvenOddRowxx" class="DataGrid_Body_Row DataGrid_Body_Row_yy">
+    <td class="DataGrid_Body_LineNoCell" id="fieldRownum1">xx1</td>
+    <td class="DataGrid_Body_Cell" id="fieldTransactionDate">xx12/12/2009</td>
+    <td class="DataGrid_Body_Cell" title="zz" id="fieldBusinessPartner">xxMcGiver</td>
+    <td class="DataGrid_Body_Cell" id="fieldPaymentDocument">xxPaymentRef</td>
+    <td class="DataGrid_Body_Cell" title="zz" id="fieldBankName">xxBankName</td>
+    <td class="DataGrid_Body_Cell" title="zz" id="fieldChequeNo">xxChequeNo</td>
+    <td class="DataGrid_Body_Cell" title="zz" id="fieldChequeStatus">xxChequeStatus</td>
+    <td class="DataGrid_Body_Cell"  id="fieldChequeDate">xx12/12/2009</td>
+    <td class="DataGrid_Body_Cell" title="zz" id="fieldDescription">xxDescription</td>
+    <td class="DataGrid_Body_Cell_Amount" id="fieldPaymentAmount">xx150.00</td>
+    <td class="DataGrid_Body_Cell_Amount" id="fieldDepositAmount">xx60.00</td>
+    <td class="DataGrid_Body_LineNoCell">
+    <input type="checkbox" name="inpTransactionId" value="" id="fieldTransactionId_xx" onclick="checkMoFDetails(this.value,this.checked); saveTransactionLineStatus(this.checked, 'xx'); updateAmounts(this.value, this.checked);unselectClearAll(this.checked); return true;"/></td>
+  </tr>
+</span>

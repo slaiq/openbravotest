@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="EncumbranceDetails_subreport4" pageWidth="80" pageHeight="30" columnWidth="80" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="18cee72a-a6d8-4fbe-a580-daa1e0f50c72">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="Uniquecode" class="java.lang.String"/>
+	<parameter name="RowNo" class="java.lang.String"/>
+	<parameter name="inpRole" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT   coalesce(c_invoice_id,'0') as invoiceid  ,coalesce(remamt,0) as remamt, coalesce(revid,'0') as  revid,
+coalesce(manexpamount,0) as manexpamount  ,amount
+FROM    (
+        SELECT ben.doctype , inv.docstatus ,case when  (ben.doctype='INV' and inv.posted='Y' and ben.amount <0 )
+        then coalesce(manencumln.remaining_amount,0)    end as remamt  ,
+
+        coalesce((manexpamount+ben.amount),ben.amount) as manexpamount ,
+
+              case when  ben.doctype='INV'  and inv.docstatus ='EFIN_CA' and ben.amount > 0 and inv.em_efin_encumtype='A' then
+           coalesce(manencumln.used_amount,0)
+ when  ben.doctype='INV'  and inv.docstatus ='EFIN_CA' and ben.amount > 0 and inv.em_efin_encumtype<>'A' then 0
+           when  ben.doctype='IC'  and inv.docstatus ='EFIN_CA' and ben.amount < 0  and inv.em_efin_encumtype <>'A' then 0
+          when ben.doctype='INV' and inv.docstatus = 'CO' and ben.amount > 0 then 0
+           when (ben.doctype='MEI' or ben.doctype='MAD')  and manencumln.used_amount > 0 and  manencumln.remaining_amount = 0 then ben.amount+manencumln.remaining_amount
+                     else ben.amount  end as amount    ,
+
+
+      ben.c_invoice_id, efin_encuminvoiceref_id,ben.efin_bud_manencum_rev_id as revid,
+        row_number() over(order by ben.created,ben.amount desc ) as row
+        FROM    efin_budget_encum ben
+        left join c_invoice inv on inv.c_invoice_id= ben.c_invoice_id
+
+    left join efin_budget_manencumlines manencumln on manencumln.efin_budget_manencumlines_id= ben.efin_budget_manencumlines_id
+        left join efin_encuminvoiceref ref on ref.efin_budget_encummanexpe_id= ben.efin_budget_encum_id
+         where    manencumln.uniquecode=$P{Uniquecode}
+
+AND manencumln.C_ELEMENTVALUE_ID IN (select act.c_elementvalue_id from efin_security_rules_act act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=$P{inpRole} )and efin_processbutton='Y')
+          AND manencumln.C_Salesregion_ID in (select dep.C_Salesregion_ID from Efin_Security_Rules_Dept dep
+                    join efin_security_rules ru on ru.efin_security_rules_id=dep.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=$P{inpRole} )and efin_processbutton='Y')
+          AND manencumln.C_Project_ID in (select proj.c_project_id from efin_security_rules_proj proj
+                    join efin_security_rules ru on ru.efin_security_rules_id=proj.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=$P{inpRole} )and efin_processbutton='Y')
+          AND manencumln.C_CAMPAIGN_ID IN(select bud.C_campaign_ID from efin_security_rules_budtype bud
+                    join efin_security_rules ru on ru.efin_security_rules_id=bud.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=$P{inpRole} )and efin_processbutton='Y')
+          AND manencumln.C_Activity_ID in (select act.C_Activity_ID from efin_security_rules_activ act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id= $P{inpRole})and efin_processbutton='Y')
+          AND manencumln.User1_ID in (select fut1.User1_ID from efin_security_rules_fut1 fut1
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut1.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id= $P{inpRole})and efin_processbutton='Y')
+          AND manencumln.User2_ID in (select fut2.User2_ID from efin_security_rules_fut2 fut2
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut2.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=$P{inpRole} )and efin_processbutton='Y')
+
+        ) q
+        WHERE   row <=   $P{RowNo}]]>
+	</queryString>
+	<field name="invoiceid" class="java.lang.String"/>
+	<field name="remamt" class="java.math.BigDecimal"/>
+	<field name="revid" class="java.lang.String"/>
+	<field name="manexpamount" class="java.math.BigDecimal"/>
+	<field name="amount" class="java.math.BigDecimal"/>
+	<variable name="RemAmt" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{remamt}]]></variableExpression>
+	</variable>
+	<variable name="AmountSum" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount}]]></variableExpression>
+	</variable>
+	<variable name="Amountmanexp" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{manexpamount}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="30" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="80" height="30" isRemoveLineWhenBlank="true" uuid="0ed26ee9-e461-481c-8b16-f7e783333183">
+					<printWhenExpression><![CDATA[$F{invoiceid}.equals("12" )]]></printWhenExpression>
+				</reportElement>
+				<box rightPadding="16">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[$F{invoiceid}.equals("0") ? $F{manexpamount} : $V{AmountSum}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="30">
+			<textField pattern=" #,##0.00">
+				<reportElement x="0" y="0" width="80" height="30" isRemoveLineWhenBlank="true" uuid="7b89c239-f2df-4ee5-82fd-4ab05a7b0031"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[$F{invoiceid}.equals("0") ? ( $F{revid}.equals("0") ?  ($F{manexpamount}.add($V{RemAmt})):$V{Amountmanexp}): $V{AmountSum}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

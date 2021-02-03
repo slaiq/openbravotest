@@ -1,0 +1,13 @@
+<DynamicForm width="300" ID="timeForm">
+    <fields>
+        <field name="time" title="Time" type="time"/>
+    </fields>
+</DynamicForm>
+
+<Button width="125" top="40" title="Show Time Value" >
+<click>
+         var item = timeForm.getItem("time");
+        var inputTime = item.getValue();
+        isc.say(isc.Time.toTime(inputTime));     
+</click>
+</Button>

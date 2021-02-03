@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_RDV_PORECEIPT_DEL">
+    <trigger name="EFIN_RDV_PORECEIPT_DEL" table="EFIN_RDVTXNLINE_REF" fires="after" insert="false" update="true" delete="true" foreach="row">
+      <body><![CDATA[ v_del character(1);
+ v_DiffMatch NUMBER;
+ v_poqty NUMBER;
+ v_delQty NUMBER;
+ v_orderline VARCHAR(32);
+ v_polineNetAmt NUMBER;
+ v_receivetype VARCHAR(32);
+ v_prec NUMBER;
+ v_clientId VARCHAR(32);
+
+/*************************************************************************
+* All Rights Reserved. 
+* Trigger for Update match Qty in poreceipt before delete.
+* Contributor(s):  Gowtham.
+************************************************************************/
+BEGIN
+v_del :='N';
+v_DiffMatch :=0;
+v_poqty :=0;
+v_delQty :=0;
+v_polineNetAmt:=0;
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	
+	
+    IF DELETING THEN   
+    
+   
+	-- To get Standarrd Precision from Currency by using Current Client ID
+	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+	in (select c_currency_id from ad_client where ad_client_id  = :old.ad_client_id);
+    
+    	update escm_initialreceipt set match_qty=ROUND(match_qty-:old.match_qty ,v_prec), match_amt=ROUND(match_amt-:old.match_amt,v_prec)  where escm_initialreceipt_id=:old.escm_initialreceipt_id;
+		select is_del into v_del from efin_rdvtxnline where efin_rdvtxnline_id = :old.efin_rdvtxnline_id;        
+        IF v_del = 'Y' THEN
+           
+           select coalesce(em_Escm_receivetype,'QTY') into v_receivetype from c_order where c_order_id in 
+          (select c_order_id from efin_rdv where efin_rdv_id in (
+              select efin_rdv_id from efin_rdvtxnline where efin_rdvtxnline_id = :old.efin_rdvtxnline_id )
+              and c_order_id is not null );
+              
+              IF v_receivetype is not null and v_receivetype='AMT' then
+              update efin_rdvtxnline set deliver_amt = ROUND(deliver_amt - :old.available_amt,v_prec),is_del='N' where efin_rdvtxnline_id = :old.efin_rdvtxnline_id;
+              ELSE 
+              update efin_rdvtxnline set del_qty = ROUND(del_qty - :old.available_qty,v_prec),is_del='N' where efin_rdvtxnline_id = :old.efin_rdvtxnline_id;
+              END IF;
+              
+   		END IF;
+        
+   END IF;
+    
+    IF TG_OP ='UPDATE' THEN
+    
+    -- To get current Client ID 
+	Select ad_client_id INTO v_clientId from efin_rdvtxnline_ref 
+	where efin_rdvtxnline_ref_id = :new.efin_rdvtxnline_ref_id;
+	-- To get Standarrd Precision from Currency by using Current Client ID
+	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+	in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+    
+        if :new.available_qty <> :old.available_qty then
+        	select c_orderline_id into v_orderline from efin_rdvtxnline where  efin_rdvtxnline_id = :new.efin_rdvtxnline_id;
+        	if v_orderline is not null then
+            	select qtyordered into v_poqty from c_orderline where c_orderline_id = v_orderline;
+                update efin_rdvtxnline set del_qty = del_qty +(:new.available_qty-:old.available_qty),completion_per = (((del_qty+(:new.available_qty-:old.available_qty))/v_poqty)*100)  where efin_rdvtxnline_id = :new.efin_rdvtxnline_id;
+			else
+                update efin_rdvtxnline set del_qty = del_qty +(:new.available_qty-:old.available_qty)  where efin_rdvtxnline_id = :new.efin_rdvtxnline_id;
+            end if;
+        end if;
+        
+          if :new.available_amt <> :old.available_amt then
+        	select c_orderline_id into v_orderline from efin_rdvtxnline where  efin_rdvtxnline_id = :new.efin_rdvtxnline_id;
+        	if v_orderline is not null then
+            	select linenetamt into v_polineNetAmt from c_orderline where c_orderline_id = v_orderline;
+                update efin_rdvtxnline set deliver_amt = deliver_amt +(:new.available_amt-:old.available_amt),completion_per = (((deliver_amt+(:new.available_amt-:old.available_amt))/v_polineNetAmt)*100)  where efin_rdvtxnline_id = :new.efin_rdvtxnline_id;
+			else
+                update efin_rdvtxnline set deliver_amt = deliver_amt +(:new.available_amt-:old.available_amt)  where efin_rdvtxnline_id = :new.efin_rdvtxnline_id;
+            end if;
+        end if;
+        
+        if :new.match_qty <> :old.match_qty then
+        	v_DiffMatch = :new.match_qty-:old.match_qty;
+    		update escm_initialreceipt set match_qty=(match_qty+v_DiffMatch) where escm_initialreceipt_id=:new.escm_initialreceipt_id;
+ 		end if;
+        if :new.match_amt <> :old.match_amt then
+        	v_DiffMatch = :new.match_amt-:old.match_amt;
+    		update escm_initialreceipt set match_amt=(match_amt+v_DiffMatch) where escm_initialreceipt_id=:new.escm_initialreceipt_id;
+ 		end if;
+   END IF;
+	
+END EFIN_RDV_PORECEIPT_DEL
+]]></body>
+    </trigger>
+  </database>

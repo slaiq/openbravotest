@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_RDVTXNAMTPRECISION_TRG">
+    <trigger name="EFIN_RDVTXNAMTPRECISION_TRG" table="EFIN_RDVTXN" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+v_matchAmt NUMBER;--Match_Amt
+v_penaltyAmt NUMBER;--Penalty_Amt
+v_advDeduct NUMBER;--ADV_Deduct
+v_advAmtRem NUMBER;--Advamt_Rem
+v_totDeduct NUMBER;--TOT_Deduct
+v_holdAmount NUMBER;--Holdamount
+v_lineTaxAmt NUMBER;--Line_Taxamt
+v_netMatchAmt NUMBER;--Netmatch_Amt
+v_prec NUMBER;
+v_clientId VARCHAR(32);
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	IF (INSERTING OR UPDATING ) THEN 
+		-- To get current Client ID 
+		Select ad_client_id INTO v_clientId from efin_rdvtxn 
+		where efin_rdvtxn_id = :new.efin_rdvtxn_id;
+		-- To get Standarrd Precision from Currency by using Current Client ID
+		select stdPrecision INTO v_prec from c_currency where c_currency_id 
+		in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+		 
+		IF (INSERTING ) THEN
+		
+		v_matchAmt := ROUND(coalesce(:new.Match_Amt,0) , v_prec);
+		v_penaltyAmt := ROUND(coalesce(:new.Penalty_Amt,0) , v_prec);
+		v_advDeduct := ROUND(coalesce(:new.ADV_Deduct,0) , v_prec);
+		v_advAmtRem := ROUND(coalesce(:new.Advamt_Rem,0) , v_prec);
+		v_totDeduct := ROUND(coalesce(:new.TOT_Deduct,0) , v_prec);
+		v_holdAmount := ROUND(coalesce(:new.Holdamount,0) , v_prec);
+		v_lineTaxAmt := ROUND(coalesce(:new.Line_Taxamt,0) , v_prec);
+		v_netMatchAmt := ROUND(coalesce(:new.Netmatch_Amt,0) , v_prec);
+		
+		/*UPDATE efin_rdvtxn 
+		set Match_Amt = v_matchAmt , Penalty_Amt = v_penaltyAmt,
+		ADV_Deduct = v_advDeduct , Advamt_Rem = v_advAmtRem,
+		TOT_Deduct = v_totDeduct , Holdamount = v_holdAmount,
+		Line_Taxamt = v_lineTaxAmt , Netmatch_Amt = v_netMatchAmt
+		where efin_rdvtxn_id = :new.efin_rdvtxn_id;*/
+
+		END IF;
+	END IF;
+	END EFIN_RDVTXNAMTPRECISION_TRG
+]]></body>
+    </trigger>
+  </database>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
+<!-- 2017-09-19T09:07:24 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="TechnicalStudyReport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ba8c95d3-3d83-4767-a61a-8d56c6d68cd6">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="inpPOId" class="java.lang.String"/>
+	<parameter name="inpDptOwner" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select concat(po.em_escm_projectname,'.',pm.proposalno ) as proj,po.em_escm_projectname as proname,cm.eventno,eut_convert_to_hijri(to_char(cm.todaydate,'YYYY_MM_DD')) as openenvdate from c_order po
+left join escm_proposalmgmt pm on pm.escm_proposalmgmt_id = po.em_escm_proposalmgmt_id
+left join escm_openenvcommitee cm on cm.escm_bidmgmt_id = po.em_escm_bidmgmt_id
+where po.c_order_id = $P{inpPOId}]]>
+	</queryString>
+	<field name="proj" class="java.lang.String"/>
+	<field name="proname" class="java.lang.String"/>
+	<field name="eventno" class="java.lang.String"/>
+	<field name="openenvdate" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="223" splitType="Stretch">
+			<staticText>
+				<reportElement x="214" y="142" width="61" height="28" uuid="ba5d822f-00c9-4af2-b27c-c48c10c74b21"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الموضوع :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="60" y="192" width="63" height="29" uuid="08390368-aeb4-498c-b82f-850f8a5d9341"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[المحترم]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="482" y="192" width="52" height="29" uuid="6b94f25b-4422-4d3c-aced-b874f4f83085"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[سعادة /]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="170" y="192" width="312" height="29" uuid="4ad8088a-a5ef-474f-bf81-55b24412fb4c"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{inpDptOwner}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="1" y="142" width="213" height="28" uuid="14c039c9-e9da-4659-b1e7-6d4b4b7ca7dc"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{proj})]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="168" splitType="Stretch">
+			<staticText>
+				<reportElement x="387" y="32" width="159" height="24" uuid="404099c6-434f-43ce-bca3-91d8ee961be7"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16"/>
+				</textElement>
+				<text><![CDATA[السلام عليكم ورحمة الله وبركاته ..]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="1" y="74" width="555" height="55" uuid="7c1029ef-8b67-4852-a162-9689889e7228"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="styled">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" أرفق لسعادتكم من طية محضر لجنة فتح المظاريف رقم " + 	($F{eventno} == null ? "" :sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{eventno}.toString()))+
+ " وتاريخ " + ($F{openenvdate} == null ? "" : sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{openenvdate}.toString()))+ " عن فتح مظاريف العطاءات لمنافسة مشروع " + ($F{proname} == null ? "" : $F{proname})+ " . "]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="338" y="129" width="216" height="37" uuid="8b17b879-a1a3-4b6e-b6bc-69e06366c83b"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["أمل دراستها وفق ما يقضي به النظام ومن ثم اعادتها لنا."]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<summary>
+		<band height="137">
+			<staticText>
+				<reportElement x="0" y="50" width="238" height="26" uuid="9bc81726-b7ec-42ec-94a2-97cb810c5420"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[مدير عام الادارة العامة للمناقصات والعقود]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="29" y="76" width="181" height="28" uuid="73455bf0-b314-45ce-9076-15c7360c53c8"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[حامد بن محمد الشمري]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="259" y="17" width="73" height="28" uuid="74e86d57-5804-460b-8d8e-ec6d5730aba8"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[ولكم تحياتي،،،،]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

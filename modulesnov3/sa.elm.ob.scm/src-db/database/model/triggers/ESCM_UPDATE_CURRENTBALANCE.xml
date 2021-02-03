@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_UPDATE_CURRENTBALANCE">
+    <trigger name="ESCM_UPDATE_CURRENTBALANCE" table="M_TRANSACTION" fires="before" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[
+
+/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2012-2013 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************/
+  v_onhand      NUMBER;
+  v_count       NUMBER;
+
+BEGIN
+  IF (AD_isTriggerEnabled() = 'N') THEN RETURN;
+  END IF;
+  if(:new.movementtype='I+') then
+	:new.em_escm_transactiontype:='INV';
+  end if;
+select count(*) into v_count from  M_STORAGE_DETAIL  WHERE M_PRODUCT_ID=:new.M_PRODUCT_ID
+      AND M_LOCATOR_ID=:new.m_locator_id
+      AND M_ATTRIBUTESETINSTANCE_ID=:new.m_attributesetinstance_id
+      AND C_UOM_ID=:new.c_uom_id;
+if(v_count= 0) then
+:new.em_escm_currentonhand=:new.movementqty;
+else
+select qtyonhand into v_onhand from  M_STORAGE_DETAIL  WHERE M_PRODUCT_ID=:new.M_PRODUCT_ID
+      AND M_LOCATOR_ID=:new.m_locator_id
+      AND M_ATTRIBUTESETINSTANCE_ID=:new.m_attributesetinstance_id
+      AND C_UOM_ID=:new.c_uom_id;
+   :new.em_escm_currentonhand=v_onhand+:new.movementqty;
+end if;  
+END ESCM_UPDATE_CURRENTBALANCE
+]]></body>
+    </trigger>
+  </database>

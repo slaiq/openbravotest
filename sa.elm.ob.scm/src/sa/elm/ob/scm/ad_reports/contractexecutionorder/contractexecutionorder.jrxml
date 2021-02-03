@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.0.final using JasperReports Library version 6.5.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="contractexecutionorder" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="3a082137-4dd7-4e68-bac2-31b767d462fc">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="240"/>
+	<subDataset name="inpPhotoCopiesList" uuid="2ac0fd49-dd8d-4948-a50c-b82fcd74b703">
+		<parameter name="inpPhotoCopiesList" class="java.util.List">
+			<defaultValueExpression><![CDATA[new java.util.ArrayList()]]></defaultValueExpression>
+		</parameter>
+		<field name="seqNo" class="java.lang.String"/>
+		<field name="contractLookUp" class="java.lang.String"/>
+		<variable name="ROW_INDEX" class="java.lang.Integer" resetType="None">
+			<variableExpression><![CDATA[$V{REPORT_COUNT} - 1]]></variableExpression>
+		</variable>
+		<variable name="Row_Values" class="java.util.List">
+			<variableExpression><![CDATA[$P{inpPhotoCopiesList}]]></variableExpression>
+			<initialValueExpression><![CDATA[new java.util.ArrayList()]]></initialValueExpression>
+		</variable>
+	</subDataset>
+	<parameter name="inpPhotoCopiesList" class="java.util.List">
+		<defaultValueExpression><![CDATA[new java.util.ArrayList()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpPOId" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpCondText" class="java.lang.String"/>
+	<parameter name="inpVarText" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select bid.bidno, bp.name, bploc.phone, bploc.fax, loc.postal, loc.address2, ord.grandtotal,
+eut_convert_to_hijri(to_char( ord.em_escm_signaturedate,'YYYY-MM-DD')) as signaturedate,
+ord.em_escm_projectname proname from c_order  ord
+     left join escm_bidmgmt bid on ord.em_escm_bidmgmt_id=bid.escm_bidmgmt_id
+     left join c_bpartner bp on ord.c_bpartner_id=bp.c_bpartner_id
+     join c_bpartner_location bploc on ord.c_bpartner_location_id=bploc.c_bpartner_location_id
+     join c_location loc on bploc.c_location_id=loc.c_location_id
+     where ord.c_order_id=$P{inpPOId}]]>
+	</queryString>
+	<field name="bidno" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="phone" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<field name="fax" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<field name="postal" class="java.lang.String"/>
+	<field name="address2" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<field name="grandtotal" class="java.math.BigDecimal"/>
+	<field name="signaturedate" class="java.lang.String"/>
+	<field name="proname" class="java.lang.String"/>
+	<pageHeader>
+		<band height="103"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="424" splitType="Stretch">
+			<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+			<staticText>
+				<reportElement x="375" y="6" width="179" height="33" uuid="409b30da-6674-42ef-bcc5-97b781f06f1d"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="21"/>
+				</textElement>
+				<text><![CDATA[المملكة العربية السعودية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="375" y="39" width="179" height="33" uuid="30bc42eb-586a-4e40-acad-7400815d0ce5"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="21"/>
+				</textElement>
+				<text><![CDATA[وزارة النقل]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="375" y="72" width="179" height="33" uuid="646255af-f585-41f5-b95c-30cd3f19e61e"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="21"/>
+				</textElement>
+				<text><![CDATA[إدارة المنافسات والعقود]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="177" y="92" width="198" height="33" uuid="8f3e3ee2-3312-40cc-b1cd-f3163ba689ce"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="21"/>
+				</textElement>
+				<text><![CDATA[خطاب تبليــــــــــــــــــــــــــــــغ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="280" y="125" width="65" height="27" uuid="dc9c7f2b-3410-4e8f-b752-623c20e0f59f"/>
+				<textElement>
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[رقم المنافسة :]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="125" width="280" height="27" uuid="8df74bc1-0af5-469c-ae95-76296a54c00c"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{bidno})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="152" width="555" height="23" uuid="56f1d374-8c44-4475-9f92-7c313a87f685"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[الموضوع : تبليغ وثائق عقد.]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="190" width="555" height="30" uuid="8dd0c49c-f46e-41a6-8f09-543832e4d7a4"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["السادة /"+"   "+$F{name}+"      "+"المحترمين"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="220" width="555" height="27" uuid="a019f154-50da-49d2-a057-92e46b1aaebe"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" ص.ب: "+($F{address2}==null?"          ":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{address2}))+"   "+"الرمز البريدي : "+($F{postal}==null?"         ":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{postal}))+"   "+"الهاتف : "+($F{phone}==null?"       ":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{phone}))+"   "+" الفاكس: "+( $F{fax}==null?"         ":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{fax}))]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="247" width="555" height="26" uuid="88817868-747c-48c3-abfa-366c67246c6b"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[السلام عليكم ورحمة الله وبركاته]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="278" width="555" height="42" uuid="49d7ffcb-92d8-4ddb-aa29-3e37ba669744"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" نبعث لكم من طيه نسخة من العقد المبرم معكم بتاريخ "+($F{signaturedate}==null?"  ":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{signaturedate}))+ " "+ "هـ عن عملية"+ ($P{inpVarText}==null?" ":"  "+$P{inpVarText})+" "+($F{proname}==null?" ":$F{proname} )+" ، وبقيمة إجمالية قدرها " + " "+($F{grandtotal}==null?"  ":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{grandtotal}.toPlainString()) )+" "+" ر.س  " + "."]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="347" width="219" height="22" uuid="4d1db997-ab18-4498-b1f8-212600680dd0"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[ولكم تحياتنا]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="374" width="192" height="25" uuid="8cb95ea7-1b9c-446d-8d90-9da0df9d9f0c"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="16"/>
+				</textElement>
+				<text><![CDATA[مدير عام إدارة المناقصات والعقود]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="399" width="192" height="25" uuid="48ab537b-3dde-4a0b-93fa-f5f730a249df"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="16"/>
+				</textElement>
+				<text><![CDATA[حامد بن حمد الشمري]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="320" width="459" height="26" uuid="f4831462-d1ca-42be-bd77-f6a94b580574"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{inpCondText}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="27" splitType="Stretch">
+			<componentElement>
+				<reportElement isPrintRepeatedValues="false" x="0" y="0" width="550" height="20" uuid="b122b275-cb53-40f0-84cb-975cf53ae4d6">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="inpPhotoCopiesList" uuid="8a252cd1-48d1-46ce-8f1b-706279875222">
+						<datasetParameter name="inpPhotoCopiesList">
+							<datasetParameterExpression><![CDATA[$P{inpPhotoCopiesList}]]></datasetParameterExpression>
+						</datasetParameter>
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{inpPhotoCopiesList})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:column width="530" uuid="a01620e3-b690-47ac-beaf-b8248b74592e">
+						<jr:detailCell height="22" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="20" y="0" width="510" height="22" uuid="a36b581a-701e-4837-a835-940bdd0152a8">
+									<property name="local_mesure_unitheight" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+								</reportElement>
+								<textElement textAlignment="Right" markup="html">
+									<font fontName="Traditional Arabic" size="14"/>
+								</textElement>
+								<textFieldExpression><![CDATA["• " +$F{contractLookUp}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="67"/>
+	</pageFooter>
+</jasperReport>

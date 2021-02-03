@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_AD_USER_REPORT_V">
+    <view name="EFIN_AD_USER_REPORT_V"><![CDATA[SELECT a.ad_user_id AS efin_ad_user_report_v_id, (COALESCE(a.name, '') || ' - ') || a.username AS user_number, a.name, a.username, a.ad_client_id, a.ad_org_id, a.isactive, a.created, a.createdby, a.updated, a.updatedby FROM ad_user a]]></view>
+  </database>

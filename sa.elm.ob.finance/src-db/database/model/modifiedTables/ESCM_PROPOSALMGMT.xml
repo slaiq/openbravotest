@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE ESCM_PROPOSALMGMT">
+    <table name="ESCM_PROPOSALMGMT" primaryKey="ESCM_PROPOSALMGMT_KEY">
+      <column name="EM_EFIN_ENCUMBRANCE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_ISBUDGETCNTLAPP" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_BUDGETINITIAL_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_ENCUM_METHOD" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default><![CDATA[A]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_C_VALIDCOMBINATION_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="EFIN_BUDGET_MANENCUM" name="EM_EFIN_PROSA_ENCMHD">
+        <reference local="EM_EFIN_ENCUMBRANCE_ID" foreign="EFIN_BUDGET_MANENCUM_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_BUDGETINT" name="EM_EFIN_PRSBUDGETINIT">
+        <reference local="EM_EFIN_BUDGETINITIAL_ID" foreign="EFIN_BUDGETINT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_VALIDCOMBINATION" name="EM_EFIN_UNIQUECODE_FK">
+        <reference local="EM_EFIN_C_VALIDCOMBINATION_ID" foreign="C_VALIDCOMBINATION_ID"/>
+      </foreign-key>
+    </table>
+  </database>

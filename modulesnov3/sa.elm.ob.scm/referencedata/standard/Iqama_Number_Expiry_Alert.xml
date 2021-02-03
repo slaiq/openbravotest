@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="C43C5E9A437E4AE1B7FE5BD8B296C41C" identifier="Iqama Number Expiry Alert">
+    <id>C43C5E9A437E4AE1B7FE5BD8B296C41C</id>
+    <active>true</active>
+    <creationDate transient="true">2017-05-30T13:51:28.537Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2017-05-30T13:51:28.537Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Iqama Number Expiry Alert</name>
+    <tab id="220" entity-name="ADTab" identifier="Business Partner - Business Partner"/>
+    <filterClause xsi:nil="true"/>
+    <sql>SELECT bp.c_bpartner_id AS referencekey_id,
+     ad_column_identifier('C_Bpartner', bp.c_bpartner_id, 'en_US') AS record_id,
+     0 AS ad_role_id,
+     NULL AS ad_user_id,
+      'Business Partner: '||bp.name||'-'||' '||coalesce(bp.name2,'')  ||' '||coalesce(bp.EM_Efin_Nationalidnumber,'')
+      ||' is about to expire '  AS description,     
+      'Y' AS isActive,
+      ad_org_id, 
+      ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+ FROM c_bpartner bp    where em_escm_identityexpdate is not null and em_efin_identityname ='IQN' and 1=(
+select 1 from  dual where exists(select (a.gregorian_date ) from (
+select distinct  gregorian_date from eut_hijri_dates  where gregorian_date &lt;= (em_escm_identityexpdate) 
+order by gregorian_date desc  limit 90 ) a 
+where to_char(gregorian_date,'dd-MM-yyyy')  = (select to_char(now(),'dd-MM-yyyy') from dual)  )) and bp.isactive='Y'</sql>
+    <type>D</type>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+</ob:Openbravo>

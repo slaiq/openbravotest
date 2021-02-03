@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_ORDER_DOCUMENTNO_TRG">
+    <trigger name="ESCM_ORDER_DOCUMENTNO_TRG" table="C_ORDER" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_documentno VARCHAR2(60);
+v_versionno NUMBER; --OBTG:VARCHAR2--
+v_count NUMBER;
+BEGIN
+
+v_documentno := :new.documentno;
+v_versionno  := :new.em_escm_revision;
+v_count:=0;
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+	
+	IF INSERTING THEN
+
+	select count(c_order_id) into v_count from c_order where documentno = v_documentno and em_escm_revision = v_versionno;
+
+	if(v_count >0) then
+		raise exception '%','@ESCM_PODOCNO_DUPLICATE@';
+	end if;
+		
+	END IF;
+
+
+	IF UPDATING THEN
+
+	if(:old.documentno <> :new.documentno) then
+
+	select count(c_order_id) into v_count from c_order where documentno = v_documentno and em_escm_revision = v_versionno;
+
+	if(v_count >0) then
+		raise exception '%','@ESCM_PODOCNO_DUPLICATE@';
+	end if;
+		
+	END IF;
+
+	end if;
+	
+	END ESCM_ORDER_DOCUMENTNO_TRG
+]]></body>
+    </trigger>
+  </database>

@@ -1,0 +1,1554 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" pageWidth="595" pageHeight="842" whenNoDataType="NoPages" columnWidth="593" leftMargin="1" rightMargin="1" topMargin="1" bottomMargin="1" uuid="88f68129-b8d3-4243-b4c2-af1f169d6408">
+	<parameter name="DOCUMENT_ID" class="java.lang.String"/>
+	<parameter name="BASE_DESIGN" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/opt/elm/WebContent/src-loc/design/sa/elm/ob/finance/ad_reports/InvoiceReport/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="Total" class="java.math.BigDecimal"/>
+	<parameter name="TotPaise" class="java.lang.String"/>
+	<parameter name="FullTotal" class="java.lang.String"/>
+	<parameter name="BASE_WEB" class="java.lang.String"/>
+	<parameter name="param_aux_convert_total_real" class="java.math.BigDecimal"/>
+	<queryString language="SQL">
+		<![CDATA[select
+	case
+		when(
+			select
+				ty.EM_Efin_Isrdvinv
+			from
+				c_doctype ty
+			where
+				c_doctype_id = inv.C_DocTypeTarget_ID
+		)= 'Y' then coalesce(inv.description,'  قيمة المستخلص الجاري رقم ' ||coalesce((
+			select
+				coalesce(
+					rdt.certificate_no,
+					to_char(rdt.txn_version)
+				)
+			from
+				efin_rdvtxn rdt
+			where
+				rdt.c_invoice_id = inv.c_invoice_id limit 1
+		),'')|| ' الممثل للأعمال ' || ' المنجزة حتى تاريخ ' || ' ' ||coalesce((
+			select
+				to_char(
+					to_Date(
+						Eut_convert_to_hijri(
+							To_char(
+								rdt.Txnver_Date,
+								'YYYY-MM-DD'
+							)
+						)
+					),
+					'DD/MM/YYYY'
+				)|| ' الموافق ' || To_char(
+					rdt.Txnver_Date,
+					'DD/MM/YYYY'
+				) version_date_greg
+			from
+				efin_rdvtxn rdt
+			where
+				rdt.c_invoice_id = inv.c_invoice_id limit 1
+		),'')|| ' ' ||coalesce((
+			select
+			trim( regexp_replace( co.EM_Escm_Notes, '\r|\n', ' ', 'g' ))		
+			from
+				c_order co
+			where
+				co.c_order_id = inv.C_order_id limit 1
+		),'')|| ' برقم تبليغ  ' ||coalesce(coalesce((
+		select
+--				to_char(coalesce(leg.award_no,''))
+                to_char(leg.award_no)
+			from
+				Escm_Legacy_Contract leg,
+				c_order co
+			where
+				co.em_escm_legacycontract = leg.escm_legacy_contract_id
+				and  co.c_order_id =coalesce(inv.c_order_id,inv.EM_Efin_C_Order_ID)
+		),(select EM_Escm_Letter_No from c_order c2 where c2.c_order_id = coalesce(inv.c_order_id,inv.EM_Efin_C_Order_ID) )),''))
+		else inv.description
+	end description
+,
+	mang.name as manager,
+	en.documentno as encumdono,
+	inv.c_invoice_id,
+	eut_convert_to_hijri(
+		to_char(
+			inv.dateinvoiced,
+			'YYYY-MM-DD HH24:MI:SS'
+		)
+	) as invoicedate,
+	inv.documentno,
+	bp.name ||' '||
+	coalesce((
+	select
+		c1.em_escm_subcontractors
+	from
+		c_order c1
+	where
+		c1.c_order_id = coalesce(
+			inv.c_order_id,
+			inv.EM_Efin_C_Order_ID
+		) limit 1
+	),' ') bp_name,
+	inv.EM_Efin_Inwardno as inno,
+	eut_convert_to_hijri(
+		to_char(
+			inv.EM_Efin_Inwarddate,
+			'YYYY-MM-DD HH24:MI:SS'
+		)
+	) as indate,
+	inv.em_efin_supinvno as supno,
+	split_part(
+		inv.grandtotal::text,
+		'.',
+		1
+	)::numeric as totalamt,
+	split_part(
+		inv.grandtotal::text,
+		'.',
+		2
+	)::numeric as paise,
+	eut_convert_to_hijri(
+		to_char(
+			hist.created,
+			'YYYY-MM-DD HH24:MI:SS'
+		)
+	) as finalapprover,
+	sign.signpresidentorint as signpresidentorint,
+	(
+		select
+			efin_getcurrency(
+				inv.ad_org_id,
+				inv.ad_client_id,
+				'true'
+			)
+	) as legcur,
+	sign.finrepresent as finrepresent,
+	sign.chiefacctorfinmang as chiefacctorfinmang,
+	curr.iso_code,
+	inv.dateacct,
+	inv.ad_org_id as orgid,
+	case
+		when condoc.c_invoice_id is null then split_part(
+			(
+				select
+					c_currency_convert(
+						inv.grandtotal,
+						inv.c_currency_id,
+						(
+							select
+								efin_getcurrency(
+									inv.ad_org_id,
+									inv.ad_client_id,
+									'false'
+								)
+						),
+						inv.dateacct,
+						'S',
+						inv.ad_client_id
+					)
+			)::text,
+			'.',
+			1
+		)::numeric
+		else split_part((condoc.Foreign_Amount)::text,'.',1)::numeric
+
+	end as conversionpaisetotal,
+	case
+		when condoc.c_invoice_id is null then split_part(
+			(
+				select
+					c_currency_convert(
+						inv.grandtotal,
+						inv.c_currency_id,
+						(
+							select
+								efin_getcurrency(
+									inv.ad_org_id,
+									inv.ad_client_id,
+									'false'
+								)
+						),
+						inv.dateacct,
+						'S',
+						inv.ad_client_id
+					)
+			)::text,
+			'.',
+			2
+		)::numeric
+		else split_part(round((condoc.Foreign_Amount),2)::text,'.',2)::numeric
+
+	end as conversionpaise,
+        case
+		when condoc.c_invoice_id is null then split_part(
+	(
+		select
+			c_currency_convert(
+				inv.grandtotal,
+				inv.c_currency_id,
+				(
+					select
+						efin_getcurrency(
+							inv.ad_org_id,
+							inv.ad_client_id,
+							'false'
+						)
+				),
+				inv.dateacct,
+				'S',
+				inv.ad_client_id
+			)
+	)::text,
+			'.',
+			1
+		)::numeric
+		else split_part(round((condoc.Foreign_Amount),2)::text,'.',1)::numeric
+	end as totalvalue,
+	(
+		select
+			name
+		from
+			ad_user
+		where
+			ad_user_id = inv.createdby
+	) as preparer,
+	case
+		when condoc.c_invoice_id is null then split_part(
+			(
+				select
+					c_currency_convert(
+						(
+							select
+								sum( abs( linenetamt )) as total
+							from
+								c_invoiceline
+							where
+								c_invoice_id = $P{DOCUMENT_ID}
+						),
+						inv.c_currency_id,
+						(
+							select
+								efin_getcurrency(
+									inv.ad_org_id,
+									inv.ad_client_id,
+									'false'
+								)
+						),
+						inv.dateacct,
+						'S',
+						inv.ad_client_id
+					)
+			)::text,
+			'.',
+			1
+		)::numeric
+		else split_part(round((condoc.Foreign_Amount),2)::text,'.',1)::numeric
+	end as conversionpaisetotalinteger,
+	case
+		when condoc.c_invoice_id is null then split_part(
+			(
+				select
+					c_currency_convert(
+						(
+							select
+								sum( abs( linenetamt )) as total
+							from
+								c_invoiceline
+							where
+								c_invoice_id = $P{DOCUMENT_ID}
+						),
+						inv.c_currency_id,
+						(
+							select
+								efin_getcurrency(
+									inv.ad_org_id,
+									inv.ad_client_id,
+									'false'
+								)
+						),
+						inv.dateacct,
+						'S',
+						inv.ad_client_id
+					)
+			)::text,
+			'.',
+			2
+		)::numeric
+		else split_part(round((condoc.Foreign_Amount),2)::text,'.',2)::numeric
+	end as conversionpaisetotaldecimal,
+	case
+		when condoc.c_invoice_id is null then split_part(
+			(
+				select
+					c_currency_convert(
+						(
+						 /* 	select
+								sum(( linenetamt ))
+							from
+								c_invoiceline
+							where
+								c_invoice_id =
+								*/
+						  select
+								sum(( linenetamt ))
+							from
+								c_invoiceline inl,c_elementvalue e1
+							where
+								c_invoice_id =$P{DOCUMENT_ID}
+								and inl.EM_Efin_C_Elementvalue_ID=e1.C_Elementvalue_ID
+							--	and e1.accounttype in('E','A')   --- commented by Alamir on 30/03/2020
+							     and ((e1.accounttype in('R','L') and inl.linenetamt > 0 ) or ( e1.accounttype in('E','A')))   ----- added by Alamir on 30/03/2020
+							--	and linenetamt > 0
+						),
+						inv.c_currency_id,
+						(
+							select
+								efin_getcurrency(
+									inv.ad_org_id,
+									inv.ad_client_id,
+									'false'
+								)
+						),
+						inv.dateacct,
+						'S',
+						inv.ad_client_id
+					)
+			)::text,
+			'.',
+			1
+		)::numeric
+		else split_part(round((condoc.Foreign_Amount),2)::text,'.',1)::numeric
+	end as headtotalreal,
+case
+		when condoc.c_invoice_id is null then
+((  select
+								sum(( linenetamt ))
+							from
+								c_invoiceline inl,c_elementvalue e1
+							where
+								c_invoice_id =$P{DOCUMENT_ID}
+								and inl.EM_Efin_C_Elementvalue_ID=e1.C_Elementvalue_ID
+							--	and e1.accounttype in('E','A')   --- commented by Alamir on 30/03/2020
+							     and ((e1.accounttype in('R','L') and inl.linenetamt > 0 ) or ( e1.accounttype in('E','A')))   ----- added by Alamir on 30/03/2020
+							) 
+* (Case when curr.iso_code = 'SAR'	then 1 else 
+	coalesce(
+							(
+								select
+									multiplyrate
+								from
+									c_conversion_rate
+								where
+									c_currency_id = curr.c_currency_id
+							),
+							1
+						) end))								
+	else round((condoc.Foreign_Amount),2)::numeric
+	end headtotalrealwithdecimal,
+	case
+		when condoc.c_invoice_id is null then 
+		/*split_part(
+			(
+				select
+					c_currency_convert(
+						(
+						  select
+								sum(( linenetamt ))
+							from
+								c_invoiceline inl,c_elementvalue e1
+							where
+								c_invoice_id =
+								and inl.EM_Efin_C_Elementvalue_ID=e1.C_Elementvalue_ID
+								and e1.accounttype in('E','A')
+							--	and linenetamt > 0
+						),
+						inv.c_currency_id,
+						(
+							select
+								efin_getcurrency(
+									inv.ad_org_id,
+									inv.ad_client_id,
+									'false'
+								)
+						),
+						inv.dateacct,
+						'S',
+						inv.ad_client_id
+					)
+			)::text,
+			'.',
+			2
+		)::numeric  */
+		( select
+								sum(( linenetamt ))*(
+					case
+						when curr.iso_code = 'SAR' then 1
+						else coalesce(
+							(
+								select
+									multiplyrate
+								from
+									c_conversion_rate
+								where
+									c_currency_id = curr.c_currency_id
+							),
+							1
+						)
+					end
+				)
+							from
+								c_invoiceline inl,c_elementvalue e1
+							where
+								c_invoice_id =$P{DOCUMENT_ID}
+								and inl.EM_Efin_C_Elementvalue_ID=e1.C_Elementvalue_ID
+								-- and e1.accounttype in('E','A')	  --- commented by Alamir on 30/03/2020
+							     and ((e1.accounttype in('R','L') and inl.linenetamt > 0 ) or ( e1.accounttype in('E','A')))   ----- added by Alamir on 30/03/2020
+								)
+		else --split_part(round((condoc.Foreign_Amount),2)::text,'.',2)::numeric
+		     round((condoc.Foreign_Amount),2) ::numeric
+	end as headtotaldecimal,
+	(
+		select
+			year
+		from
+			c_year c,
+			Efin_Budgetint b
+		where
+			c.c_year_id = b.c_year_id
+			and b.efin_budgetint_id = inv.em_efin_budgetint_id
+	) fin_year,
+	att.cnt attachment_cnt,
+	(
+		select
+	c.name
+from
+	ad_role a,
+	ad_user_roles b,
+	ad_user c
+where
+	a.ad_role_id = b.ad_role_id
+	and b.ad_user_id = c.ad_user_id
+	and b.isactive = 'Y'
+	and c.isactive = 'Y'
+	and c.ad_user_id <> '100'
+	and a.ad_role_id='D8712712FBAD40F98C1D4BEBACA5008F'
+	and c.ad_user_id='EB70337DB9F748BD86034107804F3C1A'
+	--and a.name = 'مدير عام ادارة المنافسات والعقود'
+	) sahebe_salahiya,
+	(
+	/*	select
+			c.name
+		from
+			ad_role a,
+			ad_user_roles b,
+			ad_user c
+		where
+			a.ad_role_id = b.ad_role_id
+			and b.ad_user_id = c.ad_user_id
+			and b.isactive = 'Y'
+			and c.isactive = 'Y'
+			and c.ad_user_id <> '100'
+		--	and a.name = 'مدير عام الادارة المالية'
+		    and a.ad_role_id ='2E78C8B91DC84BDABC02F1FA081BFDA6'  */
+			select name from ad_user where username ='409046' limit 1
+	) mudeer_idara,
+	(
+		select
+			c.name
+		from
+			ad_role a,
+			ad_user_roles b,
+			ad_user c
+		where
+			a.ad_role_id = b.ad_role_id
+			and b.ad_user_id = c.ad_user_id
+			and b.isactive = 'Y'
+			and c.isactive = 'Y'
+			and c.ad_user_id <> '100'
+			and a.ad_role_id='55C03A9EAA134110BD5A5851D2002C2A'
+			--and a.name = 'الممثل المالي'
+	) Financial_Rep,
+	(
+		/*select distinct   user1.name from c_salesregion reg ,ad_user user1
+where user1.ad_user_id = reg.EM_Efin_User_ID
+and reg.c_salesregion_id= inv.EM_Efin_C_Salesregion_ID
+---------
+select usr.name
+from
+Efin_User_Manager mgr,
+ad_user usr
+where
+mgr.line_manager_id = usr.ad_user_id
+and mgr.ad_user_id = inv.createdby
+----------
+select
+	case
+		when reg.value = '8' then 'سليمان بن عبدالله العيدان'
+		else us.name
+	end
+from
+	Efin_User_Manager mgr,
+	c_salesregion reg,
+	ad_user us
+where
+	mgr.c_salesregion_id = reg.c_salesregion_id
+	and us.ad_user_id = mgr.line_manager_id
+	and mgr.c_salesregion_id = inv.EM_Efin_C_Salesregion_ID
+	limit 1
+---- */
+		select
+			case
+				when reg.value = '8' then 'سليمان بن عبدالله العيدان'
+				else usr.name
+			end
+		from
+			Efin_User_Manager mgr,
+			c_salesregion reg,
+			ad_user usr
+		where
+			mgr.c_salesregion_id = reg.c_salesregion_id
+			and mgr.line_manager_id = usr.ad_user_id
+			and mgr.document_type ='API'
+			and mgr.ad_user_id = inv.createdby limit 1
+	) dept_mgr,
+	(
+		--select name from C_Salesregion where c_salesregion_id = inv.EM_Efin_C_Salesregion_ID limit 1
+ select
+			reg.name
+		from
+			Efin_User_Manager mgr,
+			C_Salesregion reg
+		where
+			mgr.c_salesregion_id = reg.c_salesregion_id
+			and mgr.document_type ='API'
+			and mgr.ad_user_id = inv.createdby limit 1
+	) Cost_center,
+	coalesce(
+		inv.EM_Efin_Attachementref,
+		(
+			select
+				c1.em_escm_reference_no
+			from
+				c_order c1
+			where
+				c1.c_order_id = coalesce(inv.c_order_id,inv.EM_Efin_C_Order_ID) limit 1
+		)
+	) Reference_number
+	,fa.em_efin_acctseq inv_acct_seq,--fa.dateacct acct_date
+	to_char(
+				to_Date(
+					Eut_convert_to_hijri(
+						To_char(
+							fa.dateacct,
+							'YYYY-MM-DD'
+						)
+					)
+				),
+				'DD/MM/YYYY'
+			)  acct_date
+from
+	c_invoice inv
+left join(
+		select
+			count(*) cnt,
+			ad_record_id
+		from
+			c_file
+		group by
+			ad_record_id
+	) att on
+	inv.c_invoice_id = att.ad_record_id
+left join c_doctype doc on
+	doc.c_doctype_id = inv.c_doctypetarget_id
+left join efin_budget_manencum en on
+	en.efin_budget_manencum_id = inv.em_efin_manualencumbrance_id
+left join c_currency curr on
+	curr.c_currency_id = inv.c_currency_id
+left join c_bpartner bp on
+	bp.c_bpartner_id = inv.c_bpartner_id
+left join efin_purchasein_app_hist hist on
+	hist.c_invoice_id = inv.c_invoice_id
+	and hist.created =(
+		select
+			max( hist.created )
+		from
+			efin_purchasein_app_hist hist
+		where
+			hist.c_invoice_id = inv.c_invoice_id
+	)
+left join C_Conversion_Rate_Document condoc on
+	condoc.c_invoice_id = inv.c_invoice_id
+left join c_salesregion dept on
+	dept.c_salesregion_id = inv.em_efin_c_salesregion_id
+left join ad_user mang on
+	mang.ad_user_id = dept.em_efin_user_id
+left join efin_authorizesign sign on
+	sign.c_doctype_id = inv.c_doctypetarget_id
+left join (select distinct em_efin_acctseq ,dateacct,em_efin_documentno from fact_acct ) fa on 
+    inv.documentno =fa.em_efin_documentno  	
+where
+	inv.c_invoice_id = $P{DOCUMENT_ID}
+	and inv.docstatus in(
+		'CO',
+		'EFIN_WFA',
+		'WP',
+		'IP',
+		'DR'
+	)
+	and em_efin_isprepayinvapp != 'Y']]>
+	</queryString>
+	<field name="description" class="java.lang.String"/>
+	<field name="manager" class="java.lang.String"/>
+	<field name="encumdono" class="java.lang.String"/>
+	<field name="c_invoice_id" class="java.lang.String"/>
+	<field name="invoicedate" class="java.lang.String"/>
+	<field name="documentno" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<field name="bp_name" class="java.lang.String"/>
+	<field name="inno" class="java.lang.String"/>
+	<field name="indate" class="java.lang.String"/>
+	<field name="supno" class="java.lang.String"/>
+	<field name="totalamt" class="java.math.BigDecimal"/>
+	<field name="paise" class="java.math.BigDecimal"/>
+	<field name="finalapprover" class="java.lang.String"/>
+	<field name="signpresidentorint" class="java.lang.String"/>
+	<field name="legcur" class="java.lang.String"/>
+	<field name="finrepresent" class="java.lang.String"/>
+	<field name="chiefacctorfinmang" class="java.lang.String"/>
+	<field name="iso_code" class="java.lang.String"/>
+	<field name="dateacct" class="java.sql.Timestamp"/>
+	<field name="orgid" class="java.lang.String"/>
+	<field name="conversionpaisetotal" class="java.math.BigDecimal"/>
+	<field name="conversionpaise" class="java.math.BigDecimal"/>
+	<field name="totalvalue" class="java.math.BigDecimal"/>
+	<field name="preparer" class="java.lang.String"/>
+	<field name="conversionpaisetotalinteger" class="java.lang.String"/>
+	<field name="conversionpaisetotaldecimal" class="java.lang.String"/>
+	<field name="headtotalreal" class="java.math.BigDecimal"/>
+	<field name="headtotalrealwithdecimal" class="java.math.BigDecimal"/>
+	<field name="headtotaldecimal" class="java.math.BigDecimal"/>
+	<field name="fin_year" class="java.lang.String"/>
+	<field name="attachment_cnt" class="java.lang.String"/>
+	<field name="sahebe_salahiya" class="java.lang.String"/>
+	<field name="mudeer_idara" class="java.lang.String"/>
+	<field name="Financial_Rep" class="java.lang.String"/>
+	<field name="dept_mgr" class="java.lang.String"/>
+	<field name="Cost_center" class="java.lang.String"/>
+	<field name="Reference_number" class="java.lang.String"/>
+	<field name="inv_acct_seq" class="java.lang.String"/>
+	<field name="acct_date" class="java.lang.String"/>
+	<variable name="Total_header_amt" class="java.math.BigDecimal" resetType="None">
+		<variableExpression><![CDATA[$F{headtotalrealwithdecimal}]]></variableExpression>
+	</variable>
+	<variable name="Total" class="java.math.BigDecimal" resetType="None">
+		<variableExpression><![CDATA[$V{Total}]]></variableExpression>
+	</variable>
+	<variable name="TotPaise" class="java.math.BigDecimal"/>
+	<variable name="FullTotal" class="java.math.BigDecimal" resetType="None">
+		<variableExpression><![CDATA[$V{Total}]]></variableExpression>
+	</variable>
+	<variable name="convertamt" class="java.math.BigDecimal" resetType="None">
+		<variableExpression><![CDATA[$V{Total}]]></variableExpression>
+	</variable>
+	<variable name="convertedpaise" class="java.math.BigDecimal"/>
+	<variable name="aux_convert_total_real" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{conversionpaisetotal}]]></variableExpression>
+	</variable>
+	<variable name="aux_convert_total_decimal" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{conversionpaise}]]></variableExpression>
+	</variable>
+	<variable name="FullTotalReal" class="java.lang.String">
+		<variableExpression><![CDATA[$V{FullTotal}.toString().split("\\.")[0]]]></variableExpression>
+	</variable>
+	<variable name="FullTotalDecimal" class="java.lang.String">
+		<variableExpression><![CDATA[$V{FullTotal}.toString().split("\\.")[1]]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="205" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="395" y="53" width="194" height="15" backcolor="#FFFFFF" uuid="eb4a20bd-6bd7-4c78-bbb0-6fc6623b06a6"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[بيان الفواتير والمطالبات]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="498" y="59" width="64" height="13" backcolor="#FFFFFF" uuid="343d515a-e114-4b2f-af42-02e9aa83a889"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ ريال سعودي]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="562" y="59" width="27" height="13" backcolor="#FFFFFF" uuid="21a9baee-a75b-4d69-ba1d-1485836763dc"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[هـ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="440" y="46" width="58" height="26" backcolor="#FFFFFF" uuid="792e7b32-2f12-4bb4-92d9-5725d5fd0905"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[التـاريـخ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="395" y="46" width="45" height="26" backcolor="#FFFFFF" uuid="5fe84573-4969-4ce2-8cd3-b7ecf4221427"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[المرفقـات]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="315" y="31" width="77" height="15" uuid="06766138-7947-43d5-addc-fbffee431430"/>
+				<box>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[المستحق لـ: ]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="180" y="50" width="178" height="20" uuid="d9f0a642-9303-45d8-993f-ecf9f546a450"/>
+				<box>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="498" y="46" width="91" height="13" backcolor="#FFFFFF" uuid="ed392dad-5580-4333-be5c-975d7ab0893f"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[المبلـــغ]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="70" y="31" width="269" height="15" uuid="7783ba78-c369-4fe6-a486-f3b96a58b6f5"/>
+				<box>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bp_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="257" y="115" width="43" height="15" uuid="842387e7-7598-4c4d-b145-51867c866bed"/>
+				<box>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{invoicedate})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="498" y="73" width="64" height="13" backcolor="#FFFFFF" uuid="2e28a3c4-7062-4dc5-9d31-afb427683df5"/>
+				<box leftPadding="2" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(null==$F{headtotalreal}?sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator("0".toString()):sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator($F{headtotalreal}.toString())).split("\\.")[0]]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="440" y="73" width="58" height="13" backcolor="#FFFFFF" uuid="ffb8df71-4843-4bf5-9410-aa9502b1844b"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{invoicedate})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="395" y="99" width="45" height="13" backcolor="#FFFFFF" uuid="1d1bd1bd-3735-4ffe-bc29-ae8fe301674e"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement>
+					<font fontName="Arial Unicode MS" size="16"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="440" y="99" width="58" height="13" backcolor="#FFFFFF" uuid="785f087c-8683-4bae-bd05-11a807fe5b45"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[الجملة]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="498" y="99" width="64" height="13" backcolor="#FFFFFF" uuid="4e59a099-122b-4bb5-b5d6-6e627e2caf35"/>
+				<box leftPadding="2" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(null==$F{headtotalreal}?sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator("0".toString()):sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator($F{headtotalreal}.toString())).split("\\.")[0]]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement stretchType="RelativeToTallestObject" x="419" y="132" width="170" height="13" backcolor="#FFFFFF" uuid="c39c9502-b409-4332-b561-ababb60f2948"/>
+				<box leftPadding="0" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[قيد هذا الأمر بسجل حصر أوامر إعتماد الصرف تحت رقم :]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="367" y="132" width="52" height="13" uuid="c56394d9-61df-4098-b75b-41c79a160c98"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{documentno}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="131" y="132" width="82" height="13" uuid="4c2edce0-4e22-4152-8dde-24233f9a07b5"/>
+				<box leftPadding="0" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{invoicedate})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="300" y="115" width="39" height="15" uuid="92251fec-ca01-4219-bd9d-ec491078325d"/>
+				<box>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[حرر في]]></text>
+			</staticText>
+			<staticText>
+				<reportElement stretchType="RelativeToTallestObject" x="213" y="132" width="38" height="13" uuid="ebdc0de9-dd8e-4070-bb32-dedb0852dc68"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ وتاريخ :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="358" y="50" width="34" height="20" uuid="0baedf4c-00bd-460b-b834-289d06199152"/>
+				<box>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[بموجب:]]></text>
+			</staticText>
+			<textField pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="562" y="73" width="27" height="13" backcolor="#FFFFFF" uuid="0b54736c-6932-4de8-b34d-34fdf14d00b8"/>
+				<box leftPadding="2" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(null==$F{headtotaldecimal} ? sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator("0"):sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator($F{headtotaldecimal}.toString())).split("\\.")[1]]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Opaque" x="562" y="99" width="27" height="13" backcolor="#FFFFFF" uuid="e2433005-cbcf-43a5-9908-cd6041bd944a"/>
+				<box leftPadding="2" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(null==$F{headtotaldecimal} ? sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator("0"):sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator($F{headtotaldecimal}.toString())).split("\\.")[1]]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="131" y="80" width="42" height="15" uuid="c9ca0661-364c-4ab8-a0cd-75721dd3c11b"/>
+				<box>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[مدير]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="131" y="2" width="227" height="24" uuid="9611e9f2-c68b-4d45-ab36-287525324de4"/>
+				<box>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ أمر إعتماد صرف]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="440" y="86" width="58" height="13" backcolor="#FFFFFF" uuid="e0e70fad-06de-41eb-b7fe-2d936a79c34a"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Arial Unicode MS" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="498" y="86" width="64" height="13" backcolor="#FFFFFF" uuid="dcaddd91-f74e-4d85-8ce9-95bc1c6502fc"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Arial Unicode MS" size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="395" y="86" width="45" height="13" backcolor="#FFFFFF" uuid="ecab84bb-7ad2-4789-9eed-3164942886e2"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement>
+					<font fontName="Arial Unicode MS" size="16"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="562" y="86" width="27" height="13" backcolor="#FFFFFF" uuid="c5cfcce8-ba0c-4dc3-9400-c5bd954ecbf9"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Arial Unicode MS" size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="47" y="102" width="131" height="15" uuid="9464c843-615c-4c38-8879-051b5efd03e4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dept_mgr}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="10" y="1" width="60" height="53" uuid="e5cc60ee-6c17-4c23-839d-c0b6669cf7b8"/>
+				<imageExpression><![CDATA[org.openbravo.erpCommon.utility.Utility.showImageLogo("yourcompanylegal",$F{orgid})]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="3" y="132" width="128" height="13" uuid="637ce0c5-75ad-4a58-92a6-233e05ac48f8"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["توقيع المختص:  "+($F{preparer}==null?"":$F{preparer})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="124" y="59" width="51" height="15" uuid="7f9b65b8-b0ff-4d40-a5d8-4b3b8f4cf839"/>
+				<box>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[رقم الوارد:]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="77" y="59" width="47" height="15" uuid="6996deaa-edd6-4bdd-bb51-6bd9872ac7d8"/>
+				<box>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{inno}==null?"":$F{inno}.toString())]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="" x="50" y="59" width="27" height="15" uuid="8c5cc4f9-6075-4b80-8137-fb7c59abfbfd">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9"/>
+				</textElement>
+				<text><![CDATA[وتاريخ:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2" y="59" width="48" height="15" uuid="53f27ecf-3c0b-4128-9f09-c88f8324a042">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{indate}==null?"":$F{indate})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="251" y="132" width="76" height="13" uuid="5e6c0c71-8070-4b9e-95f3-c6a3cad022eb"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{fin_year}.toString())]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement stretchType="RelativeToTallestObject" x="327" y="132" width="40" height="13" backcolor="#FFFFFF" uuid="6c73e84f-aa99-43f9-a852-4b8703336886"/>
+				<box leftPadding="0" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[العام المالي]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="395" y="72" width="45" height="13" backcolor="#FFFFFF" uuid="5c9a063f-a457-44df-b3df-709d1d7f42d3"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{attachment_cnt})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="-1" y="80" width="154" height="15" uuid="b18f85dc-7191-40ce-ab1e-9d6a80cbaec3"/>
+				<box>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{Cost_center})]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="40" splitType="Stretch">
+			<subreport>
+				<reportElement x="0" y="-55" width="589" height="35" uuid="1776b112-aa17-4610-a980-4b0fcd385099"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="DOCUMENT_ID">
+					<subreportParameterExpression><![CDATA[$P{DOCUMENT_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<returnValue subreportVariable="Total" toVariable="Total"/>
+				<returnValue subreportVariable="TotPaise" toVariable="TotPaise"/>
+				<returnValue subreportVariable="FullTotal" toVariable="FullTotal"/>
+				<returnValue subreportVariable="convertamt" toVariable="convertamt"/>
+				<returnValue subreportVariable="convertedpaise" toVariable="convertedpaise"/>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/finance/ad_reports/InvoiceReport/APInvoiceLineSub.jrxml")]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<summary>
+		<band height="197">
+			<staticText>
+				<reportElement positionType="Float" x="244" y="25" width="60" height="13" uuid="a721362e-e4c1-401d-b04c-96c5b1e378ad"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[توقيع الممثل المالي]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="440" y="26" width="138" height="13" uuid="fb35eca8-21b1-4b3a-925c-145092bfec1e"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[توقيع رئيس المحاسبة / مدير الإدارة المالية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="300" y="-13" width="240" height="32" uuid="25a0c3b4-72f0-4f1f-aa87-7ab62f37bfbd"/>
+				<box leftPadding="0" rightPadding="4">
+					<topPen lineWidth="0.7"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+					<paragraph lineSpacing="1_1_2"/>
+				</textElement>
+				<text><![CDATA[١- الإعتماد المختص يسمح بالصرف.
+٢- المبلغ مقيد بحساب الأمانات/الإيرادات بتاريخ : / /    ١٤هـ ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="540" y="-13" width="52" height="32" uuid="11c6176b-f513-4cf2-abed-79b220e5b832"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="0.7"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[إقرارات]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="2" y="-13" width="148" height="32" uuid="968f1399-19a3-42e3-a4b7-cf45f5e5e38c"/>
+				<box leftPadding="2" rightPadding="4">
+					<topPen lineWidth="0.7"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[-۳ روجع، توقيع المختص.]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="224" y="63" width="100" height="15" uuid="656a5323-5caf-4b78-af6f-5b3dd8e1fbf9"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Financial_Rep}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="150" y="-13" width="150" height="32" uuid="c1456daa-c9ea-47c6-ad91-ad4fbe545ceb"/>
+				<box>
+					<topPen lineWidth="0.7"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[توقيع المختص:
+
+توقيع المختص: ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="339" y="26" width="80" height="13" uuid="c8342b34-fb28-475a-a8c5-d477369674b1"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[صاحب الصلاحية]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="441" y="63" width="133" height="15" uuid="32ca3b76-db21-48f8-9880-416b16c413c8"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mudeer_idara}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement x="1" y="-55" width="587" height="34" isRemoveLineWhenBlank="true" uuid="afab23bd-8db4-44cb-aae2-f552e24da97c"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="iso_code">
+					<subreportParameterExpression><![CDATA[$F{iso_code}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="legcur">
+					<subreportParameterExpression><![CDATA[$F{legcur}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="convertamt">
+					<subreportParameterExpression><![CDATA[$V{convertamt}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="DOCUMENT_ID">
+					<subreportParameterExpression><![CDATA[$P{DOCUMENT_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="convertedpaise">
+					<subreportParameterExpression><![CDATA[$V{convertedpaise}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="FullTotal">
+					<subreportParameterExpression><![CDATA[$V{FullTotal}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="Total">
+					<subreportParameterExpression><![CDATA[$V{Total}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="TotPaise">
+					<subreportParameterExpression><![CDATA[$V{TotPaise}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="aux_convert_total_real">
+					<subreportParameterExpression><![CDATA[$V{aux_convert_total_real}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="aux_convert_total_decimal">
+					<subreportParameterExpression><![CDATA[$V{aux_convert_total_decimal}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="aux_convert_total">
+					<subreportParameterExpression><![CDATA[$F{totalvalue}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="Total_header_amt">
+					<subreportParameterExpression><![CDATA[$V{Total_header_amt}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/finance/ad_reports/InvoiceReport/APInvoiceLinePayBenSub.jrxml")]]></subreportExpression>
+			</subreport>
+			<subreport isUsingCache="false" runToBottom="false" overflowType="Stretch">
+				<reportElement positionType="Float" x="190" y="163" width="398" height="13" uuid="2ed14b64-b1c5-493e-b53f-957bc637636d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="DOCUMENT_ID">
+					<subreportParameterExpression><![CDATA[$P{DOCUMENT_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/finance/ad_reports/InvoiceReport/APInvoicePayinst.jrxml")]]></subreportExpression>
+			</subreport>
+			<subreport overflowType="Stretch">
+				<reportElement positionType="Float" x="0" y="29" width="180" height="15" uuid="703d3371-bdaa-49e6-8a65-b0090ca2fb8e"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="DOCUMENT_ID">
+					<subreportParameterExpression><![CDATA[$P{DOCUMENT_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/finance/ad_reports/InvoiceReport/APInvoice.jrxml")]]></subreportExpression>
+			</subreport>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="326" y="63" width="110" height="15" uuid="8063324d-4a22-48a9-a674-5c66aafe93af"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sahebe_salahiya}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="520" y="176" width="63" height="13" uuid="a33f00ee-9207-45e2-8bcb-14955308f3bd"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[الرقم المرجعي]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="406" y="176" width="110" height="15" uuid="240ce6f3-6792-4693-bee0-7f1ca92f2f02"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{Reference_number})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="264" y="98" width="70" height="13" uuid="ea150ba6-93cf-4c3b-bcc2-02a7ba057f1c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[سحب أمر دفع / شيك رقم :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="395" y="98" width="70" height="13" uuid="3ec53a42-39ce-44e9-9d1a-eb208483aaf0">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[سحب أمر دفع / شيك رقم :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="517" y="98" width="70" height="13" uuid="ef0bc59e-61d0-4e94-9c28-67b342ef7360">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[سحب أمر دفع / شيك رقم :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="264" y="111" width="70" height="13" uuid="02acf063-9c0e-4487-941c-3b63f90efcc1">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[سحب أمر دفع / شيك رقم :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="395" y="111" width="70" height="13" uuid="e85e272c-31e1-4174-af36-0a1366ee1fad">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[سحب أمر دفع / شيك رقم :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="517" y="111" width="70" height="13" uuid="53387847-4f30-4dad-910a-494770fb4eb4">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[سحب أمر دفع / شيك رقم :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="334" y="129" width="51" height="13" uuid="8005d21a-4fef-4834-85bb-d2feb4cd2c88">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[توقيع المختص  :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="354" y="142" width="28" height="13" uuid="65771216-3e64-4f93-8df0-8e7ce54b071d"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="7"/>
+				</textElement>
+				<text><![CDATA[بتاريخ  :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="458" y="142" width="64" height="13" uuid="e48f5d11-caf3-45e7-a693-e920cc775de4"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[وقيـد بدفتـر اليوميـة برقـم  :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="493" y="129" width="31" height="13" uuid="12e56123-edf5-4a81-8725-0ff5b5ec81fb">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[وتاريخ  :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="264" y="85" width="70" height="13" uuid="350cda12-17f4-489a-a920-a149497c0541">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[سحب أمر دفع / شيك رقم :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="395" y="85" width="70" height="13" uuid="736ef4a3-d537-4b00-9a3b-b953e4cb2a7c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[سحب أمر دفع / شيك رقم :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="517" y="85" width="70" height="13" uuid="cf72bd3b-d08b-481d-a60e-0e3a1b8fe116">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial Unicode MS" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[سحب أمر دفع / شيك رقم :]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="284" y="142" width="70" height="13" uuid="29cca1fa-7986-4733-aef9-6c41d5e3215c"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{acct_date})]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="382" y="142" width="70" height="13" uuid="40a39d7d-6a48-4bc0-9f3a-51568e86ec2c"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{inv_acct_seq})]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+	<noData>
+		<band height="50">
+			<printWhenExpression><![CDATA[$V{REPORT_COUNT}==0]]></printWhenExpression>
+			<staticText>
+				<reportElement x="0" y="-3" width="589" height="50" uuid="d22cf6d1-e11c-4f9d-974e-1de8e37ffee4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[لاتوجد بيانات]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

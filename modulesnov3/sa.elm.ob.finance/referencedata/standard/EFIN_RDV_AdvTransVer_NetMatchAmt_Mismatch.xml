@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="A6D5A825E4224230BF40E19CC53F9889" identifier="RDV Net Match Amount Mismatch Adv Transaction Version">
+    <id>A6D5A825E4224230BF40E19CC53F9889</id>
+    <active>true</active>
+    <name>RDV Net Match Amount Mismatch Adv Transaction Version</name>
+    <tab id="FDBA56F9D57A4F988F4CC6F3577428B9" entity-name="ADTab" identifier="Advance Transaction Version - Receipt Delivery Verification"/>
+    <filterClause xsi:nil="true"/>
+    <sql>SELECT a.Efin_RDVTxn_id AS referencekey_id,
+      a.TXN_Version||case when (a.Advancesequence is not null and a.Advancesequence!='') then '-'||a.Advancesequence else '' end AS record_id,
+     0 AS ad_role_id,
+     NULL AS ad_user_id,
+     'Net Match Amount : '||round(coalesce(a.Netmatch_Amt,0),2)||' and the sum of line Net Match Amount are mismatched in RDV Advance Transaction Version' AS description,
+     'Y' AS isActive,
+      a.ad_org_id, 
+      a.ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+from Efin_RDVTxn a 
+where round(coalesce(a.Netmatch_Amt,0),2) != 
+(select round(sum(b.Netmatch_Amt),2) from Efin_RDVTxnline b
+ where b.Efin_RDVTxn_id=a.Efin_RDVTxn_id group by b.Efin_RDVTxn_id)
+ and a.isadvancetransaction='Y'
+ order by a.updated desc</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

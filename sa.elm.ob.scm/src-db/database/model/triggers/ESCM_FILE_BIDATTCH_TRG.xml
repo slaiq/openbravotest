@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_FILE_BIDATTCH_TRG">
+    <trigger name="ESCM_FILE_BIDATTCH_TRG" table="C_FILE" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+	
+	IF  INSERTING THEN
+		INSERT INTO escm_tabadul_attachments(
+		escm_tabadul_attachments_id, ad_client_id, ad_org_id, isactive, 
+		created, createdby, updated, updatedby, status, c_file_id)
+		VALUES (get_uuid(), :NEW.ad_client_id, :NEW.ad_org_id, :NEW.isactive, 
+		now(), :NEW.createdby, now(), :NEW.updatedby, 'DR', :NEW.C_File_ID);	     
+	END IF;
+	IF DELETING THEN
+		delete from escm_tabadul_attachments where c_file_id=:OLD.c_file_id;
+	END IF;
+	
+	END ESCM_FILE_BIDATTCH_TRG
+]]></body>
+    </trigger>
+  </database>

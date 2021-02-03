@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.0.final using JasperReports Library version 6.5.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ReminderLetterReport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="e9672566-96a9-48dd-a414-e0b124dd8c74">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<subDataset name="Photoscopies" uuid="c767ba57-85d4-47a8-8705-5662e85bbf72">
+		<parameter name="inpPhotoCopiesList" class="java.util.List">
+			<defaultValueExpression><![CDATA[new java.util.ArrayList()]]></defaultValueExpression>
+		</parameter>
+		<queryString>
+			<![CDATA[]]>
+		</queryString>
+		<field name="seqNo" class="java.lang.String"/>
+		<field name="awardLookUp" class="java.lang.String"/>
+		<variable name="ROW_INDEX" class="java.lang.Integer" resetType="None">
+			<variableExpression><![CDATA[$V{REPORT_COUNT} - 1]]></variableExpression>
+		</variable>
+		<variable name="Row_Values" class="java.util.List">
+			<variableExpression><![CDATA[$P{inpPhotoCopiesList}]]></variableExpression>
+			<initialValueExpression><![CDATA[new java.util.ArrayList()]]></initialValueExpression>
+		</variable>
+	</subDataset>
+	<parameter name="inpProposalMgmtId" class="java.lang.String"/>
+	<parameter name="inpPhotoCopiesList" class="java.util.List">
+		<defaultValueExpression><![CDATA[new java.util.ArrayList()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpParamReminder2value" class="java.lang.String"/>
+	<parameter name="inpconditionalbullets" class="java.lang.String"/>
+	<parameter name="inpParamReminder2name" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select bid.bidno as bidno,bid.bidname as BidName, (bp.name||'-'||pm.subcontractors) as SupplierName,bploc.phone,bploc.fax,loc.Address2 as secondLineAdd,
+loc.Postal,concat('(',pm.Totalamount , ')',' ', coalesce(cur.cursymbol,cur.iso_code)) as totalamountwithcurrency,
+(select letter.dms_id as DMSID from ESCM_ProposalMgmt_Letter letter where letter.escm_proposalmgmt_id=pm.escm_proposalmgmt_id order by created ASC limit 1 ),
+(select eut_convert_to_hijri(to_char(letter.dms_date,'YYYY-MM-dd')) as DMSDate from ESCM_ProposalMgmt_Letter letter where letter.escm_proposalmgmt_id=pm.escm_proposalmgmt_id order by created ASC limit 1 )
+from escm_proposalmgmt pm
+join c_bpartner bp on bp.c_bpartner_id=pm.Supplier
+left join C_BPartner_Location bploc on bp.c_bpartner_id=bploc.c_bpartner_id
+and  bploc.created = (select max(created) from C_BPartner_Location maxloc where  maxloc.c_bpartner_id=bploc.c_bpartner_id)
+left join c_location loc on loc.c_location_id=bploc.c_location_id
+left join escm_bidmgmt bid on bid.escm_bidmgmt_id=pm.escm_bidmgmt_id
+join C_Currency cur on cur.C_Currency_ID=pm.C_Currency_ID
+
+
+where pm.escm_proposalmgmt_id=$P{inpProposalMgmtId}  and pm.Proposalstatus='AWD' and pm.Proposalappstatus='APP']]>
+	</queryString>
+	<field name="bidno" class="java.lang.String"/>
+	<field name="bidname" class="java.lang.String"/>
+	<field name="suppliername" class="java.lang.String"/>
+	<field name="phone" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<field name="fax" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<field name="secondlineadd" class="java.lang.String"/>
+	<field name="postal" class="java.lang.String"/>
+	<field name="totalamountwithcurrency" class="java.lang.String"/>
+	<field name="dmsid" class="java.lang.String"/>
+	<field name="dmsdate" class="java.lang.String"/>
+	<variable name="variable1" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="634" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="335" width="555" height="22" uuid="5c2d86e1-bdfe-426d-b320-b81c4a1cbc92"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["السلام عليكم ورحمة الله وبركاته,,,,,,"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="401" width="555" height="22" uuid="99502be8-c308-407a-8c42-b80ff114927d"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="styled">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["<li>"+"مراجعة إدارة المناقصات والعقود لتوقيع العقد."+"</li>"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="1" y="445" width="554" height="22" uuid="3659ec8c-1d89-493d-a681-e22725b91f3a"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["وذلك خلال مدة أقصاها عشرة أيام من تاريخ خطابنا المشار إليه."]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="467" width="555" height="22" uuid="177a471a-9f83-4d5f-afce-cc79c286667b"/>
+				<box rightPadding="20">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["وحيث أنكم لم تراجعوا الوزارة حتى الآن, فأننا نؤكد عليكم بضرورة مراجعة إدارة المناقصات والعقود لإتمام المطلوب منكم وذلك خلال مدة"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="489" width="555" height="22" uuid="c7b9ce4e-29d6-4817-8702-2439385c07c3"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["أقصاها عشرة أيام من تاريخ خطابنا هذا, وإلا سوف يطبق بحقكم ماتقضي به المادة ( ٣٣ ) من نظام المنافسات والمشتريات الحكومية التي تنص على"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="511" width="555" height="22" uuid="7674923f-b619-4ad1-ad2e-4729b9404091"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["الآتي:(( يجب على من تتم الترسية عليه أن يقدم ضماناً نهائياً بنسبة (% ٥ ) خمسة في المائة من قيمة العقد خلال عشرة أيام من تاريخ الترسية، ويجوز"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="532" width="555" height="22" uuid="e38b46b0-ba3d-463e-b87f-a4fbcdf295e4"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["تمديد هذه المدة لفترة مماثلة، وإن تأخر عن ذلك فلا يعاد له الضمان الابتدائي، ويتم التفاوض مع العرض الذي يليه وفقاً لأحكام هذا النظام))."]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="141" y="554" width="104" height="22" uuid="eeb22382-5d0c-40dd-ba9e-93659cfe077c"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["ولكم تحياتي ,,,"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="32" y="577" width="189" height="28" uuid="2fb5df51-eb02-4202-ac83-f75f331a409d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16"/>
+				</textElement>
+				<text><![CDATA[مدير عام إدارة المناقصات والعقود]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="51" y="605" width="149" height="28" uuid="eaea188c-a702-4225-a676-e5f007aa6816"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16"/>
+				</textElement>
+				<text><![CDATA[حامد بن محمد الشمري]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="357" width="539" height="22" uuid="ddbe5254-9007-478c-9b6e-07e263dee927"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" سبق إبلاغكم بالخطاب رقم " +($F{dmsid}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{dmsid}.toString()))+ " وتاريخ " +($F{dmsdate}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{dmsdate}.toString())) + " هـ"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="379" width="555" height="22" uuid="3c84da60-15ad-4226-8aed-78bd3cd469c8"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" بموافقة معالي وزير النقل على ترسية منافسة عملية " +($F{bidname}==null?"":$F{bidname})+ " عليكم بقيمة إجمالية قدرها " +($F{totalamountwithcurrency}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{totalamountwithcurrency}.toString()))+ "، " + " و طلب" + " " + "منكم الاتي :"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="423" width="554" height="22" uuid="49ff1710-8177-456f-addb-b58c94293c96"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{inpconditionalbullets}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="378" y="78" width="177" height="33" uuid="ef5b4c42-5dbf-4554-b459-fe0ff3be821c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="21"/>
+				</textElement>
+				<text><![CDATA[المملكة العربية السعودية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="378" y="111" width="177" height="33" uuid="8b5d6c94-3d40-4ac2-ae05-13c413b83262"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="21"/>
+				</textElement>
+				<text><![CDATA[وزارة النقل]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="378" y="144" width="177" height="33" uuid="86e7e0fe-2947-424d-842d-927b0ab85e39"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="21"/>
+				</textElement>
+				<text><![CDATA[إدارة المنافسات والعقود]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="112" y="143" width="266" height="35" uuid="7657fc03-2dc7-40b1-b7bc-e4a9d9358bc5"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="21"/>
+				</textElement>
+				<text><![CDATA[خطاب تعقيــــــــــــــــــــــــــــــــب (عاجــــــــــل)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="250" y="178" width="65" height="22" uuid="f38bde6b-faed-4509-95f1-4a02f0ce85e1"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[رقم المنافسة :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="504" y="227" width="51" height="22" uuid="e66dbc1b-2a2b-4173-8875-d9778c0a6ef9"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[الموضوع :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="516" y="267" width="39" height="22" uuid="1e9c4e4b-8fa9-410a-b1f6-a78dcb7bff38"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[السادة /]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="11" y="267" width="189" height="22" uuid="17a3670e-b960-47ef-817f-59895ade3edf"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[المحترمين]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="516" y="289" width="39" height="22" uuid="3022e6b1-2f14-42d0-b8d6-141824f13032"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[ص.ب :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="322" y="290" width="60" height="22" uuid="4f18e279-e0d0-48db-a6ef-f22fe91edfc0"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[الرمز البريدي :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="216" y="289" width="36" height="22" uuid="e86340d9-dcb5-4ee1-92bd-11d98ceb1b8b"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[الهاتف :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="87" y="289" width="41" height="22" uuid="0c0f373b-61f4-4c72-b0ec-7564fbf3e95c"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[الفاكس:]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="1" y="178" width="249" height="22" uuid="890f3916-f76c-4e9a-89cf-cff925a12dbd"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{bidno}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="257" y="290" width="65" height="22" uuid="9c178f87-aa27-4e54-b8fe-8a80b187cb54"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{postal}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="130" y="289" width="91" height="22" uuid="7b24fc73-21a5-4980-9932-f2227bd8ecec"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{phone}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="1" y="289" width="97" height="22" uuid="28c77cad-f832-44bf-9183-792e4b257008"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{fax}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="387" y="289" width="129" height="22" uuid="0505e5fe-491f-476a-a282-520fa7a9618c"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{secondlineadd}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="200" y="267" width="316" height="22" uuid="88885216-7905-404d-b146-a707f920cb43"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{suppliername}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="227" width="504" height="22" uuid="a76ccb9e-f18e-4677-8337-20c3c4934c80"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{inpParamReminder2name}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="51">
+			<componentElement>
+				<reportElement x="0" y="2" width="555" height="49" uuid="643c2503-b3ba-413b-9bfe-96b087738b98"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Photoscopies" uuid="8fb1d08b-84b7-4d18-b8f6-276a41a64e0f">
+						<datasetParameter name="inpPhotoCopiesList">
+							<datasetParameterExpression><![CDATA[$P{inpPhotoCopiesList}]]></datasetParameterExpression>
+						</datasetParameter>
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{inpPhotoCopiesList})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:column width="139" uuid="eb3b6fb1-732b-4698-8024-9be64b82f7b6">
+						<jr:tableHeader height="29" rowSpan="1"/>
+						<jr:detailCell height="22" rowSpan="1"/>
+					</jr:column>
+					<jr:column width="416" uuid="2a6d1e48-4be7-441d-b05e-0a72118a624a">
+						<jr:tableHeader height="29" rowSpan="1"/>
+						<jr:detailCell height="22" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="416" height="22" uuid="c21d77c7-1d4b-4c41-bcff-1f1105647439"/>
+								<box rightPadding="4">
+									<topPen lineWidth="0.0"/>
+									<bottomPen lineWidth="0.0"/>
+									<rightPen lineWidth="0.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName="Traditional Arabic" size="14"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{awardLookUp}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+</jasperReport>

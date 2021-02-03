@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_EXPENSE_VIEW">
+    <view name="ESCM_EXPENSE_VIEW"><![CDATA[SELECT sum(leg3.line_amount) AS legacy_rdv, leg3.pro_contract_no AS po_contract_no FROM escm_legacy_contract leg JOIN efin_expenses_legacy_3 leg3 ON leg3.pro_contract_no = leg.po_contract_no GROUP BY leg3.pro_contract_no]]></view>
+  </database>

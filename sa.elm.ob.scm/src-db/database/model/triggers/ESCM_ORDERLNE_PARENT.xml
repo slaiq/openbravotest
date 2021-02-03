@@ -1,0 +1,206 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_ORDERLNE_PARENT">
+    <trigger name="ESCM_ORDERLNE_PARENT" table="C_ORDERLINE" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_parentId VARCHAR2(32);
+v_SumOfChildPrice NUMBER;
+v_NoOfChilds NUMBER;
+v_totamt NUMBER;
+v_totupdatedamt NUMBER;
+v_acctno VARCHAR2(32);
+v_ParentIsManual CHAR(1);
+v_ChildIsManual CHAR(1);
+v_uomId VARCHAR2(32);
+v_sumofupdatedchildamt NUMBER; 
+v_sumofchildqty NUMBER;
+v_lnpochangetype VARCHAR2(32);
+v_lnpochangeval NUMBER;
+v_lnpochangefact VARCHAR2(32);
+v_lkuppochangefactvalue VARCHAR(10);
+v_lkuppochangetypevalue VARCHAR(10);
+v_sumoftaxAmt  NUMBER;
+v_istaxlnclded CHAR(1);
+v_sumofreleQty NUMBER;
+v_sumofreleAmt NUMBER;
+v_initialUnitprice NUMBER;
+v_parent_uomId VARCHAR2(32);
+
+BEGIN
+
+ IF AD_isTriggerEnabled()='N' THEN 
+ IF DELETING THEN 
+ RETURN OLD; 
+ ELSE 
+ RETURN NEW; 
+ END IF; 
+ END IF;
+ IF UPDATING OR DELETING THEN
+ IF (:OLD.em_escm_parentline_id IS NOT NULL) THEN
+
+ IF (DELETING OR coalesce(:NEW.em_escm_parentline_id, '')<>coalesce(:OLD.em_escm_parentline_id, '')) THEN
+ --Check the old parent is parent for any other childs
+ select count(c_orderline_id) into v_NoOfChilds from c_orderline where em_escm_parentline_id = :OLD.em_escm_parentline_id;
+ select em_escm_ismanual into v_ParentIsManual from c_orderline where c_orderline_id = :OLD.em_escm_parentline_id;
+ select em_escm_ismanual into v_ChildIsManual from c_orderline where c_orderline_id = :OLD.c_orderline_id;
+
+ IF (v_NoOfChilds > 0) THEN
+ --Update new sum of child amount in all parents
+ v_parentId:= :OLD.em_escm_parentline_id;
+
+ WHILE(v_parentId IS NOT NULL) LOOP 
+ select sum(linenetamt), sum(em_escm_line_total_updated),sum(em_escm_line_taxamt),sum(EM_Escm_Releaseqty),sum(EM_Escm_Releaseamt)
+ , sum(em_escm_initial_unitprice*qtyordered)
+ into v_SumOfChildPrice, v_sumofupdatedchildamt,v_sumoftaxAmt,v_sumofreleQty,v_sumofreleAmt 
+ ,  v_initialUnitprice
+ from c_orderline where 
+ em_escm_parentline_id = v_parentId;
+
+ update c_orderline set priceactual = v_sumofupdatedchildamt,
+ linenetamt =v_SumOfChildPrice , em_escm_line_total_updated=v_sumofupdatedchildamt,
+ em_escm_line_taxamt=v_sumoftaxAmt,EM_Escm_Releaseqty =v_sumofreleQty, EM_Escm_Releaseamt = v_sumofreleAmt 
+ ,em_escm_initial_unitprice=v_initialUnitprice  ,em_escm_unittax=0,
+ em_escm_net_unitprice=0,em_escm_rounddiff_invoice=0,
+ em_escm_rounddiff_tax=0
+ where c_orderline_id = v_parentId;
+
+ select em_escm_parentline_id into v_parentId from c_orderline where c_orderline_id = v_parentId;
+ END LOOP;
+ ELSE
+
+ IF(UPDATING and v_ParentIsManual ='N' and v_ChildIsManual='N') THEN
+ RAISE_APPLICATION_ERROR(-20501,'@ESCM_BidMgmLine_CannotReorder@');
+ ELSIF(DELETING and v_ParentIsManual ='N') THEN
+ delete from Escm_Ordersource_Ref where c_orderline_id = :OLD.em_escm_parentline_id;
+ delete from c_orderline where c_orderline_id = :OLD.em_escm_parentline_id;
+ ELSE
+
+ --Update summary level to 'N', if it is no more parent for any child
+ select case when ordln.M_PRODUCT_ID is not null 
+then (SELECT C_UOM_ID FROM M_PRODUCT WHERE M_PRODUCT_ID=ordln.M_PRODUCT_ID)
+else (select c_uom_id from c_uom where x12de355 ilike 'EA' and ad_client_id in ('0', :OLD.ad_client_id))
+end into v_parent_uomId from c_orderline ordln where ordln.c_orderline_id = :OLD.em_escm_parentline_id;
+
+     update c_orderline set em_escm_issummarylevel= 'N', priceactual = 0,
+     C_UOM_ID=v_parent_uomId,
+ linenetamt = 0, em_escm_line_total_updated=0,em_escm_line_taxamt=0 ,
+ em_escm_releaseqty = 0,em_escm_releaseamt =0
+ where c_orderline_id = :OLD.em_escm_parentline_id;
+ END IF;
+ END IF;	
+ END IF;
+ END IF;	
+ select coalesce(sum(linenetamt), 0), coalesce(sum(em_escm_line_total_updated), 0),
+ coalesce(sum(em_escm_line_taxamt),0),coalesce(sum(em_escm_releaseqty),0),coalesce(sum(em_escm_releaseamt),0)
+ into v_totamt, v_totupdatedamt,v_sumoftaxAmt, 
+ v_sumofreleQty,v_sumofreleAmt 
+from c_orderline where em_escm_issummarylevel = 'N' and c_order_id=:OLD.c_order_id;
+
+update c_order set grandtotal=v_totamt, em_escm_tot_po_updated_amt=v_totupdatedamt, updated=now(),EM_ESCM_TOTAL_TAXAMT=v_sumoftaxAmt
+where c_order_id=:OLD.c_order_id;	
+END  IF;
+
+ IF INSERTING OR UPDATING THEN
+ --get uom id
+
+ select c_uom_id into v_uomId from c_uom where x12de355 ilike 'EA' and ad_client_id in ('0', :NEW.ad_client_id);
+ IF (:NEW.em_escm_parentline_id IS NOT NULL) THEN	
+ --Update summary level and quantity for parent
+ update c_orderline set em_escm_issummarylevel= 'Y',em_efin_c_validcombination_id=null,em_efin_uniquecodename='', 
+ qtyordered=1, em_escm_qty_due= 1, c_uom_id=v_uomId, priceactual=0, em_escm_po_change_type=null, em_escm_po_change_factor=null,
+ em_escm_po_change_value=0 where c_orderline_id = :NEW.em_escm_parentline_id;
+
+ --Update sum of child amount in all parents
+ v_parentId:= :NEW.em_escm_parentline_id;
+ WHILE(v_parentId IS NOT NULL) LOOP 
+ select sum(linenetamt), sum(em_escm_line_total_updated), sum(qtyordered),sum(em_escm_line_taxamt),
+ sum(em_escm_releaseqty),sum(em_escm_releaseamt)
+  , sum(em_escm_initial_unitprice*qtyordered)
+ into v_SumOfChildPrice, v_sumofupdatedchildamt, v_sumofchildqty,v_sumoftaxAmt,v_sumofreleQty,v_sumofreleAmt
+ , v_initialUnitprice
+ from c_orderline where em_escm_parentline_id = v_parentId;
+ /*select em_escm_po_change_type, em_escm_po_change_value, em_escm_po_change_factor into v_lnpochangetype, v_lnpochangeval, v_lnpochangefact from c_orderline where c_orderline_id = v_parentId;
+  
+ select value into v_lkuppochangetypevalue from escm_deflookups_typeln where escm_deflookups_typeln_id=v_lnpochangetype;
+ select value into v_lkuppochangefactvalue from escm_deflookups_typeln where escm_deflookups_typeln_id=v_lnpochangefact;
+
+ --PO Change type-Amount
+ IF(v_lkuppochangetypevalue='01')THEN
+ 	--PO Change Factor -Decrease
+ 	IF(v_lkuppochangefactvalue='01')THEN
+    	v_sumofupdatedchildamt = v_sumofupdatedchildamt-v_lnpochangeval;
+    --PO Change Factor -Increase    
+    ELSE IF(v_lkuppochangefactvalue='02')THEN
+    	v_sumofupdatedchildamt = v_sumofupdatedchildamt+v_lnpochangeval;
+    END IF;
+    END IF;
+    
+    --PO Change type-Percetage
+ ELSE IF(v_lkuppochangetypevalue='02')THEN
+ 	--PO Change Factor -Decrease
+ 	IF(v_lkuppochangefactvalue='01')THEN
+    	v_sumofupdatedchildamt = v_sumofupdatedchildamt-(v_sumofupdatedchildamt*(v_lnpochangeval/100));
+    --PO Change Factor -Increase    
+    ELSE IF(v_lkuppochangefactvalue='02')THEN
+    	v_sumofupdatedchildamt = v_sumofupdatedchildamt+(v_sumofupdatedchildamt*(v_lnpochangeval/100));
+    END IF;
+    END IF;
+ END IF;
+ END IF;*/
+ update c_orderline set priceactual = v_sumofupdatedchildamt,
+ linenetamt =v_SumOfChildPrice , em_escm_line_total_updated =v_sumofupdatedchildamt,
+ em_escm_line_taxamt=v_sumoftaxAmt,em_escm_releaseqty = v_sumofreleQty,em_escm_releaseAmt =v_sumofreleAmt
+ ,em_escm_initial_unitprice=v_initialUnitprice ,em_escm_unittax=0,
+ em_escm_net_unitprice=0,em_escm_rounddiff_invoice=0,
+ em_escm_rounddiff_tax=0
+ where c_orderline_id = v_parentId;
+
+ select em_escm_parentline_id into v_parentId from c_orderline where c_orderline_id = v_parentId;
+ END LOOP;
+ END IF;
+ select em_escm_acctno into v_acctno from c_order where c_order_id =:NEW.c_order_id;
+ IF(:NEW.em_escm_acctno<>v_acctno) THEN
+ update c_order set updated =now(), em_escm_acctno='' where c_order_id =:NEW.c_order_id;
+ END IF;
+ select coalesce(sum(linenetamt), 0), coalesce(sum(em_escm_line_total_updated), 0),
+ coalesce(sum(em_escm_line_taxamt),0) ,coalesce(sum(em_escm_releaseqty),0),coalesce(sum(em_escm_releaseamt),0)
+ into v_totamt, v_totupdatedamt,v_sumoftaxAmt,v_sumofreleQty,v_sumofreleAmt
+ from c_orderline where em_escm_issummarylevel = 'N' and c_order_id=:NEW.c_order_id;
+ 
+ /*select coalesce(sum(em_escm_line_total_updated), 0) into v_totupdatedamt from c_orderline where c_order_id=:NEW.c_order_id and em_escm_parentline_id is null;
+ select em_escm_tot_po_change_type, em_escm_tot_po_change_value, em_escm_tot_po_change_factor into v_lnpochangetype, v_lnpochangeval, v_lnpochangefact from c_order where c_order_id = :NEW.c_order_id;
+  
+ select value into v_lkuppochangetypevalue from escm_deflookups_typeln where escm_deflookups_typeln_id=v_lnpochangetype;
+ select value into v_lkuppochangefactvalue from escm_deflookups_typeln where escm_deflookups_typeln_id=v_lnpochangefact;
+ 
+ --PO Change type-Amount
+ IF(v_lkuppochangetypevalue='01')THEN
+ 	--PO Change Factor -Decrease
+ 	IF(v_lkuppochangefactvalue='01')THEN
+    	v_totupdatedamt = v_totupdatedamt-v_lnpochangeval;
+    --PO Change Factor -Increase    
+    ELSE IF(v_lkuppochangefactvalue='02')THEN
+    	v_totupdatedamt = v_totupdatedamt+v_lnpochangeval;
+    END IF;
+    END IF;
+    
+    --PO Change type-Percetage
+ ELSE IF(v_lkuppochangetypevalue='02')THEN
+ 	--PO Change Factor -Decrease
+ 	IF(v_lkuppochangefactvalue='01')THEN
+    	v_totupdatedamt = v_totupdatedamt-(v_totupdatedamt*(v_lnpochangeval/100));
+    --PO Change Factor -Increase    
+    ELSE IF(v_lkuppochangefactvalue='02')THEN
+    	v_totupdatedamt = v_totupdatedamt+(v_totupdatedamt*(v_lnpochangeval/100));
+    END IF;
+    END IF;
+ END IF;
+ END IF;*/ 
+
+ update c_order set grandtotal=v_totamt , em_escm_tot_po_updated_amt=v_totupdatedamt, updated=now() 
+ where c_order_id=:NEW.c_order_id;	
+
+ END IF;
+
+ END ESCM_ORDERLNE_PARENT
+]]></body>
+    </trigger>
+  </database>

@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_PREPAYINV_CREATE">
+    <function name="EFIN_PREPAYINV_CREATE" type="NULL">
+      <parameter name="p_pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[p_result NUMBER;
+	p_message VARCHAR2(2000);
+	p_record_id VARCHAR2(60);
+	p_docAction VARCHAR2(60);
+	p_user VARCHAR2(60);
+	v_prepayinv char(1);
+	v_prepayinvapp char(1);
+	v_docaction VARCHAR2(60);
+	v_encumtype VARCHAR2(60);
+	v_directvat NUMBER;
+	Cur_Params RECORD;
+	Cur_Encum RECORD;
+	Cur_EncumInvRef RECORD;
+	Cur_ManualEncumInv RECORD;
+	Cur_Parameter RECORD;
+	Cur_Encum1 RECORD;
+	Cur_Invoiceline RECORD;
+	v_ResultStr VARCHAR2(2000):='';
+	v_Message VARCHAR2(2000):='';
+	v_Result NUMBER:=1;
+	v_ManencumAmt NUMBER;
+	v_docstatus  VARCHAR(2000);
+	v_comments  VARCHAR(2000);
+	v_manencumId VARCHAR2(32);
+	 v_distributionId VARCHAR2(32);
+	 v_grandtotal NUMBER;
+	 v_AppStatus VARCHAR2(60);
+	 v_Record_ID VARCHAR2(32);
+	 p_comments VARCHAR2(60);
+	 v_dateinvoiced timestamp without time zone;
+	 v_dateacct  timestamp without time zone;
+	 v_ad_org_id VARCHAR(32);
+	 v_ad_client_id VARCHAR(32);
+	 v_campaign_id VARCHAR(32);
+	 v_salesregion_id VARCHAR(32);
+	 v_issotrx char(1);
+
+	BEGIN
+
+     IF (p_pinstance_id IS NOT NULL) THEN
+    --  Update AD_PInstance
+    DBMS_OUTPUT.PUT_LINE('Updating PInstance - Processing ' || p_pinstance_id) ;
+    v_ResultStr:='PInstanceNotFound';
+    AD_UPDATE_PINSTANCE(p_pinstance_id, NULL, 'Y', NULL, NULL) ;
+  END IF;
+	FOR Cur_Params IN (SELECT * FROM ad_ep_instance_para WHERE ad_ep_instance_id = 
+	p_pinstance_id) 
+	LOOP
+	    IF (cur_params.parametername LIKE 'DocAction') THEN
+	      p_docaction := Cur_Params.p_string;
+	    ELSIF (cur_params.parametername LIKE 'Record_ID') THEN
+	      p_record_id := cur_params.p_string;
+	    ELSIF (cur_params.parametername LIKE 'User') THEN
+	      p_user := cur_params.p_string;
+	    ELSIF (cur_params.parametername LIKE 'Message') THEN
+	      p_message := cur_params.p_text;
+	    ELSIF (cur_params.parametername LIKE 'Result') THEN
+	      p_result := cur_params.p_number;
+	      ELSIF (cur_params.parametername LIKE 'Comments') THEN
+	      p_comments := cur_params.p_string;
+	    END IF;
+	END LOOP;
+	
+	--UPDATE THE EM_EFIN_DOCACTIONFINAL VALUES
+	SELECT INV.Docaction,DOC.Em_Efin_IsPrepayInv,inv.ad_client_id,inv.ad_org_id,inv.dateinvoiced,inv.dateacct,inv.docstatus,
+	em_efin_isprepayinvapp,em_efin_encumtype,em_efin_manualencumbrance_id,em_efin_distribution_id,grandtotal,em_efin_c_salesregion_id,INV.issotrx
+	into v_docaction ,v_prepayinv,v_ad_client_id,v_ad_org_id,v_dateinvoiced,v_dateacct,v_docstatus,v_prepayinvapp,
+	  v_encumtype,v_manencumId, v_distributionId,v_grandtotal,v_salesregion_id,v_issotrx
+	   FROM C_INVOICE INV
+	 LEFT JOIN C_DOCTYPE DOC ON DOC.C_DOCTYPE_ID=INV.C_DOCTYPETARGET_ID  where INV.C_INVOICE_ID =p_record_id ;
+	 
+  --updating remaining amount in invoice after used in order to receive through prepayment.
+	IF(v_issotrx='Y') THEN
+		IF(v_docstatus='CO') THEN
+			FOR Cur_Invoiceline in (select * from c_invoiceline  where c_invoice_id  = p_record_id and em_efin_receipt_type ='pp')
+			Loop
+			IF(Cur_Invoiceline.c_invoiceline_id is not null) then
+				update c_invoice set em_efin_pre_remainingamount = em_efin_pre_remainingamount-Cur_Invoiceline.linenetamt,em_efin_pre_usedamount = em_efin_pre_usedamount+Cur_Invoiceline.linenetamt where c_invoice_id = Cur_Invoiceline.em_efin_prepayment;					
+			End if;
+			end loop;
+		END IF;
+	ELSE
+
+	 
+	IF(v_docstatus='CO') THEN
+		 v_AppStatus:='CO';
+	UPDATE C_INVOICE SET UPDATED=now(), UPDATEDBY=p_user,EM_EFIN_DOCACTIONFINAL='RE',EM_EFIN_DOCACTION='RE' WHERE C_INVOICE_ID =p_record_id ;
+	ELSE IF(v_docstatus='DR')THEN
+		v_AppStatus:='REACT';
+	UPDATE C_INVOICE SET UPDATED=now(), UPDATEDBY=p_user,EM_EFIN_DOCACTIONFINAL='CO',EM_EFIN_DOCACTION='CO' WHERE C_INVOICE_ID =p_record_id ;
+	END IF;
+	END IF;
+
+	-- update the Encumbrance invoice status as approved
+	UPDATE EFIN_BUDGET_ENCUM SET UPDATED=now(), UPDATEDBY=p_user,appstatus='CO'
+	 WHERE C_INVOICE_ID =p_record_id ;
+
+	IF(v_docaction='CO' )THEN
+
+	--while reactive the invoice need to revert the reserve funds 
+	IF(v_encumtype='M' and (v_prepayinvapp='Y' or (v_prepayinv='N' and v_prepayinvapp='N'))) THEN
+	-- delete the record in manual encum invoice while reactivate the purchase invoice 
+	FOR Cur_ManualEncumInv in ( SELECT * FROM  efin_manualencuminvoice WHERE c_invoice_id= p_record_id)
+
+	LOOP
+	IF(Cur_ManualEncumInv.efin_manualencuminvoice_id IS NOT NULL) THEN
+	DELETE FROM efin_manualencuminvoice   WHERE efin_manualencuminvoice_id= Cur_ManualEncumInv.efin_manualencuminvoice_id;
+	END IF;
+	END LOOP;
+
+	--get the invoice encumbrance record in encumbrance.
+	FOR Cur_Encum in (select * from efin_budget_encum   where c_invoice_id= p_record_id  
+	order by amount )
+	LOOP
+	IF(Cur_Encum.efin_budget_encum_id is not null) THEN
+	FOR Cur_EncumInvRef in( select * from efin_encuminvoiceref  where     efin_budget_encuminvoice_id =Cur_Encum.efin_budget_encum_id
+	)
+	LOOP
+
+	IF(Cur_EncumInvRef.efin_budget_encummanexpe_id IS NOT NULL) THEN
+	--select * from efin_budget_encum   where efin_budget_encum_id  =Cur_EncumInvRef.efin_budget_encummanexpe_id;
+	UPDATE efin_budget_encum SET UPDATED=now(), UPDATEDBY=p_user,AMOUNT=Cur_EncumInvRef.manexpamount
+	 WHERE efin_budget_encum_id =Cur_EncumInvRef.efin_budget_encummanexpe_id; 
+
+	END IF;
+	 DELETE FROM efin_encuminvoiceref   WHERE efin_budget_encummanexpe_id = Cur_EncumInvRef.efin_budget_encummanexpe_id;
+	END LOOP;
+	--raise exception '%',Cur_Encum.efin_budget_encum_id;
+	DELETE FROM efin_budget_encum   WHERE efin_budget_encum_id= Cur_Encum.efin_budget_encum_id;
+	END IF;
+	END LOOP;
+	END IF;
+
+	IF(v_encumtype='A' AND v_prepayinv='N' and v_prepayinvapp='N') THEN
+	FOR Cur_Encum1 in (select * from efin_budget_encum   where c_invoice_id= p_record_id  and  doctype ='INV' )
+	LOOP
+	IF(Cur_Encum1.efin_budget_encum_id IS NOT NULL ) THEN 
+	DELETE FROM efin_budget_encum   WHERE efin_budget_encum_id= Cur_Encum1.efin_budget_encum_id;
+	END IF;
+	END LOOP;
+	END IF;
+
+	IF(v_encumtype='M' AND v_manencumId is not null and v_distributionId is not null and v_prepayinv='Y') THEN
+
+	UPDATE efin_budget_manencum   SET UPDATED=now(), UPDATEDBY=p_user,
+	usedamount=usedamount-v_grandtotal,remainingamt=remainingamt+v_grandtotal WHERE efin_budget_manencum_id =v_manencumId ; 
+        
+	END IF;
+	END IF;
+	END IF;
+
+	-- insert into approval history
+	/*
+	insert into efin_purchasein_app_hist   (
+		efin_purchasein_app_hist_id,ad_client_id,ad_org_id,isactive,  created, 
+		createdby,  updated,   updatedby,  c_invoice_id,   approveddate,   purchaseaction,   comments,  
+		pendingapproval
+	    ) 
+			SELECT GET_UUID(),INV.AD_Client_ID,INV.AD_Org_ID,'Y',INV.Created,now(),INV.Updated,now(),
+		    p_record_id,now(),v_AppStatus,v_comments,null
+		    FROM C_INVOICE INV  where INV.C_INVOICE_ID =p_record_id;*/
+  v_ResultStr := 'Completing Invoice';
+
+  --<<END_PROCESSING>>
+  --  Update AD_PInstance
+  DBMS_OUTPUT.PUT_LINE('Updating PInstance - Finished ' || v_Message) ;
+  IF (p_pinstance_id IS NOT NULL) THEN
+ 
+    AD_UPDATE_PINSTANCE(p_pinstance_id, p_user, 'N', v_Result, v_Message) ;
+    END IF;
+
+  RETURN;
+ --BODY
+END EFIN_PREPAYINV_CREATE
+]]></body>
+    </function>
+  </database>

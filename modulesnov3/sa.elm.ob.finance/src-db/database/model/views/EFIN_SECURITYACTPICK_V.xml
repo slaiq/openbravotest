@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_SECURITYACTPICK_V">
+    <view name="EFIN_SECURITYACTPICK_V"><![CDATA[SELECT (((((org.value || '-') || val.value) || '-') || val.name) || '-') || list.name AS name, val.c_elementvalue_id AS efin_securityactpick_v_id, val.created, val.createdby, val.updated, val.updatedby, val.ad_client_id, val.ad_org_id, val.isactive, val.value, val.elementlevel, val.em_efin_allow_budgeting AS allowbudget FROM c_elementvalue val JOIN ad_org org ON org.ad_org_id = val.ad_org_id JOIN ad_ref_list list ON val.accounttype = list.value AND list.ad_reference_id = '117' ORDER BY org.value, val.value]]></view>
+  </database>

@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_RDVSPLITADVANCE">
+    <function name="EFIN_RDVSPLITADVANCE" type="NULL">
+      <parameter name="p_pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_Record_ID VARCHAR2(32);
+   v_AD_User_ID VARCHAR2(32);
+   v_Client_ID VARCHAR2(32);
+   v_order_id VARCHAR2(32);
+   v_latestOrder VARCHAR2(32);
+   v_baseOrder VARCHAR2(32);
+   v_totpoadvance NUMBER ;
+   v_remainingadv NUMBER ;
+   v_totadvpaid NUMBER ;
+    v_ResultStr VARCHAR2(2000):='';
+    Cur_Parameter RECORD;
+    v_istax CHARACTER(1);
+    v_taxpercent NUMBER;
+    v_amtWithoutTax NUMBER;
+    v_taxAmout NUMBER;
+    v_Org_ID VARCHAR2(32);
+    v_RDV_ID  VARCHAR2(32);
+	v_msg VARCHAR(2000);
+    v_advmethod VARCHAR2(32);
+    
+    v_productCat VARCHAR2(32);
+    v_prec NUMBER;
+    v_line NUMBER;
+    v_count NUMBER;
+    v_Rold_ID VARCHAR2(32);
+
+   BEGIN
+   IF(p_PInstance_ID IS NOT NULL) THEN
+      --  Update AD_PInstance
+      DBMS_OUTPUT.PUT_LINE('Updating PInstance - Processing ' || p_PInstance_ID) ;
+      v_ResultStr:='PInstanceNotFound';
+      AD_UPDATE_PINSTANCE(p_PInstance_ID, NULL, 'Y', NULL, NULL) ;
+      -- Get Parameters
+      v_ResultStr:='ReadingParameters';
+      FOR Cur_Parameter IN
+        (SELECT i.Record_ID, i.AD_User_ID, p.ParameterName, p.P_String, p.P_Number, p.P_Date, p.AD_CLIENT_ID
+        FROM AD_PInstance i
+        LEFT JOIN AD_PInstance_Para p
+          ON i.AD_PInstance_ID=p.AD_PInstance_ID
+        WHERE i.AD_PInstance_ID=p_PInstance_ID
+        ORDER BY p.SeqNo
+        )
+      LOOP
+        v_Record_ID:=Cur_Parameter.Record_ID;
+        v_AD_User_ID:=Cur_Parameter.AD_User_ID;
+        v_Client_ID:=Cur_Parameter.AD_CLIENT_ID;
+         IF (Cur_Parameter.ParameterName = 'AD_Role_ID') THEN
+         v_Rold_ID := Cur_Parameter.P_String;
+        
+        END IF;
+      END LOOP; -- Get Parameter 
+
+		select count(efin_rdvtxn_id) into v_count from efin_rdvtxn where efin_rdv_id=( select efin_rdv_id from efin_rdvtxn where 
+                                                                         efin_rdvtxn_id=v_Record_ID) and isadvancetransaction='N';
+         
+         if(v_count>0) then
+          RAISE_APPLICATION_ERROR(-20000, '@Efin_rdvalreadyhavetrx@');
+         end if;
+         
+         select count(efin_rdvtxnline_id) into v_count from efin_rdvtxnline where efin_rdvtxn_id=v_Record_ID and isadvance='Y'
+         and txnver_status='DR';
+         
+           if(v_count>0) then
+          RAISE_APPLICATION_ERROR(-20000, '@Efin_Rdv_Ver@');
+         end if;
+                                                                         
+		--based on rdv take order and advance amt
+        select c_order_id into v_order_id  from efin_rdv 
+        where efin_rdv_id =( select efin_rdv_id from efin_rdvtxn where efin_rdvtxn_id=v_Record_ID );
+        
+        select coalesce(em_Escm_base_order,c_order_id) into v_baseOrder from c_order 
+        where c_order_id = v_order_id;
+
+             if (v_baseOrder is not null) then
+                  select c_order.c_order_id into v_latestOrder from c_order
+                    left join m_inout rep on rep.c_order_id = c_order.c_order_id and em_escm_docstatus = 'CO'
+                    where (em_Escm_base_order = v_baseOrder or c_order.c_order_id = v_baseOrder) 
+					and EM_Escm_Appstatus = 'ESCM_AP' order by c_order.created desc ,c_order.em_escm_revision desc limit 1;
+                else
+                  v_latestOrder := v_order_id;
+                end if;
+                
+                
+         select hd.adv_deduct_method  into v_advmethod from efin_rdvtxn ln
+          join efin_rdv hd on hd.efin_rdv_id = ln.efin_rdv_id where efin_rdvtxn_id  = v_Record_ID;
+    
+        select ad_client_id,ad_org_id ,efin_rdv_id  into v_Client_ID,v_Org_ID,v_RDV_ID from efin_rdvtxn where efin_rdvtxn_id=v_Record_ID ;
+        
+        SELECT COALESCE(MAX(Trxln_No),0)+1 into  v_line FROM Efin_RDVTxnline WHERE Efin_RDVTxn_ID=v_Record_ID;
+        
+          -- To get Standarrd Precision from Currency by using Current Client ID
+	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+	in (select c_currency_id from ad_client where ad_client_id  = v_Client_ID);
+        
+         select m_product_category_id into v_productCat from m_product_category 
+        where em_efin_isadvance = 'Y' and ad_client_id =v_Client_ID;
+        if(v_productCat is null or v_productCat='') then
+          RAISE_APPLICATION_ERROR(-20000, '@Efin_NoAdv_PCategory@');
+        end if;
+        
+       -- select coalesce(EM_Escm_Legacy_Adv_Payment_Amt,em_escm_advpaymnt_amt) 
+		--into v_totpoadvance from c_order where c_order_id= v_latestOrder;
+		
+		select case when coalesce(em_escm_legacy_adv_payment_amt,0) >0 then coalesce(em_escm_legacy_adv_payment_amt,0)
+                             when coalesce(em_escm_advpaymnt_amt,0) > 0 then coalesce(em_escm_advpaymnt_amt,0)
+                            else 0
+                            end as advamt
+                into  v_totpoadvance from c_order where  c_order_id=v_latestOrder;  --changed
+        
+                  select coalesce(trl.msgtext,hd.msgtext) into v_msg from ad_message hd
+            left join ad_message_trl trl on trl.ad_message_id = hd.ad_message_id and ad_language='ar_SA'
+            where hd.ad_message_id = 'A3BBA623A0E24F17BBC11E5C5DBB3D95';
+
+		          -- calculate remaiing amt
+			select coalesce(netmatch_amt,0) into  v_totadvpaid
+            from efin_rdvtxn where efin_rdv_id =( select efin_rdv_id from efin_rdvtxn where efin_rdvtxn_id=v_Record_ID );
+				v_remainingadv:=v_totpoadvance-v_totadvpaid;
+          if(v_remainingadv>0) then 
+            select em_escm_istax into v_isTax from c_order where c_order_id = v_latestOrder;
+		
+        if(v_isTax = 'Y')then
+			select taxpercent into v_taxpercent from c_order ord
+			join efin_tax_method tax on ord.em_escm_tax_method_id = tax.efin_tax_method_id  where  
+			c_order_id = v_latestOrder;
+
+			--to calc amount wihtout tax
+			v_amtWithoutTax = (v_remainingadv/(1+(v_taxpercent/100)));
+			v_taxAmout = ROUND((v_remainingadv - v_amtWithoutTax),v_prec);
+		end if;
+		
+          insert into efin_rdvtxnline(efin_rdvtxnline_id,ad_client_id,ad_org_id,createdby,updatedby,trxln_no,trxapp_no,efin_rdvtxn_id,efin_rdv_id,type,applicable_method,
+          match,match_amt,item_desc,deliver_amt,netmatch_amt,advamt_rem,line_status,isadvance,m_product_category_id,line_taxamt,ad_role_id,match_qty)
+          values (get_uuid(),v_Client_ID,v_Org_ID,v_AD_User_ID,v_AD_User_ID,v_line,'0-'||v_line,v_Record_ID,v_RDV_ID,'SA',v_advmethod,
+          'Y',(v_remainingadv),v_msg,v_remainingadv,v_remainingadv,v_remainingadv,'FM','Y',v_productCat,coalesce(v_taxAmout,0),v_Rold_ID,1);
+  
+           update efin_rdvtxn set match_amt = ROUND((match_amt+v_remainingadv), v_prec), netmatch_amt = ROUND((netmatch_amt+v_remainingadv), v_prec),
+           line_taxamt = ROUND((line_taxamt+v_taxAmout), v_prec) 
+           where efin_rdvtxn_id = v_Record_ID;
+      
+      end if;
+      end if;
+      AD_UPDATE_PINSTANCE(p_pinstance_id, NULL, 'N', 1, NULL) ;
+  EXCEPTION
+WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+  ROLLBACK;
+  IF(p_PInstance_ID IS NOT NULL) THEN
+    AD_UPDATE_PINSTANCE(p_PInstance_ID, NULL, 'N', 0, v_ResultStr) ;
+  END IF;
+END EFIN_RDVSPLITADVANCE
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
+<!-- 2017-09-28T15:22:27 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PrintElectricity_subreport5" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="8c6b877c-1d1f-415f-8d5b-d974aee966ae">
+	<property name="ireport.zoom" value="1.4641000000000013"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="247"/>
+	<parameter name="vendorcontact" class="java.lang.String"/>
+	<parameter name="motposition" class="java.lang.String"/>
+	<parameter name="vendorposition" class="java.lang.String"/>
+	<parameter name="motcontact" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select 1 from dual]]>
+	</queryString>
+	<field name="?column?" class="java.lang.Integer"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="542">
+			<staticText>
+				<reportElement x="246" y="59" width="100" height="28" uuid="dbc1303c-0458-46a6-aedc-2257c5a575cf"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[والله الموفق .]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="31" y="128" width="236" height="28" uuid="87162397-7160-46d2-9ee9-5e1d2094d0e6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[الطرف الثاني]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="267" y="128" width="203" height="28" uuid="a6f7ac77-f2b8-41ae-888d-5cacf046f611"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[الطرف الأول]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="472" y="329" width="59" height="53" uuid="9323a26e-b4e0-4dfa-88b4-52703d14884f"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[التوقيع :]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="267" y="165" width="203" height="112" uuid="30c1e321-a58e-4f1e-a1a5-ab99313b57bc"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{motcontact}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="267" y="277" width="203" height="52" uuid="9967a57a-0e94-4ca0-81c5-4c867bb6f039"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{motposition}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="31" y="165" width="236" height="112" uuid="2e8bed8d-8f21-488c-a802-7291b0d00a48"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{vendorcontact}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="31" y="277" width="236" height="52" isPrintWhenDetailOverflows="true" uuid="d3b6061e-23f5-4f18-941d-21ca4eae7ed0"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{vendorposition}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="10" width="542" height="28" uuid="546c8e37-3613-495a-9eaa-34b48ab840a2"/>
+				<box rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["وتوثيقاً لما تقدم فقد قام الطرفان بالتوقيع علي هذه الوثيقة في المكان والتاريخ المذكورين أعلاه ."]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="471" y="165" width="59" height="112" uuid="61f0d56e-b7d6-4db3-b859-4f8260d2b744"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[الاسم :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="471" y="277" width="59" height="52" uuid="4cc5fd3b-0125-4fdc-b234-91478c42f281"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[الصفة :]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+</jasperReport>

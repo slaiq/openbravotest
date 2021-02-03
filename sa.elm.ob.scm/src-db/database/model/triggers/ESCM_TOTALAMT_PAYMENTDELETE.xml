@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_TOTALAMT_PAYMENTDELETE">
+    <trigger name="ESCM_TOTALAMT_PAYMENTDELETE" table="ESCM_ORDERPAYMENTTERMS" fires="before" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[
+v_totalprice NUMBER;
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+	--while deleting the update totalpayment as difference of current amount
+
+	IF DELETING THEN
+	 select amount into v_totalprice from escm_orderpaymentterms where escm_orderpaymentterms_id = :old.escm_orderpaymentterms_id
+	 and c_order_id = :old.c_order_id;
+	 update escm_orderpaymentterms set totalpayment = (totalpayment - v_totalprice) where line >= :old.line 
+	 and c_order_id = :old.c_order_id and escm_orderpaymentterms_id not in (:old.escm_orderpaymentterms_id);
+	END IF;
+	END ESCM_TOTALAMT_PAYMENTDELETE
+]]></body>
+    </trigger>
+  </database>

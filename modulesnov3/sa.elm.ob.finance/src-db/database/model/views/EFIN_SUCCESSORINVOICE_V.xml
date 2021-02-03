@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_SUCCESSORINVOICE_V">
+    <view name="EFIN_SUCCESSORINVOICE_V"><![CDATA[SELECT c_invoice.c_invoice_id AS efin_successorinvoice_v_id, c_invoice.ad_client_id, c_invoice.ad_org_id, c_invoice.isactive, c_invoice.created, c_invoice.createdby, c_invoice.updated, c_invoice.updatedby, c_invoice.em_efin_initialprepayment AS invoiceid, c_invoice.dateinvoiced, c_invoice.em_efin_distribution_id AS advancetype, c_invoice.em_efin_pre_usedamount AS usedamount, c_invoice.em_efin_pre_remainingamount AS remainingamount, c_invoice.grandtotal, c_invoice.docstatus, c_invoice.documentno FROM c_invoice WHERE c_invoice.em_efin_advancecategory = 'SUC']]></view>
+  </database>

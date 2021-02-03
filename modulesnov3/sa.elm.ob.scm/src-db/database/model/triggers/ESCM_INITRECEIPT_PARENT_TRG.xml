@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_INITRECEIPT_PARENT_TRG">
+    <trigger name="ESCM_INITRECEIPT_PARENT_TRG" table="ESCM_INITIALRECEIPT" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[/*************************************************************************
+* Contributor(s):  Gopalakrishnan.
+************************************************************************/
+v_parentId VARCHAR2(32);
+v_manual VARCHAR2(32);
+v_NoOfChilds NUMBER;
+v_SumOfChildPrice NUMBER;
+v_SumOfLinePrice NUMBER;
+v_SumofRecAmt NUMBER;
+v_SumtotalAmt NUMBER;
+BEGIN
+
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF DELETING THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+
+    IF  INSERTING OR  UPDATING THEN
+	IF (:NEW.parent_line IS NOT NULL) THEN		
+		--Update summary level and quantity for parent
+		update escm_initialreceipt set issummary= 'Y' where escm_initialreceipt_id = :NEW.parent_line;
+	--Update sum of child amount in all parents
+		v_parentId:= :NEW.parent_line;
+		WHILE(v_parentId IS NOT NULL) LOOP 
+			select sum(unitprice),sum(received_amount),sum(TOT_LINE_AMT) 
+            into v_SumOfChildPrice, v_SumofRecAmt,v_SumtotalAmt
+            from escm_initialreceipt where parent_line = v_parentId;
+			
+			update escm_initialreceipt set received_amount=v_SumofRecAmt,tot_line_amt =v_SumtotalAmt 
+            where escm_initialreceipt_id = :NEW.parent_line;
+
+			select parent_line into v_parentId from escm_initialreceipt where escm_initialreceipt_id = v_parentId;
+		END LOOP;
+		
+	END IF;
+    END IF;
+    
+    IF  UPDATING OR DELETING  THEN
+	IF (:OLD.parent_line IS NOT NULL) THEN
+		IF (DELETING OR coalesce(:NEW.parent_line, '')<>coalesce(:OLD.parent_line, '')) THEN
+			--Check the old parent is parent for any other childs
+			select count(escm_initialreceipt_id) into v_NoOfChilds from escm_initialreceipt where parent_line = :OLD.parent_line;
+			IF (v_NoOfChilds > 0) THEN
+				--Update new sum of child amount in all parents
+				v_parentId:= :OLD.parent_line;
+				WHILE(v_parentId IS NOT NULL) LOOP 
+					select sum(unitprice),sum(received_amount),sum(TOT_LINE_AMT)   
+                    into v_SumOfChildPrice,v_SumofRecAmt,v_SumtotalAmt
+                    from escm_initialreceipt where parent_line = v_parentId;
+					
+					update escm_initialreceipt set received_amount = v_SumofRecAmt,tot_line_amt = v_SumtotalAmt
+                    where escm_initialreceipt_id = v_parentId;
+
+					select parent_line into v_parentId from escm_initialreceipt where escm_initialreceipt_id = v_parentId;
+				END LOOP;
+			ELSE
+				--Update summary level to 'N', if it is no more parent for any child
+				
+				select ismanual into v_manual from escm_initialreceipt where escm_initialreceipt_id = :OLD.parent_line;
+			        IF(v_manual='N' AND  DELETING) THEN
+			          DELETE FROM escm_initialreceipt where escm_initialreceipt_id=:OLD.parent_line;
+				ELSIF (v_manual='N' and coalesce(:NEW.parent_line, '')<>coalesce(:OLD.parent_line, '') and  UPDATING ) THEN
+				  RAISE_APPLICATION_ERROR(-20000, '@Escm_Initial_Receipt_Child_Error@');
+				ELSE
+				  update escm_initialreceipt set  issummary= 'N' where  escm_initialreceipt_id = :OLD.parent_line;
+				END IF;
+			END IF;
+		END IF;
+	END IF;			
+    END IF;
+
+    END ESCM_INITRECEIPT_PARENT_TRG
+]]></body>
+    </trigger>
+  </database>

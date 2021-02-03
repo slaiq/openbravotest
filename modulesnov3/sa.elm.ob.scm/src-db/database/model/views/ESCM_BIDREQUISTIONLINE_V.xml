@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_BIDREQUISTIONLINE_V">
+    <view name="ESCM_BIDREQUISTIONLINE_V"><![CDATA[SELECT ((reqline.m_requisitionline_id || '-') || bidline.escm_bidmgmt_line_id) AS escm_bidrequistionline_v_id, reqline.ad_client_id, reqline.ad_org_id, bid.isactive, reqline.created, reqline.createdby, reqline.updated, reqline.updatedby, bid.bidno, bid.bidname, bid.bidstatus, bid.rfpprice, bid.bidpreparername, bid.bidappstatus, bid.finanyear, bid.bidtype, bid.bidcreationdate, reqline.m_requisitionline_id, ref.escm_bidsourceref_id, bidline.escm_bidmgmt_line_id, bid.escm_bidmgmt_id, bid.tabadul_published_on FROM m_requisitionline reqline JOIN escm_bidsourceref ref ON reqline.m_requisitionline_id = ref.m_requisitionline_id JOIN escm_bidmgmt_line bidline ON bidline.escm_bidmgmt_line_id = ref.escm_bidmgmt_line_id JOIN escm_bidmgmt bid ON bid.escm_bidmgmt_id = bidline.escm_bidmgmt_id ORDER BY reqline.m_requisitionline_id]]></view>
+  </database>

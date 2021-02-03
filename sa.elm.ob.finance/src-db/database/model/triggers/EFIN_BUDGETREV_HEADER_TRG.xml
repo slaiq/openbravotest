@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_BUDGETREV_HEADER_TRG">
+    <trigger name="EFIN_BUDGETREV_HEADER_TRG" table="EFIN_BUDGET_TRANSFERTRX" fires="before" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[
+v_status VARCHAR2(60);
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+	--while deleting the update totalpayment as difference of current amount
+
+	IF DELETING THEN
+	select po.Docstatus into v_status from efin_budget_transfertrx po
+	where po.efin_budget_transfertrx_id = :old.efin_budget_transfertrx_id;    
+	if(v_status<>'DR' and v_status<>'RW') then
+        raise exception '%','@Efin_transfer_delete@';
+        end if;
+	
+	END IF;
+	END EFIN_BUDGETREV_HEADER_TRG
+]]></body>
+    </trigger>
+  </database>

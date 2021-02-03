@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_ADD_CITY_TRG">
+    <trigger name="ESCM_ADD_CITY_TRG" table="EUT_REGANDCITY_ACCESS" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[  v_count NUMBER;
+BEGIN
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF; 
+IF(INSERTING OR UPDATING) THEN
+	select count(*) into v_count from eut_regandcity_access
+	where  ad_client_id=:NEW.ad_client_id and eut_c_city_id=:NEW.eut_c_city_id and 
+	eut_c_region_id=:NEW.eut_c_region_id and ad_role_id=:NEW.ad_role_id;
+
+	IF(v_count >0) THEN
+        RAISE_APPLICATION_ERROR(-20000, '@Escm_RegCity_Unique@');
+    END IF; 
+END IF;    
+
+END ESCM_ADD_CITY_TRG
+]]></body>
+    </trigger>
+  </database>

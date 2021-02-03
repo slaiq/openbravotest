@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="6D542CAA04EF45978683F32F90AEC1D1" identifier="Encumbrance has applied amount negative">
+    <id>6D542CAA04EF45978683F32F90AEC1D1</id>
+    <active>true</active>
+    <creationDate transient="true">2019-05-13T12:38:00.360Z</creationDate>
+    <createdBy transient="true" id="BCF72D95E15446FCB95F1B9333602E88" entity-name="ADUser" identifier="omar"/>
+    <updated transient="true">2019-05-13T12:38:00.360Z</updated>
+    <updatedBy transient="true" id="BCF72D95E15446FCB95F1B9333602E88" entity-name="ADUser" identifier="omar"/>
+    <name>Encumbrance has applied amount negative</name>
+    <tab id="9CBD55F879EA4DCAA4E944C0B7DC03D4" entity-name="ADTab" identifier="Header - Encumbrance"/>
+    <filterClause>ad_client_id=@#AD_CLIENT_ID@</filterClause>
+    <sql> SELECT efin_budget_manencum_id AS referencekey_id,
+     documentno AS record_id,
+     '0' AS ad_role_id,
+     NULL AS ad_user_id,
+     documentno ||' has applied amount less than zero' AS description,
+     'Y' AS isActive,
+      ad_org_id, 
+      ad_client_id, 
+      now() AS created,  
+      '0' AS createdBy,  
+      now() AS updated,
+      '0' AS updatedBy
+ FROM efin_budget_manencum 
+ WHERE APP_Amt &lt; 0</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+</ob:Openbravo>

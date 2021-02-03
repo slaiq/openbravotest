@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PaymentReport_subreport1" pageWidth="370" pageHeight="35" columnWidth="370" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="4f2e50f5-c435-4742-9ecb-2edd63dfd68f">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="inpfinPaymentId" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select org.value as orgno, dt.expected,inv.linenetamt,inv.C_DocTypeTarget_ID custody_id,
+org.name as orgname,
+(select max(substr(hijri_date, 7,2)||'/'||substr(hijri_date, 5,2)||'/'||substr(hijri_date, 1,4)) as v_hijri_date
+from eut_hijri_dates where gregorian_date = TO_DATE(to_char(pay.paymentdate, 'YYYY-MM-DD'),'YYYY-MM-DD')) as paymentdate,
+To_char(
+				now(),
+				'DD/MM/YYYY'
+			) as GregorianDate,
+bpf.EM_Efin_Documentno as bay, bp.EM_Efin_Documentno as supid,
+coalesce(bpf.name,'') as bayf, bp.name as supname,
+sbp.name as seconed,
+replace(supiban.name, 'SA','') as supplieriban,
+paymth.name as paymethod,
+cur.iso_code as curcode,
+cur.description as curname,
+dt.expected,
+pay.documentno,
+bp.em_efin_nationalidnumber as nationalid,
+(select
+cert.certificatenumber
+from fin_payment pay
+left join c_bpartner bp on bp.c_bpartner_id = pay.c_bpartner_id
+left join escm_certificates cert on bp.c_bpartner_id = cert.c_bpartner_id
+left join escm_deflookups_typeln df on df.escm_deflookups_typeln_id = cert.certificatename
+where  pay.fin_payment_id= $P{inpfinPaymentId} and df.value = 'CRN' ) as crnumber,
+(select
+cert.certificatenumber
+from fin_payment pay
+left join c_bpartner bp on bp.c_bpartner_id = pay.em_efin_bpartner_id
+left join escm_certificates cert on bp.c_bpartner_id = cert.c_bpartner_id
+left join escm_deflookups_typeln df on df.escm_deflookups_typeln_id = cert.certificatename
+where  pay.fin_payment_id=  $P{inpfinPaymentId}  and df.value = 'CRN' ) as crnumberPAY,
+(select
+cert.certificatenumber
+from fin_payment pay
+left join c_bpartner bp on bp.c_bpartner_id = pay.em_efin_beneficiary2_id
+left join escm_certificates cert on bp.c_bpartner_id = cert.c_bpartner_id
+left join escm_deflookups_typeln df on df.escm_deflookups_typeln_id = cert.certificatename
+where  pay.fin_payment_id= $P{inpfinPaymentId}   and df.value = 'CRN' ) as crnumberSEC,
+--elmval.value as account,
+--cpro.value as subaccount,
+elmval.accounttype,
+case when elmval.accounttype in ('A','R') then null else elmval.value end as account,
+case when elmval.accounttype in ('A','R') then elmval.value else cpro.value end as subaccount,
+case when elmval.accounttype in ('A','R') then null else '70451' end as Fixed_value,
+bpgroup.value as customertype,
+dt.paidamt as paymentamt,
+/*
+case when position('.' in cast(inv.linenetamt as text)) = 0 then cast(inv.linenetamt as text)
+else    substr( cast (inv.linenetamt as text), 1,position('.' in cast(inv.linenetamt as text))-1)
+end as paymentamtt,  */
+---------
+CASE WHEN cur.iso_code ='SAR' THEN 
+case when position('.' in cast(inv.linenetamt as text)) = 0 then cast(inv.linenetamt as text)
+else    substr( cast (inv.linenetamt as text), 1,position('.' in cast(inv.linenetamt as text))-1)
+end
+ELSE 
+case when position('.' in cast(pay.Finacc_Txn_Amount as text)) = 0 then cast(pay.Finacc_Txn_Amount as text)
+else    substr( cast (pay.Finacc_Txn_Amount as text), 1,position('.' in cast(pay.Finacc_Txn_Amount as text))-1)
+end
+END  as paymentamtt,
+-----------
+case when position('.' in cast(dt.expected as text)) = 0 then '00'
+else substr( cast (dt.expected as text), position('.' in cast(dt.expected as text))+1,2)
+end as actualpaymentamts,
+case when position('.' in cast(dt.expected as text)) = 0 then cast(dt.expected as text)
+else    substr( cast (dt.expected as text), 1,position('.' in cast(dt.expected as text))-1)
+end as actualpaymentamtt,
+case when position('.' in cast(inv.linenetamt as text)) = 0 then '00'
+else substr( cast (inv.linenetamt as text), position('.' in cast(inv.linenetamt as text))+1,2)
+end as paymentamts,
+case when pay.em_efin_payinst = 'C' then 'شيك وزاري'
+when pay.em_efin_payinst = 'IBAN' then 'تحويل'
+when pay.em_efin_payinst = 'GENERIC' then 'صندوق'
+else ''
+end as payType,
+case when bpf.name = 'ضريبة القيمة المضافة' then ''
+end as baf,
+pay.description as paydescription,
+inv.description as invdescription,
+inv.em_efin_istax as istax,
+substr(supiban.name, 3,1) as iban1,
+substr(supiban.name, 4,1) as iban2,
+substr(supiban.name, 5,1) as iban3,
+substr(supiban.name, 6,1) as iban4,
+substr(supiban.name, 7,1) as iban5,
+substr(supiban.name, 8,1) as iban6,
+substr(supiban.name, 9,1) as iban7,
+substr(supiban.name, 10,1) as iban8,
+substr(supiban.name, 11,1) as iban9,
+substr(supiban.name, 12,1) as iban10,
+substr(supiban.name, 13,1) as iban11,
+substr(supiban.name, 14,1) as iban12,
+substr(supiban.name, 15,1) as iban13,
+substr(supiban.name, 16,1) as iban14,
+substr(supiban.name, 17,1) as iban15,
+substr(supiban.name, 18,1) as iban16,
+substr(supiban.name, 19,1) as iban17,
+substr(supiban.name, 20,1) as iban18,
+substr(supiban.name, 21,1) as iban19,
+substr(supiban.name, 22,1) as iban20,
+substr(supiban.name, 23,1) as iban21,
+substr(supiban.name, 24,1) as iban22,
+(select coalesce(yr.year,yr.description) as payyear 
+from fin_payment pay1
+left join ad_org org on org.ad_org_id=pay1.ad_org_id
+left join c_calendar cal on cal.c_calendar_id=org.c_calendar_id
+left join c_year yr on yr.c_calendar_id=cal.c_calendar_id
+left join c_period prd on prd.c_year_id=yr.c_year_id
+where pay1.fin_payment_id=pay.fin_payment_id
+and ((pay1.paymentdate>=startdate and pay1.paymentdate<=enddate))),
+elmval.value as element,
+coalesce(bpf.EM_Efin_Mofsupplieraccount, bp.EM_Efin_Mofsupplieraccount) as mofaccno,
+bnk.value as bankno,
+coalesce(ctry.name, ctryf.name) as countryname,
+(select signpresidentorint from Efin_Authorizesign sig left join c_doctype doctyp using(c_doctype_id) where DocBaseType='APP' and sig.ad_client_id=pay.ad_client_id),
+(select finrepresent from Efin_Authorizesign sig left join c_doctype doctyp using(c_doctype_id) where DocBaseType='APP' and sig.ad_client_id=pay.ad_client_id),
+(select chiefacctorfinmang from Efin_Authorizesign sig left join c_doctype doctyp using(c_doctype_id) where DocBaseType='APP' and sig.ad_client_id=pay.ad_client_id),
+(select c1.em_escm_reference_no from c_order c1 where c1.c_order_id = inv.c_order_id limit 1) Reference_number,
+(select c.name from ad_role a, ad_user_roles b ,ad_user c
+where a.ad_role_id=b.ad_role_id
+and b.ad_user_id = c.ad_user_id
+and b.isactive ='Y'
+and c.isactive ='Y'
+and c.ad_user_id <> '100'
+and a.name='صاحب الصلاحية - المناقصات والعقود'
+) sahebe_salahiya,
+(
+select c.name from ad_role a, ad_user_roles b ,ad_user c
+where a.ad_role_id=b.ad_role_id
+and b.ad_user_id = c.ad_user_id
+and b.isactive ='Y'
+and c.isactive ='Y'
+and c.ad_user_id <> '100'
+and a.name='مدير عام الادارة المالية'
+) mudeer_idara,
+pay.EM_Efin_Paymentsequence seq_num
+from fin_payment pay
+left join ad_org org on org.ad_org_id=pay.ad_org_id
+left join c_bpartner bp on bp.c_bpartner_id=pay.c_bpartner_id
+left join c_bpartner bpf on bpf.c_bpartner_id=pay.em_efin_bpartner_id
+left join c_bpartner sbp on sbp.c_bpartner_id=pay.em_efin_beneficiary2_id
+left join Efin_Bank bnk on pay.em_efin_bank_id=bnk.efin_bank_id and bnk.isactive='Y'
+left join c_country ctry on ctry.c_country_id=bp.em_efin_nationality and ctry.isactive='Y'
+left join c_country ctryf on ctryf.c_country_id=bpf.em_efin_nationality and ctryf.isactive='Y'
+left join Efin_Paymentout_Bank_V supiban on supiban.Efin_Paymentout_Bank_V_id=pay.EM_Efin_Supbankacct
+left join Fin_Paymentmethod paymth on paymth.Fin_Paymentmethod_id=pay.Fin_Paymentmethod_id
+left join c_currency cur on cur.c_currency_id=pay.c_currency_id
+left join c_bp_group bpgroup on bp.c_bp_group_id = bpgroup.c_bp_group_id
+join fin_payment_detail_v dt on dt.fin_payment_id = pay.fin_payment_id
+join fin_payment_sched_inv_v psd on psd.fin_payment_sched_inv_v_id = dt.fin_payment_sched_inv_v_id
+join (select sum(linenetamt) as linenetamt,invh.em_efin_istax, invln.c_bpartner_id as invlnBpid, invh.c_bpartner_id, 
+invln.EM_Efin_C_Elementvalue_ID, invh.c_invoice_id,invln.em_efin_beneficiary2_id,invh.Description,
+invln.em_efin_expense_account,vc.account_id ,invh.c_order_id,invh.c_doctypetarget_id
+from c_invoice invh
+left join c_invoiceline invln on invh.c_invoice_id=invln.c_invoice_id
+left join c_validcombination vc on ( invln.em_efin_expense_account is not null and vc.c_validcombination_id = invln.em_efin_expense_account )
+group by invln.c_bpartner_id,invh.c_bpartner_id, invln.EM_Efin_C_Elementvalue_ID,invh.em_efin_istax,
+      invh.c_invoice_id,invln.em_efin_beneficiary2_id, invln.em_efin_expense_account,vc.account_id ,invh.c_order_id 
+	  ) inv on inv.c_invoice_id = psd.c_invoice_id
+and (
+(inv.invlnBpid =pay.em_efin_bpartner_id and inv.em_efin_beneficiary2_id=pay.em_efin_beneficiary2_id)
+or (pay.em_efin_bpartner_id is null and inv.invlnBpid is  null)
+or (inv.invlnBpid =pay.em_efin_bpartner_id  and inv.em_efin_beneficiary2_id is null and pay.em_efin_beneficiary2_id is null )
+)
+left join c_elementvalue elmval on elmval.c_elementvalue_id=inv.EM_Efin_C_Elementvalue_ID
+  --(elmval.c_elementvalue_id=inv.EM_Efin_C_Elementvalue_ID and inv.em_efin_expense_account is null)
+ --	or ( elmval.c_elementvalue_id=inv.account_id and inv.em_efin_expense_account is not null )
+left join c_project cpro on elmval.em_efin_project_id = cpro.c_project_id
+where pay.fin_payment_id = $P{inpfinPaymentId}  and inv.LineNetAmt>0 ;]]>
+	</queryString>
+	<field name="paymentamts" class="java.lang.String"/>
+	<field name="paymentamtt" class="java.math.BigDecimal"/>
+	<field name="account" class="java.lang.String"/>
+	<field name="subaccount" class="java.lang.String"/>
+	<field name="custody_id" class="java.lang.String"/>
+	<field name="Fixed_value" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="23" splitType="Stretch">
+			<textField pattern="###0.0" isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="70" height="23" isRemoveLineWhenBlank="true" uuid="ec25f9da-b53b-437e-986e-d024f8aa3909">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount((new java.text.DecimalFormat("#,##0").format($F{paymentamtt}.doubleValue())).toString())]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="76" y="0" width="49" height="23" isRemoveLineWhenBlank="true" uuid="4493362f-69a9-4510-85a6-7c4925397904">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{paymentamts}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="133" y="0" width="81" height="23" isRemoveLineWhenBlank="true" uuid="47ee612d-0b89-41cf-97ce-ae72e4112a6b">
+					<printWhenExpression><![CDATA[!$F{custody_id}.toString().equals("757A043DA459420A9CB5A5216189BA1D")]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{Fixed_value}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="278" y="0" width="90" height="23" isRemoveLineWhenBlank="true" uuid="94bbfca5-6be9-4ec0-b623-ba38a1695e35">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{account}.equals($F{subaccount})?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{account}.toString()))]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="211" y="0" width="79" height="23" isRemoveLineWhenBlank="true" uuid="6260e450-365e-4023-8ea5-2fd64b650c9d">
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{subaccount}.toString())]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

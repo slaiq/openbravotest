@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_SECURITYRULEACCOUNT">
+    <function name="EFIN_SECURITYRULEACCOUNT" type="NULL">
+      <parameter name="p_orgid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_org" type="VARCHAR" mode="out">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s):Priyanka R
+************************************************************************/
+ DECLARE
+	 v_count NUMBER(10); 
+	 v_clientId VARCHAR2(32);
+	 vTree VARCHAR2(32);
+	  BEGIN	  
+	   --get ClientId
+	  select ad_client_id into v_clientId from ad_org where ad_org_id=p_orgid;
+	  --check the account (exists for org)
+          select count(c_elementvalue_id) into v_count from c_elementvalue where ad_org_id=p_orgid;	
+			    IF (v_count=0) THEN
+			       SELECT ad_tree_id  INTO vTree  
+				FROM ad_tree 
+				WHERE ad_client_id=v_clientId
+				AND treetype='OO';
+			      WHILE (p_orgid is not null and p_orgid <> '')
+			      LOOP
+				SELECT parent_id INTO p_orgid
+				FROM ad_treenode
+				WHERE node_id = p_orgid
+				AND ad_tree_id = vTree;
+				IF p_orgid is not null THEN
+				select count(c_elementvalue_id),ad_org_id into v_count,v_org from c_elementvalue  where ad_org_id=p_orgid group by c_elementvalue.ad_org_id;
+				END IF;
+				EXIT WHEN v_org is not null ;
+			      End LOOP ;
+			      ELSE 
+			         select count(c_elementvalue_id),ad_org_id into v_count,v_org from c_elementvalue where ad_org_id=p_orgid group by c_elementvalue.ad_org_id;                                     
+			      END IF;
+END EFIN_SECURITYRULEACCOUNT
+]]></body>
+    </function>
+  </database>

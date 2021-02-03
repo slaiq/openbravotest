@@ -1,0 +1,909 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BudgetDetailReportMoTA3.jrxml" pageWidth="1190" pageHeight="842" orientation="Landscape" whenNoDataType="NoDataSection" columnWidth="1150" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="f9965ed5-6e9c-4938-865b-38f46195ff86">
+	<property name="ireport.zoom" value="0.7513148009015781"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="inpYear1" class="java.lang.String"/>
+	<parameter name="AD_Org_ID" class="java.lang.String"/>
+	<parameter name="inpADClient" class="java.lang.String"/>
+	<parameter name="inpADUser" class="java.lang.String"/>
+	<parameter name="inpBudgetGroupId1" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpBudgetTypeId1" class="java.lang.String"/>
+	<parameter name="BASE_WEB" class="java.lang.String"/>
+	<parameter name="inpoutputType" class="java.lang.String"/>
+	<parameter name="inpOrg1" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AUX_inpOrg1" class="java.lang.String">
+		<defaultValueExpression><![CDATA[$P{inpOrg1}.equals("'0'") ? "" : " and l.ad_org_id in("+$P{inpOrg1}+") "]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpOrgName" class="java.lang.String"/>
+	<parameter name="inpRole" class="java.lang.String"/>
+	<parameter name="inpHideZeroValue" class="java.lang.String"/>
+	<parameter name="inpImageFlag" class="java.lang.String"/>
+	<parameter name="inpOrgId" class="java.lang.String"/>
+	<parameter name="inpFromCostCenter" class="java.lang.String"/>
+	<parameter name="inpToCostCenter" class="java.lang.String"/>
+	<parameter name="inpBudgetInit" class="java.lang.String"/>
+	<parameter name="inpOrganizationId" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select l.uniquecode ,e.c_elementvalue_id,
+(select name from c_elementvalue where c_elementvalue_id = l.c_elementvalue_id)
+as budgetGroup,l.c_campaign_id as BudgetType,coalesce(l.funds_available,0) as FundsAvailable,coalesce(l.encumbrance,0) as Encumbrance,e.name,
+(select eut_convert_to_hijri(to_char(min(startdate),'YYYY-MM-DD')) from c_period where c_period_id = init.fromperiod) as startdate,
+(select eut_convert_to_hijri(to_char(max(enddate),'YYYY-MM-DD')) from c_period where c_period_id =init.toperiod) as enddate,
+(select name from ad_user usr where ad_user_id=$P{inpADUser}) as username,
+coalesce(l.current_budget,0) as CurrentBudget,coalesce(l.REV_Amount,0) as OriginalAmt,l.description,e.name as acctname,e.value as acctsearchkey,p.name as projname,p.value as projsearchkey,coalesce(l.Revinc_Amt,0) as RevisionIncrease,
+coalesce(l.Revdec_Amt,0) as RevisionDecrease,coalesce(l.Spent_Amt,0) as Actual , eut_convert_to_hijri(to_char(now(),'YYYY-MM-DD')) as date,now() as time,concat(e.value,' - ',e.name) as account,
+coalesce(l.Disinc_Amt,0) as DisIncrease,coalesce(l.Disdec_Amt,0) as DisDecrease,coalesce(l.Depinc_Amt,0) as DeptIncrease,coalesce(l.Depdec_Amt,0) as DeptDecrease,
+coalesce((select (coalesce(be.current_budget, 0)-coalesce(be.disdec_amt, 0)+coalesce(be.disinc_amt, 0))
+from efin_budgetinquiry be
+join c_validcombination vc on be.c_validcombination_id=vc.c_validcombination_id
+where vc.c_salesregion_id in (select b.hq_budgetcontrolunit from efin_budget_ctrl_param b where b.ad_client_id = l.ad_client_id)
+and be.efin_budgetinquiry_id=l.efin_budgetinquiry_id ),0) as BCUFundAvail,
+ROW_NUMBER() OVER (ORDER BY e.value,case when com.c_salesregion_id=(select b.hq_budgetcontrolunit from efin_budget_ctrl_param b where b.ad_client_id = l.ad_client_id) then 1
+when com.c_salesregion_id=(select b.budgetcontrol_costcenter from efin_budget_ctrl_param b where b.ad_client_id = l.ad_client_id)  then 2 else 3 end ) as seq,dept.value as dept
+
+from efin_budgetint    init
+join  efin_budgetinquiry l  on init.efin_budgetint_id = l.efin_budgetint_id
+join c_validcombination com on com.c_validcombination_id=l.c_validcombination_id
+join c_elementvalue e on com.account_id = e.c_elementvalue_id
+left join c_project p on p.c_project_id = l.c_project_id
+left join c_salesregion dept on dept.c_salesregion_id=com.c_salesregion_id
+
+where  e.c_elementvalue_id in (
+           select replace(unnest(string_to_array(eut_getchildacct($P{inpBudgetGroupId1}),',')::character varying []),'''',''))
+and com.c_campaign_id =$P{inpBudgetTypeId1}
+and init.efin_budgetint_id  =$P{inpYear1} and com.c_salesregion_id in
+ (select c_salesregion_id from c_salesregion where value between $P{inpFromCostCenter}  and $P{inpToCostCenter})
+and case when $P{inpOrganizationId}='0' then 1=1 else com.ad_org_id=$P{inpOrganizationId} end
+
+AND com.account_id IN (select act.c_elementvalue_id from efin_security_rules_act act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id= $P{inpRole})and efin_processbutton='Y')
+          AND com.C_Salesregion_ID in (select dep.C_Salesregion_ID from Efin_Security_Rules_Dept dep
+                    join efin_security_rules ru on ru.efin_security_rules_id=dep.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=$P{inpRole})and efin_processbutton='Y')
+          AND com.C_Project_ID in (select proj.c_project_id from efin_security_rules_proj proj
+                    join efin_security_rules ru on ru.efin_security_rules_id=proj.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=$P{inpRole})and efin_processbutton='Y')
+          AND com.C_CAMPAIGN_ID IN(select bud.C_campaign_ID from efin_security_rules_budtype bud
+                    join efin_security_rules ru on ru.efin_security_rules_id=bud.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=$P{inpRole})and efin_processbutton='Y')
+          AND com.C_Activity_ID in (select act.C_Activity_ID from efin_security_rules_activ act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=$P{inpRole})and efin_processbutton='Y')
+          AND com.User1_ID in (select fut1.User1_ID from efin_security_rules_fut1 fut1
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut1.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=$P{inpRole})and efin_processbutton='Y')
+          AND com.User2_ID in (select fut2.User2_ID from efin_security_rules_fut2 fut2
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut2.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=$P{inpRole})and efin_processbutton='Y')
+$P!{AUX_inpOrg1} $P!{inpHideZeroValue}
+ group by com.account_id,budgetGroup,BudgetType,l.efin_budgetinquiry_id ,e.c_elementvalue_id,com.c_salesregion_id,dept.value,init.fromperiod,init.toperiod,
+e.name ,l.description,e.value,p.name,p.value
+order by seq]]>
+	</queryString>
+	<field name="uniquecode" class="java.lang.String"/>
+	<field name="c_elementvalue_id" class="java.lang.String"/>
+	<field name="budgetgroup" class="java.lang.String"/>
+	<field name="budgettype" class="java.lang.String"/>
+	<field name="fundsavailable" class="java.math.BigDecimal"/>
+	<field name="encumbrance" class="java.math.BigDecimal"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="startdate" class="java.lang.String"/>
+	<field name="enddate" class="java.lang.String"/>
+	<field name="username" class="java.lang.String"/>
+	<field name="currentbudget" class="java.math.BigDecimal"/>
+	<field name="originalamt" class="java.math.BigDecimal"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="acctname" class="java.lang.String"/>
+	<field name="acctsearchkey" class="java.lang.String"/>
+	<field name="projname" class="java.lang.String"/>
+	<field name="projsearchkey" class="java.lang.String"/>
+	<field name="revisionincrease" class="java.math.BigDecimal"/>
+	<field name="revisiondecrease" class="java.math.BigDecimal"/>
+	<field name="actual" class="java.math.BigDecimal"/>
+	<field name="date" class="java.lang.String"/>
+	<field name="time" class="java.sql.Timestamp"/>
+	<field name="account" class="java.lang.String"/>
+	<field name="disincrease" class="java.math.BigDecimal"/>
+	<field name="disdecrease" class="java.math.BigDecimal"/>
+	<field name="deptincrease" class="java.math.BigDecimal"/>
+	<field name="deptdecrease" class="java.math.BigDecimal"/>
+	<field name="bcufundavail" class="java.math.BigDecimal"/>
+	<field name="seq" class="java.lang.Long"/>
+	<field name="dept" class="java.lang.String"/>
+	<variable name="CurrBudSum" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{currentbudget}]]></variableExpression>
+	</variable>
+	<variable name="RevDecsum" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{revisiondecrease}]]></variableExpression>
+	</variable>
+	<variable name="RevIncSum" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{revisionincrease}]]></variableExpression>
+	</variable>
+	<variable name="ActSum" class="java.math.BigDecimal" resetType="Column" calculation="Sum">
+		<variableExpression><![CDATA[$F{actual}]]></variableExpression>
+	</variable>
+	<variable name="EncSum" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{encumbrance}]]></variableExpression>
+	</variable>
+	<variable name="OrigSum" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{originalamt}]]></variableExpression>
+	</variable>
+	<variable name="wtfa" class="java.lang.Object" calculation="Sum">
+		<variableExpression><![CDATA[""]]></variableExpression>
+	</variable>
+	<variable name="FAsum" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{fundsavailable}]]></variableExpression>
+	</variable>
+	<variable name="average" class="java.lang.String">
+		<variableExpression><![CDATA[""]]></variableExpression>
+	</variable>
+	<variable name="DisDecSum" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{disdecrease}]]></variableExpression>
+	</variable>
+	<variable name="DisIncSum" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{disincrease}]]></variableExpression>
+	</variable>
+	<variable name="DeptDecSum" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{deptdecrease}]]></variableExpression>
+	</variable>
+	<variable name="DeptIncSum" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{deptincrease}]]></variableExpression>
+	</variable>
+	<variable name="BCUfundAvailSum" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{bcufundavail}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="163" splitType="Stretch">
+			<image>
+				<reportElement x="458" y="0" width="216" height="117" uuid="d1bfe68e-68e9-4180-9ccd-a966fcfd936d">
+					<printWhenExpression><![CDATA[$P{inpImageFlag}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[org.openbravo.erpCommon.utility.Utility.showImageLogo("yourcompanylegal",$P{inpOrgId})]]></imageExpression>
+			</image>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="241" splitType="Stretch">
+			<staticText>
+				<reportElement x="217" y="49" width="85" height="20" uuid="c3c65cd3-a2f8-4035-a020-85813bc75870">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<box rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<text><![CDATA[Time]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="217" y="29" width="85" height="20" uuid="f8490a2d-653b-49d4-9aad-89b511603e02">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<box rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="889" y="49" width="261" height="20" isRemoveLineWhenBlank="true" uuid="829ba4ca-5935-43fb-97ff-9f16cae66c9f"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{inpADClient}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="453" y="29" width="216" height="25" isRemoveLineWhenBlank="true" uuid="bb13922d-ecf5-4036-8a11-26a9800789de">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{budgetgroup}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement x="0" y="29" width="217" height="20" isRemoveLineWhenBlank="true" uuid="00caf50b-ee31-4a5d-acd7-cecb5e37c93d">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<box rightPadding="8"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{date}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="889" y="29" width="261" height="20" isRemoveLineWhenBlank="true" uuid="77e90110-04cf-4a62-b401-4bb63a44d000"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{inpOrgName}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="217" y="69" width="85" height="20" uuid="7e5d81e0-4616-4dff-b79f-39053eb93221">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<box rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<text><![CDATA[User Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="432" y="1" width="263" height="28" isRemoveLineWhenBlank="true" uuid="da255d6f-9611-4c09-a105-ebb929d6506b">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Budget Details]]></text>
+			</staticText>
+			<textField pattern="h.mm a" isBlankWhenNull="true">
+				<reportElement x="0" y="49" width="217" height="20" isRemoveLineWhenBlank="true" uuid="28cd8487-d62c-421c-9908-1405f2eff609">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<box rightPadding="8"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{time}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="69" width="217" height="20" isRemoveLineWhenBlank="true" uuid="93326731-fb27-405e-9736-f2640b5e0dd4">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="2" rightPadding="8"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{inpADUser}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement x="302" y="151" width="468" height="31" isRemoveLineWhenBlank="true" uuid="f29423d2-4abe-4df3-8649-9cd995a02886">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Period From "+$F{startdate}+" To "+$F{enddate}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="139" y="112" width="814" height="39" isRemoveLineWhenBlank="true" uuid="1423543e-9f39-4719-b943-0e3d441c3236">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Payments and Encumbrance Transactions on Accounts (" +$F{budgetgroup} +") Financial Year"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="773" y="207" width="66" height="34" backcolor="#999999" uuid="f7daa1e2-64e0-40bc-9c79-111c44dec947"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Revision Decrease]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="221" y="207" width="72" height="34" backcolor="#999999" uuid="e248821e-2bc0-4b8a-82c0-3d5174f6c1d8"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Encumbrance]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="139" y="207" width="82" height="34" backcolor="#999999" uuid="57c7e9fa-de06-4324-a612-31b4dca9b40f"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Funds Available]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1062" y="207" width="89" height="34" backcolor="#999999" uuid="d78c7fc9-6cca-4f1f-ad62-9c421ed6ff9c"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Account]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="207" width="48" height="34" backcolor="#999999" uuid="d8e2bdc7-a8b6-4ce9-9572-1d05831f0a82"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="355" y="207" width="100" height="34" backcolor="#999999" uuid="84413b95-bf3b-406d-a67f-e4b746167050"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Current Budget]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="293" y="207" width="62" height="34" backcolor="#999999" uuid="bd53f3ee-0c22-471b-b5a3-ec1933de2df9"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Actual]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="707" y="207" width="66" height="34" backcolor="#999999" uuid="96877d7a-cdfc-4d45-8645-df250dfa311b"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Revision Increase]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="839" y="207" width="84" height="34" backcolor="#999999" uuid="c147fa34-c057-4d42-ba30-e474fb5e319c"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Original Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="923" y="207" width="77" height="34" backcolor="#999999" uuid="abb9140d-4eb4-474d-9699-1599a6699746"/>
+				<box leftPadding="2" rightPadding="2">
+					<pen lineStyle="Solid"/>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.75" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Project]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="455" y="207" width="56" height="34" backcolor="#999999" uuid="b1c26514-86ac-4997-bf59-b0a3445b7191"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Dis Increase]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="511" y="207" width="58" height="34" backcolor="#999999" uuid="cc460fa4-0284-49e3-8369-5a79daaa2eae"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Dis Decrease]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="569" y="207" width="68" height="34" backcolor="#999999" uuid="9729d029-affd-4ceb-a2a6-7fc28be9a8a9"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Dept Increase]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="637" y="207" width="70" height="34" backcolor="#999999" uuid="f327d017-21fa-480c-b837-f9191441c73e"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Dept Decrease]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="48" y="207" width="91" height="34" backcolor="#999999" uuid="66e3f1a0-001a-4165-beee-023d5d46a40d"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[BCU Fund Avail]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1000" y="207" width="61" height="34" backcolor="#999999" uuid="f54aa84f-ce26-44e7-9948-05088e1293e3"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Cost Center]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="889" y="69" width="261" height="20" isRemoveLineWhenBlank="true" uuid="3bb1925d-2306-4897-ab53-4c564cf07c5b"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{inpBudgetInit}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="35" splitType="Stretch">
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="221" y="1" width="72" height="34" uuid="1c988808-6214-4f9b-a232-656a1185af63"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{encumbrance}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="139" y="1" width="82" height="34" uuid="82bede3f-1abd-49f6-93a5-934cb6ca7b28"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fundsavailable}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="839" y="1" width="84" height="34" uuid="d821576b-8bd6-49b0-a2e2-75e6bb04a4be"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{originalamt}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00;(###0.00)" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="1" width="48" height="34" uuid="7c829bb1-c76f-48dc-882b-994f578a03bc"/>
+				<box leftPadding="0" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new DecimalFormat("###0.00").format($F{fundsavailable}.divide((($F{currentbudget}.compareTo(new BigDecimal(0))==0)? new BigDecimal(1) : $F{currentbudget}),5,RoundingMode.HALF_UP).multiply(new BigDecimal(100)).setScale(2,RoundingMode.HALF_EVEN))]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="293" y="1" width="62" height="34" uuid="e649b972-f81a-4148-b53c-2160ab79160d"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{actual}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="355" y="1" width="100" height="34" uuid="0ae4f554-a7be-4ab6-91e3-ee2d34d20237"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{currentbudget}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="707" y="1" width="66" height="34" uuid="7d368ee7-bdfa-4828-bdae-3e02bb2847f1"/>
+				<box leftPadding="0" rightPadding="4">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{revisionincrease}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="923" y="1" width="77" height="34" uuid="89d83307-ffa6-4ffd-8fe6-ddf552ecf955"/>
+				<box>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{projsearchkey} +" - "+$F{projname}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="773" y="1" width="66" height="34" uuid="0b35bc5b-779b-4efd-b9f4-573e45e8451e"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{revisiondecrease}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="48" y="1" width="91" height="34" uuid="8f3b210a-426d-443d-b7e6-4a7a5ead1b47"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bcufundavail}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="455" y="1" width="56" height="34" uuid="7ca89336-9d49-4ea6-8c41-a4e28ea32417"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{disincrease}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="511" y="1" width="58" height="34" uuid="3a1e5072-611f-450f-a97d-8445e3e9fac0"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{disdecrease}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="569" y="1" width="68" height="34" uuid="6c0a5d97-eae5-44f4-8347-84404a42e67c"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{deptincrease}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="637" y="1" width="70" height="34" uuid="d3819f3e-eae1-4af9-8239-fb0635469fd1"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{deptdecrease}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="1061" y="1" width="90" height="34" uuid="ef090efb-0f4c-4a7e-81c5-60e90e870a70"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{account}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="1000" y="1" width="61" height="34" uuid="1025d7fb-2d6f-4014-801a-782c335f9917"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dept}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="26" splitType="Stretch">
+			<textField>
+				<reportElement x="924" y="0" width="227" height="26" uuid="a066cb1c-28c7-4f9c-b499-e2c065ecea5e"/>
+				<box leftPadding="2" rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Top"/>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="34" splitType="Stretch">
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="707" y="0" width="66" height="34" uuid="db59a508-c74c-41ba-ae54-10d7a16d6ec3"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{RevIncSum}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="139" y="0" width="82" height="34" uuid="68071506-b928-485c-9ac9-1f26cd9c6f43"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{FAsum}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="221" y="0" width="72" height="34" uuid="4ca3cecf-129b-4009-b4f2-706a452a00ae"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{EncSum}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="293" y="0" width="62" height="34" uuid="2af61474-a130-4ec3-9659-78a24d6771b1"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{ActSum}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="839" y="0" width="84" height="34" uuid="ca77014a-d03a-4cec-b602-84044e895537"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{OrigSum}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="773" y="0" width="65" height="34" uuid="86b8cfa8-c876-4310-a480-57bc1585da21"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{RevDecsum}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="355" y="0" width="100" height="34" uuid="fe8d90a4-5491-4dcd-8116-b8c231914b00"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{CurrBudSum}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="923" y="0" width="228" height="34" backcolor="#999999" uuid="1c065b55-b68d-4386-a86f-ea5e3fa0a998"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Summary]]></text>
+			</staticText>
+			<textField pattern="###0.00;(###0.00)" isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="48" height="34" uuid="f1991bfa-5c65-44cd-a795-e53fbcfce502"/>
+				<box leftPadding="0" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new DecimalFormat("###0.00").format($V{FAsum}.divide($V{CurrBudSum},5,RoundingMode.HALF_UP).multiply(new BigDecimal(100)).setScale(2,RoundingMode.HALF_EVEN))]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="48" y="0" width="91" height="34" uuid="be4db5fb-a737-4191-b4ae-17499b99d06c"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{BCUfundAvailSum}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="455" y="0" width="56" height="34" uuid="a9861b78-7f83-4b04-8121-626d5465d03c"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{DisIncSum}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="511" y="0" width="58" height="34" uuid="d0569284-f3f4-4f59-9a95-233053bc9987"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{DisDecSum}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="569" y="0" width="68" height="34" uuid="c8b8832e-2fd6-4f60-8cab-d949cee3a394"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{DeptIncSum}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="637" y="0" width="70" height="34" uuid="4510bbbb-e969-4482-b3d7-0e51c5feca9d"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{DeptDecSum}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+	<noData>
+		<band height="50">
+			<staticText>
+				<reportElement positionType="Float" x="0" y="1" width="1150" height="49" backcolor="#999999" uuid="fc30d324-8f0e-41f8-b496-64274cc95f29">
+					<printWhenExpression><![CDATA[$V{REPORT_COUNT}==0]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="2" rightPadding="2">
+					<leftPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No Data Found.]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

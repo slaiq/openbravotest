@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+  <database name="TABLE EUT_LOOKUP_ACCESS">
+    <table name="EUT_LOOKUP_ACCESS" primaryKey="EUT_LOOKUP_ACCESS_KEY">
+      <column name="EUT_LOOKUP_ACCESS_ID" primaryKey="true" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_WINDOW_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_ROLE_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_CLIENT_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_ORG_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="ISACTIVE" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[Y]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="ISREADWRITE" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[Y]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="ESCM_DEFLOOKUPS_TYPE_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="ESCM_DEFLOOKUPS_TYPELN_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="INHERITED_FROM" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="DOCAPP_DELEGATELN_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="ENDDATE" primaryKey="false" required="false" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="RECALCULATE" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EUT_FORWARD_REQMOREINFO_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EUT_REQMOREINFO_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="EUT_FORWARD_REQMOREINFO" name="EUT_LOOKUP_RMI">
+        <reference local="EUT_REQMOREINFO_ID" foreign="EUT_FORWARD_REQMOREINFO_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_ROLE" name="EUT_LOOKUPACCESS_AD_ROLE" onDelete="cascade">
+        <reference local="AD_ROLE_ID" foreign="AD_ROLE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_WINDOW" name="EUT_LOOKUPACCESS_AD_WINDOW" onDelete="cascade">
+        <reference local="AD_WINDOW_ID" foreign="AD_WINDOW_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_CLIENT" name="EUT_LOOKUPACCESS_CLIENT">
+        <reference local="AD_CLIENT_ID" foreign="AD_CLIENT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EUT_DOCAPP_DELEGATELN" name="EUT_LOOKUPACCESS_DELE">
+        <reference local="DOCAPP_DELEGATELN_ID" foreign="EUT_DOCAPP_DELEGATELN_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EUT_FORWARD_REQMOREINFO" name="EUT_LOOKUPACCESS_FORRMI">
+        <reference local="EUT_FORWARD_REQMOREINFO_ID" foreign="EUT_FORWARD_REQMOREINFO_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_ROLE" name="EUT_LOOKUPACCESS_IN_FROM">
+        <reference local="INHERITED_FROM" foreign="AD_ROLE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="ESCM_DEFLOOKUPS_TYPE" name="EUT_LOOKUPACCESS_LOOKUP" onDelete="cascade">
+        <reference local="ESCM_DEFLOOKUPS_TYPE_ID" foreign="ESCM_DEFLOOKUPS_TYPE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="ESCM_DEFLOOKUPS_TYPELN" name="EUT_LOOKUPACCESS_LOOKUPLN" onDelete="cascade">
+        <reference local="ESCM_DEFLOOKUPS_TYPELN_ID" foreign="ESCM_DEFLOOKUPS_TYPELN_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_ORG" name="EUT_LOOKUPACCESSORG">
+        <reference local="AD_ORG_ID" foreign="AD_ORG_ID"/>
+      </foreign-key>
+      <check name="EUT_LOOKUPACCESS_ISACTIVE_CHK"><![CDATA[ISACTIVE IN ('Y', 'N')]]></check>
+      <check name="EUT_LOOKUPACCESS_ISREADWRI_CHK"><![CDATA[ISREADWRITE IN ('Y', 'N')]]></check>
+    </table>
+  </database>

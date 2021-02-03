@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_BUDGETACTUAL">
+    <trigger name="EFIN_BUDGETACTUAL" table="EFIN_BUDGET_ACTUAL" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[
+v_fundsavailable NUMBER; --OBTG:VARCHAR2--
+v_amount VARCHAR2(60);
+v_Message VARCHAR2(2000):='';
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	-- Update Operation
+	IF UPDATING THEN
+	--check negative funds availabe
+	IF(:new.posted <> :old.posted) THEN
+        IF(:new.posted='Y') THEN
+        select funds_available into v_fundsavailable from efin_budgetlines where efin_budgetlines_id =:new.efin_budgetlines_id;
+	if((v_fundsavailable-:new.amount)<0) then
+	 RAISE_APPLICATION_ERROR(-20000, '@Efin_Fundsavailabe_Negative@');
+	 v_Message:= '@ERROR=' ||'@Efin_Fundsavailabe_Negative@' ;
+	 AD_UPDATE_PINSTANCE(get_uuid(), NULL, 'N', 0, v_Message) ;
+	else
+		update efin_budgetlines  set amount_spent=amount_spent+:new.amount  ,funds_available  =funds_available-:new.amount
+		where efin_budgetlines_id =:new.efin_budgetlines_id;
+	end if;
+	ELSE
+		update efin_budgetlines  set amount_spent=amount_spent-:new.amount  ,funds_available  =funds_available+:new.amount
+		where efin_budgetlines_id =:new.efin_budgetlines_id;
+        END IF;
+	END IF;
+	END IF;	
+
+	END EFIN_BUDGETACTUAL
+]]></body>
+    </trigger>
+  </database>

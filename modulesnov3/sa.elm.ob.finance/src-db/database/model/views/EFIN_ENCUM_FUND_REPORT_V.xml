@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_ENCUM_FUND_REPORT_V">
+    <view name="EFIN_ENCUM_FUND_REPORT_V"><![CDATA[SELECT mencum.efin_budget_manencum_id AS efin_encum_fund_report_v_id, mencum.documentno AS encumbrance_number, mencum.efin_budgetint_id, mencum.ad_client_id, mencum.ad_org_id, mencum.isactive, mencum.created, mencum.createdby, mencum.updated, mencum.updatedby, yr.c_year_id AS yearid FROM efin_budget_manencum mencum JOIN efin_budgetint bint ON mencum.efin_budgetint_id = bint.efin_budgetint_id JOIN c_year yr ON yr.c_year_id = bint.c_year_id WHERE (mencum.c_campaign_id IN (SELECT c_campaign.c_campaign_id FROM c_campaign WHERE c_campaign.value = '02')) AND NOT (mencum.efin_budget_manencum_id IN (SELECT line.efin_budget_manencum_id FROM efin_bud_manencum_rev rev JOIN efin_budget_manencumlines line ON line.efin_budget_manencumlines_id = rev.src_manencumline_id)) ORDER BY mencum.documentno]]></view>
+  </database>

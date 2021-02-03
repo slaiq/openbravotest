@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_ENCUMLINES_DEPTNAMT">
+    <trigger name="EFIN_ENCUMLINES_DEPTNAMT" table="EFIN_BUDGET_MANENCUMLINES" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[ 
+v_manencum_id character varying(32);
+v_budinit_id character varying(32);
+v_deptFund VARCHAR(60);
+v_salesregion_id character varying(32);
+v_hqorg character varying(32);
+v_docstatus character varying(32);
+v_encum_method character varying(32);
+
+v_isdeptfund character varying(32);
+v_isreservedfund character varying(1);
+v_clientId character varying(32);
+v_prec NUMBER ; 
+
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	IF TG_OP='INSERT' OR TG_OP='UPDATE' THEN
+    v_clientId:=:new.ad_client_id;
+    ELSE
+    v_clientId:=:old.ad_client_id;
+    END IF;
+    
+ 	-- To get Standarrd Precision from Currency by using Current Client ID
+ 	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+ 	in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+
+	-- Insert/Update/Delete Operation	
+	IF UPDATING THEN
+		v_manencum_id := :new.efin_budget_manencum_id;
+		if(:new.revamount <> :old.revamount) then
+        select efin_budgetint_id,Docstatus into  v_budinit_id, v_docstatus from efin_budget_manencum where efin_budget_manencum_id = :new.efin_budget_manencum_id;
+        	 select budgetcontrol_costcenter into v_hqorg from efin_budget_ctrl_param where ad_client_id = :new.ad_client_id;
+             select em_efin_isdeptfund, c_salesregion_id into v_deptFund, v_salesregion_id from c_validcombination where c_validcombination_id = :new.c_validcombination_id;
+              if(v_deptFund ='N' and v_hqorg<>v_salesregion_id and (v_docstatus <> 'DR' and v_docstatus <> 'RW')) then
+                update efin_budgetinquiry set encumbrance=Round((encumbrance+(:new.revamount-:old.revamount)),v_prec)
+                where efin_budgetinquiry_id = (select efin_budgetinquiry_id  from efin_budgetinquiry where c_validcombination_id = :new.c_validcombination_id and efin_budgetint_id = v_budinit_id and ad_client_id = :new.ad_client_id limit 1);
+  	          END IF;
+        END IF;
+    END IF;	
+		
+	
+	IF DELETING THEN 
+       v_manencum_id := :old.efin_budget_manencum_id;
+       select em_efin_isdeptfund into v_isdeptfund  from c_validcombination where c_validcombination_id =:old.c_validcombination_id;
+       select docstatus, encum_method, efin_budgetint_id,isreservedfund  into v_docstatus, v_encum_method,v_budinit_id,v_isreservedfund from efin_budget_manencum where efin_budget_manencum_id =v_manencum_id;
+       if((v_docstatus='CO' or v_isreservedfund='Y') and v_encum_method='A' and v_isdeptfund='N') then 
+          update efin_budgetinquiry set encumbrance = Round((encumbrance - :old.revamount),v_prec) where c_validcombination_id= :old.c_validcombination_id and efin_budgetint_id=v_budinit_id;
+       end if;       
+    end if;
+    
+    
+    END EFIN_ENCUMLINES_DEPTNAMT
+]]></body>
+    </trigger>
+  </database>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_UPDATEPROPOSALATTRID_TRG">
+    <trigger name="ESCM_UPDATEPROPOSALATTRID_TRG" table="ESCM_BGWORKBENCH" fires="after" insert="false" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_bgWorkbenchId CHARACTER VARYING(32);
+BEGIN
+	IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+   IF  UPDATING then 
+   if( (coalesce(:old.document_no,'') <> coalesce(:new.document_no,'')) and :new.document_type ='P' ) then
+	  update escm_bankguarantee_detail set escm_proposal_attr_id = :new.escm_proposal_attr_id 
+      where escm_bgworkbench_id = :new.escm_bgworkbench_id;
+   end if;
+   end if;
+ END ESCM_UPDATEPROPOSALATTRID_TRG
+]]></body>
+    </trigger>
+  </database>

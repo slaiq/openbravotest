@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
+<!-- 2017-04-26T15:09:01 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="InspectionReport_subreport1" pageWidth="562" pageHeight="802" columnWidth="562" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="84fb4bab-31f4-4813-8395-a9658362f0d7">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String"/>
+	<parameter name="inpInOutId" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select ln.itemcode, ln.itemdesc, ln.status, ln.line, ln.accepted_qty
+from
+(select
+pro.value as itemcode,pro.name as itemdesc,
+(case when inr.status = 'A' then 'Accept' when inr.status = 'R' then 'Reject' end) as status,
+inr.line as line,inr.quantity as accepted_qty,
+row_number() OVER ()::integer as rnum
+from m_inout min
+left join escm_initialreceipt inr on min.m_inout_id = inr.m_inout_id
+left join escm_initialreceipt src  on src.escm_initialreceipt_id = inr.source_ref
+left join m_inout inout on inout.m_inout_id = src.m_inout_id
+left join m_product product on product.m_product_id = src.m_product_id
+left join m_product pro on pro.m_product_id = inr.m_product_id
+where min.em_escm_receivingtype = 'INS'  and min.m_inout_id =$P{inpInOutId}) ln
+full join
+( select ''::character varying as ad_client_id, b.sno
+from (  select generate_series(1, 8)as sno)b )alllns on ln.rnum = alllns.sno
+order by ln.line]]>
+	</queryString>
+	<field name="itemcode" class="java.lang.String"/>
+	<field name="itemdesc" class="java.lang.String"/>
+	<field name="status" class="java.lang.String"/>
+	<field name="line" class="java.math.BigDecimal"/>
+	<field name="accepted_qty" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="21">
+			<break>
+				<reportElement x="0" y="19" width="550" height="1" uuid="cb3ecd0e-55f8-4bda-b217-2ea525870fbb">
+					<printWhenExpression><![CDATA[$V{REPORT_COUNT}==8]]></printWhenExpression>
+				</reportElement>
+			</break>
+			<textField isBlankWhenNull="true">
+				<reportElement x="499" y="0" width="64" height="20" uuid="ebf15249-94bc-4ec6-897d-74dc2ab2ea58"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{line}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="422" y="0" width="77" height="20" uuid="b6f9b0b5-98b2-4d25-9603-f887ea1b8449"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{accepted_qty}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="62" y="0" width="200" height="20" uuid="0843518f-8377-4beb-abee-8d278ec6e886"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{itemdesc}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1" y="0" width="61" height="20" uuid="aaf05483-64d6-47e8-a9a6-cbc184d1d293"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{status}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="262" y="0" width="160" height="20" uuid="b8e686ca-c50c-4ba7-9933-9151a943136c"/>
+				<box rightPadding="4">
+					<topPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{itemcode}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

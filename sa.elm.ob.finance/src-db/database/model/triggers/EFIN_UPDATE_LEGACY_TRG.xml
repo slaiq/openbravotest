@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_UPDATE_LEGACY_TRG">
+    <trigger name="EFIN_UPDATE_LEGACY_TRG" table="EFIN_RDV" fires="before" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[v_Legacy_Adv_Payment_Amt NUMBER;
+v_Legacy_Adv_Deduction NUMBER;
+v_Opening_Adv_Balance NUMBER;
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	IF  INSERTING THEN
+	
+	if(coalesce(:new.c_order_id,'0')<>'0') then
+		select coalesce(em_escm_Legacy_Adv_Payment_Amt,0),coalesce(em_escm_Legacy_Adv_Deduction,0),coalesce(em_escm_L_Opening_Adv_Balance,0)  
+		into v_Legacy_Adv_Payment_Amt,v_Legacy_Adv_Deduction,v_Opening_Adv_Balance
+		from c_order where c_order_id = :new.c_order_id;
+	
+		:new.legacy_totaladv_paid:=v_Legacy_Adv_Payment_Amt;
+		:new.legacy_advance_balance:=v_Opening_Adv_Balance;
+		:new.legacy_total_adv_deduc:=v_Legacy_Adv_Deduction;
+		
+	end if;
+	END IF;
+	
+	END EFIN_UPDATE_LEGACY_TRG
+]]></body>
+    </trigger>
+  </database>

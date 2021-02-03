@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_ATTRIBUTEVALUE">
+    <table name="M_ATTRIBUTEVALUE" primaryKey="M_ATTRIBUTEVALUE_KEY">
+      <unique name="EM_ESCM_AVN_UNQ">
+        <unique-column name="NAME"/>
+        <unique-column name="M_ATTRIBUTE_ID"/>
+        <unique-column name="AD_CLIENT_ID"/>
+      </unique>
+      <unique name="EM_ESCM_AVVAL_UNQ">
+        <unique-column name="VALUE"/>
+        <unique-column name="M_ATTRIBUTE_ID"/>
+        <unique-column name="AD_CLIENT_ID"/>
+      </unique>
+    </table>
+  </database>

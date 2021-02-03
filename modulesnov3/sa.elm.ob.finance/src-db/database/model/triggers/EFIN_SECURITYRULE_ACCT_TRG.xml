@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_SECURITYRULE_ACCT_TRG">
+    <trigger name="EFIN_SECURITYRULE_ACCT_TRG" table="EFIN_SECURITY_RULESLINES" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+IF  INSERTING  OR TG_OP='UPDATE' THEN
+IF (:new.type='INC') then
+:new.fromact :=null;
+:new.toact := null;
+end if;
+IF(:new.type='IN' or :new.type='EX') then
+:new.fromcode:=null;
+:new.tocode :=null;
+end if;
+	
+END IF;
+	
+	END EFIN_SECURITYRULE_ACCT_TRG
+]]></body>
+    </trigger>
+  </database>

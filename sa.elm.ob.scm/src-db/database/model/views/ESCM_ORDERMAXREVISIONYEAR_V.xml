@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_ORDERMAXREVISIONYEAR_V">
+    <view name="ESCM_ORDERMAXREVISIONYEAR_V"><![CDATA[SELECT DISTINCT max(c_order.em_escm_revision) AS max, c_order.documentno, c_order.em_efin_budgetint_id FROM c_order GROUP BY c_order.documentno, c_order.em_efin_budgetint_id]]></view>
+  </database>

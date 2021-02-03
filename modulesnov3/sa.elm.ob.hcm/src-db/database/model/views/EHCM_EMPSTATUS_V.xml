@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EHCM_EMPSTATUS_V">
+    <view name="EHCM_EMPSTATUS_V"><![CDATA[SELECT tr.ehcm_emp_perinfo_id AS ehcm_empstatus_v_id, tr.ad_client_id, tr.ad_org_id, tr.isactive, tr.created, tr.createdby, tr.updated, tr.updatedby, tr.ehcm_emp_perinfo_id, tr.decisionno, tr.startdate, tr.enddate AS todate, tr.status, tr.mcsletterno, tr.mcsletterdate, CASE WHEN tr.isactive = 'N' THEN (SELECT ehcm_actiontype.cancel_persontype FROM ehcm_actiontype WHERE ehcm_actiontype.ehcm_actiontype_id = tr.ehcm_actiontype_id) ELSE (SELECT ehcm_actiontype.persontype FROM ehcm_actiontype WHERE ehcm_actiontype.ehcm_actiontype_id = tr.ehcm_actiontype_id) END AS persontype FROM ehcm_emp_perinfo tr]]></view>
+  </database>

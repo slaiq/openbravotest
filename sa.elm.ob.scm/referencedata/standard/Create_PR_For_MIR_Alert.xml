@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="44B8041377494742BA2A51B08DB01A64" identifier="Create PR For MIR Alert">
+    <id>44B8041377494742BA2A51B08DB01A64</id>
+    <active>true</active>
+    <creationDate transient="true">2017-05-18T11:23:16.995Z</creationDate>
+    <createdBy transient="true" id="D530651FA6E744C88201EB2A908FD4F9" entity-name="ADUser" identifier="cd"/>
+    <updated transient="true">2017-05-18T16:28:56.959Z</updated>
+    <updatedBy transient="true" id="D530651FA6E744C88201EB2A908FD4F9" entity-name="ADUser" identifier="cd"/>
+    <name>Create PR For MIR Alert</name>
+    <tab id="800249" entity-name="ADTab" identifier="Purchase Requisition - Purchase Requisition"/>
+    <filterClause>((referencekey_id in (select m_requisition_id from m_requisition hd
+join eut_next_role_line ln on ln.eut_next_role_id= hd.em_eut_next_role_id
+where ln.ad_role_id in (@#AD_ROLE_ID@) 
+and hd.em_escm_doc_status='ESCM_IP' and em_escm_material_request_id is not null)  and ad_role_id=@#AD_ROLE_ID@)
+or ad_role_id =@#AD_ROLE_ID@
+or (ad_user_id=@#AD_USER_ID@ and status='SOLVED')
+	or( referencekey_id in ( select hd.m_requisition_id from m_requisition hd 
+	join escm_material_request req on req.escm_material_request_id= hd.em_escm_material_request_id
+	 where req.createdby=@#AD_USER_ID@ ))
+or (referencekey_id in (
+select m_requisition_id from m_requisition where em_escm_doc_status ='CO'
+ and createdby=@#AD_USER_ID@ )
+and ad_user_id=@#AD_USER_ID@)
+or (referencekey_id in (
+select m_requisition_id from m_requisition where em_escm_doc_status ='DR' and createdby=@#AD_USER_ID@) 
+and ad_user_id=@#AD_USER_ID@))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <eSCMProcessType>PRFMIR</eSCMProcessType>
+  </ADAlertRule>
+</ob:Openbravo>

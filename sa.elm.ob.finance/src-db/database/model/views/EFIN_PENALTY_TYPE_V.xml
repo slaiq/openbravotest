@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_PENALTY_TYPE_V">
+    <view name="EFIN_PENALTY_TYPE_V"><![CDATA[SELECT ln.eut_deflookups_typeln_id AS efin_penalty_type_v_id, ln.ad_org_id, ln.ad_client_id, ln.updatedby, ln.updated, ln.created, ln.isactive, ln.createdby, ln.eut_deflookups_type_id, ln.value, ln.description, ln.line, ln.arabicname, ln.englishname, ln.penalty_logic FROM eut_deflookups_typeln ln LEFT JOIN eut_deflookups_type hd ON hd.eut_deflookups_type_id = ln.eut_deflookups_type_id WHERE hd.value = 'PENALTY_TYPE' AND hd.isactive = 'Y' AND ln.isactive = 'Y']]></view>
+  </database>

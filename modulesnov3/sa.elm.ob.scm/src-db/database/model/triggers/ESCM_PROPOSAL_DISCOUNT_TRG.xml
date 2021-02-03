@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_PROPOSAL_DISCOUNT_TRG">
+    <trigger name="ESCM_PROPOSAL_DISCOUNT_TRG" table="ESCM_PROPOSALMGMT" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[cur_tech RECORD;
+v_proposalId character varying(32);
+v_total NUMBER;
+v_Line_Total NUMBER;
+v_prec NUMBER;
+v_technical NUMBER;
+v_clientId VARCHAR(32);
+v_incltax CHARACTER(1);
+v_taxpercentage NUMBER;
+v_taxamt NUMBER;
+v_unitprice NUMBER;
+v_final_discount NUMBER;
+v_discountamt NUMBER;
+v_total_taxamt NUMBER;
+v_total_line_discount NUMBER:=0;
+v_difference_in_discount NUMBER:=0;
+v_exists_in_tee_pee NUMBER:=0;
+v_count NUMBER;
+cur_parent record;
+v_peetotal NUMBER;
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+ 
+ IF UPDATING THEN  
+
+if(:new.Isskipdistribute = 'Y') then
+ update escm_proposalmgmt set Isskipdistribute = 'N' where escm_proposalmgmt_id = :NEW.escm_proposalmgmt_id;
+ end if;
+ 
+end if;
+ IF  TG_OP='UPDATE' Then
+	-- To get current Client ID 
+       Select ad_client_id INTO v_clientId from escm_proposalmgmt 
+	where escm_proposalmgmt_id = :new.escm_proposalmgmt_id;
+	-- To get Standarrd Precision from Currency by using Current Client ID
+	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+	in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+	
+	select count(escm_proposal_attr) into v_exists_in_tee_pee from escm_proposal_attr
+	where escm_proposalmgmt_id =:new.escm_proposalmgmt_id
+	and (Escm_Technicalevl_Event_ID is not null  or Escm_Proposalevl_Event_ID is not null);
+	--RAiSE EXCEPTION '%','test'||v_exists_in_tee_pee;
+	END IF;
+
+    IF UPDATING and ((coalesce(:old.Finaldiscountamount,0) <> coalesce(:new.Finaldiscountamount,0))
+	and (v_exists_in_tee_pee=0) and (:old.proposalstatus = :new.proposalstatus) and :new.Isskipdistribute ='N')
+    
+     then 
+
+		select finaldiscount,escm_proposalmgmt_id into v_technical,v_proposalId from 
+    	 escm_proposalmgmt where escm_proposalmgmt_id = :NEW.escm_proposalmgmt_id;
+	
+	--Find The discount percentage from discount amount	
+        if(coalesce(:old.Finaldiscountamount,0) <> coalesce(:new.Finaldiscountamount,0))
+         then
+        v_technical := ((:new.Finaldiscountamount/(:new.Totpoafterchngprice+:new.Finaldiscountamount) ) * 100 );
+         end if;
+         
+    select escm_proposalmgmt_id into v_proposalId from 
+    escm_proposalmgmt where escm_proposalmgmt_id = :NEW.escm_proposalmgmt_id;
+	
+	update escm_proposalmgmt set proposal_discount=:new.finaldiscount,
+	proposal_discount_amount=:new.Finaldiscountamount
+	where escm_proposalmgmt_id=:new.escm_proposalmgmt_id;
+    
+    for cur_tech in (select ln.line_total,ln.pee_line_total,
+					 hd.proposaltype,ln.movementqty,ln.gross_unit_price,
+					 ln.negot_unit_price,ln.PEE_Tech_Discount,ln.escm_proposalmgmt_line_id,
+					 ln.pee_negot_unit_price,ln.pee_qty,ln.line_taxamt,ln.PEE_Line_Taxamt,
+						 ln.PEE_Net_Unitprice,ln.Net_Unitprice
+					 from 
+                     escm_proposalmgmt_line ln 
+					 join escm_proposalmgmt hd on ln.escm_proposalmgmt_id=hd.escm_proposalmgmt_id
+                     where 
+                     ln.escm_proposalmgmt_id = v_proposalId and (ln.status !='CL' or ln.status is null) 
+					 and issummarylevel='N')
+    loop
+    v_Line_Total:=0;
+    v_discountamt:=0;
+    v_total:=0;
+
+
+    if(cur_tech.Negot_Unit_Price!=0)THEN 
+
+
+        v_Line_Total := ROUND(cur_tech.Movementqty * cur_tech.Gross_Unit_Price , v_prec);
+		
+        v_discountamt := ROUND(v_Line_Total * (v_technical /100) , v_prec);
+        v_total := ROUND(v_Line_Total - v_discountamt , v_prec);
+        --tee unit price
+        v_unitprice := ROUND(v_total / cur_tech.Movementqty , v_prec);  
+        v_total_line_discount=v_total_line_discount+v_discountamt;
+        
+     END IF;
+
+     if (v_technical <> 0)then
+    --RAISE NO_DATA_FOUND||v_unitprice;
+    update escm_proposalmgmt_line  set Discount = v_technical,Discountmount =v_discountamt,proposal_discount=round(v_technical,v_prec),
+	proposal_discount_amount=v_discountamt,
+    Line_Total = v_total,line_taxamt = 0,Negot_Unit_Price = v_unitprice,isprocess='Y'
+     where escm_proposalmgmt_line_id = cur_tech.escm_proposalmgmt_line_id;
+    else
+        v_taxpercentage := 0;
+        v_taxamt=ROUND(cur_tech.movementqty*v_taxpercentage , v_prec);
+     update escm_proposalmgmt_line  set Discount = v_technical,Discountmount =0,
+	 proposal_discount=v_technical,
+	proposal_discount_amount=0,
+    Line_Total =ROUND(cur_tech.movementqty * cur_tech.Gross_Unit_Price , v_prec) ,
+    line_taxamt = v_taxamt,Negot_Unit_Price=round(v_total/cur_tech.movementqty,v_prec) 
+    ,isprocess='Y'
+    where escm_proposalmgmt_line_id = cur_tech.escm_proposalmgmt_line_id;
+   end if;
+    end loop;
+	--check the difference with total line discount and header discount 
+    --if there is any difference update the discount amount in any one of the line
+ if (v_technical <> 0) and (:new.finaldiscountamount <> v_total_line_discount )then
+        v_difference_in_discount:= :new.finaldiscountamount-v_total_line_discount;
+        -- RAISE NO_DATA_FOUND||:new.technical_discountamt-v_total_line_discount;
+           update escm_proposalmgmt_line  set Discountmount =Discountmount+v_difference_in_discount,
+           Line_Total = Line_Total-v_difference_in_discount
+            where escm_proposalmgmt_line_id =(select max(escm_proposalmgmt_line_id) from 
+                                       escm_proposalmgmt_line where escm_proposalmgmt_id=v_proposalId); 
+	end if;
+    
+    select  count(escm_proposalmgmt_line_id) into v_count from escm_proposalmgmt_line where isprocess='Y';
+
+   if(v_count>0) then
+ 
+ for cur_parent in (select COALESCE(sum(line_total),0) as linetotal,COALESCE(sum(tech_line_total),0)  as teetotal,COALESCE(sum(line_taxamt),0) as linetax,
+                    COALESCE(sum(tee_line_taxamt),0)as teelinetax, COALESCE(sum(pee_line_taxamt),0)  as peelinetax
+                   , COALESCE(sum(tee_init_unitprice*Tech_Line_Qty),0) as teeinitprice ,COALESCE(sum(pee_init_unitprice*PEE_Qty) ,0)  as peeinitprice
+                    ,parentline_id from escm_proposalmgmt_line 
+                 where escm_proposalmgmt_id=:new.escm_proposalmgmt_id  and parentline_id is not null and COALESCE((status),'') <> 'CL'
+          group by parentline_id )
+     loop     
+          select sum(pee_line_total) into v_peetotal
+                   from Escm_Proposalmgmt_Line  where escm_proposalmgmt_id=:new.escm_proposalmgmt_id
+                      and parentline_id is not null and (peestatus is null or peestatus !='CL') 
+                      and parentline_id=cur_parent.parentline_id;
+
+
+          update escm_proposalmgmt_line set gross_unit_price = cur_parent.linetotal, netprice = cur_parent.linetotal,
+                          negot_unit_price = cur_parent.linetotal, line_total = cur_parent.linetotal,
+                          tech_line_total = cur_parent.teetotal, tech_unit_price = cur_parent.teetotal
+                          ,pee_line_total = v_peetotal, pee_negot_unit_price = v_peetotal,
+                          line_taxamt = cur_parent.linetax,tee_line_taxamt = cur_parent.teelinetax,
+                          pee_line_taxamt = cur_parent.peelinetax
+                          ,tee_init_unitprice=cur_parent.teeinitprice ,
+                          pee_init_unitprice=cur_parent.peeinitprice
+                          where escm_proposalmgmt_line_id = cur_parent.parentline_id;
+                          end loop;
+ end if;    
+ end if;
+ 
+   
+	END ESCM_PROPOSAL_DISCOUNT_TRG
+]]></body>
+    </trigger>
+  </database>

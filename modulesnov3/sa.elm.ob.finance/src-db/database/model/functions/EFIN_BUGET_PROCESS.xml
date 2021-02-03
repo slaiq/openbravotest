@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_BUGET_PROCESS">
+    <function name="EFIN_BUGET_PROCESS" type="NULL">
+      <parameter name="p_org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_acct_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_proj_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_dept_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_campaign_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_funclass_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_fut1_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_fut2_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_transaction_date" type="TIMESTAMP" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_uniquecode" type="VARCHAR" mode="out">
+        <default/>
+      </parameter>
+      <parameter name="p_amount" type="NUMERIC" mode="out">
+        <default/>
+      </parameter>
+      <parameter name="p_budgetlines_id" type="VARCHAR" mode="out">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_Year character(2000);
+v_ParentAcct_ID varchar(1000000);  --OBTG:VARCHAR2--
+v_Budget_ID varchar(32);  --OBTG:VARCHAR2--
+v_budgetline_id varchar(32);  --OBTG:VARCHAR2--
+v_defaultbudgetline_id varchar(32);  --OBTG:VARCHAR2--
+v_Stauts character(60);
+v_Active CHAR:='N';
+v_Default CHAR:='N';
+Cur_Parameter RECORD;
+Cur_Budget RECORD;
+v_Resultstr  varchar(2000);
+v_dept_id varchar(32);  --OBTG:VARCHAR2--
+v_default_dept_id varchar(32);  --OBTG:VARCHAR2--
+v_uniquecode varchar(2000);
+v_fundsavailble NUMBER;
+BEGIN
+--v_Resultstr:='Efin_BudgUCnotexist';
+v_Resultstr:='@Efin_BudgetNotApproved@';
+
+	--get year from transaction date
+		select yr.year into v_Year from c_period  pr  
+		join c_year yr on yr.c_year_id= pr.c_year_id
+		where p_transaction_date between startdate and enddate and pr.ad_client_id=p_client_id limit 1;
+		
+	-- get parent group from the sub account
+	--select parent_id  into v_ParentAcct_ID from ad_treenode where node_id = p_acct_id; 
+	
+	--check already (year, budget type, account) exists or not and get the status,active
+	FOR Cur_Budget IN(   select bdg.efin_budget_id,bdg.status, bdg.isactive from efin_budget    bdg  
+	left join c_period frmprd on frmprd.c_period_id=bdg.frmperiod
+	left join c_period toprd on toprd.c_period_id=bdg.toperiod
+	left join c_year yr on yr.c_year_id =bdg.c_year_id 
+	where  bdg.c_elementvalue_id in ((select replace(unnest(string_to_array(eut_getparentacct(p_acct_id,null) ,',')
+		 ::character varying [] ) ,'''','')))
+	and  bdg.c_campaign_id=p_campaign_id 
+	and year=v_Year and bdg.status='APP' and bdg.isactive='Y'
+	and (p_transaction_date BETWEEN CAST(frmprd.startdate as date) and CAST(toprd.enddate as date)))
+	
+	Loop
+		FOR Cur_Parameter IN(  select * from efin_budgetlines where  efin_budget_id = Cur_Budget.efin_budget_id
+		 and ad_org_id=p_org_id AND c_elementvalue_id =p_acct_id AND c_campaign_id=p_campaign_id AND 
+		c_project_id =p_proj_id AND c_activity_id=p_funclass_id AND user1_id =p_fut1_id AND  user2_id =p_fut2_id   limit 1)
+			LOOP
+
+				select isdefault into v_Default from c_salesregion where c_salesregion_id = Cur_Parameter.c_salesregion_id ;
+
+				IF(v_Default='Y') THEN
+				v_defaultbudgetline_id =Cur_Parameter.efin_budgetlines_id;
+				v_default_dept_id = Cur_Parameter.c_salesregion_id ;
+				ELSE IF (Cur_Parameter.c_salesregion_id =p_dept_id ) THEN 
+				v_budgetline_id =Cur_Parameter.efin_budgetlines_id;
+				v_dept_id = Cur_Parameter.c_salesregion_id ;
+				END IF;
+				END IF;
+
+			END LOOP;
+	END LOOP;
+		IF(v_dept_id IS NOT NULL and v_default_dept_id IS NOT NULL) THEN
+		select uniquecode ,funds_available into v_uniquecode,v_fundsavailble from efin_budgetlines where   efin_budgetlines_id =v_budgetline_id;
+
+		  p_uniquecode :=v_uniquecode;
+		  p_amount :=v_fundsavailble;
+		  p_budgetlines_id :=v_budgetline_id;
+		
+		  RETURN;
+		 ELSE IF(v_dept_id IS NOT NULL and v_default_dept_id IS  NULL) THEN
+		select uniquecode ,funds_available into v_uniquecode,v_fundsavailble from efin_budgetlines where   efin_budgetlines_id =v_budgetline_id;
+		
+		  p_uniquecode :=v_uniquecode;
+		  p_amount :=v_fundsavailble;
+		  p_budgetlines_id :=v_budgetline_id;
+		  RETURN;
+		ELSE IF(v_dept_id IS  NULL and v_default_dept_id IS NOT NULL) THEN
+		select uniquecode ,funds_available into v_uniquecode,v_fundsavailble from efin_budgetlines where   efin_budgetlines_id =v_defaultbudgetline_id;
+		  p_uniquecode :=v_uniquecode;
+
+		  p_amount :=v_fundsavailble;
+		  p_budgetlines_id :=v_defaultbudgetline_id;
+		  RETURN;
+		   END IF;
+		 END IF;
+		 END IF;
+		
+		p_uniquecode :=null;
+		p_amount :=0;
+		p_budgetlines_id :=null;
+		RETURN;
+		
+	
+	 RETURN;
+EXCEPTION
+WHEN OTHERS THEN
+		  
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+  RAISE;
+  RETURN;
+END EFIN_BUGET_PROCESS
+]]></body>
+    </function>
+  </database>

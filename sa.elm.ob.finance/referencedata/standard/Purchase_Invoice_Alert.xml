@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="12804314BECA482F8C2A6BF6B46A0F75" identifier="AP Invoice">
+    <id>12804314BECA482F8C2A6BF6B46A0F75</id>
+    <active>true</active>
+    <name>AP Invoice</name>
+    <tab id="290" entity-name="ADTab" identifier="Header - Purchase Invoice"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+And ((ad_role_id is not null and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>API</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+  <ADAlertRule id="741E65F516744E22B77A0F0EDC6AD785" identifier="AP Prepayment Invoice">
+    <id>741E65F516744E22B77A0F0EDC6AD785</id>
+    <active>true</active>
+    <name>AP Prepayment Invoice</name>
+    <tab id="290" entity-name="ADTab" identifier="Header - Purchase Invoice"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+And ((ad_role_id is not null and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>APPI</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+  <ADAlertRule id="98163FA7EF9D4AC5840029ABA236D413" identifier="AP Prepayment Application">
+    <id>98163FA7EF9D4AC5840029ABA236D413</id>
+    <active>true</active>
+    <name>AP Prepayment Application</name>
+    <tab id="290" entity-name="ADTab" identifier="Header - Purchase Invoice"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) and status in ('NEW' ,'SOLVED')
+And ((ad_role_id is not null and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>APPA</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

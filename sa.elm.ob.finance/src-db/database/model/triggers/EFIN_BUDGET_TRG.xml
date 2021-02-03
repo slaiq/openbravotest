@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_BUDGET_TRG">
+    <trigger name="EFIN_BUDGET_TRG" table="EFIN_BUDGET" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_status VARCHAR(60);
+v_budget_id VARCHAR(32);
+v_bcp_dept VARCHAR(32);
+v_bcp_org VARCHAR(32);
+cur_budgetline RECORD;
+v_lineNo NUMBER:= 0;
+BEGIN
+
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF DELETING THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+    
+	-- Delete Operation
+	IF DELETING THEN
+		v_budget_id = :old.efin_budget_id;
+	END IF;
+	
+	--inserting budget line Operation
+	IF INSERTING THEN
+		v_budget_id = :new.efin_budget_id;
+		select hq_budgetcontrolunit,agency_hq_org into v_bcp_dept,v_bcp_org from efin_budget_ctrl_param  where ad_client_id = :new.ad_client_id;
+		FOR cur_budgetline in (
+		select * from c_validcombination where c_campaign_id = :new.c_campaign_id and c_salesregion_id = v_bcp_dept and ad_org_id = v_bcp_org and em_efin_uniquecode <> '' 
+			and account_id in (select replace(unnest(string_to_array (eut_getchildacct(:new.c_elementvalue_id),',')::character varying []),'''',''))
+			and em_efin_accounttype = 'E'
+			and c_validcombination_id not in (select ln.c_validcombination_id from efin_budgetlines ln 
+				join efin_budget hd on hd.efin_budget_id = ln.efin_budget_id
+				where hd.c_elementvalue_id = :new.c_elementvalue_id and hd.c_campaign_id = :new.c_campaign_id and hd.efin_budgetint_id = :new.efin_budgetint_id and hd.ad_client_id = :new.ad_client_id)
+			and c_validcombination_id not in (select c_validcombination_id from efin_budgetinquiry where efin_budgetint_id = :new.efin_budgetint_id and ad_client_id = :new.ad_client_id)
+			and ad_client_id = :new.ad_client_id and isactive = 'Y')
+		loop
+			--insert lines
+			v_lineNo := v_lineNo + 10;
+			insert into efin_budgetlines(efin_budgetlines_id,ad_client_id,ad_org_id,createdby,updatedby,efin_budget_id,uniquecode,line,c_salesregion_id,
+			user1_id,user2_id,c_activity_id,c_elementvalue_id,c_campaign_id,c_project_id,acc_bud_inquiry,c_bpartner_id,c_validcombination_id,uniquecodename) 
+			values (get_uuid(),:new.AD_Client_ID,cur_budgetline.AD_Org_ID,:new.createdby,:new.updatedby,:new.efin_budget_id,cur_budgetline.em_efin_uniquecode,v_lineNo,cur_budgetline.c_salesregion_id,
+			cur_budgetline.user1_id,cur_budgetline.user2_id,cur_budgetline.c_activity_id,cur_budgetline.account_id,cur_budgetline.c_campaign_id,cur_budgetline.c_project_id,'N',cur_budgetline.c_bpartner_id,
+			cur_budgetline.c_validcombination_id,cur_budgetline.em_efin_uniquecodename);
+		end loop;
+	END IF;
+	
+	IF  DELETING THEN 
+		select status into v_status from efin_budget  where efin_budget_id=v_budget_id;
+		IF(v_status='INAPP' OR v_status='APP' OR v_status='Processed' OR  v_status='REW' ) THEN
+			RAISE_APPLICATION_ERROR(-20501,'@EFIN_Budg_CannotDelete@');
+		END IF;
+	END IF;   
+   
+END EFIN_BUDGET_TRG
+]]></body>
+    </trigger>
+  </database>

@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="12E78C80B5EE43C0BC177D016CB59A06" identifier="UnApproved Site Material Issue Request">
+    <id>12E78C80B5EE43C0BC177D016CB59A06</id>
+    <active>true</active>
+    <name>UnApproved Site Material Issue Request</name>
+    <tab id="4D11B5907F654B50B48212A7141F9C0D" entity-name="ADTab" identifier="Site Material Issue Request - Site Material Issue Request"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select escm_material_request_id as referencekey_id,
+	documentno as record_id,
+	0 as ad_role_id,
+    null as ad_user_id,
+    documentno ||' is in In Progress with no next role' as description,
+    'Y' as isActive,
+    ad_org_id, 
+    ad_client_id, 
+    now() as created,  
+    0 as createdBy,  
+    now() as updated,
+    0 as updatedBy
+from escm_material_request 
+where status='ESCM_IP' and eut_next_role_id is null
+and issiteissuereq='Y'</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="2829548132F64E359F0E171D378707FB" identifier="UnApproved Return Transaction">
+    <id>2829548132F64E359F0E171D378707FB</id>
+    <active>true</active>
+    <name>UnApproved Return Transaction</name>
+    <tab id="72A6B3CA5BE848ACA976304375A5B7A6" entity-name="ADTab" identifier="Header - Return Transaction"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select m_inout_id as referencekey_id,
+	documentno as record_id,
+	0 as ad_role_id,
+    null as ad_user_id,
+    documentno ||' is in In Progress with no next role' as description,
+    'Y' as isActive,
+    ad_org_id, 
+    ad_client_id, 
+    now() as created,  
+    0 as createdBy,  
+    now() as updated,
+    0 as updatedBy
+from m_inout 
+where em_escm_docstatus='ESCM_IP' and em_eut_next_role_id is null
+and em_escm_receivingtype = 'INR'</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="7E7BAAD9A1384828944D85019F16A510" identifier="UnApproved Custody Transfer">
+    <id>7E7BAAD9A1384828944D85019F16A510</id>
+    <active>true</active>
+    <name>UnApproved Custody Transfer</name>
+    <tab id="CB9A2A4C6DB24FD19D542A78B07ED6C1" entity-name="ADTab" identifier="Custody Transfer - Custody Transfer"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select m_inout_id as referencekey_id,
+	documentno as record_id,
+	0 as ad_role_id,
+    null as ad_user_id,
+    documentno ||' is in In Progress with no next role' as description,
+    'Y' as isActive,
+    ad_org_id, 
+    ad_client_id, 
+    now() as created,  
+    0 as createdBy,  
+    now() as updated,
+    0 as updatedBy
+from m_inout 
+where em_escm_docstatus='ESCM_IP' and em_eut_next_role_id is null
+and em_escm_iscustody_transfer='Y'</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="8B71EA9B5C1449D9B70BC62B865E08B0" identifier="UnApproved Bid Management">
+    <id>8B71EA9B5C1449D9B70BC62B865E08B0</id>
+    <active>true</active>
+    <name>UnApproved Bid Management</name>
+    <tab id="31960EC365D746A180594FFB7B403ABB" entity-name="ADTab" identifier="Header - Bid Management"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select escm_bidmgmt_id as referencekey_id,
+	bidno as record_id,
+	0 as ad_role_id,
+    null as ad_user_id,
+    bidno ||' is in In Progress with no next role' as description,
+    'Y' as isActive,
+    ad_org_id, 
+    ad_client_id, 
+    now() as created,  
+    0 as createdBy,  
+    now() as updated,
+    0 as updatedBy
+from escm_bidmgmt 
+where bidappstatus='ESCM_IP' and eut_next_role_id is null</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="95D7ADEC2D0C42728782CBA58C42D8A1" identifier="UnApproved Purchase Order and Contract Summary">
+    <id>95D7ADEC2D0C42728782CBA58C42D8A1</id>
+    <active>true</active>
+    <name>UnApproved Purchase Order and Contract Summary</name>
+    <tab id="62248BBBCF644C18A75B92AD8E50238C" entity-name="ADTab" identifier="Header - Purchase Order and Contracts Summary"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select c_order_id as referencekey_id,
+	documentno as record_id,
+	0 as ad_role_id,
+    null as ad_user_id,
+    documentno ||' is in In Progress with no next role' as description,
+    'Y' as isActive,
+    ad_org_id, 
+    ad_client_id, 
+    now() as created,  
+    0 as createdBy,  
+    now() as updated,
+    0 as updatedBy
+from c_order 
+where em_escm_appstatus='ESCM_IP' and em_eut_next_role_id is null</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="A7CD1662558A457F97220F0381B54659" identifier="UnApproved Proposal Management">
+    <id>A7CD1662558A457F97220F0381B54659</id>
+    <active>true</active>
+    <name>UnApproved Proposal Management</name>
+    <tab id="D6115C9AF1DD4C4C9811D2A69E42878B" entity-name="ADTab" identifier="Proposal Management - Proposal Management"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select escm_proposalmgmt_id as referencekey_id,
+	proposalno as record_id,
+	0 as ad_role_id,
+    null as ad_user_id,
+    proposalno ||' is in In Progress with no next role' as description,
+    'Y' as isActive,
+    ad_org_id, 
+    ad_client_id, 
+    now() as created,  
+    0 as createdBy,  
+    now() as updated,
+    0 as updatedBy
+from escm_proposalmgmt 
+where proposalappstatus='INP' and eut_next_role_id is null</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="AFE1D192A6D248DCBE96A14AC906BFB6" identifier="UnApproved Material Issue Request">
+    <id>AFE1D192A6D248DCBE96A14AC906BFB6</id>
+    <active>true</active>
+    <name>UnApproved Material Issue Request</name>
+    <tab id="CE947EDC9B174248883292F17F03BB32" entity-name="ADTab" identifier="Material Issue Request - Material Issue Request"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select escm_material_request_id as referencekey_id,
+	documentno as record_id,
+	0 as ad_role_id,
+    null as ad_user_id,
+    documentno ||' is in In Progress with no next role' as description,
+    'Y' as isActive,
+    ad_org_id, 
+    ad_client_id, 
+    now() as created,  
+    0 as createdBy,  
+    now() as updated,
+    0 as updatedBy
+from escm_material_request 
+where status='ESCM_IP' and eut_next_role_id is null
+and (issiteissuereq&lt;&gt;'Y' or issiteissuereq is null)</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="EC4BB48DB3C3439FA933D7F757B8EE4B" identifier="UnApproved Purchase Requisition">
+    <id>EC4BB48DB3C3439FA933D7F757B8EE4B</id>
+    <active>true</active>
+    <name>UnApproved Purchase Requisition</name>
+    <tab id="800249" entity-name="ADTab" identifier="Purchase Requisition - Purchase Requisition"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select m_requisition_id as referencekey_id,
+	documentno as record_id,
+	0 as ad_role_id,
+    null as ad_user_id,
+    documentno ||' is in In Progress with no next role' as description,
+    'Y' as isActive,
+    ad_org_id, 
+    ad_client_id, 
+    now() as created,  
+    0 as createdBy,  
+    now() as updated,
+    0 as updatedBy
+from m_requisition 
+where em_escm_doc_status='ESCM_IP' and em_eut_next_role_id is null</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+</ob:Openbravo>

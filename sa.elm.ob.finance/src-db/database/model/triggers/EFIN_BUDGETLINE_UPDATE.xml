@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_BUDGETLINE_UPDATE">
+    <trigger name="EFIN_BUDGETLINE_UPDATE" table="EFIN_BUDGETLINES" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Trigger to update the encumbarance amount in bugetlines
+* Contributor(s):  Gopalakrishnan.
+************************************************************************/
+v_fundsavailable NUMBER;
+v_encamount VARCHAR(60);
+v_message  VARCHAR2(2000);
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	-- Insert Operation
+	IF UPDATING OR INSERTING THEN
+	--check negative funds available
+	if((:new.funds_available)<0) then
+	 v_Message:= '@ERROR=' ||'@Efin_Fundsavailabe_Negative@' ;
+	end if;
+	END IF;	
+	END EFIN_BUDGETLINE_UPDATE
+]]></body>
+    </trigger>
+  </database>

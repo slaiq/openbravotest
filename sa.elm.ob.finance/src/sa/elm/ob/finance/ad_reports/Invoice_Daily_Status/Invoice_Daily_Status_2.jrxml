@@ -1,0 +1,667 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Daily_Status_Invoice" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="15" bottomMargin="20" uuid="19eac589-ae33-401f-96dc-50975b7b603f">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="LocalHostDB"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="Invoice_Date" class="java.lang.String"/>
+	<parameter name="AUX_Inv_date" class="java.lang.String">
+		<defaultValueExpression><![CDATA[($P{Invoice_Date}==null || $P{Invoice_Date}.equals( "" )) ?  "  and 1=1   " : "    and trunc(inv.approved_date)  <=   trunc(eut_convertto_gregorian( '"+$P{Invoice_Date}+"'  ))      "]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_DESIGN" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select
+	main.account_classification_ar,
+	sum( main.Completed_Invoices ) Completed_Invoices,
+	main.Fund_Budget,
+	main.Element_count,
+	trunc(
+		(
+			sum( main.Completed_Invoices )/ case
+				when main.Fund_Budget = 0 then 1
+				else main.Fund_Budget
+			end
+		)* 100,
+		2
+	)|| ' %' exp_fb_percent,
+	trunc(
+		(
+			main.Fund_Budget / fb_total
+		)* 100,
+		2
+	)|| ' %' fb_percent,
+	trunc(
+		(
+			sum( main.Completed_Invoices )/ total_expenditure
+		)* 100,
+		2
+	)|| ' %' exp_percent,
+	total_expenditure,
+	trunc(
+		fb_total,
+		2
+	) fb_total,
+	trunc(
+		(
+			sum( main.total_expenditure )/ fb_total
+		)* 100,
+		2
+	)|| ' %' total_percent,
+	case
+		when $P{Invoice_Date} is not null then To_char(
+			eut_convertto_gregorian($P{Invoice_Date}),
+			'DD/MM/YYYY'
+		)
+		else To_char(
+			now(),
+			'DD/MM/YYYY'
+		)
+	end till_date
+from
+	(
+		select
+		--	e.em_efin_classification_AR account_classification_ar,
+		    coalesce(e.em_efin_classification_AR, 'أخرى') account_classification_ar,
+			case
+				when inv.docstatus in(
+					'CO' --'EFIN_WFA'
+				) then round( sum( inv.linenetamt ))
+				else 0
+			end Completed_Invoices,
+			(
+				select
+					round( coalesce( sum( binq.current_budget ), 0 ))
+				from
+					c_elementvalue e1,
+				--	efin_budgetint bint,
+					efin_budgetinquiry binq,
+					c_salesregion salereg,
+					C_Campaign comp
+				where
+					1 = 1
+				--	and bint.efin_budgetint_id = binq.efin_budgetint_id
+					and binq.c_salesregion_id = salereg.c_salesregion_id
+					and binq.c_elementvalue_id = e1.c_elementvalue_id
+					and binq.C_Campaign_ID = comp.C_Campaign_ID
+				--	and e1.c_elementvalue_id =e.c_elementvalue_id
+--					and e1.em_efin_classification_ar = e.em_efin_classification_ar
+					and coalesce(e1.em_efin_classification_ar, 'other') = coalesce(e.em_efin_classification_ar, 'other')
+					and comp.value = '02'
+					and salereg.value = '990' 
+					and  e1.accounttype ='E'
+					and  e1.isactive ='Y'
+					 and e1.elementlevel ='S'
+					--and bint.efin_budgetint_id='B5AEC8DEB07A416CA85EE9BAF0934C45'
+					and  case when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2017' and '30-Dec-2018' then binq.efin_budgetint_id='E47BE2F718014C938C10A5F6A6E8AEE9' 
+							  when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2018' and '30-Dec-2019' then binq.efin_budgetint_id='D8D5FA6B54E345B0B0331BC5764BDFAC'
+                              when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2019' and '30-Dec-2020' then binq.efin_budgetint_id='B5AEC8DEB07A416CA85EE9BAF0934C45' 
+                              when  $P{Invoice_Date} is null or $P{Invoice_Date} ='' then  binq.efin_budgetint_id='B5AEC8DEB07A416CA85EE9BAF0934C45' 						  
+					else 		 binq.efin_budgetint_id ='123' 	
+					end 
+						and(
+		e1.value like '21%'
+		or e1.value like '22%'
+		or e1.value like '23%'
+		or e1.value like '24%'
+		or e1.value like '25%'
+		or e1.value like '26%'
+		or e1.value like '27%'
+		or e1.value like '28%'
+		or e1.value like '30%'
+		or e1.value like '36%'
+		or e1.value like '37%'
+		or e1.value like '4%'
+	)
+			) Fund_Budget,
+			(
+				select
+					count( e2.value )
+				from
+					c_elementvalue e2,efin_budgetinquiry binq,c_salesregion salereg,
+					C_Campaign comp
+				where
+					--em_efin_classification_ar = e.em_efin_classification_ar
+					 coalesce(e2.em_efin_classification_ar, 'other') = coalesce(e.em_efin_classification_ar, 'other')
+					 and e2.accounttype ='E'
+					and  e2.isactive ='Y'
+					 and e2.elementlevel ='S'
+					 and comp.value = '02'
+					and salereg.value = '990' 
+					 and binq.c_elementvalue_id = e2.c_elementvalue_id
+					 and binq.c_salesregion_id = salereg.c_salesregion_id
+					and binq.C_Campaign_ID = comp.C_Campaign_ID
+					and  case when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2017' and '30-Dec-2018' then binq.efin_budgetint_id='E47BE2F718014C938C10A5F6A6E8AEE9' 
+							  when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2018' and '30-Dec-2019' then binq.efin_budgetint_id='D8D5FA6B54E345B0B0331BC5764BDFAC'
+                              when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2019' and '30-Dec-2020' then binq.efin_budgetint_id='B5AEC8DEB07A416CA85EE9BAF0934C45' 
+                              when  $P{Invoice_Date} is null or $P{Invoice_Date} ='' then  binq.efin_budgetint_id='B5AEC8DEB07A416CA85EE9BAF0934C45' 						  
+					else 		 binq.efin_budgetint_id ='123' 	
+					end 
+					and  (e2.value  like '21%' 
+				or e2.value  like '22%'
+				or  e2.value  like '23%'
+				or  e2.value  like '24%'
+				or e2.value  like  '25%'
+				or  e2.value  like '26%'
+				or  e2.value  like '27%'
+				or  e2.value  like '28%'
+				or e2.value  like  '30%' 
+				or e2.value  like  '36%'
+				or e2.value  like  '37%'  
+				or e2.value  like '4%')	
+			) Element_count,
+			(
+				select
+					round( coalesce( sum( binq.current_budget ), 0 ))
+				from
+					c_elementvalue e1,
+					--efin_budgetint bint,
+					efin_budgetinquiry binq,
+					c_salesregion salereg,
+					C_Campaign comp
+				where
+					1 = 1
+				--	and bint.efin_budgetint_id = binq.efin_budgetint_id
+					and binq.c_salesregion_id = salereg.c_salesregion_id
+					and binq.c_elementvalue_id = e1.c_elementvalue_id
+					and binq.C_Campaign_ID = comp.C_Campaign_ID
+				--	and e1.em_efin_classification_ar is not null
+				    and  e1.accounttype ='E'
+					and  e1.isactive ='Y'
+					 and e1.elementlevel ='S'
+					and comp.value = '02'
+					and salereg.value = '990' 
+					--and bint.efin_budgetint_id='B5AEC8DEB07A416CA85EE9BAF0934C45'
+					and  case when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2017' and '30-Dec-2018' then binq.efin_budgetint_id='E47BE2F718014C938C10A5F6A6E8AEE9' 
+							  when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2018' and '30-Dec-2019' then binq.efin_budgetint_id='D8D5FA6B54E345B0B0331BC5764BDFAC'
+                              when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2019' and '30-Dec-2020' then binq.efin_budgetint_id='B5AEC8DEB07A416CA85EE9BAF0934C45' 
+                              when  $P{Invoice_Date} is null or $P{Invoice_Date} ='' then  binq.efin_budgetint_id='B5AEC8DEB07A416CA85EE9BAF0934C45' 						  
+					else 		 binq.efin_budgetint_id ='123' 	
+					end 
+					and(
+		e1.value like '21%'
+		or e1.value like '22%'
+		or e1.value like '23%'
+		or e1.value like '24%'
+		or e1.value like '25%'
+		or e1.value like '26%'
+		or e1.value like '27%'
+		or e1.value like '28%'
+		or e1.value like '30%'
+		or e1.value like '36%'
+		or e1.value like '37%'
+		or e1.value like '4%'
+	)
+			) fb_total,
+			(
+				select
+					sum( ab.linenetamt )
+				from
+					(
+						select
+							round( sum( invl1.linenetamt )*( case when inv1.c_currency_id = '317' then 1 else coalesce(( select multiplyrate from c_conversion_rate where c_currency_id = inv1.c_currency_id ), 1 ) end )) linenetamt
+						from
+							c_invoice inv1,
+							c_invoiceline invl1,
+							c_elementvalue e1
+						where
+							inv1.c_invoice_id = invl1.c_invoice_id 
+							and invl1.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+							and  e1.accounttype ='E'
+							and  e1.isactive ='Y'
+							 and e1.elementlevel ='S'
+							and (e1.value  like '21%' 
+								or e1.value  like '22%'
+								or  e1.value  like '23%'
+								or  e1.value  like '24%'
+								or e1.value  like  '25%'
+								or  e1.value  like '26%'
+								or  e1.value  like '27%'
+								or  e1.value  like '28%'
+								or e1.value  like  '30%' 
+								or e1.value  like  '36%'
+								or e1.value  like  '37%'  
+								or e1.value  like '4%')
+							and inv1.docstatus in(
+								'CO',
+								'EFIN_WFA'
+							)
+						--	and e1.em_efin_classification_ar is not null
+						--and inv1.em_efin_budgetint_id='B5AEC8DEB07A416CA85EE9BAF0934C45'
+							and  case when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2017' and '30-Dec-2018' then inv1.em_efin_budgetint_id ='E47BE2F718014C938C10A5F6A6E8AEE9' 
+									  when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2018' and '30-Dec-2019' then inv1.em_efin_budgetint_id ='D8D5FA6B54E345B0B0331BC5764BDFAC'
+									  when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2019' and '30-Dec-2020' then inv1.em_efin_budgetint_id ='B5AEC8DEB07A416CA85EE9BAF0934C45' 
+									  when  $P{Invoice_Date} is null or $P{Invoice_Date} ='' then  inv1.em_efin_budgetint_id ='B5AEC8DEB07A416CA85EE9BAF0934C45' 						  
+								 else 		 inv1.em_efin_budgetint_id ='123' 	
+								end 
+						group by
+							inv1.c_currency_id
+					) ab
+			) total_expenditure
+		from
+			c_elementvalue e
+		left join(
+				select
+					invl.em_efin_c_elementvalue_id,
+					inv.docstatus,
+					--	inv.c_invoice_id,
+(
+						invl.linenetamt*(
+							case
+								when inv.c_currency_id = '317' then 1
+								else coalesce(
+									(
+										select
+											multiplyrate
+										from
+											c_conversion_rate
+										where
+											c_currency_id = inv.c_currency_id
+									),
+									1
+								)
+							end
+						)
+					) linenetamt 
+					,	inv.dateinvoiced
+					,hist.created approved_date
+				from					
+					c_invoiceline invl,
+					c_invoice inv
+					join (select  distinct  c_invoice_id,trunc(created) created,seqno from efin_purchasein_app_hist a) hist on inv.c_invoice_id = hist.c_invoice_id
+					join (select c_invoice_id,max( seqno ) seqno	from efin_purchasein_app_hist h	group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno	
+				where
+					inv.c_invoice_id = invl.c_invoice_id 
+					--and inv.em_efin_budgetint_id='B5AEC8DEB07A416CA85EE9BAF0934C45'
+					and  case when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2017' and '30-Dec-2018' then inv.em_efin_budgetint_id ='E47BE2F718014C938C10A5F6A6E8AEE9' 
+									  when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2018' and '30-Dec-2019' then inv.em_efin_budgetint_id ='D8D5FA6B54E345B0B0331BC5764BDFAC'
+									  when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2019' and '30-Dec-2020' then inv.em_efin_budgetint_id ='B5AEC8DEB07A416CA85EE9BAF0934C45' 
+									  when  $P{Invoice_Date} is null or $P{Invoice_Date} ='' then  inv.em_efin_budgetint_id ='B5AEC8DEB07A416CA85EE9BAF0934C45' 						  
+								 else 		 inv.em_efin_budgetint_id ='123' 	
+								end 
+					and inv.docstatus in(
+						'CO',
+						'EFIN_WFA'
+					)
+			union all select
+					fa.account_id em_efin_c_elementvalue_id,
+					gl.docstatus,
+					abs( gll.AmtSourceDr - gll.AmtSourceCr ) linenetamt,
+					gl.datedoc dateinvoiced,
+					trunc(appr_hist.approved_date)  approved_date
+				from
+					GL_Journal gl,
+					GL_JournalLine gll,
+					fact_acct fa,
+					(select max((appr.Approveddate)) approved_date,appr.gl_journal_id from EUT_JOURNAL_APPROVAL appr group by appr.gl_journal_id) appr_hist
+				where
+					gl.gl_journal_id = gll.gl_journal_id
+					and gl.gl_journal_id = appr_hist.gl_journal_id
+					and gl.documentno = fa.em_efin_documentno
+					and fa.account_id=gll.em_efin_account
+					and fa.em_efin_acctseq is not null
+					and gl.em_efin_adj_invoice = 'N'
+				--	and gl.em_efin_budgetint_id='B5AEC8DEB07A416CA85EE9BAF0934C45'
+				    and  case when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2017' and '30-Dec-2018' then gl.em_efin_budgetint_id ='E47BE2F718014C938C10A5F6A6E8AEE9' 
+									  when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2018' and '30-Dec-2019' then gl.em_efin_budgetint_id ='D8D5FA6B54E345B0B0331BC5764BDFAC'
+									  when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2019' and '30-Dec-2020' then gl.em_efin_budgetint_id ='B5AEC8DEB07A416CA85EE9BAF0934C45' 
+									  when  $P{Invoice_Date} is null or $P{Invoice_Date} ='' then  gl.em_efin_budgetint_id ='B5AEC8DEB07A416CA85EE9BAF0934C45' 						  
+								 else 		 gl.em_efin_budgetint_id ='123' 	
+								end 
+			) inv on
+			e.c_elementvalue_id = inv.em_efin_c_elementvalue_id /*left join(
+				select
+					abs( gll.AmtSourceDr - gll.AmtSourceCr ) gl_amt,
+					fa.account_id em_efin_c_elementvalue_id
+				from
+					GL_Journal gl,
+					GL_JournalLine gll,
+					fact_acct fa
+				where
+					gl.gl_journal_id = gll.gl_journal_id 
+					and gl.documentno = fa.em_efin_documentno
+					and fa.em_efin_acctseq is not null
+					and gl.em_efin_adj_invoice='N'
+			) gl on
+			e.c_elementvalue_id = gl.account_id  */
+		where    e.accounttype ='E'
+		    and e.isactive ='Y'
+			 and e.elementlevel ='S'
+			--e.em_efin_classification_ar is not null --	and e.em_efin_classification_ar = 'صيانة أداء الطرق' --			'المبادرات' 
+			and (e.value  like '21%' 
+				or e.value  like '22%'
+				or  e.value  like '23%'
+				or  e.value  like '24%'
+				or e.value  like  '25%'
+				or  e.value  like '26%'
+				or  e.value  like '27%'
+				or  e.value  like '28%'
+				or e.value  like  '30%' 
+				or e.value  like  '36%'
+				or e.value  like  '37%'  
+				or e.value  like '4%')
+ 			$P!{AUX_Inv_date}
+		group by
+			e.em_efin_classification_AR,
+			inv.docstatus
+	) main
+group by
+	main.account_classification_ar,
+	main.Fund_Budget,
+	main.Element_count,
+	total_expenditure,
+	trunc(
+		fb_total,
+		2
+	),
+	fb_total
+order by
+	main.account_classification_ar]]>
+	</queryString>
+	<field name="account_classification_ar" class="java.lang.String"/>
+	<field name="Completed_Invoices" class="java.math.BigDecimal"/>
+	<field name="Fund_Budget" class="java.math.BigDecimal"/>
+	<field name="Element_count" class="java.lang.Integer"/>
+	<field name="exp_fb_percent" class="java.lang.String"/>
+	<field name="fb_percent" class="java.lang.String"/>
+	<field name="exp_percent" class="java.lang.String"/>
+	<field name="total_percent" class="java.lang.String"/>
+	<field name="total_expenditure" class="java.math.BigDecimal"/>
+	<field name="fb_total" class="java.math.BigDecimal"/>
+	<field name="till_date" class="java.lang.String"/>
+	<sortField name="Fund_Budget" order="Descending"/>
+	<variable name="V_Fund_Bud_Total" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{Fund_Budget}]]></variableExpression>
+	</variable>
+	<variable name="V_Element_Count" class="java.lang.Integer" calculation="Sum">
+		<variableExpression><![CDATA[$F{Element_count}]]></variableExpression>
+	</variable>
+	<variable name="V_Expenditure_Sum" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{Completed_Invoices}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Prevent"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="60" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="-8" y="0" width="130" height="60" backcolor="#56B4FC" uuid="8a7b7614-e5d6-4375-8588-517abaa2697e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[تصنيف الصرف]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="122" y="0" width="40" height="60" backcolor="#56B4FC" uuid="4bc76a40-07e9-44c0-904f-d909654a840e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[العدد]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="162" y="0" width="120" height="60" backcolor="#56B4FC" uuid="707e1038-5e87-4f6e-a1ca-33b51066cedb">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[الإعتماد الحالي]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="336" y="0" width="106" height="60" backcolor="#56B4FC" uuid="787ce4aa-c59d-4e8c-83a4-91b6fd8417bf">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[المنصرف]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="496" y="0" width="70" height="60" backcolor="#56B4FC" uuid="fa5efe16-9e67-499d-b63f-1eadf657558f">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="11" isBold="false"/>
+				</textElement>
+				<text><![CDATA[نسبة الصرف من الإعتماد%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="282" y="0" width="54" height="60" backcolor="#56B4FC" uuid="de51a531-7875-46d2-87bb-f6ed1885a77b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[نسبة الإعتماد من الإجمالي%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="442" y="0" width="54" height="60" backcolor="#56B4FC" uuid="5eaee10b-efb1-4f05-9b61-9cfb12062474">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[%نسبة الصرف من اجمالي المنصرف]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Prevent">
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="122" y="0" width="40" height="20" uuid="886e8c74-6264-4a63-89e9-757e674f0fdd"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Element_count}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="162" y="0" width="120" height="20" uuid="effdbcae-1d76-4bc9-b996-1e29f545f9f6"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Fund_Budget}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="282" y="0" width="54" height="20" uuid="970473a8-2f76-487f-b81c-80a07e16e863"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fb_percent}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="336" y="0" width="106" height="20" uuid="1399bcf5-b127-4f87-9565-fcf54f847e9c"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Completed_Invoices}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="442" y="0" width="54" height="20" uuid="ab95ff6d-ad79-454c-9ce3-8b6b12469f68"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{exp_percent}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="496" y="0" width="70" height="20" uuid="c80ac965-7dd7-48a2-953e-1e60bd88b7a4"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{exp_fb_percent}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="-8" y="0" width="130" height="20" uuid="98ad2bdc-acde-41f1-b711-f2be4dc02537"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{account_classification_ar}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band splitType="Prevent"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="25" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="-8" y="0" width="130" height="20" forecolor="#FF0000" backcolor="#96E3B5" uuid="de61a188-9f64-4f2b-b48e-0a4579b90cfc">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" evaluationTime="Page" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="122" y="0" width="40" height="20" forecolor="#FF0000" backcolor="#96E3B5" uuid="8f0db14b-dd2c-4455-b5d2-6235ef513d5e"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{V_Element_Count}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" evaluationTime="Page" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="162" y="0" width="120" height="20" forecolor="#FF0000" backcolor="#96E3B5" uuid="b134ef12-32d6-4b59-8954-b65ef64d7a6a"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{V_Fund_Bud_Total}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" evaluationTime="Page" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="336" y="0" width="106" height="20" forecolor="#FF0000" backcolor="#96E3B5" uuid="2015c819-8883-4b8a-a8c2-908f9130ae17"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{V_Expenditure_Sum}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="282" y="0" width="54" height="20" forecolor="#FF0000" backcolor="#96E3B5" uuid="411977f8-c557-4e3a-8c1c-79dd63ce57b6">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[100%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="442" y="0" width="54" height="20" forecolor="#FF0000" backcolor="#96E3B5" uuid="f2f0069d-0397-458e-8161-04e597e4a590">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[100%]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" evaluationTime="Page" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="496" y="0" width="70" height="20" forecolor="#FF0000" backcolor="#96E3B5" uuid="dc0bd3a9-fc16-4a13-9377-d28543af466f"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{V_Expenditure_Sum}.divide( $V{V_Fund_Bud_Total},4,RoundingMode.FLOOR).multiply(new BigDecimal("100")).setScale(2,RoundingMode.HALF_EVEN) +"%"]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

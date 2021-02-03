@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="DirectPOLetterReport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c91b8e90-a436-4ff1-98ef-54443a07a3de">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="288"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="inpPhotoCopiesList" uuid="32341740-cee2-4edb-bffb-e9ec0a2ea1d2">
+		<parameter name="inpPhotoCopiesList" class="java.util.List">
+			<defaultValueExpression><![CDATA[new java.util.ArrayList()]]></defaultValueExpression>
+		</parameter>
+		<queryString>
+			<![CDATA[]]>
+		</queryString>
+		<field name="directlookup" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="inpPhotoCopiesList" class="java.util.List">
+		<defaultValueExpression><![CDATA[new java.util.ArrayList()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpPOId" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpSubject" class="java.lang.String"/>
+	<parameter name="BASE_DESIGN" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/opt/elm/WebContent/src-loc/design/sa/elm/ob/scm/ad_reports/DirectPOLetterReport/"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select bp.name, loc.postal, loc.address2,eut_convert_to_hijri(to_char( po.em_escm_proposaldate,'YYYY-MM-DD'))
+as proposaldate, po.em_escm_proposalno as proposalno,po.em_escm_projectname as projname,
+po.grandtotal as totalamt,po.em_escm_contractduration as duration,
+po.em_escm_ordertype as type,po.documentno as docno,coalesce(AD_Ref_List_Trl.name,list.name) as status,list.name as appstatus,
+coalesce(tr.name,type.name) as periodtype
+,prop.Proposalno proposal_no
+,to_char(
+				to_Date(
+					Eut_convert_to_hijri(
+						To_char(
+							prop.Effectivefrom,
+							'YYYY-MM-DD'
+						)
+					)
+				),
+				'DD/MM/YYYY'
+			)  Effective_fr_Date
+			,coalesce(po.em_escm_notes,'') po_description
+from c_order po
+left join c_bpartner bp on po.c_bpartner_id = bp.c_bpartner_id
+left join c_bpartner_location bploc on bploc.c_bpartner_location_id = po.c_bpartner_location_id
+left join c_location loc on loc.c_location_id = bploc.c_location_id
+left join ad_ref_list list on list.value=po.em_escm_appstatus and list.ad_reference_id='131'
+left join AD_Ref_List_Trl on AD_Ref_List_Trl.AD_Ref_List_id = list.AD_Ref_List_id
+left join ad_ref_list type on type.value=po.em_escm_periodtype and type.ad_reference_id='B3AD28238D4E42E09E479800A48E4880'
+left join AD_Ref_List_Trl tr on tr.AD_Ref_List_id = type.AD_Ref_List_id
+left join escm_proposalmgmt prop on prop.escm_proposalmgmt_id=po.em_escm_proposalmgmt_id
+and AD_Ref_List_Trl.ad_language='ar_SA' where po.c_order_id = $P{inpPOId}]]>
+	</queryString>
+	<field name="name" class="java.lang.String"/>
+	<field name="postal" class="java.lang.String"/>
+	<field name="address2" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<field name="proposaldate" class="java.lang.String"/>
+	<field name="proposalno" class="java.lang.String"/>
+	<field name="projname" class="java.lang.String"/>
+	<field name="totalamt" class="java.math.BigDecimal"/>
+	<field name="duration" class="java.math.BigDecimal"/>
+	<field name="type" class="java.lang.String"/>
+	<field name="docno" class="java.lang.String"/>
+	<field name="status" class="java.lang.String"/>
+	<field name="appstatus" class="java.lang.String"/>
+	<field name="periodtype" class="java.lang.String"/>
+	<field name="Effective_fr_Date" class="java.lang.String"/>
+	<field name="proposal_no" class="java.lang.String"/>
+	<field name="po_description" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="165" splitType="Stretch">
+			<staticText>
+				<reportElement x="400" y="101" width="150" height="30" isRemoveLineWhenBlank="true" uuid="ad43c99f-2ca1-4d9e-ba7a-7047b3b5c783">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="18" isBold="false"/>
+				</textElement>
+				<text><![CDATA[إدارة المنافسات والعقود]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="400" y="125" width="150" height="30" isRemoveLineWhenBlank="true" uuid="69176fcb-7e29-4fab-8d1b-71959dbbd016">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="18" isBold="false"/>
+				</textElement>
+				<text><![CDATA[إدارة الشراء المباشر]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="-8" y="120" width="120" height="32" uuid="74d98a82-9735-4a19-9676-253b0f1614b9">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{docno})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="107" y="120" width="101" height="33" uuid="02daec32-07f3-4e40-935b-3bb629d8b6be">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16" isBold="false"/>
+				</textElement>
+				<text><![CDATA[رقم التعميد الالي :]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="385" splitType="Stretch">
+			<staticText>
+				<reportElement x="498" y="0" width="57" height="25" isRemoveLineWhenBlank="true" uuid="f642dc70-18e9-44b4-91fe-fb16f5cdd5e9">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ السادة:/]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="185" y="0" width="313" height="25" isRemoveLineWhenBlank="true" uuid="c7e25366-a971-4c38-88bd-43592e6a57dc">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="462" y="25" width="57" height="22" isRemoveLineWhenBlank="true" uuid="3240dafe-0d6c-481a-91b0-88f99ac212c0">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[   ص.ب :]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="278" y="25" width="184" height="22" isRemoveLineWhenBlank="true" uuid="5923e60a-3042-41ec-bdbf-0670cc674a58">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{address2})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="220" y="25" width="58" height="22" isRemoveLineWhenBlank="true" uuid="fee88497-c2ab-4314-8f14-bff1b476ea93">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Ara" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[الرمز البريدي :]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="25" width="220" height="22" isRemoveLineWhenBlank="true" uuid="1b347375-1e60-4dcd-93e0-1e7f55fb7974">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{postal})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="10" y="68" width="545" height="28" isRemoveLineWhenBlank="true" uuid="733b1841-bdc3-4833-8ea3-9443bb919ed3">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{proposal_no}==null ? "   إشارة إلى عرضكم  ":"   إشارة إلى عرضكم رقم  ") + ($F{proposal_no}==null ? "" :sa.elm.ob.utility.ad_reports.
+NumberToWords.ConvertAmountToArabicAmount($F{proposal_no}.toString())) + "  بتاريخ  " +($F{Effective_fr_Date}==null ? "" :
+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{Effective_fr_Date}.toString()))+($F{proposal_no}==null ? " ": " هــ")]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="10" y="97" width="545" height="24" isRemoveLineWhenBlank="true" uuid="c55a2d39-75ac-47c0-a85a-267d6ffc2f66">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" بشأن العملية "+($F{projname} == null ? $F{po_description} : $F{projname})+ " , وذلك بمبلغ قدره   "+($F{totalamt}==null?"  ":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator($F{totalamt}.toPlainString()) )+"  "+" ر.س   "]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="220" y="267" width="77" height="30" isRemoveLineWhenBlank="true" uuid="b37bfc5e-ac92-4fed-bce9-76163f2e1ec9">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[  ولكم تحياتي ,,,]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="10" y="325" width="170" height="30" isRemoveLineWhenBlank="true" uuid="9ef6725c-094f-4328-a301-ea50b98a69e9">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16" isBold="false"/>
+				</textElement>
+				<text><![CDATA[مدير عام إدارة المنافسات والعقود]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="11" y="355" width="170" height="30" isRemoveLineWhenBlank="true" uuid="36e7e06e-65b5-4a3e-afe1-9a171d8b555c">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16" isBold="false"/>
+				</textElement>
+				<text><![CDATA[حامد بن محمد الشمري]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="318" y="47" width="237" height="21" isRemoveLineWhenBlank="true" uuid="27428fd8-8a97-4a3f-a042-fcb7a84fa587">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["السلام عليكم ورحمة الله وبركاته,,,"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="0" width="185" height="25" uuid="0cabd927-1d6a-4eee-8d3a-15282b0bd48e">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[المحترمين]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="20" y="121" width="535" height="24" isRemoveLineWhenBlank="true" uuid="34dd3676-1f05-44d6-92e5-7f89575a9849">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER}==1]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="15" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{inpSubject}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="24" splitType="Stretch">
+			<componentElement>
+				<reportElement key="" positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="554" height="20" uuid="ea7e53b2-870d-4c79-ba7a-ea2e5fb15085"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="inpPhotoCopiesList" uuid="1c5f7b3a-0ba0-40cb-8b66-4a4cf0595ac5">
+						<datasetParameter name="inpPhotoCopiesList">
+							<datasetParameterExpression><![CDATA[$P{inpPhotoCopiesList}]]></datasetParameterExpression>
+						</datasetParameter>
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{inpPhotoCopiesList})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:column width="541" uuid="34282e51-33e0-4e2c-a0e2-e5643c734419">
+						<jr:detailCell height="20" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="541" height="20" uuid="e8f7a65b-a2fa-4d0e-bdf3-d2d3b5362c9f"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName="Traditional Arabic" size="12"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{directlookup}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+			<break>
+				<reportElement x="0" y="22" width="555" height="1" uuid="1abbc348-4fc7-4095-9f3b-9a89290be233"/>
+			</break>
+		</band>
+		<band splitType="Immediate"/>
+	</detail>
+	<pageFooter>
+		<band/>
+	</pageFooter>
+	<summary>
+		<band height="20">
+			<subreport runToBottom="false">
+				<reportElement isPrintRepeatedValues="false" x="0" y="0" width="555" height="20" uuid="26bf24d5-9889-4591-b63a-8159e02bd2d3"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpSubject">
+					<subreportParameterExpression><![CDATA[$P{inpSubject}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpPhotoCopiesList">
+					<subreportParameterExpression><![CDATA[$P{inpPhotoCopiesList}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="BASE_DESIGN">
+					<subreportParameterExpression><![CDATA[$P{BASE_DESIGN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpPOId">
+					<subreportParameterExpression><![CDATA[$P{inpPOId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/scm/ad_reports/DirectPOLetterReport/DirectPOLetterReport_subreport1.jrxml")]]></subreportExpression>
+			</subreport>
+		</band>
+	</summary>
+</jasperReport>

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_UPDATEENCUMREVAMT_TRG">
+    <trigger name="EFIN_UPDATEENCUMREVAMT_TRG" table="EFIN_BUD_MANENCUM_REV" fires="after" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[
+v_docstatus  VARCHAR2(60); 
+v_efin_bud_manencum_rev_id  VARCHAR2(60); 
+
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+	IF INSERTING  OR (TG_OP='UPDATE' and :new.revamount<> :old.revamount) THEN
+    
+    IF(:new.issystem='N') THEN
+	IF(:new.revamount > 0 ) THEN
+	update efin_budget_manencumlines set enc_increase=enc_increase+:new.revamount where efin_budget_manencumlines_id=:new.efin_budget_manencumlines_id;
+	ELSE IF(:new.revamount < 0 ) THEN
+	update efin_budget_manencumlines set enc_decrease=enc_decrease+abs(:new.revamount) where efin_budget_manencumlines_id=:new.efin_budget_manencumlines_id;
+	END IF;
+	END IF;
+    
+    ELSE
+    
+    IF(:new.revamount > 0 ) THEN
+	update efin_budget_manencumlines set system_increase=system_increase+:new.revamount where efin_budget_manencumlines_id=:new.efin_budget_manencumlines_id;
+	ELSE IF(:new.revamount < 0 ) THEN
+	update efin_budget_manencumlines set system_decrease=system_decrease+abs(:new.revamount) where efin_budget_manencumlines_id=:new.efin_budget_manencumlines_id;
+	END IF;
+	END IF;
+    
+	END IF;
+    END IF;
+  	
+	END EFIN_UPDATEENCUMREVAMT_TRG
+]]></body>
+    </trigger>
+  </database>

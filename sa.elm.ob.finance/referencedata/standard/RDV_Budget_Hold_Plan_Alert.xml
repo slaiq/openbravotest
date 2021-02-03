@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="7C01E47A7EB04ADAB9566BCC62C14B06" identifier="PO Hold Plan Approval Alert">
+    <id>7C01E47A7EB04ADAB9566BCC62C14B06</id>
+    <active>true</active>
+    <name>PO Hold Plan Approval Alert</name>
+    <tab id="45933B643A66458D88D6BBC85A2D28FA" entity-name="ADTab" identifier="PO Hold Plan Details - PO Hold Plan Details"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) and status in ('NEW' ,'SOLVED')
+And ((ad_role_id is not null and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>RDVBH</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+  <ADAlertRule id="81FD3EF4546C439AB38800B49D9A7E48" identifier="RDV Budget Hold">
+    <id>81FD3EF4546C439AB38800B49D9A7E48</id>
+    <active>true</active>
+    <name>RDV Budget Hold</name>
+    <tab id="B20D73B4C42745A58945AF98860BB0AE" entity-name="ADTab" identifier="Budget Hold Plan Details - Budget Hold Plan Details"/>
+    <filterClause>((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) and status='NEW'  and ((ad_role_id is not null and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>RDVBH_HOLD</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

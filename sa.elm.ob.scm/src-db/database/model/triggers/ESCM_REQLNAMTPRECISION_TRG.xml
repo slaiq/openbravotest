@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_REQLNAMTPRECISION_TRG">
+    <trigger name="ESCM_REQLNAMTPRECISION_TRG" table="M_REQUISITIONLINE" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+v_totalLineAmt NUMBER;
+v_prec NUMBER;
+v_clientId VARCHAR(32);
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	IF (INSERTING OR UPDATING ) THEN 
+		-- To get current Client ID 
+		Select ad_client_id INTO v_clientId from M_RequisitionLine 
+		where M_RequisitionLine_id = :new.M_RequisitionLine_id;
+		-- To get Standarrd Precision from Currency by using Current Client ID
+		select stdPrecision INTO v_prec from c_currency where c_currency_id 
+		in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+		 
+		IF (INSERTING) THEN
+		v_totalLineAmt := ROUND(:new.LineNetAmt , v_prec);
+		UPDATE M_RequisitionLine set LineNetAmt = v_totalLineAmt 
+		where M_RequisitionLine_id = :new.M_RequisitionLine_id;
+		
+		ELSE
+			IF(:new.LineNetAmt <> :old.LineNetAmt)THEN
+				v_totalLineAmt := ROUND(:new.LineNetAmt , v_prec);
+				UPDATE M_RequisitionLine set LineNetAmt = v_totalLineAmt 
+				where M_RequisitionLine_id = :new.M_RequisitionLine_id;
+			END IF;
+		END IF;
+	END IF;
+	END ESCM_REQLNAMTPRECISION_TRG
+]]></body>
+    </trigger>
+  </database>

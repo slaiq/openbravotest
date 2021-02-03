@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EUT_VALIDATE_BPARTNER">
+    <trigger name="EUT_VALIDATE_BPARTNER" table="AD_USER" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_bpcount NUMBER ; 
+BEGIN
+	IF AD_isTriggerEnabled()='N' THEN RETURN;
+	END IF;
+	IF INSERTING or UPDATING THEN
+			select count(*) into v_bpcount from ad_user where c_bpartner_id=:NEW.c_bpartner_id 
+				and ad_client_id=:NEW.ad_client_id and ad_user_id<>:NEW.ad_user_id;
+				IF (v_bpcount>0) THEN
+					RAISE_APPLICATION_ERROR(-20000,'@EUT_BPartnerAlreadyAssociated@');
+				END IF;
+	END IF;
+
+	END EUT_VALIDATE_BPARTNER
+]]></body>
+    </trigger>
+  </database>

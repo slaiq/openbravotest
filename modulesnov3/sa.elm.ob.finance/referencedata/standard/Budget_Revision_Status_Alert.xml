@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="404E923F40F247979F9A5199DC984E46" identifier="Budget Revision waiting for approval">
+    <id>404E923F40F247979F9A5199DC984E46</id>
+    <active>true</active>
+    <creationDate transient="true">2016-06-22T19:42:20.742Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2016-07-01T15:52:37.302Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Budget Revision waiting for approval</name>
+    <tab id="B50C35C1DB7B4E30A6324FBB4D9CCA5D" entity-name="ADTab" identifier="Header - Budget Revision"/>
+    <filterClause>referencekey_id in (select efin_budget_transfertrx_id from Efin_Budget_Transfertrx bug
+join eut_next_role_line ln on ln.eut_next_role_id= bug.eut_next_role_id
+where ln.ad_role_id in (@AD_ROLE_ID@) 
+and docstatus ='WFA')</filterClause>
+    <sql>SELECT efin_budget_transfertrx_id AS referencekey_id,
+     ad_column_identifier('Efin_Budget_Transfertrx', efin_budget_transfertrx_id, 'en_US') AS record_id,
+     0 AS ad_role_id,
+     null as ad_user_id,
+     ad_column_identifier('Efin_Budget_Transfertrx', efin_budget_transfertrx_id, 'en_US') ||' budget  is '||'In Approval' AS description,
+     'Y' AS isActive,
+      ad_org_id, 
+      ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+ FROM Efin_Budget_Transfertrx  where docstatus ='WFA'</sql>
+    <type>D</type>
+  </ADAlertRule>
+  <ADAlertRule id="A76884E15FA34F01A4CCE02065B13335" identifier="Budget Revision sent for rework ">
+    <id>A76884E15FA34F01A4CCE02065B13335</id>
+    <active>true</active>
+    <creationDate transient="true">2016-06-22T19:42:20.739Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2016-07-01T15:53:15.999Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Budget Revision sent for rework </name>
+    <tab id="B50C35C1DB7B4E30A6324FBB4D9CCA5D" entity-name="ADTab" identifier="Header - Budget Revision"/>
+    <filterClause>referencekey_id in (select efin_budget_transfertrx_id from Efin_Budget_Transfertrx bt join ad_user as usr on bt.createdby=usr.ad_user_id 
+where usr.ad_user_id in (@AD_USER_ID@) and docstatus='RW')</filterClause>
+    <sql> SELECT efin_budget_transfertrx_id AS referencekey_id,
+     ad_column_identifier('Efin_Budget_Transfertrx', efin_budget_transfertrx_id, 'en_US') AS record_id,
+     0 AS ad_role_id,
+     NULL AS ad_user_id,
+     ad_column_identifier('Efin_Budget_Transfertrx', efin_budget_transfertrx_id, 'en_US') ||' budget  is '||'Rework' AS description,
+     'Y' AS isActive,
+      bt.ad_org_id, 
+      bt.ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+ FROM Efin_Budget_Transfertrx as bt where docstatus ='RW' </sql>
+    <type>D</type>
+  </ADAlertRule>
+  <ADAlertRule id="E2FAAF40E87248058303FAC50BEDEE09" identifier="Budget Revision approved ">
+    <id>E2FAAF40E87248058303FAC50BEDEE09</id>
+    <active>true</active>
+    <creationDate transient="true">2016-06-22T19:42:20.736Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2016-07-01T15:52:55.188Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Budget Revision approved </name>
+    <tab id="B50C35C1DB7B4E30A6324FBB4D9CCA5D" entity-name="ADTab" identifier="Header - Budget Revision"/>
+    <filterClause>referencekey_id in (select efin_budget_transfertrx_id from Efin_Budget_Transfertrx bt join ad_user as usr on bt.createdby=usr.ad_user_id 
+where usr.ad_user_id in (@AD_USER_ID@) and docstatus='CO')</filterClause>
+    <sql>SELECT efin_budget_transfertrx_id AS referencekey_id,
+     ad_column_identifier('Efin_Budget_Transfertrx', efin_budget_transfertrx_id, 'en_US') AS record_id,
+     0 AS ad_role_id,
+     NULL AS ad_user_id,
+     ad_column_identifier('Efin_Budget_Transfertrx', efin_budget_transfertrx_id, 'en_US') ||' budget  is ' ||'Approved' AS description,
+     'Y' AS isActive,
+      ad_org_id, 
+      ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+ FROM Efin_Budget_Transfertrx  where docstatus = 'CO' and updated &gt;= now()-2</sql>
+    <type>D</type>
+  </ADAlertRule>
+</ob:Openbravo>

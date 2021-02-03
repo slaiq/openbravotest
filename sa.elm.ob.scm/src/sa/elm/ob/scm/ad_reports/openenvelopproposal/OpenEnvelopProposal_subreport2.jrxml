@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="OpenEnvelopProposal_subreport2" pageWidth="345" pageHeight="555" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="345" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="e1ab2075-5418-4614-9e7e-eae9ebab115a">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="inpCommitteeId" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select string_agg(emp_name, ', ') as emp_name,
+regexp_replace(repeat('------------------,', (count(emp_name)::integer)), ',+$', '') as signature,
+lktypln.name, value
+from escm_committee_members cmem left join escm_deflookups_typeln lktypln on lktypln.escm_deflookups_typeln_id=cmem.membertype
+left join escm_deflookups_type lktyp on lktyp.escm_deflookups_type_id=lktypln.escm_deflookups_type_id
+where escm_committee_id=$P{inpCommitteeId} and lktyp.reference='CMT' and (name='Member' or value='M') group by lktypln.name, value]]>
+	</queryString>
+	<field name="emp_name" class="java.lang.String"/>
+	<field name="signature" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="value" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<columnHeader>
+		<band height="22" splitType="Stretch">
+			<staticText>
+				<reportElement x="1" y="0" width="344" height="22" uuid="2bfd5ad6-4a25-4f5a-8503-dbb53a302473"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[أعضـــــاء اللجنة]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<summary>
+		<band height="120">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="0" y="0" width="344" height="60" uuid="fa97d6bd-ffbf-4da7-870e-a9fd58f98efc">
+					<printWhenExpression><![CDATA[$F{name}.equals( "Member" ) || $F{value}.equals( "M" )]]></printWhenExpression>
+				</reportElement>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{emp_name}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="345" height="60" uuid="93d4d794-4c1d-4e5e-b87e-5ba856496364"/>
+				<box rightPadding="4"/>
+				<textElement>
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="0" y="60" width="345" height="60" uuid="60ed4a5c-5fdd-47a1-86e8-079a960d55ac"/>
+				<box rightPadding="4"/>
+				<textElement>
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="1" y="60" width="344" height="60" uuid="a40c9673-c6e2-43a3-93fb-8d0ec72fb90a"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{signature}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

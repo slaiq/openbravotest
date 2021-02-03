@@ -1,0 +1,67 @@
+# HG changeset patch
+# User Gowtham <gowtham@qualiantech.com>
+# Date 1602399244 -10800
+#      Sun Oct 11 09:54:04 2020 +0300
+# Node ID 6bbe10e1eb1990f400e0347252dba15f7e58af6c
+# Parent  cdb6544eb20dc44cdc0196383f932373cbc4604c
+[mq]: 2020-10-11_09-52-46_r1239+.diff
+
+diff --git a/src/sa/elm/ob/utility/dms/process/DmsDataDeletionProcess.java b/src/sa/elm/ob/utility/dms/process/DmsDataDeletionProcess.java
+--- a/src/sa/elm/ob/utility/dms/process/DmsDataDeletionProcess.java
++++ b/src/sa/elm/ob/utility/dms/process/DmsDataDeletionProcess.java
+@@ -69,7 +69,7 @@
+           response = dmsImpl.deleteAttachment(attachreq, clientId, serviceAccount);
+           if (response != null && !response.isHasError()) {
+             // delete record from deletion history table
+-            deleteList.remove(deleteRecord);
++            // deleteList.remove(deleteRecord);
+             OBDal.getInstance().remove(deleteRecord);
+             OBDal.getInstance().flush();
+           }
+@@ -85,11 +85,18 @@
+           // get Attachment List
+           List<Document> docList = response.getResponseRoot().getValue().getDocuments().getValue()
+               .getDocument();
++          logger.logln("docList size:" + docList.size());
++
+           for (Document dmsDoc : docList) {
++            logger.logln("attachment path:" + dmsDoc);
++
++            logger.logln("attachment path1:" + dmsDoc.getURI());
++
++            logger.logln("attachment path2:" + dmsDoc.getURI().toString());
+             logger.logln("attachment path:" + dmsDoc.getURI().toString());
+ 
+             // call delete attachment
+-            attachreq = DMSUtility.deleteAttachmentRequest(dmsDoc.getURI().toString());
++            attachreq = DMSUtility.deleteAttachmentRequest(dmsDoc.getURI().getValue());
+             response = dmsImpl.deleteAttachment(attachreq, clientId, serviceAccount);
+             if (response != null && !response.isHasError()) {
+               continue;
+@@ -101,14 +108,18 @@
+ 
+           // call delete record after deletion of attachment
+           if (deleteAttachStatus) {
++            logger.logln("deleteing reord:" + deleteRecord.getRecordpath());
++
+             req = DMSUtility.deleteRecordRequest(profileURI.concat(deleteRecord.getRecordpath()));
+             response = dmsImpl.deleteRecord(req,
+                 GetServiceAccount.getProperty(DMSConstants.DMS_CLIENT_ID), serviceAccount);
+             if (response != null && !response.isHasError()) {
+               // delete record from deletion history table
+-              deleteList.remove(deleteRecord);
++              // deleteList.remove(deleteRecord);
+               OBDal.getInstance().remove(deleteRecord);
+               OBDal.getInstance().flush();
++            } else {
++              logger.logln("deleteing reord msg:" + response.getErrorMessage().getValue());
+             }
+           }
+         }
+@@ -127,4 +138,4 @@
+ 
+   }
+ 
+-}
+\ No newline at end of file
++}

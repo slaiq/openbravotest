@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_GETCHILDACCT">
+    <function name="EUT_GETCHILDACCT" type="VARCHAR">
+      <parameter name="use_parent" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[process_parents character varying[] := ARRAY[ use_parent ];
+    children character varying[] := '{}';
+    new_children character varying[];
+    childact character varying;
+BEGIN
+    WHILE ( array_upper( process_parents, 1 ) IS NOT NULL ) LOOP
+        new_children := ARRAY( SELECT node_id FROM ad_treenode 
+        WHERE parent_id  = ANY( process_parents )  AND node_id <> ALL( children ) );
+        children := children || new_children;
+        process_parents := new_children;
+    END LOOP;
+    childact:=replace(replace(replace(children::text,'{',''''),'}',''''),',',''',''');
+    RETURN childact ;
+END EUT_GETCHILDACCT
+]]></body>
+    </function>
+  </database>

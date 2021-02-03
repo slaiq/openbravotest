@@ -1,0 +1,1037 @@
+/*
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2010-2014 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+*/
+
+/*=======================================================================
+ * Contains styles for:
+ * View Form Styles
+ * Form Fields/Items
+ * Date Picker
+ * Form Buttons
+ * Image Item
+ * LinkButton Item
+ * SectionItem Button
+ * Dialog
+ * Note section
+=======================================================================*/
+
+/*=======================================================================
+ * View Form Styles
+=======================================================================*/
+/* @font-face {
+    font-family: elmFont;
+    src: url(./fonts/font.ttf);
+} */
+
+
+/*=======================================================================
+ * Form Field Styles
+=======================================================================*/
+
+.OBFormFieldInput,
+.OBFormFieldInputFocused,
+.OBFormFieldInputError,
+.OBFormFieldInputHint,
+
+.OBFormFieldInputRequired,
+.OBFormFieldInputRequiredFocused,
+.OBFormFieldInputRequiredError,
+.OBFormFieldInputRequiredHint,
+
+.OBFormFieldSelectInput,
+.OBFormFieldSelectInputError,
+.OBFormFieldSelectInputFocused,
+.OBFormFieldSelectInputHint,
+
+.OBFormFieldSelectInputErrorFocused,
+.OBFormFieldSelectInputErrorRequired,
+.OBFormFieldSelectInputErrorRequiredFocused,
+
+.OBFormFieldSelectInputPending,
+
+.OBFormFieldSelectInputRequired,
+.OBFormFieldSelectInputRequiredFocused,
+.OBFormFieldSelectInputRequiredError,
+.OBFormFieldSelectInputRequiredHint,
+
+.OBFormFieldDateInputRequired,
+.OBFormFieldDateInputRequiredFocused,
+.OBFormFieldDateInputRequiredError,
+.OBFormFieldDateInputRequiredHint,
+
+.OBFormFieldDateInput,
+.OBFormFieldDateInputFocused,
+.OBFormFieldDateInputError,
+.OBFormFieldDateInputHint,
+
+.OBFormFieldNumberInput,
+.OBFormFieldNumberInputDisabled,
+.OBFormFieldNumberInputFocused,
+.OBFormFieldNumberInputError,
+.OBFormFieldNumberInputHint,
+
+.OBFormFieldNumberInputRequired,
+.OBFormFieldNumberInputRequiredDisabled,
+.OBFormFieldNumberInputRequiredFocused,
+.OBFormFieldNumberInputRequiredError,
+.OBFormFieldNumberInputRequiredHint,
+
+.OBFormFieldImageInput,
+.OBFormFieldImageInputRequired {
+    background-color: #F6F6F6;
+    border-color: #D5D5D5;
+    font-family: elmFont;
+}
+
+.OBFormFieldInputRequiredDisabled,
+.OBFormFieldSelectInputRequiredDisabled,
+.OBFormFieldDateInputRequiredDisabled,
+.OBFormFieldNumberInputRequiredDisabled,
+.OBFormFieldInputDisabled,
+.OBFormFieldSelectInputDisabled,
+.OBFormFieldDateInputDisabled,
+.OBFormFieldNumberInputDisabled {
+  background-color: transparent;
+}
+
+.OBFormFieldSelectInputPending {
+  background-color: #ffdfdf;
+}
+
+.OBFormFieldSelectInputRequired:focus,
+.OBFormFieldSelectInputRequiredFocused,
+.OBFormFieldSelectInputRequiredSelectedFocused,
+.OBFormFieldSelectInputErrorRequired:focus,
+.OBFormFieldSelectInputErrorRequiredFocused,
+.OBFormFieldInputRequired:focus,
+.OBFormFieldInputRequiredFocused,
+.OBFormFieldInputRequiredSelectedFocused,
+.OBFormFieldDateInputRequired:focus,
+.OBFormFieldDateInputRequiredFocused,
+.OBFormFieldDateInputRequiredSelectedFocused,
+.OBFormFieldNumberInputRequired:focus,
+.OBFormFieldNumberInputRequiredFocused,
+.OBFormFieldNumberInputRequiredSelectedFocused,
+
+.OBFormFieldInput:focus,
+.OBFormFieldInputFocused,
+.OBFormFieldInputSelectedFocused,
+.OBFormFieldSelectInputFocused,
+.OBFormFieldSelectInputSelectedFocused,
+.OBFormFieldSelectInput:focus,
+.OBFormFieldSelectInputError:focus,
+.OBFormFieldSelectInputErrorFocused,
+.OBFormFieldDateInput:focus,
+.OBFormFieldDateInputFocused,
+.OBFormFieldDateInputSelectedFocused
+.OBFormFieldNumberInput:focus,
+.OBFormFieldNumberInputFocused,
+.OBFormFieldNumberInputSelectedFocused {
+  border-color: #dcb53e;
+  /*height: 30px !important;*/
+}
+
+.OBFormFieldInputRequiredHint,
+
+.OBPickListBody,
+.OBPickListBodyFocused {
+  border-color: #c4d2e4;
+  background-color: #f3f6fa;
+}
+
+.OBFormFieldPickListCell,
+.OBFormFieldPickListCellFocused,
+.OBFormFieldPickListCellDark {
+  color: #333333;
+  background-color: #f3f6fa;
+}
+
+.OBFormFieldPickListCellSelected,
+.OBFormFieldPickListCellSelectedFocused,
+.OBFormFieldPickListCellSelectedDark {
+  color: #333333;
+  background-color: #d5d5d5;
+}
+
+.OBFormFieldInputRequired,
+.OBFormFieldInputRequiredFocused,
+.OBFormFieldInputRequiredError,
+.OBFormFieldInputRequiredHint,
+
+.OBFormFieldSelectInputRequired,
+.OBFormFieldSelectInputRequiredFocused,
+.OBFormFieldSelectInputRequiredError,
+.OBFormFieldSelectInputRequiredHint,
+
+.OBFormFieldSelectInputErrorRequired,
+.OBFormFieldSelectInputErrorRequiredFocused,
+
+.OBFormFieldDateInputRequired,
+.OBFormFieldDateInputRequiredFocused,
+.OBFormFieldDateInputRequiredError,
+.OBFormFieldDateInputRequiredHint,
+
+.OBFormFieldNumberInputRequired,
+.OBFormFieldNumberInputRequiredFocused,
+.OBFormFieldNumberInputRequiredError,
+.OBFormFieldNumberInputRequiredHint,
+
+.OBFormFieldImageInputRequired {
+  background-color: #ffffcc;
+}
+
+/*=======================================================================
+ * Date Picker
+=======================================================================*/
+
+.OBDateChooserBottomButton,
+.OBDateChooserBottomButtonFocused,
+.OBDateChooserBottomButtonSelected {
+  background-image: url(./images/form/dateChooser-bg-button.png);
+}
+
+.OBDateChooserBottomButtonOver,
+.OBDateChooserBottomButtonFocusedOver,
+.OBDateChooserBottomButtonSelectedOver {
+  background-image: url(./images/form/dateChooser-bg-button_Over.png);
+}
+
+.OBDateChooserBottomButtonDown,
+.OBDateChooserBottomButtonFocusedDown,
+.OBDateChooserBottomButtonSelectedDown {
+  background-image: url(./images/form/dateChooser-bg-button_Down.png);
+}
+
+.OBDateChooserWeekendButton,
+.OBDateChooserWeekendButtonOver,
+.OBDateChooserWeekendButtonDown,
+.OBDateChooserWeekendButtonSelected,
+.OBDateChooserWeekendButtonSelectedOver,
+.OBDateChooserWeekendButtonSelectedDown {
+  background-color: #c4d2e4;
+  border-color: #c4d2e4;
+}
+
+.OBDateChooserNavButtonOver,
+.OBDateChooserNavButtonDown {
+  color: #dcb53e;
+}
+
+.OBDateChooserWeekend,
+.OBDateChooserWeekendOver,
+.OBDateChooserWeekendSelected,
+.OBDateChooserWeekendDisabled,
+.OBDateChooserWeekendDisabledOver,
+.OBDateChooserWeekendDisabledDown {
+  border-color: #c4d2e4;
+  background-color: #c4d2e4;
+}
+
+.OBDateChooserWeekdayOver,
+.OBDateChooserWeekendOver {
+  border-color: #dcb53e;
+}
+
+.OBDateChooserWeekdaySelected,
+.OBDateChooserWeekdaySelectedOver,
+.OBDateChooserWeekdayDown,
+.OBDateChooserWeekdaySelectedDown,
+.OBDateChooserWeekendSelected,
+.OBDateChooserWeekendSelectedOver,
+.OBDateChooserWeekendDown,
+.OBDateChooserWeekendSelectedDown {
+  border-color: #dcb53e;
+}
+
+/*=======================================================================
+ * Form Button Styles
+=======================================================================*/
+
+.OBFormButton,
+.OBFormButtonOver,
+.OBFormButtonFocused,
+.OBFormButtonFocusedOver,
+.OBFormButtonDown,
+.OBFormButtonFocusedDown,
+.OBFormButtonSelected,
+.OBFormButtonSelectedFocused,
+.OBFormButtonSelectedDown,
+.OBFormButtonSelectedFocusedDown,
+.OBFormButtonSelectedOver,
+.OBFormButtonSelectedFocusedOver,
+.OBFormButtonDisabled,
+.OBFormButtonSelectedDisabled {
+  /*background-image:url(./images/form/textButton-bg-normal.png);*/
+  background-image:none;
+  /*background-color:#eb7f00;*/
+  background-color: #0f97a6 !important;
+  color: #fff;
+  border: none;
+}
+
+.OBFormButtonDisabled,
+.OBFormButtonSelectedDisabled {
+  /*background-image: url(./images/form/textButton-bg-disabled.png);*/
+  background-color:#939393;
+}
+
+.OBFormButtonFocused,
+.OBFormButtonFocusedOver,
+.OBFormButtonSelectedFocused,
+.OBFormButtonSelectedFocusedOver,
+.OBFormButtonSelectedFocusedDown {
+  border-color: #dcb53e;
+}
+
+.OBFormButtonOver,
+.OBFormButtonFocusedOver,
+.OBFormButtonSelectedFocused,
+.OBFormButtonSelectedFocusedOver {
+  /*background-image: url(./images/form/textButton-bg-hover.png);*/
+  background-image:none;
+  /*background-color:#eb7f00;  */
+  background-color: #0f97a6 !important;
+}
+
+.OBFormButtonDown,
+.OBFormButtonFocusedDown,
+.OBFormButtonSelectedDown,
+.OBFormButtonSelectedFocusedDown {
+  /*background-image: url(./images/form/textButton-bg-down.png);*/
+  background-image:none;
+  /*background-color:#eb7f00;   */
+  background-color: #0f97a6 !important;
+}
+
+/*=======================================================================
+ * Image Item
+=======================================================================*/
+
+/*=======================================================================
+ * LinkButton Item
+=======================================================================*/
+
+.OBLinkButtonItem,
+.OBLinkButtonItemOver,
+.OBLinkButtonItem:hover {
+  color: #2f58d0;
+}
+
+.OBLinkButtonItemDown,
+.OBLinkButtonItem:active {
+  color: #244d9d;
+}
+
+.OBLinkButtonItemFocused,
+.OBLinkButtonItemFocusedOver,
+.OBLinkButtonItemFocusedDown,
+.OBLinkButtonItem:focus {
+  color: #dcb53e;
+}
+
+/*=======================================================================
+ * SectionItem Button
+=======================================================================*/
+
+/*=======================================================================
+ * Used in the label of a foreign key field, for link image
+=======================================================================*/
+
+.OBFormFieldLinkButton:hover {
+  color: #2f58d0;
+}
+
+/*=======================================================================
+ * Dialog
+=======================================================================*/
+
+/*=======================================================================
+ * Note section
+=======================================================================*/
+
+.OBNoteListGridOtherUserNoteCell,
+.OBNoteListGridOtherUserNoteCellOver {
+  background-color: #2f58d0;
+}
+
+.OBNoteListGridDelete {
+  color: #2f58d0;
+}
+
+
+/*
+ *************************************************************************
+ * font override
+=======================================================================*/
+
+/* .OBViewForm,
+.OBParameterWindowForm,
+.OBFormContainerLayout,
+.OBFormField,
+.OBFormFieldDisabled,
+.OBFormFieldRequired,
+.OBFormFieldFocused,
+.OBFormFieldError,
+.OBFormFieldLabel,
+.OBFormFieldLabelDisabled,
+.OBFormFieldLabelRequired,
+.OBFormFieldLabelError,
+.OBFormFieldLabelFocused,
+.OBFormFieldLabel,
+.OBFormFieldLabelError,
+.OBFormFieldLabelFocused,
+.OBFormFieldLabelDisabled,
+.OBFormFieldStatic,
+.OBFormFieldStaticDisabled,
+.OBFormFieldStaticFocused,
+.OBFormFieldStaticError,
+.OBFormFieldStaticHint,
+
+.OBFormFieldInput,
+.OBFormFieldInputDisabled,
+.OBFormFieldInputFocused,
+.OBFormFieldInputError,
+.OBFormFieldInputHint,
+
+.OBFormFieldInputRequired,
+.OBFormFieldInputRequiredDisabled,
+.OBFormFieldInputRequiredFocused,
+.OBFormFieldInputRequiredError,
+.OBFormFieldInputRequiredHint,
+
+.OBFormFieldSelectInput,
+.OBFormFieldSelectInputDisabled,
+.OBFormFieldSelectInputFocused,
+.OBFormFieldSelectInputError,
+.OBFormFieldSelectInputErrorFocused,
+.OBFormFieldSelectInputHint,
+
+.OBFormFieldSelectInputPending,
+
+.OBFormFieldSelectInputRequired,
+.OBFormFieldSelectInputRequiredDisabled,
+.OBFormFieldSelectInputRequiredFocused,
+.OBFormFieldSelectInputRequiredError,
+.OBFormFieldSelectInputRequiredHint,
+
+.OBFormFieldDateInput,
+.OBFormFieldDateInputDisabled,
+.OBFormFieldDateInputFocused,
+.OBFormFieldDateInputError,
+.OBFormFieldDateInputHint,
+
+.OBFormFieldDateInputRequired,
+.OBFormFieldDateInputRequiredFocused,
+.OBFormFieldDateInputRequiredDisabled,
+.OBFormFieldDateInputRequiredError,
+.OBFormFieldDateInputRequiredHint,
+
+.OBFormFieldNumberInput,
+.OBFormFieldNumberInputDisabled,
+.OBFormFieldNumberInputFocused,
+.OBFormFieldNumberInputError,
+.OBFormFieldNumberInputHint,
+
+.OBFormFieldNumberInputRequired,
+.OBFormFieldNumberInputRequiredFocused,
+.OBFormFieldNumberInputRequiredDisabled,
+.OBFormFieldNumberInputRequiredError,
+.OBFormFieldNumberInputRequiredHint,
+.OBFormFieldDateInputRequired,
+.OBFormFieldDateInputRequiredFocused,
+.OBFormFieldDateInputRequiredDisabled,
+.OBFormFieldDateInputRequiredError,
+.OBFormFieldDateInputRequiredHint,
+
+.OBFormFieldDateInput,
+.OBFormFieldDateInputDisabled,
+.OBFormFieldDateInputFocused,
+.OBFormFieldDateInputError,
+.OBFormFieldDateInputHint,
+.OBFormField .OBFormFieldDateInputRequired,
+.OBFormField .OBFormFieldDateInputRequiredFocused,
+.OBFormField .OBFormFieldDateInputRequiredDisabled,
+.OBFormField .OBFormFieldDateInputRequiredError,
+.OBFormField .OBFormFieldDateInputRequiredHint,
+
+.OBFormField .OBFormFieldDateInput,
+.OBFormField .OBFormFieldDateInputDisabled,
+.OBFormField .OBFormFieldDateInputFocused,
+.OBFormField .OBFormFieldDateInputError,
+.OBFormField .OBFormFieldDateInputHint,
+
+.OBFormFieldError .OBFormFieldDateInputRequired,
+.OBFormFieldError .OBFormFieldDateInputRequiredFocused,
+.OBFormFieldError .OBFormFieldDateInputRequiredDisabled,
+.OBFormFieldError .OBFormFieldDateInputRequiredError,
+.OBFormFieldError .OBFormFieldDateInputRequiredHint,
+
+.OBFormFieldError .OBFormFieldDateInput,
+.OBFormFieldError .OBFormFieldDateInputDisabled,
+.OBFormFieldError .OBFormFieldDateInputFocused,
+.OBFormFieldError .OBFormFieldDateInputError,
+.OBFormFieldError .OBFormFieldDateInputHint,
+html[data-useragent*='MSIE 7.0'] .OBFormField .OBFormFieldDateInputRequired,
+html[data-useragent*='MSIE 7.0'] .OBFormField .OBFormFieldDateInputRequiredFocused,
+html[data-useragent*='MSIE 7.0'] .OBFormField .OBFormFieldDateInputRequiredDisabled,
+html[data-useragent*='MSIE 7.0'] .OBFormField .OBFormFieldDateInputRequiredError,
+html[data-useragent*='MSIE 7.0'] .OBFormField .OBFormFieldDateInputRequiredHint,
+
+html[data-useragent*='MSIE 7.0'] .OBFormField .OBFormFieldDateInput,
+html[data-useragent*='MSIE 7.0'] .OBFormField .OBFormFieldDateInputDisabled,
+html[data-useragent*='MSIE 7.0'] .OBFormField .OBFormFieldDateInputFocused,
+html[data-useragent*='MSIE 7.0'] .OBFormField .OBFormFieldDateInputError,
+html[data-useragent*='MSIE 7.0'] .OBFormField .OBFormFieldDateInputHint,
+
+html[data-useragent*='MSIE 7.0'] .OBFormFieldError .OBFormFieldDateInputRequired,
+html[data-useragent*='MSIE 7.0'] .OBFormFieldError .OBFormFieldDateInputRequiredFocused,
+html[data-useragent*='MSIE 7.0'] .OBFormFieldError .OBFormFieldDateInputRequiredDisabled,
+html[data-useragent*='MSIE 7.0'] .OBFormFieldError .OBFormFieldDateInputRequiredError,
+html[data-useragent*='MSIE 7.0'] .OBFormFieldError .OBFormFieldDateInputRequiredHint,
+
+html[data-useragent*='MSIE 7.0'] .OBFormFieldError .OBFormFieldDateInput,
+html[data-useragent*='MSIE 7.0'] .OBFormFieldError .OBFormFieldDateInputDisabled,
+html[data-useragent*='MSIE 7.0'] .OBFormFieldError .OBFormFieldDateInputFocused,
+html[data-useragent*='MSIE 7.0'] .OBFormFieldError .OBFormFieldDateInputError,
+html[data-useragent*='MSIE 7.0'] .OBFormFieldError .OBFormFieldDateInputHint,
+.OBFormFieldNumberInput,
+.OBFormFieldNumberInputDisabled,
+.OBFormFieldNumberInputFocused,
+.OBFormFieldNumberInputError,
+.OBFormFieldNumberInputHint,
+
+.OBFormFieldNumberInputRequired,
+.OBFormFieldNumberInputRequiredDisabled,
+.OBFormFieldNumberInputRequiredFocused,
+.OBFormFieldNumberInputRequiredError,
+.OBFormFieldNumberInputRequiredHint,
+.OBFormFieldStatic,
+.OBFormFieldStaticFocused,
+.OBFormFieldStaticError,
+.OBFormFieldStaticHint,
+.OBFormFieldInput,
+.OBFormFieldInputFocused,
+.OBFormFieldInputError,
+.OBFormFieldInputHint,
+
+.OBFormFieldInputRequired,
+.OBFormFieldInputRequiredFocused,
+.OBFormFieldInputRequiredError,
+.OBFormFieldInputRequiredHint,
+
+.OBFormFieldSelectInput,
+.OBFormFieldSelectInputError,
+.OBFormFieldSelectInputErrorFocused,
+.OBFormFieldSelectInputFocused,
+.OBFormFieldSelectInputHint,
+
+.OBFormFieldSelectInputPending,
+
+.OBFormFieldSelectInputRequired,
+.OBFormFieldSelectInputRequiredFocused,
+.OBFormFieldSelectInputRequiredError,
+.OBFormFieldSelectInputRequiredHint,
+
+.OBFormFieldDateInputRequired,
+.OBFormFieldDateInputRequiredFocused,
+.OBFormFieldDateInputRequiredError,
+.OBFormFieldDateInputRequiredHint,
+
+.OBFormFieldDateInput,
+.OBFormFieldDateInputFocused,
+.OBFormFieldDateInputError,
+.OBFormFieldDateInputHint,
+
+.OBFormFieldNumberInput,
+.OBFormFieldNumberInputDisabled,
+.OBFormFieldNumberInputFocused,
+.OBFormFieldNumberInputError,
+.OBFormFieldNumberInputHint,
+
+.OBFormFieldNumberInputRequired,
+.OBFormFieldNumberInputRequiredDisabled,
+.OBFormFieldNumberInputRequiredFocused,
+.OBFormFieldNumberInputRequiredError,
+.OBFormFieldNumberInputRequiredHint,
+
+.OBFormFieldImageInput,
+.OBFormFieldImageInputDisabled,
+.OBFormFieldImageInputRequired,
+.OBFormFieldImageInputRequiredDisabled,
+.OBFormFieldStaticDisabled,
+.OBFormFieldInputRequiredDisabled,
+.OBFormFieldSelectInputRequiredDisabled,
+.OBFormFieldDateInputRequiredDisabled,
+.OBFormFieldNumberInputRequiredDisabled,
+.OBFormFieldImageInputRequiredDisabled,
+.OBFormFieldInputDisabled,
+.OBFormFieldSelectInputDisabled,
+.OBFormFieldDateInputDisabled,
+.OBFormFieldNumberInputDisabled,
+.OBFormFieldImageInputDisabled,
+.OBFormFieldSelectControl,
+.OBFormFieldSelectControlSelected,
+.OBFormFieldSelectControlSelectedFocused,
+.OBFormFieldSelectControlError,
+.OBFormFieldSelectControlFocused,
+.OBFormFieldInputRequiredError,
+.OBFormFieldDateInputRequiredError,
+.OBFormFieldNumberInputRequiredError,
+.OBFormFieldInputError,
+.OBFormFieldSelectInputError,
+.OBFormFieldSelectInputErrorFocused,
+.OBFormFieldDateInputError,
+.OBFormFieldLabelError,
+.OBFormFieldSelectPickerIcon,
+.OBFormFieldSelectPickerIconFocused,
+.OBFormFieldSelectPickerIconDisabled,
+.OBFormFieldSelectPickerIconError,
+.OBFormFieldSelectPickerIconOver,
+.OBFormFieldSelectPickerIconFocused,
+.OBFormFieldSelectPickerIconFocused a,
+.OBFormFieldSelectPickerIconSelectedFocused,
+.OBFormFieldSelectPickerIconSelected,
+.OBFormFieldSelectInputRequired:focus,
+.OBFormFieldSelectInputRequiredFocused,
+.OBFormFieldSelectInputRequiredSelectedFocused,
+.OBFormFieldInputRequired:focus,
+.OBFormFieldInputRequiredFocused,
+.OBFormFieldInputRequiredSelectedFocused,
+.OBFormFieldDateInputRequired:focus,
+.OBFormFieldDateInputRequiredFocused,
+.OBFormFieldDateInputRequiredSelectedFocused,
+.OBFormFieldNumberInputRequired:focus,
+.OBFormFieldNumberInputRequiredFocused,
+.OBFormFieldNumberInputRequiredSelectedFocused,
+
+.OBFormFieldInput:focus,
+.OBFormFieldInputFocused,
+.OBFormFieldInputSelectedFocused,
+.OBFormFieldSelectInputFocused,
+.OBFormFieldSelectInputSelectedFocused,
+.OBFormFieldSelectInput:focus,
+.OBFormFieldSelectInputError:focus,
+.OBFormFieldSelectInputErrorFocused,
+.OBFormFieldDateInput:focus,
+.OBFormFieldDateInputFocused,
+.OBFormFieldDateInputSelectedFocused
+.OBFormFieldNumberInput:focus,
+.OBFormFieldNumberInputFocused,
+.OBFormFieldNumberInputSelectedFocused,
+.OBFormFieldSelectInput,
+.OBFormFieldSelectInputError,
+.OBFormFieldSelectInputErrorFocused,
+.OBFormFieldSelectInputSelectedFocused,
+.OBFormFieldSelectInputFocused,
+.OBFormFieldSelectInputDisabled,
+
+.OBFormFieldSelectInputPending,
+
+.OBFormFieldSelectInputRequired,
+.OBFormFieldSelectInputRequiredDisabled,
+.OBFormFieldSelectInputRequiredFocused,
+.OBFormFieldSelectInputRequiredError,
+.OBFormFieldSelectInputRequiredHint,
+.OBFormFieldSelectInputPending,
+.OBFormFieldInputRequiredHint,
+.OBFormFieldSelectInputRequiredHint,
+.OBFormFieldDateInputRequiredHint,
+.OBFormFieldNumberInputRequiredHint,
+.OBFormFieldInputHint,
+.OBFormFieldSelectInputHint,
+.OBFormFieldDateInputHint,
+.OBPickListBody,
+.OBPickListBodyFocused,
+.pickListMenuBody,
+.pickListMenuBodyFocused,
+.OBFormFieldPickListCell,
+.OBFormFieldPickListCellSelected,
+.OBFormFieldPickListCellFocused,
+.OBFormFieldPickListCellSelectedFocused,
+.OBFormFieldPickListCellDisabled,
+.OBFormFieldPickListCellDark,
+.OBFormFieldPickListCellSelectedDark,
+.OBFormFieldPickListCellOver,
+.OBFormFieldPickListCellOverDark,
+.OBFormFieldPickListCellSelectedOver,
+.OBFormFieldPickListCellSelectedOverDark,
+.OBFormFieldPickListCell,
+.OBFormFieldPickListCellFocused,
+.OBFormFieldPickListCellDark,
+.OBFormFieldPickListCellSelected,
+.OBFormFieldPickListCellSelectedFocused,
+.OBFormFieldPickListCellSelectedDark,
+.OBFormFieldPickListCellOver,
+.OBFormFieldPickListCellOverDark,
+.OBFormFieldPickListCellSelectedOver,
+.OBFormFieldPickListCellSelectedOverDark,
+.OBFormFieldPickListCellDisabled,
+.OBFormFieldInputRequired,
+.OBFormFieldInputRequiredFocused,
+.OBFormFieldInputRequiredError,
+.OBFormFieldInputRequiredHint,
+
+.OBFormFieldSelectInputRequired,
+.OBFormFieldSelectInputRequiredFocused,
+.OBFormFieldSelectInputRequiredError,
+.OBFormFieldSelectInputRequiredHint,
+
+.OBFormFieldDateInputRequired,
+.OBFormFieldDateInputRequiredFocused,
+.OBFormFieldDateInputRequiredError,
+.OBFormFieldDateInputRequiredHint,
+
+.OBFormFieldNumberInputRequired,
+.OBFormFieldNumberInputRequiredFocused,
+.OBFormFieldNumberInputRequiredError,
+.OBFormFieldNumberInputRequiredHint,
+
+.OBFormFieldImageInputRequired,
+.OBFormFieldInput_HeightHack,
+.OBDateChooser,
+.OBDateChooserButton,
+.OBDateChooserButtonOver,
+.OBDateChooserButtonDown,
+.OBDateChooserButtonDisabled,
+.OBDateChooserButtonSelected,
+.OBDateChooserButtonSelectedDown,
+.OBDateChooserButtonSelectedOver,
+.OBDateChooserButtonSelectedDisabled,
+.OBDateChooserWeekendButton,
+.OBDateChooserWeekendButtonOver,
+.OBDateChooserWeekendButtonDown,
+.OBDateChooserWeekendButtonDisabled,
+.OBDateChooserWeekendButtonSelected,
+.OBDateChooserWeekendButtonSelectedDown,
+.OBDateChooserWeekendButtonSelectedOver,
+.OBDateChooserWeekendButtonSelectedDisabled,
+.OBDateChooserNavButton,
+.OBDateChooserNavButtonOver,
+.OBDateChooserNavButtonDown,
+.OBDateChooserNavButtonFocused,
+.OBDateChooserNavButtonFocusedOver,
+.OBDateChooserNavButtonFocusedDown,
+.OBDateChooserNavButtonSelected,
+.OBDateChooserNavButtonSelectedOver,
+.OBDateChooserNavButtonSelectedDown,
+.OBDateChooserWeekday,
+.OBDateChooserWeekdayOver,
+.OBDateChooserWeekdayDown,
+.OBDateChooserWeekdaySelected,
+.OBDateChooserWeekdaySelectedOver,
+.OBDateChooserWeekdaySelectedDown,
+.OBDateChooserWeekdayDisabled,
+.OBDateChooserWeekdayDisabledOver,
+.OBDateChooserWeekdayDisabledDown,
+.OBDateChooserWeekend,
+.OBDateChooserWeekendOver,
+.OBDateChooserWeekendDown,
+.OBDateChooserWeekendSelected,
+.OBDateChooserWeekendSelectedOver,
+.OBDateChooserWeekendSelectedDown,
+.OBDateChooserWeekendDisabled,
+.OBDateChooserWeekendDisabledOver,
+.OBDateChooserWeekendDisabledDown,
+.OBDateChooserBottomButton,
+.OBDateChooserBottomButtonOver,
+.OBDateChooserBottomButtonDown,
+.OBDateChooserBottomButtonFocused,
+.OBDateChooserBottomButtonFocusedOver,
+.OBDateChooserBottomButtonFocusedDown,
+.OBDateChooserBottomButtonSelected,
+.OBDateChooserBottomButtonSelectedOver,
+.OBDateChooserBottomButtonSelectedDown,
+.OBDateChooserBottomButton,
+.OBDateChooserBottomButtonFocused,
+.OBDateChooserBottomButtonSelected,
+.OBDateChooserBottomButtonOver,
+.OBDateChooserBottomButtonFocusedOver,
+.OBDateChooserBottomButtonSelectedOver,
+.OBDateChooserBottomButtonDown,
+.OBDateChooserBottomButtonFocusedDown,
+.OBDateChooserBottomButtonSelectedDown,
+.OBDateChooserNavButton,
+.OBDateChooserNavButtonOver,
+.OBDateChooserNavButtonDown,
+.OBDateChooserNavButtonFocused,
+.OBDateChooserNavButtonFocusedOver,
+.OBDateChooserNavButtonFocusedDown,
+.OBDateChooserNavButtonSelected,
+.OBDateChooserNavButtonSelectedOver,
+.OBDateChooserNavButtonSelectedDown,
+.OBDateChooserNavButton,
+.OBDateChooserNavButtonOver,
+.OBDateChooserNavButtonDown,
+.OBDateChooserNavButtonFocused,
+.OBDateChooserNavButtonFocusedOver,
+.OBDateChooserNavButtonFocusedDown,
+.OBDateChooserNavButtonSelected,
+.OBDateChooserNavButtonSelectedOver,
+.OBDateChooserNavButtonSelectedDown,
+.OBDateChooserButton,
+.OBDateChooserButtonOver,
+.OBDateChooserButtonDown,
+.OBDateChooserButtonSelected,
+.OBDateChooserButtonSelectedOver,
+.OBDateChooserButtonSelectedDown,
+.OBDateChooserWeekendButton,
+.OBDateChooserWeekendButtonOver,
+.OBDateChooserWeekendButtonDown,
+.OBDateChooserWeekendButtonSelected,
+.OBDateChooserWeekendButtonSelectedOver,
+.OBDateChooserWeekendButtonSelectedDown,
+.OBDateChooserNavButton,
+.OBDateChooserNavButtonOver,
+.OBDateChooserNavButtonDown,
+.OBDateChooserNavButtonFocused,
+.OBDateChooserNavButtonFocusedOver,
+.OBDateChooserNavButtonFocusedDown,
+.OBDateChooserNavButtonSelected,
+.OBDateChooserNavButtonSelectedOver,
+.OBDateChooserNavButtonSelectedDown,
+.OBDateChooserButtonOver,
+.OBDateChooserButtonDown,
+.OBDateChooserWeekendButton,
+.OBDateChooserWeekendButtonOver,
+.OBDateChooserWeekendButtonDown,
+.OBDateChooserWeekendButtonSelected,
+.OBDateChooserWeekendButtonSelectedOver,
+.OBDateChooserWeekendButtonSelectedDown,
+.OBDateChooserNavButton,
+.OBDateChooserNavButtonOver,
+.OBDateChooserNavButtonDown,
+.OBDateChooserNavButtonFocused,
+.OBDateChooserNavButtonFocusedOver,
+.OBDateChooserNavButtonFocusedDown,
+.OBDateChooserNavButtonSelected,
+.OBDateChooserNavButtonSelectedOver,
+.OBDateChooserNavButtonSelectedDown,
+.OBDateChooserNavButtonOver,
+.OBDateChooserNavButtonDown,
+.OBDateChooserBottomButton,
+.OBDateChooserBottomButtonOver,
+.OBDateChooserBottomButtonDown,
+.OBDateChooserBottomButtonFocused,
+.OBDateChooserBottomButtonFocusedOver,
+.OBDateChooserBottomButtonFocusedDown,
+.OBDateChooserWeekday,
+.OBDateChooserWeekdayOver,
+.OBDateChooserWeekdayDown,
+.OBDateChooserWeekdaySelected,
+.OBDateChooserWeekdaySelectedOver,
+.OBDateChooserWeekdaySelectedDown,
+.OBDateChooserWeekdayDisabled,
+.OBDateChooserWeekdayDisabledOver,
+.OBDateChooserWeekdayDisabledDown,
+.OBDateChooserWeekend,
+.OBDateChooserWeekendOver,
+.OBDateChooserWeekendDown,
+.OBDateChooserWeekendSelected,
+.OBDateChooserWeekendSelectedOver,
+.OBDateChooserWeekendSelectedDown,
+.OBDateChooserWeekendDisabled,
+.OBDateChooserWeekendDisabledOver,
+.OBDateChooserWeekendDisabledDown,
+.OBDateChooserWeekdayDisabled,
+.OBDateChooserWeekdayDisabledOver,
+.OBDateChooserWeekdayDisabledDown,
+.OBDateChooserWeekendDisabled,
+.OBDateChooserWeekendDisabledOver,
+.OBDateChooserWeekendDisabledDown,
+.OBDateChooserWeekend,
+.OBDateChooserWeekendOver,
+.OBDateChooserWeekendSelected,
+.OBDateChooserWeekendDisabled,
+.OBDateChooserWeekendDisabledOver,
+.OBDateChooserWeekendDisabledDown,
+.OBDateChooserWeekdayOver,
+.OBDateChooserWeekendOver,
+.OBDateChooserWeekdaySelected,
+.OBDateChooserWeekdaySelectedOver,
+.OBDateChooserWeekdayDown,
+.OBDateChooserWeekdaySelectedDown,
+.OBDateChooserWeekendSelected,
+.OBDateChooserWeekendSelectedOver,
+.OBDateChooserWeekendDown,
+.OBDateChooserWeekendSelectedDown,
+.OBDateChooserWeekdayDown,
+.OBDateChooserWeekendDown,
+.OBDateChooserYearMenu,
+.OBDateChooserMonthMenu,
+.OBFormButton,
+.OBFormButtonOver,
+.OBFormButtonFocused,
+.OBFormButtonFocusedOver,
+.OBFormButtonDown,
+.OBFormButtonFocusedDown,
+.OBFormButtonSelected,
+.OBFormButtonSelectedFocused,
+.OBFormButtonSelectedDown,
+.OBFormButtonSelectedFocusedDown,
+.OBFormButtonSelectedOver,
+.OBFormButtonSelectedFocusedOver,
+.OBFormButtonDisabled,
+.OBFormButtonSelectedDisabled,
+.OBFormButtonDisabled,
+.OBFormButtonSelectedDisabled,
+.OBFormButtonFocused,
+.OBFormButtonFocusedOver,
+.OBFormButtonSelectedFocused,
+.OBFormButtonSelectedFocusedOver,
+.OBFormButtonSelectedFocusedDown,
+.OBFormButtonOver,
+.OBFormButtonFocusedOver,
+.OBFormButtonSelectedFocused,
+.OBFormButtonSelectedFocusedOver,
+.OBFormButtonDown,
+.OBFormButtonFocusedDown,
+.OBFormButtonSelectedDown,
+.OBFormButtonSelectedFocusedDown,
+.OBFormButtonTitle,
+.OBFormButtonTitleOver,
+.OBFormButtonTitleDown,
+.OBFormButtonTitleSelected,
+.OBFormButtonTitleFocused,
+.OBFormButtonTitleSelectedFocused,
+.OBFormButtonTitleSelectedOver,
+.OBFormButtonTitleFocusedOver,
+.OBFormButtonTitleSelectedFocusedOver,
+.OBFormButtonTitleSelectedDown,
+.OBFormButtonTitleFocusedDown,
+.OBFormButtonTitleSelectedFocusedDown,
+.OBFormButtonTitleDisabled,
+.OBFormButtonTitleSelectedDisabled,
+.OBFormButtonTitleDisabled,
+.OBFormButtonTitleSelectedDisabled,
+.OBLinkButtonItem,
+.OBLinkButtonItemOver,
+.OBLinkButtonItemDown,
+.OBLinkButtonItemFocused,
+.OBLinkButtonItemFocusedOver,
+.OBLinkButtonItemFocusedDown,
+.OBLinkButtonItem,
+.OBLinkButtonItemOver,
+.OBLinkButtonItem:hover,
+.OBLinkButtonItemDown,
+.OBLinkButtonItem:active,
+.OBLinkButtonItemFocused,
+.OBLinkButtonItemFocusedOver,
+.OBLinkButtonItemFocusedDown,
+.OBLinkButtonItem:focus,
+.OBLinkButtonItemOver,
+.OBLinkButtonItemFocusedOver,
+.OBLinkButtonItem:hover,
+.OBSectionItemButton_Title_opened,
+.OBSectionItemButton_Title_Disabledopened,
+.OBSectionItemButton_Title_closed,
+.OBSectionItemButton_Title_Disabledclosed,
+.OBSectionItemButton_Title_Overopened,
+.OBSectionItemButton_Title_Overclosed,
+.OBFormFieldLinkButton:hover,
+.OBDialogButtonToolBar,
+.OBNoteListGrid,
+.OBNoteListGridOver,stGridCell,
+.OBNoteListGridCellOver,
+.OBNoteListGridCurrentUserNoteCell,
+.OBNoteListGridCurrentUserNoteCellOver,
+.OBNoteListGridOtherUserNoteCell,
+.OBNoteListGridAuthor,
+.OBNoteListGridDelete,
+.OBNoteListGridOtherUserNoteCellOver,
+.OBNoteListGridCurrentUserNoteCell,
+.OBNoteListGridCurrentUserNoteCellOver,
+.OBNoteListGridOtherUserNoteCell,
+.OBNoteListGridOtherUserNoteCellOver,
+.OBNoteListGridAuthor,
+.OBNoteListGridDelete,
+a.OBNoteListGridDelete:link,
+a.OBNoteListGridDelete:hover {
+ font-family: elmFont;
+}
+
+* {
+ font-size: 100%;
+ font-family: elmFont;
+} */
+
+/*
+.OBFormFieldSelectInput,
+.OBFormFieldSelectInputRequired,
+.OBFormFieldSelectInputRequiredFocused,
+.OBFormFieldSelectInputRequiredError,
+.OBFormFieldSelectInputRequiredHint,
+.OBFormFieldInputRequired,
+.OBFormFieldInputRequiredFocused,
+.OBFormFieldInputRequiredError,
+.OBFormFieldInputRequiredHint,
+.OBFormFieldDateInputRequired,
+.OBFormFieldDateInputRequiredFocused,
+.OBFormFieldDateInputRequiredError,
+.OBFormFieldDateInputRequiredHint {
+  height: 30px !important;
+}*/
+
+/*.OBViewForm div form table tbody tr:nth-child(3) td:nth-child(3) table tbody tr td:nth-child(2) table tbody tr td span img {
+  margin-top: 5px !important;
+  width: 30px !important;
+  height: 34px !important;
+}*/
+
+/*.OBViewForm div form table tbody tr:nth-child(3) td:nth-child(1) table tbody tr td:nth-child(2) table tbody tr td span img {
+  margin-top: 5px;
+  width: 30px !important;
+  height: 34px !important;
+}*/
+
+/*td.OBFormFieldError table tbody tr td span img {
+  margin-top: 5px !important;
+}*/
+
+/*.OBViewForm div form table tbody tr:nth-child(3) td:nth-child(1) table tbody tr td.OBFormFieldSelectPickerIconError span img {
+  margin-top: 0 !important;
+  width: 30px !important;
+  height: 34px !important;
+}*/
+
+/*.OBViewForm div form table tbody tr:nth-child(2) td:nth-child(4) table tbody tr td:nth-child(2) table tbody tr td span img {
+  margin-top: 4px !important;
+  margin-left: 3px !important;
+  width: 25px !important;
+  height: 25px !important;
+}
+
+.OBViewForm div form table tbody tr:nth-child(3) td:nth-child(4) table tbody tr td:nth-child(2) table tbody tr td span img {
+  margin-top: 4px !important;
+  margin-left: 3px !important;
+  width: 25px !important;
+  height: 25px !important;
+}*/
+
+/*.OBFormFieldSelectPickerIcon span img,
+.OBFormFieldSelectPickerIconFocused span img,
+.OBFormFieldSelectPickerIconDisabled span img,
+.OBFormFieldSelectPickerIconError span img,
+.OBFormFieldSelectPickerIconOver span img,
+.OBFormFieldSelectPickerIconFocused span img,
+.OBFormFieldSelectPickerIconFocused span img,
+.OBFormFieldSelectPickerIconSelectedFocused span img,
+.OBFormFieldSelectPickerIconSelected span img {
+  margin-right: 5px !important;
+  width: 30px !important;
+  height: 34px !important;
+}*/

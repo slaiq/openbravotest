@@ -1,0 +1,30 @@
+# HG changeset patch
+# User Gowtham <gowtham@qualiantech.com>
+# Date 1602507758 -10800
+#      Mon Oct 12 16:02:38 2020 +0300
+# Node ID f9e8db2bc3bb18dba09b8dcc909999f216b7cb4f
+# Parent  c915be35ab52ad3afd81e6bc7b9a4438c9734e64
+fixes in dms.
+
+diff --git a/src/sa/elm/ob/utility/dms/hook/DMSInvoiceCompletionHook.java b/src/sa/elm/ob/utility/dms/hook/DMSInvoiceCompletionHook.java
+--- a/src/sa/elm/ob/utility/dms/hook/DMSInvoiceCompletionHook.java
++++ b/src/sa/elm/ob/utility/dms/hook/DMSInvoiceCompletionHook.java
+@@ -49,6 +49,18 @@
+       String tabId = parameters.getString("tabId");
+ 
+       Boolean isPrepaymentApp = parameters.getBoolean("isPrepaymentApp");
++      if ("Y".equals(preferenceValue)
++          && !OBContext.getOBContext().getUser().isEutIssignrequired()) {
++        if (status.equals("Submit")) {
++          invoice.setEutApprovalPosition("1");
++        } else {
++          if (invoice.getEutApprovalPosition() != null) {
++            invoice.setEutApprovalPosition(
++                String.valueOf(Integer.parseInt(invoice.getEutApprovalPosition()) + 1));
++            OBDal.getInstance().save(invoice);
++          }
++        }
++      }
+ 
+       if ("Y".equals(preferenceValue) && OBContext.getOBContext().getUser().isEutIssignrequired()) {
+ 

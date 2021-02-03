@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="41815CDCC15E4D9D9AC118AF898689CE" identifier="Proposal Management Alert">
+    <id>41815CDCC15E4D9D9AC118AF898689CE</id>
+    <active>true</active>
+    <creationDate transient="true">2017-12-04T15:47:05.994Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-07-01T18:45:53.539Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Proposal Management Alert</name>
+    <tab id="D6115C9AF1DD4C4C9811D2A69E42878B" entity-name="ADTab" identifier="Proposal Management - Proposal Management"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+  And ((ad_role_id is not null  and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>PMA</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

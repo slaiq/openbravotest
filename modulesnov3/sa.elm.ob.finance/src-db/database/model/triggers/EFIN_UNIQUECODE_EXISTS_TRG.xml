@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_UNIQUECODE_EXISTS_TRG">
+    <trigger name="EFIN_UNIQUECODE_EXISTS_TRG" table="C_ELEMENTVALUE" fires="before" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[  v_acct_dim_cnt integer;
+  v_sec_rule_cnt integer;
+BEGIN
+IF TG_OP='DELETE' THEN
+	Select count(C_ValidCombination_ID) into v_acct_dim_cnt from C_ValidCombination where Account_ID = :old.C_ElementValue_ID and EM_Efin_Uniquecode is not null;
+	Select count(Efin_Security_Rules_Act_ID) into v_sec_rule_cnt from Efin_Security_Rules_Act where C_Elementvalue_ID = :old.C_ElementValue_ID;
+	IF(v_acct_dim_cnt > 0) THEN
+		RAISE_APPLICATION_ERROR(-20000,'@Efin_UniquecodeExists@');
+	ELSIF(v_acct_dim_cnt = 0 and v_sec_rule_cnt > 0) THEN
+		Delete from Efin_Security_Rules_Act where C_Elementvalue_ID = :old.C_ElementValue_ID;
+	END IF;
+END IF;			
+END EFIN_UNIQUECODE_EXISTS_TRG
+]]></body>
+    </trigger>
+  </database>

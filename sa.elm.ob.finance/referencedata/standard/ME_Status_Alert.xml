@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="255ED0C7752E47BE992DB6BC6969C8FA" identifier="Manual Encumbrance sent for rework">
+    <id>255ED0C7752E47BE992DB6BC6969C8FA</id>
+    <active>true</active>
+    <creationDate transient="true">2016-06-01T11:15:32.248Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2016-07-01T15:54:41.374Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Manual Encumbrance sent for rework</name>
+    <tab id="9CBD55F879EA4DCAA4E944C0B7DC03D4" entity-name="ADTab" identifier="Header - Manual Encumbrance"/>
+    <filterClause>referencekey_id in (select efin_budget_manencum_id from efin_budget_manencum me join ad_user as usr on me.createdby=usr.ad_user_id 
+where usr.ad_user_id in (@AD_USER_ID@)  and me.docstatus = 'RW' )
+</filterClause>
+    <sql>SELECT efin_budget_manencum_id AS referencekey_id,
+     ad_column_identifier('Efin_Budget_Manencum', efin_budget_manencum_id, 'en_US') AS record_id,
+     0 AS ad_role_id,
+     NULL AS ad_user_id,
+     'Manual Encumbrance '||documentno||' is sent for rework.' AS description,
+     'Y' AS isActive,
+      me.ad_org_id, 
+      me.ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+ FROM efin_budget_manencum me</sql>
+    <type>D</type>
+  </ADAlertRule>
+  <ADAlertRule id="85A9DA2866EF4411AE9FC22F1EFF30FC" identifier="Manual Encumbrance waiting for approval">
+    <id>85A9DA2866EF4411AE9FC22F1EFF30FC</id>
+    <active>true</active>
+    <creationDate transient="true">2016-06-01T11:17:41.880Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2016-07-01T15:54:50.51Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Manual Encumbrance waiting for approval</name>
+    <tab id="9CBD55F879EA4DCAA4E944C0B7DC03D4" entity-name="ADTab" identifier="Header - Manual Encumbrance"/>
+    <filterClause>referencekey_id in (select efin_budget_manencum_id from efin_budget_manencum me 
+join eut_next_role_line ln on ln.eut_next_role_id= me.eut_next_role_id
+where ln.ad_role_id in (@AD_ROLE_ID@) 
+and me.docstatus='WFA')</filterClause>
+    <sql>SELECT efin_budget_manencum_id AS referencekey_id,
+     ad_column_identifier('Efin_Budget_Manencum', efin_budget_manencum_id, 'en_US') AS record_id,
+     0 AS ad_role_id,
+     NULL AS ad_user_id,
+     'Manual Encumbrance '||documentno||' is waiting for approval.' AS description,
+     'Y' AS isActive,
+      me.ad_org_id, 
+      me.ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+ FROM efin_budget_manencum me</sql>
+    <type>D</type>
+  </ADAlertRule>
+  <ADAlertRule id="B36C513B75DB42A894A4C0240764498F" identifier="Manual Encumbrance approved">
+    <id>B36C513B75DB42A894A4C0240764498F</id>
+    <active>true</active>
+    <creationDate transient="true">2016-06-01T11:14:02.974Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2016-07-01T15:54:34.660Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Manual Encumbrance approved</name>
+    <tab id="9CBD55F879EA4DCAA4E944C0B7DC03D4" entity-name="ADTab" identifier="Header - Manual Encumbrance"/>
+    <filterClause>referencekey_id in (select efin_budget_manencum_id from efin_budget_manencum me join ad_user as usr on me.createdby=usr.ad_user_id 
+where usr.ad_user_id in (@AD_USER_ID@)  and me.docstatus = 'CO' )
+</filterClause>
+    <sql>SELECT efin_budget_manencum_id AS referencekey_id,
+     ad_column_identifier('Efin_Budget_Manencum', efin_budget_manencum_id, 'en_US') AS record_id,
+     0 AS ad_role_id,
+     NULL AS ad_user_id,
+     'Manual Encumbrance '||documentno||' is Approved.' AS description,
+     'Y' AS isActive,
+      me.ad_org_id, 
+      me.ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+ FROM efin_budget_manencum me
+where me.docstatus='CO' and updated &gt;= now()-2</sql>
+    <type>D</type>
+  </ADAlertRule>
+</ob:Openbravo>

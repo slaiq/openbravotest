@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_INSERT_ROLECHECK_ACCESS">
+    <function name="EUT_INSERT_ROLECHECK_ACCESS" type="NULL">
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2001-2008 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  Gopalakrishnan.
+************************************************************************/
+--p VARCHAR(32767); --OBTG:VARCHAR2--
+v_ResultStr VARCHAR2(2000):='';
+Cur_Delegation RECORD;
+
+ 
+BEGIN
+
+ FOR Cur_Delegation IN (
+ --select query
+select t2.document_type as doctype,t1.TO_DATE as enddate,rol.ad_role_id as roleid,
+t2.ad_role_id as torole,t2.eut_docapp_delegateln_id as lineid,
+coalesce(frmrole.em_efin_departmenthead,'N') as fromrole_dh,
+coalesce(frmrole.em_escm_islinemanager,'N') as fromrole_lm,
+coalesce(frmrole.em_escm_isprocurecommitee,'N') as fromrole_PC,
+coalesce(frmrole.em_escm_warehouse_role,'N') as fromrole_wr,
+coalesce(trole.em_efin_departmenthead,'N') as torole_dh,
+coalesce(trole.em_escm_islinemanager,'N') as torole_lm,
+coalesce(trole.em_escm_isprocurecommitee,'N') as torole_PC,
+coalesce(trole.em_escm_warehouse_role,'N') as torole_wr,trole.ad_org_id as toorg,t1.createdby as user
+from eut_docapp_delegate t1
+left join ad_role frmrole on frmrole.ad_role_id=t1.ad_role_id
+left join eut_docapp_delegateln t2 on t2.eut_docapp_delegate_id=t1.eut_docapp_delegate_id
+left join ad_role trole on trole.ad_role_id =t2.ad_role_id 
+left join ad_role rol on rol.em_eut_documenttype=t2.document_type
+and rol.ad_client_id =p_client_id
+where  t1.ad_role_id is not null
+and TO_DATE(to_char(t1.from_date,'yyyy-MM-dd'),'yyyy-MM-dd') <= 
+			TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd')
+			and TO_DATE(to_char(t1.TO_DATE,'yyyy-MM-dd'),'yyyy-MM-dd') >= 
+			TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd')and t1.processed = 'N' and t1.ad_client_id =p_client_id)
+ LOOP 
+ --do operation 
+	--department head check
+    if(Cur_Delegation.roleid is not null) then
+	IF(Cur_Delegation.fromrole_dh='Y' and Cur_Delegation.torole_dh='N') THEN
+		INSERT INTO public.eut_delegate_role_check(
+		    eut_delegate_role_check_id, ad_client_id, ad_org_id, isactive, 
+		   eut_docapp_delegateln_id, 
+		    enddate, columname, oldvalue, newvalue,createdby,updatedby,ad_role_id)
+		VALUES (get_uuid(), p_client_id, Cur_Delegation.toorg, 'Y', 
+		     Cur_Delegation.lineid, 
+		    Cur_Delegation.enddate, 'DH', Cur_Delegation.torole_dh, Cur_Delegation.fromrole_dh,Cur_Delegation.user,Cur_Delegation.user,Cur_Delegation.torole);
+
+		update ad_role set em_efin_departmenthead='Y' where ad_role_id=Cur_Delegation.torole;
+       END IF;  
+        --line manager check
+	IF(Cur_Delegation.fromrole_lm='Y' and Cur_Delegation.torole_lm='N') THEN
+	
+		INSERT INTO public.eut_delegate_role_check(
+		eut_delegate_role_check_id, ad_client_id, ad_org_id, isactive, 
+		eut_docapp_delegateln_id, 
+		enddate, columname, oldvalue, newvalue,createdby,updatedby,ad_role_id)
+		VALUES (get_uuid(), p_client_id, Cur_Delegation.toorg, 'Y', 
+		Cur_Delegation.lineid, 
+		Cur_Delegation.enddate, 'LM', Cur_Delegation.torole_lm, Cur_Delegation.fromrole_lm,Cur_Delegation.user,Cur_Delegation.user,Cur_Delegation.torole);
+
+		update ad_role set em_escm_islinemanager='Y' where ad_role_id=Cur_Delegation.torole;
+	END IF;
+        --warehouse role check
+	IF(Cur_Delegation.fromrole_wr='Y' and Cur_Delegation.torole_wr='N') THEN
+	
+		INSERT INTO public.eut_delegate_role_check(
+		eut_delegate_role_check_id, ad_client_id, ad_org_id, isactive, 
+		eut_docapp_delegateln_id, 
+		enddate, columname, oldvalue, newvalue,createdby,updatedby,ad_role_id)
+		VALUES (get_uuid(), p_client_id, Cur_Delegation.toorg, 'Y', 
+		Cur_Delegation.lineid, 
+		Cur_Delegation.enddate, 'WR', Cur_Delegation.torole_wr, Cur_Delegation.fromrole_wr,Cur_Delegation.user,Cur_Delegation.user,Cur_Delegation.torole);
+
+                update ad_role set em_escm_warehouse_role='Y' where ad_role_id=Cur_Delegation.torole;
+        END IF;
+
+    -- PEE commitee memeber check
+    IF(Cur_Delegation.fromrole_PC='Y' and Cur_Delegation.torole_pC='N') THEN
+	
+		INSERT INTO public.eut_delegate_role_check(
+		eut_delegate_role_check_id, ad_client_id, ad_org_id, isactive, 
+		eut_docapp_delegateln_id, 
+		enddate, columname, oldvalue, newvalue,createdby,updatedby,ad_role_id)
+		VALUES (get_uuid(), p_client_id, Cur_Delegation.toorg, 'Y', 
+		Cur_Delegation.lineid, 
+		Cur_Delegation.enddate, 'PC', Cur_Delegation.torole_wr, Cur_Delegation.fromrole_wr,Cur_Delegation.user,Cur_Delegation.user,Cur_Delegation.torole);
+
+                update ad_role set em_escm_isprocurecommitee='Y' where ad_role_id=Cur_Delegation.torole;
+        END IF;
+
+
+
+        end if;
+ END LOOP;
+    EXCEPTION
+WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  RAISE v_ResultStr ;
+  RETURN;
+END EUT_INSERT_ROLECHECK_ACCESS
+]]></body>
+    </function>
+  </database>

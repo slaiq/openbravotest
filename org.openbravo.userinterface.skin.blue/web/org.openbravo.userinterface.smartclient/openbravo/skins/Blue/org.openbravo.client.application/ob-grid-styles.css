@@ -1,0 +1,443 @@
+/*
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an 'AS IS'
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2011 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+*/
+/* @font-face {
+    font-family: elmFont;
+    src: url(./fonts/font.ttf);
+}
+ */
+
+
+.normal {color:red !important}
+
+.OBGridCell,
+.OBGridCellOver,
+.OBGridCellDark,
+.OBGridCellOverDark,
+.OBGridCellSelected,
+.OBGridCellSelectedDark,
+.OBGridCellSelectedOver,
+.OBGridCellSelectedOverDark,
+.OBGridCellDisabled,
+.OBGridCellDisabledDark,
+
+.OBGridCellSelectedViewInactive,
+.OBGridCellSelectedViewInactiveDark,
+
+.OBGridCellEdit,
+.OBGridCellEditOver,
+.OBGridCellEditDark,
+.OBGridCellEditOverDark,
+.OBGridCellEditSelected,
+.OBGridCellEditSelectedDark,
+.OBGridCellEditSelectedOver,
+.OBGridCellEditSelectedOverDark,
+.OBGridCellEditDisabled,
+.OBGridCellEditDisabledDark,
+
+.OBGridCellError,
+.OBGridCellErrorOver,
+.OBGridCellErrorDark,
+.OBGridCellErrorOverDark,
+.OBGridCellErrorSelected,
+.OBGridCellErrorSelectedDark,
+.OBGridCellErrorSelectedOver,
+.OBGridCellErrorSelectedOverDark,
+.OBGridCellErrorDisabled,
+.OBGridCellErrorDisabledDark,
+
+.OBGridCellErrorEdit,
+.OBGridCellErrorEditOver,
+.OBGridCellErrorEditDark,
+.OBGridCellErrorEditOverDark,
+.OBGridCellErrorEditSelected,
+.OBGridCellErrorEditSelectedDark,
+.OBGridCellErrorEditSelectedOver,
+.OBGridCellErrorEditSelectedOverDark,
+.OBGridCellErrorEditDisabled,
+.OBGridCellErrorEditDisabledDark {
+  border-color: #DEDEDE;
+}
+
+.OBGridFilterStaticTextLink:hover {
+  background-color: #9a908f;
+  cursor: pointer;
+  color: #FFF;
+  border-color: #FFF;
+}
+
+.OBGridCellSelected,
+.OBGridCellSelectedDark {
+	background-color: #9a908f;
+    border-color: #FFF;
+    color: #FFF;
+}
+
+.OBGridCellSelectedViewInactive,
+.OBGridCellSelectedViewInactiveDark {
+  background-color: #e1e1e1;
+}
+
+.OBGridCellEditSelected,
+.OBGridCellEditSelectedDark {
+  background-color: #9a908f;
+  color: #FFF;
+  border-color: #FFF;
+}
+
+.OBGridCellSelectedOver,
+.OBGridCellSelectedOverDark {
+  background-color: #9a908f;
+  color: #FFF;
+  border-color: #FFF;
+}
+
+.OBGridCellEditSelectedOver,
+.OBGridCellEditSelectedOverDark {
+  background-color: #9a908f;
+  color: #FFF;
+  border-color: #FFF;
+}
+
+.OBGridFilterStaticTextLink:active {
+  background-color: #9a908f;
+  color: #FFF;
+  cursor: pointer;
+  border-color: #FFF;
+}
+
+.OBGridFilterCell {
+	border-color: #bfc1c5;
+    background: #ECECEC;
+}
+
+.OBGridFilterBase {
+  background-color: #9a908f;
+  border-color: #bfc1c5;
+}
+
+.OBGridFilterFunnelIcon {
+  background-color: #9a908f;
+}
+
+.OBGridHeaderCell {
+  background-color: #EDEFF3;
+}
+
+
+.OBGridSummaryCell,
+.OBGridSummaryCell_sum,
+.OBGridSummaryCell_avg,
+.OBGridSummaryCell_count {
+  border-color: #9a908f;
+}
+
+.OBGridLinkButton,
+.OBGridLinkButtonOver {
+  color: #2f58d0;
+}
+
+.OBGridLinkButtonDown {
+  color: #244d9d;
+}
+
+.OBGridLinkButtonFocused,
+.OBGridLinkButtonFocusedOver,
+.OBGridLinkButtonFocusedDown {
+  color: #d9d3b8;
+}
+
+.OBGridNotificationTextLink,
+.OBGridNotificationTextLinkOver,
+.OBGridNotificationTextLink:hover {
+  color: #2f58d0;
+}
+
+.OBGridNotificationTextLinkDown,
+.OBGridNotificationTextLink:active {
+  color: #244d9d;
+}
+
+.OBGridNotificationTextLinkFocused,
+.OBGridNotificationTextLinkFocusedOver,
+.OBGridNotificationTextLinkFocusedDown,
+.OBGridNotificationTextLink:focus {
+  color: #d9d3b8;
+}
+
+/*=======================================================================
+ * Defines the style of a OBGrid with records representing links 
+ * (used in LinkedItems components)
+=======================================================================*/
+.OBGridLinkCell,
+.OBGridLinkCellOver,
+.OBGridLinkCellSelected,
+.OBGridLinkCellSelectedOver,
+.OBGridLinkCellDark,
+.OBGridLinkCellOverDark,
+.OBGridLinkCellSelectedDark,
+.OBGridLinkCellSelectedOverDark {
+  color: #2f58d0;
+  border-color: #9a908f;
+}
+
+
+ .OBGridHeaderCellTitleOver,
+ .OBGridHeaderCellTitleDown,
+ .OBGridHeaderCellTitleSelected,
+ .OBGridHeaderCellTitleSelectedOver,
+ .OBGridHeaderCellTitleSelectedDown {
+	 background-color: #9a908f;
+	 color: #fff;
+ }
+
+
+/*=======================================================================
+ * Font override
+=======================================================================*/
+
+/* 
+.OBGridToolStrip,
+.OBGridToolStripIcon,
+.OBGridToolStripIconOver,
+.OBGridToolStripIconFocused,
+.OBGridToolStripIconDown,
+.OBGridToolStripSeparator,
+.OBGridBody,
+.OBGridCell,
+.OBGridCellOver,
+.OBGridCellDark,
+.OBGridCellOverDark,
+.OBGridCellSelected,
+.OBGridCellSelectedDark,
+.OBGridCellSelectedOver,
+.OBGridCellSelectedOverDark,
+.OBGridCellDisabled,
+.OBGridCellDisabledDark,
+
+.OBGridCellSelectedViewInactive,
+.OBGridCellSelectedViewInactiveDark,
+
+.OBGridCellEdit,
+.OBGridCellEditOver,
+.OBGridCellEditDark,
+.OBGridCellEditOverDark,
+.OBGridCellEditSelected,
+.OBGridCellEditSelectedDark,
+.OBGridCellEditSelectedOver,
+.OBGridCellEditSelectedOverDark,
+.OBGridCellEditDisabled,
+.OBGridCellEditDisabledDark,
+
+.OBGridCellError,
+.OBGridCellErrorOver,
+.OBGridCellErrorDark,
+.OBGridCellErrorOverDark,
+.OBGridCellErrorSelected,
+.OBGridCellErrorSelectedDark,
+.OBGridCellErrorSelectedOver,
+.OBGridCellErrorSelectedOverDark,
+.OBGridCellErrorDisabled,
+.OBGridCellErrorDisabledDark,
+
+.OBGridCellErrorEdit,
+.OBGridCellErrorEditOver,
+.OBGridCellErrorEditDark,
+.OBGridCellErrorEditOverDark,
+.OBGridCellErrorEditSelected,
+.OBGridCellErrorEditSelectedDark,
+.OBGridCellErrorEditSelectedOver,
+.OBGridCellErrorEditSelectedOverDark,
+.OBGridCellErrorEditDisabled,
+.OBGridCellErrorEditDisabledDark,
+.OBGridCellEdit,
+.OBGridCellEditOver,
+.OBGridCellEditDark,
+.OBGridCellEditOverDark,
+
+.OBGridCellEditSelected,
+.OBGridCellEditSelectedDark,
+.OBGridCellEditSelectedOver,
+.OBGridCellEditSelectedOverDark,
+
+.OBGridCellErrorEditSelected,
+.OBGridCellErrorEditSelectedDark,
+.OBGridCellErrorEditSelectedOver,
+.OBGridCellErrorEditSelectedOverDark,
+.OBGridCell,
+.OBGridCellDark,
+.OBGridCellEditDark,
+.OBGridCellOver,
+.OBGridCellOverDark,
+.OBGridCellEditOver,
+.OBGridCellEditOverDark,
+.OBGridCellErrorSelected,
+.OBGridCellErrorSelectedDark,
+.OBGridCellErrorSelectedOver,
+.OBGridCellErrorSelectedOverDark,
+
+.OBGridCellSelected,
+.OBGridCellSelectedDark,
+.OBGridCellSelectedViewInactive,
+.OBGridCellSelectedViewInactiveDark,
+.OBGridCellEditSelected,
+.OBGridCellEditSelectedDark,
+.OBGridCellSelectedOver,
+.OBGridCellSelectedOverDark,
+.OBGridCellEditSelectedOver,
+.OBGridCellEditSelectedOverDark,
+.OBGridCellError,
+.OBGridCellErrorDark,
+.OBGridCellErrorOver,
+.OBGridCellErrorOverDark,
+
+.OBGridCellErrorEdit,
+.OBGridCellErrorEditDark,
+.OBGridCellErrorEditOver,
+.OBGridCellErrorEditOverDark,
+
+.OBGridCellErrorEditSelected,
+.OBGridCellErrorEditSelectedDark,
+.OBGridCellErrorEditSelectedOver,
+.OBGridCellErrorEditSelectedOverDark,
+.OBGridFilterCell,
+.OBGridFilterBase,
+.OBGridFilterStaticText,
+.OBGridFilterStaticTextLink,
+.OBGridFilterStaticTextLink:hover,
+.OBGridFilterStaticTextLink:active,
+.OBGridFilterFunnelIcon,
+.OBGridFilterFunnelIconOver,
+.OBGridFilterFunnelIconDown,
+.OBGridFilterFunnelIconSelected,
+.OBGridFilterFunnelIconFocused,
+.OBGridHeaderCellTitle,
+.OBGridHeaderCellTitleOver,
+.OBGridHeaderCellTitleDown,
+.OBGridHeaderCellTitleSelected,
+.OBGridHeaderCellTitleSelectedOver,
+.OBGridHeaderCellTitleSelectedDown,
+.OBGridHeaderCellTitleDisabled,
+.OBGridHeaderCellTitleSelectedDisabled,
+.OBGridHeaderBar,
+.OBGridHeaderCell,
+.OBGridSummaryCell div,
+.OBGridSummaryCell_max div,
+.OBGridSummaryCell_min div,
+.OBGridSummaryCell_sum div,
+.OBGridSummaryCell_avg div,
+.OBGridSummaryCell_count div,
+.OBGridSummaryCell,
+.OBGridSummaryCell_min,
+.OBGridSummaryCell_max,
+.OBGridSummaryCell_sum,
+.OBGridSummaryCell_avg,
+.OBGridSummaryCell_count,
+.OBGridSummaryCell,
+.OBGridSummaryCell_min,
+.OBGridSummaryCell_max,
+.OBGridSummaryCell_sum,
+.OBGridSummaryCell_avg,
+.OBGridSummaryCell_count,
+.OBGridLinkButton,
+.OBGridLinkButtonOver,
+.OBGridLinkButtonDown,
+.OBGridLinkButtonFocused,
+.OBGridLinkButtonFocusedOver,
+.OBGridLinkButtonFocusedDown,
+.OBGridLinkButton,
+.OBGridLinkButtonOver,
+.OBGridLinkButtonDown,
+.OBGridLinkButtonFocused,
+.OBGridLinkButtonFocusedOver,
+.OBGridLinkButtonFocusedDown,
+.OBGridLinkButtonOver,
+.OBGridLinkButtonFocusedOver,
+.OBGridNotificationText,
+.OBGridNotificationTextLink,
+.OBGridNotificationTextLinkOver,
+.OBGridNotificationTextLinkDown,
+.OBGridNotificationTextLinkFocused,
+.OBGridNotificationTextLinkFocusedOver,
+.OBGridNotificationTextLinkFocusedDown,
+.OBGridNotificationTextLink,
+.OBGridNotificationTextLinkOver,
+.OBGridNotificationTextLink:hover,
+.OBGridNotificationTextLinkDown,
+.OBGridNotificationTextLink:active,
+.OBGridNotificationTextLinkFocused,
+.OBGridNotificationTextLinkFocusedOver,
+.OBGridNotificationTextLinkFocusedDown,
+.OBGridNotificationTextLink:focus,
+.OBGridNotificationTextLinkOver,
+.OBGridNotificationTextLinkFocusedOver,
+.OBGridNotificationTextLink:hover,
+.OBGridLinkCell,
+.OBGridLinkCellOver,
+.OBGridLinkCellSelected,
+.OBGridLinkCellSelectedOver,
+.OBGridLinkCellDark,
+.OBGridLinkCellOverDark,
+.OBGridLinkCellSelectedDark,
+.OBGridLinkCellSelectedOverDark,
+.OBGridLinkCellDark,
+.OBGridLinkCellOver,
+.OBGridLinkCellOverDark,
+.OBGridLinkCellSelectedOverDark,
+.OBViewGridBody,
+.OBAlertGridBody,
+.OBGridFormLabel,
+.OBGridFormLabelDisabled,
+.OBGridFormLabelFocused,
+.OBGridFormLabelError,
+.OBGridFormButton,
+.OBGridFormButtonOver,
+.OBGridFormButtonFocused,
+.OBGridFormButtonFocusedOver,
+.OBGridFormButtonDown,
+.OBGridFormButtonFocusedDown,
+.OBGridFormButtonSelected,
+.OBGridFormButtonSelectedFocused,
+.OBGridFormButtonSelectedDown,
+.OBGridFormButtonSelectedFocusedDown,
+.OBGridFormButtonSelectedOver,
+.OBGridFormButtonSelectedFocusedOver,
+.OBGridFormButtonDisabled,
+.OBGridFormButtonSelectedDisabled,
+.OBGridFormButtonDisabled,
+.OBGridFormButtonSelectedDisabled,
+.OBGridFormButtonFocused,
+.OBGridFormButtonFocusedOver,
+.OBGridFormButtonSelectedFocused,
+.OBGridFormButtonSelectedFocusedOver,
+.OBGridFormButtonSelectedFocusedDown,
+.OBGridFormButtonOver,
+.OBGridFormButtonFocusedOver,
+.OBGridFormButtonSelectedFocused,
+.OBGridFormButtonSelectedFocusedOver,
+.OBGridFormButtonDown,
+.OBGridFormButtonFocusedDown,
+.OBGridFormButtonSelectedDown,
+.OBGridFormButtonSelectedFocusedDown {
+ font-family: elmFont;
+}
+
+* {
+ font-size: 100%;
+ font-family: elmFont;
+} */

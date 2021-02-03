@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_ADVDEDUCTIONRULE_MT">
+    <function name="EFIN_ADVDEDUCTIONRULE_MT" type="NULL">
+      <parameter name="pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): Poongodi 24.11.17
+************************************************************************/
+v_client_id VARCHAR2(32);
+v_user_id VARCHAR2(32);
+v_ResultStr VARCHAR2(2000):='';
+v_Message VARCHAR2(2000):='';
+v_reflistsearchkey VARCHAR2(60);
+v_formula VARCHAR2(60);
+
+TYPE RECORD IS REF CURSOR;
+Cur_List RECORD;
+
+BEGIN
+ 
+--get client id and user id
+SELECT  i.ad_client_id,i.AD_User_ID into v_client_id,v_user_id
+      FROM AD_PInstance i 
+      WHERE i.AD_PInstance_ID=PInstance_ID ;
+--get rules which is not present already in adv deduction rule window
+      FOR Cur_List IN
+      (select value from ad_ref_list 
+       where ad_reference_id ='2EA5A2BD80C54A2C9ACB4996648293E5' and isactive='Y'
+        and value not in(select Rules from efin_advdeduction_rule where ad_client_id=v_client_id)
+      )
+     
+      LOOP
+      
+      v_reflistsearchkey:=Cur_List.value;
+                   
+
+          -- set 'formula' value based on 'rules'
+          IF(v_reflistsearchkey = 'WAM') THEN
+             v_formula='GM';
+           ELSE IF (v_reflistsearchkey = 'AM' ) THEN
+             v_formula='AP';       
+           ELSE IF (v_reflistsearchkey = 'PO' ) THEN
+             v_formula='DP';
+	   END IF;
+           END IF;
+           END IF;
+               -- Insert records in Advance deduction rule maintenance table
+                  INSERT INTO efin_advdeduction_rule(efin_advdeduction_rule_id, ad_client_id, ad_org_id, isactive, 
+             createdby, updatedby, rules, formula, maintain_enable)
+		VALUES (get_uuid(), v_client_id, 0, 'Y', 
+                       v_user_id, v_user_id, v_reflistsearchkey, v_formula, 'N');
+          
+        END LOOP;
+      
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 1, v_Message) ;
+   EXCEPTION
+  WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 0, v_ResultStr) ;
+  RETURN;
+END EFIN_ADVDEDUCTIONRULE_MT
+]]></body>
+    </function>
+  </database>

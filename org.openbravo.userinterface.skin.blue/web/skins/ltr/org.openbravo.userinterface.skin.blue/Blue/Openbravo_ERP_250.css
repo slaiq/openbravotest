@@ -1,0 +1,1101 @@
+/*
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License. 
+ * The Original Code is Openbravo ERP. 
+ * The Initial Developer of the Original Code is Openbravo SLU 
+ * All portions are Copyright (C) 2011-2012 Openbravo SLU 
+ * All Rights Reserved. 
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+*/
+
+/** sprite: xxspritexx_V; sprite-image: url('xxspritexx_V.png'); sprite-layout: vertical */
+/** sprite: xxspritexx_H; sprite-image: url('xxspritexx_H.png'); sprite-layout: horizontal */
+
+@import url(../../../../images/Logos.css);
+@import url(../../Default/Openbravo_ERP_250.css);
+@import url(../../org.openbravo.userinterface.skin.250to300Comp/250to300Comp/Openbravo_ERP_250.css);
+
+/*
+ *************************************************************************
+ * Common elements specific CSS
+ *************************************************************************
+*/
+
+/*
+ *************************
+ * Button
+ *************************
+*/
+
+button.ButtonLink table.Button .Button_left, table.Button .Button_left {
+  background-image: url(Common/Button/buttonLeft.normal.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: right; sprite-alignment-rtl: left; */
+}
+
+button.ButtonLink table.Button .Button_text, table.Button .Button_text {
+  background-image: url(Common/Button/buttonBody.normal.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+button.ButtonLink table.Button .Button_right, table.Button .Button_right {
+  background-image: url(Common/Button/buttonRight.normal.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+button.ButtonLink_hover table.Button .Button_left, table.Button_hover .Button_left {
+  background-image: url(Common/Button/buttonLeft.rollover.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: right; sprite-alignment-rtl: left; */
+}
+
+button.ButtonLink_hover table.Button .Button_text, table.Button_hover .Button_text {
+  background-image: url(Common/Button/buttonBody.rollover.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+button.ButtonLink_hover table.Button .Button_right, table.Button_hover .Button_right {
+  background-image: url(Common/Button/buttonRight.rollover.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+button.ButtonLink_active table.Button .Button_left, .Button_active .Button_left {
+  background-image: url(Common/Button/buttonLeft.pressed.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: right; sprite-alignment-rtl: left; */
+}
+
+button.ButtonLink_active table.Button .Button_text, table.Button_active .Button_text {
+  background-image: url(Common/Button/buttonBody.pressed.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+button.ButtonLink_active table.Button .Button_right, table.Button_active .Button_right {
+  background-image: url(Common/Button/buttonRight.pressed.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+button.ButtonLink_focus table.Button .Button_left, .Button_focus .Button_left {
+  background-image: url(Common/Button/buttonLeft.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: right; */
+}
+
+button.ButtonLink_focus table.Button .Button_text, table.Button_focus .Button_text {
+  background-image: url(Common/Button/buttonBody.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+button.ButtonLink_focus table.Button .Button_right, table.Button_focus .Button_right {
+  background-image: url(Common/Button/buttonRight.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+button.ButtonLink_default table.Button .Button_left, .Button_default .Button_left {
+  background-image: url(Common/Button/buttonLeft.default.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: right; sprite-alignment-rtl: left; */
+}
+
+button.ButtonLink_default table.Button .Button_text, table.Button_default .Button_text {
+  background-image: url(Common/Button/buttonBody.default.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+button.ButtonLink_default table.Button .Button_right, table.Button_default .Button_right {
+  background-image: url(Common/Button/buttonRight.default.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+button.ButtonLink_disabled table.Button .Button_left, table.ButtonLink_disabled .Button_left {
+  width: 15px;
+  height: 30px;
+  /* background-image: url(Common/Button/buttonLeft.disabled.png); */  
+  background-color: #a7abb4;
+}
+
+button.ButtonLink_disabled table.Button .Button_text, table.ButtonLink_disabled .Button_text {
+  /* background-image: url(Common/Button/buttonBody.disabled.png); */  
+  background-color: #a7abb4;
+  height: 30px;
+  font-family: 'lucida sans',sans-serif;
+  font-size: 1.2em;
+  font-weight: normal;
+  color: #FFFFFF;
+}
+
+button.ButtonLink_disabled table.Button .Button_right, table.ButtonLink_disabled .Button_right {
+  width: 15px;
+  height: 30px;
+  /* background-image: url(Common/Button/buttonRight.disabled.png);  */
+  background-color: #a7abb4;  
+}
+
+/*
+ *************************
+ * Button  //Used in old r2.40 button definition
+ *************************
+*/
+
+/*
+ *************************
+ * Button_TwoLines
+ *************************
+*/
+
+/*
+ *************************
+ * Calendar
+ *************************
+*/
+
+/*
+ *************************
+ * Checkbox
+ *************************
+*/
+
+.Checkbox_focused, .Radio_focused {
+  border: 2px solid #DCB53E;
+  outline-color: #DCB53E;
+}
+
+/*
+ *************************
+ * CheckList
+ *************************
+*/
+
+/*
+ *************************
+ * Combo
+ *************************
+*/
+
+.ComboKey,
+.Combo,
+.Combo_focus {
+  border: 1px solid #C4D2E4;
+}
+
+
+.Combo_focus {
+  border: 1px solid #DCB53E !important;
+}
+
+/*
+ *************************
+ * DataGrid
+ *************************
+*/
+
+table.DataGrid_Header_Table {
+  border-top: #C4D2E4 2px solid;
+  border-right: #C4D2E4 2px solid;
+  border-left: #C4D2E4 2px solid;
+}
+
+table.DataGrid_Header_Table_focus {
+  border-top: #DCB53E 2px solid;
+  border-right: #DCB53E 2px solid;
+  border-left: #DCB53E 2px solid;
+}
+
+table.DataGrid_Body_Table {
+  border-bottom: #C4D2E4 2px solid;
+  border-right: #C4D2E4 2px solid;
+  border-left: #C4D2E4 2px solid;
+}
+
+table.DataGrid_Body_Table_focus {
+  border-bottom: #DCB53E 2px solid;
+  border-right: #DCB53E 2px solid;
+  border-left: #DCB53E 2px solid;
+}
+
+th.DataGrid_Header_Cell {
+  border-top: 1px solid #C4D2E4;
+  background-image: url(Common/DataGrid/backgroundHeader.normal.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; sprite-margin-bottom: 30px; */
+  background-color: #EDEFF3;
+  _background-color: #EDEFF3;
+}
+
+th.DataGrid_Header_Cell_Amount {
+  border-top: 1px solid #C4D2E4;
+  background-image: url(Common/DataGrid/backgroundHeader.normal.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; sprite-margin-bottom: 30px; */
+  background-color: #EDEFF3;
+  _background-color: #EDEFF3;
+}
+
+th.DataGrid_Header_Cell_hover {
+  background-image: url(Common/DataGrid/backgroundHeader.rollover.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; sprite-margin-bottom: 30px; */
+}
+
+th.DataGrid_Header_Cell_active {
+  background-image: url(Common/DataGrid/backgroundHeader.pressed.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; sprite-margin-bottom: 30px; */
+}
+
+th.DataGrid_Header_Cell_sorted {
+  background-image: url(Common/DataGrid/backgroundHeader.selected.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; sprite-margin-bottom: 30px; */
+}
+
+th.DataGrid_Header_LineNoCell {
+  border-top: 1px solid #A7ABB4;
+  border-left: 1px solid #A7ABB4;
+  background-color : #C4D2E4 !important;
+}
+
+td.DataGrid_Body_Cell {
+  border-top: 1px solid #C4D2E4;
+  border-bottom: 1px solid #C4D2E4;
+  border-right: 1px solid #C4D2E4;
+  border-left: 1px solid #C4D2E4;
+}
+
+td.DataGrid_Body_Cell_Amount {
+  border-top: 1px solid #C4D2E4;
+  border-bottom: 1px solid #C4D2E4;
+  border-right: 1px solid #C4D2E4;
+  border-left: 1px solid #C4D2E4;
+}
+
+td.DataGrid_Body_LineNoCell {
+  background-color: #C4D2E4;
+}
+
+/*
+ *************************
+ * Dimension
+ *************************
+*/
+
+.Dimension_LeftSelect_width {
+  border: 1px solid #C4D2E4;
+}
+
+.Dimension_RightSelect_width {
+  border: 1px solid #C4D2E4;
+}
+
+a.Dimension_LeftRight_Button_TopLink_focus table.Dimension_LeftRight_Button_Top .Dimension_LeftRight_Button_Top_bg, table.Dimension_LeftRight_Button_Top_focus .Dimension_LeftRight_Button_Top_bg {
+  background-image: url(Common/Dimension/dimensionButtonLRTop.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+a.Dimension_LeftRight_Button_BottomLink_focus table.Dimension_LeftRight_Button_Bottom .Dimension_LeftRight_Button_Bottom_bg, table.Dimension_LeftRight_Button_Bottom_focus .Dimension_LeftRight_Button_Bottom_bg {
+  background-image: url(Common/Dimension/dimensionButtonLRBottom.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+a.Dimension_UpDown_Button_TopLink_focus table.Dimension_UpDown_Button_Top .Dimension_UpDown_Button_Top_bg, table.Dimension_UpDown_Button_Top_focus .Dimension_UpDown_Button_Top_bg {
+  background-image: url(Common/Dimension/dimensionButtonUDTop.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+a.Dimension_UpDown_Button_BottomLink_focus table.Dimension_UpDown_Button_Bottom .Dimension_UpDown_Button_Bottom_bg, table.Dimension_UpDown_Button_Bottom_focus .Dimension_UpDown_Button_Bottom_bg {
+  background-image: url(Common/Dimension/dimensionButtonUDBottom.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+
+/*
+ *************************
+ * FieldButton
+ *************************
+*/
+
+a.FieldButtonLink .FieldButton_bg, .FieldButton_bg {
+  border-top: 1px solid #C4D2E4;
+  border-right: 1px solid #C4D2E4;
+  border-bottom: 1px solid #C4D2E4;
+}
+
+a.FieldButtonLink_active table.FieldButton .FieldButton_bg, table.FieldButton_active .FieldButton_bg {
+  border-top: 1px solid #DCB53E;
+  border-right: 1px solid #DCB53E;
+  border-bottom: 1px solid #DCB53E;
+}
+
+a.FieldButtonLink_focus table.FieldButton .FieldButton_bg, table.FieldButton_focus .FieldButton_bg {
+  border-top: 1px solid #DCB53E;
+  border-right: 1px solid #DCB53E;
+  border-bottom: 1px solid #DCB53E;
+}
+
+
+.FieldGroupTitle_Left_bg {
+  background-image: url(Common/FieldGroup/labelLeft.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+.FieldGroupTitle {
+  background-image: url(Common/FieldGroup/labelBody.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+.FieldGroupTitle_Right_bg {
+  background-image: url(Common/FieldGroup/labelRight.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+.FieldGroupContent {
+  background-image: url(Common/FieldGroup/labelContent.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+/*
+ *************************
+ * FieldGroup
+ *************************
+*/
+
+/*
+ *************************
+ * Image
+ *************************
+*/
+
+/*
+ *************************
+ * Label
+ *************************
+*/
+
+a.LabelLink:active {
+  color: #2F58D0;
+}
+
+a.LabelLink:hover {
+  color: #2F58D0;
+}
+
+a.LabelLink_focus {
+  color: #DCB53E;
+}
+
+a.LabelLink_noicon {
+  color: #2F58D0;
+}
+
+a.LabelLink_noicon:active {
+  color: #2f58d0;
+}
+
+a.LabelLink_noicon:visited {
+  color: #2F58D0;
+}
+
+a.LabelLink_noicon:hover {
+  color: #2F58D0;
+}
+
+a.LabelLink_noicon_focus {
+  color: #DCB53E !important;
+  border-color: #2F58D0;
+}
+
+/*
+ *************************
+ * List
+ *************************
+*/
+
+.List_width {
+  border-color: #C4D2E4;
+}
+
+a.List_Button_TopLink_focus table.List_Button_Top .List_Button_Top_bg, table.List_Button_Top_focus .List_Button_Top_bg {
+  background-image: url(Common/List/listButtonTop.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+a.List_Button_MiddleLink_focus table.List_Button_Middle .List_Button_Middle_bg, table.List_Button_Middle_focus .List_Button_Middle_bg {
+  background-image: url(Common/List/listButtonMiddle.focused.png);  /** sprite-ref: xxspritexx_H; sprite-alignment-ltr: repeat; */
+}
+
+a.List_Button_BottomLink_focus table.List_Button_Bottom .List_Button_Bottom_bg, table.List_Button_Bottom_focus .List_Button_Bottom_bg {
+  background-image: url(Common/List/listButtonBottom.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+
+
+/*
+ *************************
+ * MessageBox
+ *************************
+*/
+
+/*
+ *************************
+ * RelationInfo
+ *************************
+*/
+
+/*
+ *************************
+ * Selector
+ *************************
+*/
+
+/*
+ *************************
+ * TableEdition
+ *************************
+*/
+
+/*
+ *************************
+ * TextArea
+ *************************
+*/
+
+/*
+ *************************
+ * TextBox
+ *************************
+*/
+
+.dojoValidateEmpty,
+.dojoValidateInvalid,
+.dojoValidateRange,
+.dojoValidateValid,
+.dojoValidateEmpty_focus,
+.dojoValidateValid_focus,
+.dojoValidateInvalid_focus,
+.dojoValidateRange_focus {
+  border: 1px solid #C4D2E4;
+}
+
+.readonly,
+.readonly_focus {
+  color: #6D6D6D;
+}
+
+.dojoValidateEmpty_focus,
+.dojoValidateValid_focus,
+.dojoValidateInvalid_focus,
+.dojoValidateRange_focus
+.readonly_focus_required_focus,
+.TextBox_focus,
+.required_focus,
+.readonly_focus_required_focus {
+  border: 1px solid #DCB53E;
+}
+
+/*
+ *************************
+ * Tree
+ *************************
+*/
+
+/*
+ *************************************************************************
+ * Login window specific CSS
+ *************************************************************************
+*/
+
+/*
+ *************************
+ * 2.50
+ *************************
+*/
+
+/*
+ *************************
+ * 3.00
+ *************************
+*/
+
+.Login_Main {
+    background: url(Login/Login-bg.png) repeat-x center;
+    background-color: #FFFFFF;
+    width: 100%;
+    height: 100%;
+}
+
+.Login_LogForm {
+  background: url(Login/LoginBox-bg.png) repeat-x scroll left bottom transparent;
+}
+
+.Login_TextBox {
+  border-color: #C4D2E4;
+}
+
+.Login_Combo {
+  border-color: #C4D2E4;
+}
+
+
+/*
+ *************************************************************************
+ * Main window specific CSS
+ *************************************************************************
+*/
+
+/*
+ *************************
+ * _ParticularItems
+ *************************
+*/
+
+/*
+ ****************
+ * AddModule
+ ****************
+*/
+
+/*
+ ****************
+ * InstallationHistory
+ ****************
+*/
+
+/*
+ *************************
+ * Bottom
+ *************************
+*/
+
+/*
+ *************************
+ * ContentPane
+ *************************
+*/
+
+.Main_ContentPane_Client {
+  background-color: #FFFFFF;
+}
+
+/*
+ *************************
+ * LeftTabsBar
+ *************************
+*/
+
+/* Left Icons definition for Main_LeftTabsBar */
+
+/*
+ *************************
+ * NavBar
+ *************************
+*/
+
+.Main_NavBar_bg_left {
+  /*background-color: #234C9C;
+  background-image: url(Main/NavBar/backgroundLeft.png);*/  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+.Main_NavBar_bg_right {
+  /*background-color: #234C9C;
+  background-image: url(Main/NavBar/backgroundRight.png);*/  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+/* Left Buttons definition for Main_NavBar */
+
+/* Right Buttons definition for Main_NavBar */
+
+/* Right Icons definition for Main_NavBar */
+
+/*
+ *************************
+ * Status
+ *************************
+*/
+
+/*
+ *************************
+ * Tabs
+ *************************
+*/
+
+/*dojoTabcurrent*/
+
+.dojoTabcurrent {
+  background-image: url(Main/Tabs/roundItemLeft.selected.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+.dojoTabcurrent div {
+  background-image: url(Main/Tabs/roundItemFill.selected.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+.dojoTabcurrent div span {
+  background-image: url(Main/Tabs/roundItemRight.selected.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: right; */
+}
+
+/*dojoTabparent*/
+
+.dojoTabparent {
+  background-image: url(Main/Tabs/roundItemLeft.normal.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+.dojoTabparent div {
+  background-image: url(Main/Tabs/roundItemFill.normal.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+.dojoTabparent div span {
+  background-image: url(Main/Tabs/roundItemRight.normal.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: right; */
+}
+
+/*dojoTabcurrent*/
+
+.dojoTabcurrentfirst {
+  background-image: url(Main/Tabs/roundItemLeft.selected.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+.dojoTabcurrentfirst div {
+  background-image: url(Main/Tabs/roundItemFill.selected.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+.dojoTabcurrentfirst div span {
+  background-image: url(Main/Tabs/roundItemRight.selected.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: right; */
+}
+
+/*dojoTabparent*/
+
+.dojoTabparentfirst {
+  background-image: url(Main/Tabs/roundItemLeft.normal.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+.dojoTabparentfirst div {
+  background-image: url(Main/Tabs/roundItemFill.normal.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+.dojoTabparentfirst div span {
+  background-image: url(Main/Tabs/roundItemRight.normal.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: right; */
+}
+
+
+/*dojoTabcurrent_focus*/
+
+.dojoTabcurrent_focus {
+  background-image: url(Main/Tabs/roundItemLeft.selected.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+.dojoTabcurrent_focus div {
+  background-image: url(Main/Tabs/roundItemFill.selected.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+.dojoTabcurrent_focus div span {
+  background-image: url(Main/Tabs/roundItemRight.selected.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: right; */
+}
+
+/*dojoTabparent_focus*/
+
+.dojoTabparent_focus {
+  background-image: url(Main/Tabs/roundItemLeft.normal.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+.dojoTabparent_focus div {
+  background-image: url(Main/Tabs/roundItemFill.normal.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+.dojoTabparent_focus div span {
+  background-image: url(Main/Tabs/roundItemRight.normal.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: right; */
+}
+
+/*dojoTabcurrent_focus*/
+
+.dojoTabcurrentfirst_focus {
+  background-image: url(Main/Tabs/roundItemLeft.selected.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+.dojoTabcurrentfirst_focus div {
+  background-image: url(Main/Tabs/roundItemFill.selected.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+.dojoTabcurrentfirst_focus div span {
+  background-image: url(Main/Tabs/roundItemRight.selected.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: right; */
+}
+
+/*dojoTabparent_focus*/
+
+.dojoTabparentfirst_focus {
+  background-image: url(Main/Tabs/roundItemLeft.normal.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+.dojoTabparentfirst_focus div {
+  background-image: url(Main/Tabs/roundItemFill.normal.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+.dojoTabparentfirst_focus div span {
+  background-image: url(Main/Tabs/roundItemRight.normal.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: right; */
+}
+
+
+
+A.dojoTabLink_focus {
+  background-image: url(Main/Tabs/singleTab.focused.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+  border-color: #DCB53E;
+}
+
+.tabBackGroundInit {
+  background-image: url(Main/Tabs/TabPane_top_bg.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; sprite-margin-bottom: 16px */
+  background-color: #234C9C;
+}
+
+.tabPaneBackground {
+  background-image: url(Main/Tabs/inlayFill.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; sprite-margin-bottom: 16px */
+}
+
+.tabSeparator {
+  background-image: url(Main/Tabs/inlaySeparator.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+.tabLeft {
+  background-image: url(Main/Tabs/inlayLeft.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+.tabRight {
+  background-image: url(Main/Tabs/inlayRight.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; sprite-alignment-rtl: right; */
+}
+
+/*
+ *************************
+ * ToolBar
+ *************************
+*/
+
+.Main_ToolBar_bg {
+  background-image: url(Main/ToolBar/backgroundCenter.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+  background-color: #234C9C;
+}
+
+.Main_ToolBar_bg_left {
+  background-image: url(Main/ToolBar/backgroundLeft.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+.Main_ToolBar_bg_right {
+  background-image: url(Main/ToolBar/backgroundRight.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+/* Buttons definition for ToolBar */
+a.Main_ToolBar_Button {
+  border: 1px solid #476EBA;
+}
+
+a.Main_ToolBar_Button:visited {
+}
+
+a.Main_ToolBar_Button:hover {
+  background-color: #234C9C;
+  border: 1px solid #567CC6;
+}
+
+a.Main_ToolBar_Button:active {
+  background-color: #274780;
+  border: 1px solid #567CC6;
+}
+
+a.Main_ToolBar_Button:focus {
+  border: 1px solid #DCB53E;
+}
+
+
+
+
+
+/* Buttons definition for ToolBar */
+a.Main_ToolBar_Button_Selected {
+  background-color: #274780;
+  border: 1px solid #567CC6;
+}
+
+
+/* Disabled buttons definition for ToolBar */
+a.Main_ToolBar_Button_disabled {
+  border: 1px solid #476EBA;
+}
+
+/* Selected buttons definition for ToolBar */
+
+a.Main_ToolBar_Button_Selected:hover {
+  border: 1px solid #567CC6;
+}
+
+a.Main_ToolBar_Button_Selected:focus {
+  border: 1px solid #DCB53E;
+}
+
+/* Icons definition for ToolBar */
+
+/*
+ ****************
+ * ExpansibleMenu
+ ****************
+*/
+
+/*
+ *************************************************************************
+ * Menu window specific CSS
+ *************************************************************************
+*/
+
+/*
+ *************************
+ * Bottom
+ *************************
+*/
+
+.Main_Bottom_bg {
+  background-color: #234C9C;
+}
+
+.Main_Bottom_bg_left {
+  background-color: #234C9C;
+}
+
+.Main_Bottom_bg_right {
+  background-color: #234C9C;
+}
+
+/*
+ *************************
+ * ContentPane
+ *************************
+*/
+
+.Main_ContentPane_Right_Container {
+  background-color: #234C9C;
+}
+
+.Main_ContentPane_Right {
+  background-color: #234C9C;
+}
+
+.Main_ContentPane_Left_Container {
+  background-color: #234C9C;
+}
+
+.Main_ContentPane_Left {
+  background-color: #234C9C;
+}
+
+/*
+ *************************
+ * NavBar
+ *************************
+*/
+
+/*
+ *************************
+ * Status
+ *************************
+*/
+
+/*
+ *************************
+ * ToolBar
+ *************************
+*/
+
+/*
+ *************************
+ * Tree
+ *************************
+*/
+
+/*
+ *************************************************************************
+ * Popup window specific CSS
+ *************************************************************************
+*/
+
+/*
+ *************************
+ * _ParticularItems
+ *************************
+*/
+
+/*
+ ****************
+ * Help
+ ****************
+*/
+
+a.Popup_Client_Help_LabelLink_focus {
+  background-color: none !important;
+  border-color: #DCB53E;
+}
+
+/*
+ ****************
+ * RelatedInfo
+ ****************
+*/
+
+/*
+ ****************
+ * Selector
+ ****************
+*/
+
+/*
+ ****************
+ * UserOps
+ ****************
+*/
+
+/*
+ ****************
+ * Workflow
+ ****************
+*/
+
+/*
+ *************************
+ * ContentPane
+ *************************
+*/
+
+.Popup_ContentPane_InfoBar {
+  border-bottom: 1px #313dbe solid;
+}
+
+/*
+ *************************
+ * DragDropTree
+ *************************
+*/
+
+/*
+ *************************
+ * InfoBar
+ *************************
+*/
+
+/*
+ *************************
+ * NavBar
+ *************************
+*/
+
+.Popup_NavBar_bg {
+  background-image: url(Popup/NavBar/backgroundCenter.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+.Popup_NavBar_bg_left {
+  background-image: url(Popup/NavBar/backgroundLeft.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+.Popup_NavBar_bg_right {
+  background-image: url(Popup/NavBar/backgroundRight.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: repeat; */
+}
+
+.Popup_NavBar_bg_logo_left {
+  background-image: url(Popup/NavBar/logoLeft.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: right; */
+}
+
+.Popup_NavBar_bg_logo_right {
+  background-image: url(Popup/NavBar/logoRight.png);  /** sprite-ref: xxspritexx_V; sprite-alignment-ltr: left; */
+}
+
+/*
+ *************************
+ * SeparatorBar
+ *************************
+*/
+
+/*
+ *************************
+ * Status
+ *************************
+*/
+
+/*
+ *************************
+ * Wallpaper
+ *************************
+*/
+
+.Popup_Wallpaper_Background_Heartbeat {
+  background-image: url(Popup/Wallpaper/wallpaperHeartbeat_bg.png);
+}
+
+.Popup_Wallpaper_Background_Registration {
+  background-image: url(Popup/Wallpaper/wallpaperRegistration_bg.png);
+}
+
+.Popup_Wallpaper_Image_Heartbeat {
+  background-image: url(Popup/Wallpaper/wallpaperHeartbeat.png);
+}
+
+.Popup_Wallpaper_Image_Registration {
+  background-image: url(Popup/Wallpaper/wallpaperRegistration.png);
+}
+
+/*
+ *************************
+ * WindowLogo
+ *************************
+*/
+
+/*
+ *************************************************************************
+ * New selector
+ *************************************************************************
+*/
+
+.ob_cell,
+.ob_cellDark,
+.ob_cellOver,
+.ob_cellOverDark,
+.ob_cellSelected,
+.ob_cellSelectedDark,
+.ob_cellSelectedOver,
+.ob_cellSelectedOverDark,
+.ob_cellDisabled,
+.ob_cellDisabledDark,
+.ob_tallCell,
+.ob_tallCellDark,
+.ob_tallCellOver,
+.ob_tallCellOverDark,
+.ob_tallCellSelected,
+.ob_tallCellSelectedDark,
+.ob_tallCellSelectedOver,
+.ob_tallCellSelectedOverDark,
+.ob_tallCellDisabled,
+.ob_tallCellDisabledDark,
+.ob_gridSummaryCell,
+.ob_gridSummaryCellDisabled,
+.ob_groupSummaryCell,
+.ob_groupSummaryCellDisabled {
+  border-top: 0px solid #C4D2E4 !important;
+  border-bottom: 1px solid #C4D2E4 !important;
+  border-right: 1px solid #C4D2E4 !important;
+  border-left : 0px solid #C4D2E4 !important;
+}
+
+.ob_headerbutton,
+.ob_headerbuttonselected,
+.ob_headerbuttondisabled,
+.ob_headerbuttonselecteddisabled,
+.ob_headerbuttonover,
+.ob_headerbuttondown,
+.ob_headerbuttonselectedover,
+.ob_headerbuttonselecteddown {
+  border-top: 1px solid #C4D2E4 !important;
+  border-bottom: 1px solid #C4D2E4 !important;
+  border-right: 0px solid #C4D2E4 !important;
+  border-left : 1px solid #C4D2E4 !important;
+}
+
+
+.textItem,
+.textItemFocused,
+.textItemDisabled,
+.textItemError,
+.textItemHint,
+.selectItemText,
+.selectItemTextError,
+.selectItemTextFocused,
+.selectItemTextHint {
+    border: 1px solid #C4D2E4 !important;
+}
+
+.selectItemTextRequired,
+.selectItemTextRequiredError,
+.selectItemTextRequiredFocused,
+.selectItemTextRequiredHint {
+    border: 1px solid #C4D2E4 !important;
+}
+
+.textItemFocused,
+.selectItemTextFocused {
+    border: 1px solid #DCB53E !important;
+}
+.selectItemTextRequiredFocused {
+    border: 1px solid #DCB53E !important;
+}
+
+/*  Added by Elm design Team 
+a, input ,button , button .button { -webkit-transition: all 0.3s ease; -moz-transition: all 0.3s ease; -o-transition: all 0.3s ease; -ms-transition: all 0.3s ease; transition: all 0.3s ease; }
+button.ButtonLink_focus table.Button .Button_left ,
+button.ButtonLink_focus table.Button .Button_text , 
+button.ButtonLink table.Button .Button_text, table.Button .Button_text , 
+button.ButtonLink table.Button .Button_left, table.Button .Button_left , 
+button.ButtonLink table.Button .Button_right, table.Button .Button_right
+{background:none !important}
+button.ButtonLink_default table.Button , button.ButtonLink_focus table.Button , button.ButtonLink table.Button   {background:#0f97a6;}
+button.ButtonLink_hover table.Button  {background:#eb7f00;color: #fff !important;}
+button.ButtonLink_default table.Button {color: #fff !important;}*/
+.OBTopLayout {background:red}

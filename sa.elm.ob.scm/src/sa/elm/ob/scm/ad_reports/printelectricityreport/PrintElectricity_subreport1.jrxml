@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PrintElectricity_subreport1" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="8d9cb30d-f1c0-4f61-8811-0f7c933f98c8">
+	<property name="ireport.zoom" value="1.0245201830476058"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="192"/>
+	<parameter name="project" class="java.lang.String"/>
+	<parameter name="vendorname" class="java.lang.String"/>
+	<parameter name="registrycity" class="java.lang.String"/>
+	<parameter name="vendorpostalcode" class="java.lang.String"/>
+	<parameter name="registrydate" class="java.lang.String"/>
+	<parameter name="registryno" class="java.lang.String"/>
+	<parameter name="contractsigncity" class="java.lang.String"/>
+	<parameter name="motperson" class="java.lang.String"/>
+	<parameter name="proposaldate" class="java.lang.String"/>
+	<parameter name="vendorpobox" class="java.lang.String"/>
+	<parameter name="SignatureDate" class="java.lang.String"/>
+	<parameter name="orgid" class="java.lang.String"/>
+	<parameter name="BASE_DESIGN" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="ImageID" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select 1 from dual]]>
+	</queryString>
+	<field name="?column?" class="java.lang.Integer"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="641">
+			<staticText>
+				<reportElement x="150" y="43" width="249" height="36" uuid="a61b0cd6-e00d-4c04-b33e-1a5425e2f956"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[المملكة العربية السعودية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="150" y="80" width="249" height="36" uuid="8728a681-40ba-4606-a39e-01aa45194bd0"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[وزارة النقل]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="150" y="117" width="249" height="36" uuid="49069b04-20a6-4ac3-a3dd-25a98fd649cd"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الإدارة العامة للمناقصات والعقود]]></text>
+			</staticText>
+			<image hAlign="Center">
+				<reportElement x="198" y="160" width="159" height="151" uuid="afda78e6-9784-4b63-916c-abec37f37ff6"/>
+				<imageExpression><![CDATA[$P{ImageID}==null?org.openbravo.erpCommon.utility.Utility.showImageLogo("yourcompanylegal",""):org.openbravo.erpCommon.utility.Utility.showImage($P{ImageID})]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="113" y="359" width="330" height="40" uuid="a72f65e9-47eb-43e0-8320-a6d51936d85b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="24" isBold="true"/>
+				</textElement>
+				<text><![CDATA[صيانة الأعمال الكهربائية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="113" y="399" width="330" height="40" uuid="6b0c15ab-6aa5-4978-8fe4-2f4a6f0e87f4">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="24" isBold="true"/>
+				</textElement>
+				<text><![CDATA[لطرق منطقة الرياض]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="113" y="439" width="330" height="40" uuid="3d8feb9b-56cf-43a0-9c10-4e0f653accba">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="24" isBold="true"/>
+				</textElement>
+				<text><![CDATA[( ١٤٣٧ – ١٤٤٠ ) هـ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="113" y="479" width="330" height="40" uuid="19f51356-c63f-4ae2-ac61-1993db8cf6b6">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="24" isBold="true"/>
+				</textElement>
+				<text><![CDATA[( ٢٠١٦ – ٢٠١٩ ) م]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="113" y="585" width="330" height="23" uuid="df6fd95f-fd52-42b2-801d-d535012ea48a"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[رمضان    ١٤٣٦ هـ]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+</jasperReport>

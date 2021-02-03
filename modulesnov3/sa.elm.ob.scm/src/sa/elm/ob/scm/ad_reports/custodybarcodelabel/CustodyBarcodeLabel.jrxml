@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CustodyBarcodeLabel" pageWidth="317" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="277" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="0f04994a-e6c5-43b4-8e34-c4b31e01fc63">
+	<property name="ireport.zoom" value="1.4641000000000006"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="params" class="java.lang.String">
+		<defaultValueExpression><![CDATA[" "]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[(select mrcus.documentno, prd.name as itemdesc from escm_mrequest_custody mrcus
+left join escm_material_reqln mreqln on mreqln.escm_material_reqln_id=mrcus.escm_material_reqln_id
+left join escm_material_request mreq on mreq.escm_material_request_id=mreqln.escm_material_request_id
+left join m_product prd on prd.m_product_id=mrcus.m_product_id
+where mreq.status in ('ESCM_TR', 'ESCM_AP') and prd.name is not null
+$P!{params}
+order by mrcus.documentno)
+
+union
+( select mrcus.documentno, prd.name as itemdesc from escm_mrequest_custody   mrcus
+left join escm_custody_transaction tran on tran.escm_mrequest_custody_id= mrcus.escm_mrequest_custody_id
+left join escm_material_reqln mreqln on mreqln.escm_material_reqln_id=mrcus.escm_material_reqln_id
+left join m_product prd on prd.m_product_id=mrcus.m_product_id
+where tran.m_inoutline_id is null and mrcus.escm_material_reqln_id is null and prd.name is not null
+$P!{params}
+order by mrcus.documentno )]]>
+	</queryString>
+	<field name="documentno" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<field name="itemdesc" class="java.lang.String"/>
+	<detail>
+		<band height="95" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="52" y="0" width="165" height="17" uuid="da19ec35-e86a-41a8-884d-12965c02b0cb"/>
+				<box rightPadding="3">
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentno}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="32" y="18" width="206" height="17" uuid="40b37102-0567-4352-bb85-3a6a2e9a9fdc"/>
+				<box rightPadding="3">
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{itemdesc}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="25" y="0" width="225" height="90" uuid="4ea524ec-3b48-46dd-adcd-24a45a2b3fe1"/>
+				<box>
+					<pen lineWidth="0.25" lineStyle="Dashed"/>
+					<topPen lineWidth="0.25" lineStyle="Dashed"/>
+					<leftPen lineWidth="0.25" lineStyle="Dashed"/>
+					<bottomPen lineWidth="0.25" lineStyle="Dashed"/>
+					<rightPen lineWidth="0.25" lineStyle="Dashed"/>
+				</box>
+				<textElement>
+					<font fontName="Arial Unicode MS"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<componentElement>
+				<reportElement x="99" y="37" width="139" height="50" uuid="9c4f32c1-1927-47ba-8df4-5cab1e6b4166"/>
+				<jr:Code128 xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" textPosition="bottom">
+					<jr:codeExpression><![CDATA[$F{documentno}]]></jr:codeExpression>
+				</jr:Code128>
+			</componentElement>
+		</band>
+	</detail>
+	<noData>
+		<band height="50">
+			<staticText>
+				<reportElement x="0" y="0" width="277" height="50" uuid="6f4656e1-0117-4db5-b1cf-3f5e1540f734"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="15" isBold="true"/>
+				</textElement>
+				<text><![CDATA[لاتوجد بيانات]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

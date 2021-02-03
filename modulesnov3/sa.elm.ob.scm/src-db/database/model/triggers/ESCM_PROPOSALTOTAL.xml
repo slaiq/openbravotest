@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_PROPOSALTOTAL">
+    <trigger name="ESCM_PROPOSALTOTAL" table="ESCM_PROPOSALMGMT_LINE" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[Diff NUMBER;
+V_ProposalId VARCHAR2(32);
+cur_rank record;
+v_status VARCHAR(60);
+v_bgamt NUMBER ;
+v_calamt NUMBER;
+v_totalamt NUMBER;
+v_proeventstatus VARCHAR(60);
+v_bidtype VARCHAR(60);
+v_bgstatus VARCHAR(60);
+v_bidId  VARCHAR2(32);
+v_EvlID VARCHAR2(32);
+v_techdiscount NUMBER;
+v_prec NUMBER;
+v_clientId VARCHAR(32);
+v_discount NUMBER:=0;
+v_discountamount NUMBER:=0;
+v_totalprice NUMBER:=0;
+v_exists_in_tee_pee NUMBER:=0;
+v_allow NUMBER:=0;
+
+
+
+BEGIN
+
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF DELETING THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+	IF  INSERTING OR UPDATING   THEN
+	     V_ProposalId:=:new.escm_proposalmgmt_id;
+	ELSE 
+	V_ProposalId:=:old.escm_proposalmgmt_id;
+	END IF; 
+
+	-- ranking in proposal whenever we are changing the line total in proposal line
+	select status,escm_proposalevl_event_id into v_proeventstatus ,v_EvlID  from escm_proposalevl_event  where  escm_proposalevl_event_id= (  select  escm_proposalevl_event_id from escm_proposal_attr prattr where
+	     prattr.escm_proposalmgmt_id= V_ProposalId);
+
+	-- taking proposal status,have to give the rank when proposal status is analysis
+	select pro.proposalstatus, pro.escm_bidmgmt_id,bid.bidtype into v_status,v_bidId,v_bidtype  from escm_proposalmgmt pro
+	left join escm_bidmgmt bid on bid.escm_bidmgmt_id=pro.escm_bidmgmt_id
+	 where pro.escm_proposalmgmt_id = V_ProposalId;
+     
+     select count(escm_proposal_attr) into v_exists_in_tee_pee from escm_proposal_attr
+	where escm_proposalmgmt_id =V_ProposalId
+	and (Escm_Technicalevl_Event_ID is not null  or Escm_Proposalevl_Event_ID is not null);
+
+	IF (TG_OP='UPDATE'  and (:old.pee_line_total <> :new.pee_line_total) and v_status='ANY' and v_proeventstatus <> 'CO') THEN
+
+	FOR cur_rank in
+		(select DENSE_RANK() OVER(ORDER BY attr.negotiated_price asc) as rank,pro.totalamount ,pro.escm_proposalmgmt_id,attr.escm_proposal_attr_id from escm_proposal_attr  attr
+			left join escm_proposalmgmt pro on pro.escm_proposalmgmt_id=attr.escm_proposalmgmt_id
+			where  attr.escm_proposalevl_event_id= v_EvlID order by attr.negotiated_price asc )
+	 LOOP
+
+			update  escm_proposalmgmt  set rank  = cur_rank.rank ::NUMERIC where escm_proposalmgmt_id= cur_rank.escm_proposalmgmt_id;
+			update escm_proposal_attr set  rank  = cur_rank.rank ::NUMERIC where escm_proposal_attr_id= cur_rank.escm_proposal_attr_id;
+	 END LOOP;
+	END IF;
+    IF (TG_OP='UPDATE'  and ( (:old.PEE_Tech_Discount <> :new.PEE_Tech_Discount) or (:new.pee_line_total<>:old.pee_line_total ))) THEN
+		-- To get current Client ID 
+		Select ad_client_id INTO v_clientId from escm_proposalmgmt_line 
+		where escm_proposalmgmt_line_id = :new.escm_proposalmgmt_line_id;
+		-- To get Standarrd Precision from Currency by using Current Client ID
+		select stdPrecision INTO v_prec from c_currency where c_currency_id 
+		in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+		
+       select sum(PEE_Tech_Discountamt) into v_techdiscount
+       from escm_proposalmgmt_line where escm_proposalmgmt_id = V_ProposalId and issummarylevel='N';
+       
+	  -- RAISE v_techdiscount||':'||:NEW.PEE_Tech_Discountamt;
+       update escm_proposal_attr set PEE_Tech_Discountamt = ROUND(v_techdiscount , v_prec) where escm_proposalmgmt_id = V_ProposalId;
+    
+     end if;
+     
+      IF  (INSERTING OR UPDATING  and ( (:old.Discountmount <> :new.Discountmount) and (:new.line_total<>:old.line_total ) and (v_exists_in_tee_pee = 0) ) ) THEN
+		v_allow =1;
+      End if;
+      IF DELETING and (:old.Discountmount > 0 and v_exists_in_tee_pee =0) then
+        v_allow = 1;
+       End if;
+      
+      if(v_allow > 0) then
+
+
+      select sum(Discountmount),sum(Movementqty * Gross_Unit_Price) into v_discountamount,v_totalprice from
+      escm_proposalmgmt_line where escm_proposalmgmt_id = V_ProposalId and issummarylevel='N';
+      
+		if(v_totalprice > 0) then
+
+		v_discount = round(coalesce(v_discountamount,0) * 100 / coalesce(v_totalprice,0),2);
+
+end if;
+      
+      update escm_proposalmgmt set finaldiscount = v_discount,finaldiscountamount = v_discountamount,
+      proposal_discount = v_discount,proposal_discount_amount=v_discountamount,isskipdistribute = 'Y' where escm_proposalmgmt_id = V_ProposalId;
+     
+     
+     
+     end if;
+      
+     
+     
+     
+     
+	-- Throwing error if bg amount less than cal amount
+   /*
+	--getting bid type 
+	select bidtype into v_bidtype from escm_bidmgmt  where  escm_bidmgmt_id = ( select escm_bidmgmt_id from escm_proposalmgmt where escm_proposalmgmt_id= V_ProposalId);
+
+      --if bid type is direct then only need to chk bg amount is less than calculated amount or not
+	IF(v_bidtype is not null and v_bidtype='DR') THEN
+
+	       --Getting Total amount for proposal
+		select totalamount into v_totalamt  from escm_proposalmgmt   where    escm_proposalmgmt_id  =V_ProposalId;
+
+		--Getting total bg amount and initial bg amount for that bank guarantee 
+		select bg.bghdstatus  , sum(det.bgamount)  ,round((v_totalamt * ((cast(bg.initialbg as NUMBER))/100)),2) into v_bgstatus,v_bgamt,v_calamt from escm_bankguarantee_detail det left join escm_bgworkbench bg on bg.escm_bgworkbench_id=det.escm_bgworkbench_id  
+		where bg.escm_proposalmgmt_id  =V_ProposalId group by bg.document_amount,bg.initialbg,bg.bghdstatus  ;
+
+		--chk calculated amount is greater than bg amount ,if extist then throw the error ,for dont allow to update the bg amount
+		IF(v_bgstatus='CO' and (v_calamt > v_bgamt)) THEN
+			RAISE_APPLICATION_ERROR(-20501,'@ESCM_BGAmountCantEdit@');
+		END IF;
+	END IF;
+	*/
+	END ESCM_PROPOSALTOTAL
+]]></body>
+    </trigger>
+  </database>

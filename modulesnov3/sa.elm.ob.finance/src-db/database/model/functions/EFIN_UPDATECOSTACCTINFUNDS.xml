@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_UPDATECOSTACCTINFUNDS">
+    <function name="EFIN_UPDATECOSTACCTINFUNDS" type="NULL">
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Author(s): Prakash
+************************************************************************/
+v_fundstype_id VARCHAR2(32);
+cur_cost RECORD;
+v_funds VARCHAR(32);
+
+BEGIN
+
+	--get funds budget type id
+	SELECT c_campaign_id into v_fundstype_id from c_campaign where em_efin_budgettype='F' and ad_client_id=p_client_id;
+
+	--Update all cost account combination id in its corresponding funds account combination and vice versa     
+	FOR cur_cost IN (select * from c_validcombination vc join c_campaign camp on vc.c_campaign_id=camp.c_campaign_id 
+	where camp.em_efin_budgettype='C' and vc.ad_client_id=p_client_id) 
+	LOOP
+		select c_validcombination_id into v_funds from c_validcombination where ad_org_id = cur_cost.ad_org_id  
+		and c_salesregion_id=cur_cost.c_salesregion_id and account_id=cur_cost.account_id and c_campaign_id=v_fundstype_id 
+		and c_project_id=cur_cost.c_project_id and c_bpartner_id=cur_cost.c_bpartner_id and c_activity_id=cur_cost.c_activity_id
+		and user1_id=cur_cost.user1_id and user2_id=cur_cost.user2_id;
+
+		IF (v_funds IS NOT NULL) THEN
+
+			--Update corresponding cost combination in funds
+			update c_validcombination set em_efin_costcombination = cur_cost.c_validcombination_id where c_validcombination_id=v_funds;
+
+			--Update corresponding funds combination in cost
+			update c_validcombination set em_efin_fundscombination = v_funds where c_validcombination_id=cur_cost.c_validcombination_id;
+			
+		END IF;
+	END LOOP;
+END EFIN_UPDATECOSTACCTINFUNDS
+]]></body>
+    </function>
+  </database>

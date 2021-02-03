@@ -1,0 +1,251 @@
+<?xml version='1.0' encoding='UTF-8'?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="20D790802B9C4555A23CC5A62623E75D" identifier="Invoiced Amount is more against Contract(inv exclusive tax)">
+    <id>20D790802B9C4555A23CC5A62623E75D</id>
+    <active>true</active>
+    <name>Invoiced Amount is more against Contract(inv exclusive tax)</name>
+    <tab id="62248BBBCF644C18A75B92AD8E50238C" entity-name="ADTab" identifier="Header - Purchase Order and Contracts Summary"/>
+    <filterClause xsi:nil="true"/>
+    <sql>SELECT con.c_order_id AS referencekey_id,
+     ad_column_identifier('c_order',con.c_order_id , 'en_US') AS record_id,
+     '0' AS ad_role_id,
+     NULL AS ad_user_id,
+     'Total Invoiced amount ('||invoice.invoiceamt || ')against Contract Numebr ' || con.documentno ||' is more than actual contract amount (' ||con.grandtotal|| ')' AS description,
+     'Y' AS isActive,
+      con.ad_org_id, 
+      con.ad_client_id, 
+      now() AS created,  
+      '0' AS createdBy,  
+      now() AS updated,
+      '0' AS updatedBy
+FROM   c_order con 
+JOIN (SELECT Max(em_escm_revision) AS revision, documentno 
+    FROM   c_order 
+    GROUP  BY documentno) lord 
+  ON lord.documentno = con.documentno AND lord.revision = con.em_escm_revision 
+JOIN (SELECT invoiceLn.c_invoice_id AS invoiceId, Sum(linenetamt) AS invoiceamt, ord.documentno 
+    FROM   c_invoiceline invoiceLn 
+    JOIN c_invoice inv 
+        ON invoiceLn.c_invoice_id = inv.c_invoice_id AND invoiceLn.em_efin_istax != 'Y' 
+    JOIN c_doctype typ 
+      ON typ.c_doctype_id = inv.c_doctypetarget_id 
+    JOIN c_order ord 
+      ON ord.c_order_id = inv.em_efin_c_order_id 
+    WHERE  inv.em_efin_c_order_id IS NOT NULL 
+    AND inv.docstatus = 'CO' 
+    AND ( ord.em_escm_istax = 'N' AND inv.em_efin_tax_method_id in (select efin_tax_method_id from efin_tax_method where istaxincluded = 'N') ) 
+    GROUP  BY ord.documentno, 
+              invoiceLn.c_invoice_id) invoice 
+  ON invoice.documentno = con.documentno 
+GROUP  BY con.documentno, 
+          invoice.invoiceamt,
+          con.c_order_id
+HAVING invoice.invoiceamt &gt; con.grandtotal 
+
+UNION ALL
+
+SELECT con.c_order_id AS referencekey_id,
+     ad_column_identifier('c_order',con.c_order_id , 'en_US') AS record_id,
+     '0' AS ad_role_id,
+     NULL AS ad_user_id,
+     'Total Invoiced amount ('||invoice.invoiceamt || ')against Contract Numebr ' || con.documentno ||' is more than actual contract amount (' ||con.grandtotal|| ')' AS description,
+     'Y' AS isActive,
+      con.ad_org_id, 
+      con.ad_client_id, 
+      now() AS created,  
+      '0' AS createdBy,  
+      now() AS updated,
+      '0' AS updatedBy
+FROM   c_order con 
+JOIN (SELECT Max(em_escm_revision) AS revision, documentno 
+    FROM   c_order 
+    GROUP  BY documentno) lord 
+  ON lord.documentno = con.documentno AND lord.revision = con.em_escm_revision 
+JOIN (SELECT invoiceLn.c_invoice_id AS invoiceId, Sum(linenetamt) AS invoiceamt, ord.documentno 
+    FROM   c_invoiceline invoiceLn 
+    JOIN c_invoice inv 
+    ON invoiceLn.c_invoice_id = inv.c_invoice_id AND invoiceLn.em_efin_istax != 'Y' 
+    JOIN c_doctype typ 
+      ON typ.c_doctype_id = inv.c_doctypetarget_id 
+    JOIN c_order ord 
+      ON ord.c_order_id = inv.em_efin_c_order_id 
+    WHERE  inv.c_order_id IS NOT NULL  
+    AND inv.docstatus = 'CO' 
+    AND typ.em_efin_isrdvinv = 'Y' 
+    AND ( ord.em_escm_istax = 'N' AND inv.em_efin_tax_method_id in (select efin_tax_method_id from efin_tax_method where istaxincluded = 'N') ) 
+    GROUP  BY ord.documentno,
+              invoiceLn.c_invoice_id) invoice 
+  ON invoice.documentno = con.documentno
+GROUP  BY con.documentno, 
+          invoice.invoiceamt, 
+          con.c_order_id
+HAVING invoice.invoiceamt &gt; con.grandtotal</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="8E93FEAF73994720843AA7ABDA847564" identifier="Invoiced Amount is more against Contract(inv Inclusive tax)">
+    <id>8E93FEAF73994720843AA7ABDA847564</id>
+    <active>true</active>
+    <name>Invoiced Amount is more against Contract(inv Inclusive tax)</name>
+    <tab id="62248BBBCF644C18A75B92AD8E50238C" entity-name="ADTab" identifier="Header - Purchase Order and Contracts Summary"/>
+    <filterClause xsi:nil="true"/>
+    <sql>SELECT con.c_order_id AS referencekey_id,
+     ad_column_identifier('c_order',con.c_order_id , 'en_US') AS record_id,
+     '0' AS ad_role_id,
+     NULL AS ad_user_id,
+     'Total Invoiced amount ('||invoice.invoiceamt || ')against Contract Numebr ' || con.documentno ||' is more than actual contract amount (' ||con.grandtotal|| ')' AS description,
+     'Y' AS isActive,
+      con.ad_org_id AS ad_org_id, 
+      con.ad_client_id AS ad_client_id, 
+      now() AS created,  
+      '0' AS createdBy,  
+      now() AS updated,
+      '0' AS updatedBy
+FROM   c_order con 
+JOIN (SELECT Max(em_escm_revision) AS revision, documentno 
+    FROM   c_order 
+    GROUP  BY documentno) lord 
+  ON lord.documentno = con.documentno AND lord.revision = con.em_escm_revision 
+JOIN (SELECT invoiceLn.c_invoice_id AS invoiceId, Sum(linenetamt) AS invoiceamt, ord.documentno 
+    FROM   c_invoiceline invoiceLn 
+    JOIN c_invoice inv 
+        ON invoiceLn.c_invoice_id = inv.c_invoice_id 
+    JOIN c_doctype typ 
+      ON typ.c_doctype_id = inv.c_doctypetarget_id 
+    JOIN c_order ord 
+      ON ord.c_order_id = inv.em_efin_c_order_id 
+    WHERE  inv.em_efin_c_order_id IS NOT NULL 
+    AND inv.docstatus = 'CO' 
+    AND ( ord.em_escm_istax = 'N' AND inv.em_efin_tax_method_id in (select efin_tax_method_id from efin_tax_method where istaxincluded = 'Y') ) 
+    GROUP  BY ord.documentno, 
+              invoiceLn.c_invoice_id) invoice 
+  ON invoice.documentno = con.documentno 
+GROUP  BY con.documentno, 
+          invoice.invoiceamt,
+          con.c_order_id
+HAVING invoice.invoiceamt &gt; con.grandtotal 
+
+UNION ALL
+
+SELECT con.c_order_id AS referencekey_id,
+     ad_column_identifier('c_order',con.c_order_id , 'en_US') AS record_id,
+     '0' AS ad_role_id,
+     NULL AS ad_user_id,
+     'Total Invoiced amount ('||invoice.invoiceamt || ')against Contract Numebr ' || con.documentno ||' is more than actual contract amount (' ||con.grandtotal|| ')' AS description,
+     'Y' AS isActive,
+      con.ad_org_id, 
+      con.ad_client_id, 
+      now() AS created,  
+      '0' AS createdBy,  
+      now() AS updated,
+      '0' AS updatedBy
+FROM   c_order con 
+JOIN (SELECT Max(em_escm_revision) AS revision, documentno 
+    FROM   c_order 
+    GROUP  BY documentno) lord 
+  ON lord.documentno = con.documentno AND lord.revision = con.em_escm_revision 
+JOIN (SELECT invoiceLn.c_invoice_id AS invoiceId, Sum(linenetamt) AS invoiceamt, ord.documentno 
+    FROM   c_invoiceline invoiceLn 
+    JOIN c_invoice inv 
+    ON invoiceLn.c_invoice_id = inv.c_invoice_id 
+    JOIN c_doctype typ 
+      ON typ.c_doctype_id = inv.c_doctypetarget_id 
+    JOIN c_order ord 
+      ON ord.c_order_id = inv.em_efin_c_order_id 
+    WHERE  inv.c_order_id IS NOT NULL  
+    AND inv.docstatus = 'CO' 
+    AND typ.em_efin_isrdvinv = 'Y' 
+    AND ( ord.em_escm_istax = 'N' AND inv.em_efin_tax_method_id in (select efin_tax_method_id from efin_tax_method where istaxincluded = 'Y') ) 
+    GROUP  BY ord.documentno,
+              invoiceLn.c_invoice_id) invoice 
+  ON invoice.documentno = con.documentno
+GROUP  BY con.documentno, 
+          invoice.invoiceamt, 
+          con.c_order_id
+HAVING invoice.invoiceamt &gt; con.grandtotal </sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="FE9E0723645A422790DD6B0297BBC916" identifier="Invoiced Amount is more against Contract(PO has tax)">
+    <id>FE9E0723645A422790DD6B0297BBC916</id>
+    <active>true</active>
+    <name>Invoiced Amount is more against Contract(PO has tax)</name>
+    <tab id="62248BBBCF644C18A75B92AD8E50238C" entity-name="ADTab" identifier="Header - Purchase Order and Contracts Summary"/>
+    <filterClause xsi:nil="true"/>
+    <sql>SELECT con.c_order_id AS referencekey_id,
+     ad_column_identifier('c_order',con.c_order_id , 'en_US') AS record_id,
+     '0' AS ad_role_id,
+     NULL AS ad_user_id,
+     'Total Invoiced amount ('||invoice.invamt || ')against Contract Numebr ' || con.documentno ||' is more than actual contract amount (' ||con.grandtotal|| ')' AS description,
+     'Y' AS isActive,
+      con.ad_org_id, 
+      con.ad_client_id, 
+      now() AS created,  
+      '0' AS createdBy,  
+      now() AS updated,
+      '0' AS updatedBy
+FROM c_order con 
+JOIN (SELECT Max(em_escm_revision) AS revision,documentno 
+      FROM c_order  
+      GROUP  BY documentno) lord 
+  ON lord.documentno = con.documentno AND lord.revision = con.em_escm_revision 
+JOIN (SELECT Sum(COALESCE(inv.grandtotal, 0)) AS invamt, ord.documentno 
+      FROM c_invoice inv 
+      JOIN c_doctype typ 
+        ON typ.c_doctype_id = inv.c_doctypetarget_id 
+      JOIN c_order ord 
+        ON ord.c_order_id = inv.em_efin_c_order_id 
+      WHERE  inv.em_efin_c_order_id IS NOT NULL 
+      AND inv.docstatus = 'CO' 
+      AND typ.em_efin_ispomatch = 'Y' 
+      AND ( ord.em_escm_istax = 'Y') 
+      GROUP  BY ord.documentno) invoice 
+  ON invoice.documentno = con.documentno 
+GROUP  BY con.documentno, 
+          invoice.invamt, 
+          con.grandtotal,
+          con.c_order_id
+HAVING invoice.invamt &gt; con.grandtotal 
+
+UNION ALL
+
+SELECT con.c_order_id AS referencekey_id,
+     ad_column_identifier('c_order',con.c_order_id , 'en_US') AS record_id,
+     '0' AS ad_role_id,
+     NULL AS ad_user_id,
+     'Total Invoiced amount ('||invoice.invamt || ')against Contract Numebr ' || con.documentno ||' is more than actual contract amount (' ||con.grandtotal|| ')' AS description,
+     'Y' AS isActive,
+      con.ad_org_id, 
+      con.ad_client_id, 
+      now() AS created,  
+      '0' AS createdBy,  
+      now() AS updated,
+      '0' AS updatedBy
+FROM   c_order con 
+JOIN (SELECT Max(em_escm_revision) AS revision, documentno 
+    FROM c_order 
+    GROUP  BY documentno) lord 
+  ON lord.documentno = con.documentno AND lord.revision = con.em_escm_revision 
+JOIN (SELECT Sum(COALESCE(inv.grandtotal, 0)) AS invamt, ord.documentno 
+    FROM   c_invoice inv 
+    JOIN c_doctype typ 
+      ON typ.c_doctype_id = inv.c_doctypetarget_id 
+    JOIN c_order ord 
+      ON ord.c_order_id = inv.em_efin_c_order_id 
+    WHERE  inv.c_order_id IS NOT NULL 
+    AND inv.docstatus = 'CO' 
+    AND typ.em_efin_isrdvinv = 'Y' 
+    AND ( ord.em_escm_istax = 'Y')
+    GROUP  BY ord.documentno) invoice 
+  ON invoice.documentno = con.documentno
+GROUP  BY con.documentno, 
+          invoice.invamt, 
+          con.grandtotal,
+          con.c_order_id
+HAVING invoice.invamt &gt; con.grandtotal </sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+</ob:Openbravo>

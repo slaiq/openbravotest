@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_LEGACYMAXREVISION_V">
+    <view name="ESCM_LEGACYMAXREVISION_V"><![CDATA[SELECT DISTINCT max(legacy.version_no) AS max, legacy.po_contract_no FROM escm_legacy_contract legacy GROUP BY legacy.po_contract_no]]></view>
+  </database>

@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE GL_JOURNAL">
+    <table name="GL_JOURNAL" primaryKey="GL_JOURNAL_KEY">
+      <column name="EM_EFIN_GL_JOURNAL_REPORT" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_BENEFICIARY" primaryKey="false" required="false" type="VARCHAR" size="255" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_UNPOSTREQ" primaryKey="false" required="false" type="VARCHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_POSTREQ" primaryKey="false" required="true" type="VARCHAR" size="60" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_BUDGETINT_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_ACTION" primaryKey="false" required="false" type="VARCHAR" size="60" autoIncrement="false">
+        <default><![CDATA[CO]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_REVOKE" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_REJECT" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_REACTIVATE" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_AD_ROLE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_C_INVOICE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_C_ORDER_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_ADJ_INVOICE" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_BUDGET_MANENCUM_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_SUBMITTED_ROLE" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="EFIN_BUDGET_MANENCUM" name="EM_EFIN_BUD_ENCUM">
+        <reference local="EM_EFIN_BUDGET_MANENCUM_ID" foreign="EFIN_BUDGET_MANENCUM_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_BUDGETINT" name="EM_EFIN_BUDGETINIT_GLFK">
+        <reference local="EM_EFIN_BUDGETINT_ID" foreign="EFIN_BUDGETINT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_INVOICE" name="EM_EFIN_INVOICE">
+        <reference local="EM_EFIN_C_INVOICE_ID" foreign="C_INVOICE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_ROLE" name="EM_EFIN_JOURNAL_SUBMIT_ROLE">
+        <reference local="EM_EFIN_SUBMITTED_ROLE" foreign="AD_ROLE_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_ORDER" name="EM_EFIN_ORDER">
+        <reference local="EM_EFIN_C_ORDER_ID" foreign="C_ORDER_ID"/>
+      </foreign-key>
+    </table>
+  </database>

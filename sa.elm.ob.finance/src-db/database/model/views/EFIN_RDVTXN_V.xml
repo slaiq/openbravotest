@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_RDVTXN_V">
+    <view name="EFIN_RDVTXN_V"><![CDATA[SELECT txn.efin_rdvtxn_id AS efin_rdvtxn_v_id, txn.ad_client_id, txn.ad_org_id, txn.isactive, txn.created, txn.createdby, txn.updated, txn.updatedby, concat(txn.txn_version, '-', txn.certificate_no) AS documentno, txn.efin_rdvtxn_id FROM efin_rdvtxn txn LEFT JOIN efin_rdv rdv ON txn.efin_rdv_id = rdv.efin_rdv_id]]></view>
+  </database>

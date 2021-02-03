@@ -1,0 +1,1137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2001-2012 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+-->
+
+<SqlClass name="EfinReportGeneralLedgerData" package="org.openbravo.erpCommon.ad_reports">
+  <SqlClassComment></SqlClassComment>
+  <SqlMethod name="select" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+      SELECT * FROM (
+        SELECT *
+        FROM ( SELECT '0' AS RN1,'' AS ACCOUNTSEQ, '' AS TRANSACTIONTYPE, C.* FROM (
+          SELECT VALUE, NAME, DATEACCT,
+              SUM(AMTACCTDR) AS AMTACCTDR, SUM(AMTACCTCR) AS AMTACCTCR, (SUM(AMTACCTDR)-SUM(AMTACCTCR)) AS TOTAL,
+              FACT_ACCT_GROUP_ID, ID, groupbyid, groupbyname,
+              DESCRIPTION, ISDEBIT,
+              0 AS TOTALACCTDR, 0 AS TOTALACCTCR, 0 AS TOTALACCTSUB,
+              0 AS PREVIOUSDEBIT, 0 AS PREVIOUSCREDIT, 0 AS PREVIOUSTOTAL,
+              0 AS FINALDEBIT, 0 AS FINALCREDIT, 0 AS FINALTOTAL,
+              TO_CHAR(DATEACCT,'J') AS DATEACCTNUMBER,'' as uniquecode,'' as DATEACCTGREGORIAN,'' as docnumber,
+              ? AS groupby, '' as bpid, '' as bpname, '' as pdid, '' as pdname, '' as pjid, '' as pjname, '' as startdate,'' as enddate,
+              factaccttype, '' as fact_acct_id, '' as periodid, '' as C_ACCTSCHEMA_ID,0 AS AMTACCTDRPREVSUM, 0 AS AMTACCTCRPREVSUM,'' AS AD_ORG_ID
+          FROM
+            (SELECT FACT_ACCT.ACCTVALUE AS VALUE, FACT_ACCT.ACCTDESCRIPTION AS NAME,
+                DATEACCT, AMTACCTDR, AMTACCTCR,
+                FACT_ACCT_GROUP_ID, FACT_ACCT.ACCOUNT_ID AS ID, FACT_ACCT.DESCRIPTION,
+                CASE ?
+                  WHEN 'BPartner' THEN c_bpartner.c_bpartner_id
+                  WHEN 'Product' THEN m_product.m_product_id
+                  WHEN 'Project' THEN c_project.c_project_id
+                  ELSE '' END AS groupbyid,
+                CASE ?
+                  WHEN 'BPartner' THEN (case AD_COLUMN_IDENTIFIER('C_Bpartner',c_bpartner.c_bpartner_id, ?) when '**' then '' else AD_COLUMN_IDENTIFIER('C_Bpartner',c_bpartner.c_bpartner_id, ?) end)
+                  WHEN 'Product' THEN (case  AD_COLUMN_IDENTIFIER('M_Product',m_product.m_product_id, ?) when '**' then '' else AD_COLUMN_IDENTIFIER('M_Product',m_product.m_product_id, ?) end)
+                  WHEN 'Project' THEN (case  AD_COLUMN_IDENTIFIER('C_Project',c_project.c_project_id, ?) when '**' then '' else AD_COLUMN_IDENTIFIER('C_Project',c_project.c_project_id, ?) end)
+                  ELSE '' END AS groupbyname,
+                CASE WHEN AMTACCTDR <> 0 THEN 'Y' ELSE 'N' END AS ISDEBIT, 
+		CASE WHEN FACT_ACCT.FACTACCTTYPE = 'O' THEN 1 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'N' THEN 2 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'R' THEN 3 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'C' THEN 4 END) END) END) END AS FACTACCTTYPE
+            FROM FACT_ACCT
+              LEFT JOIN C_BPARTNER ON FACT_ACCT.C_BPARTNER_ID = C_BPARTNER.C_BPARTNER_ID
+              LEFT JOIN M_PRODUCT ON FACT_ACCT.M_PRODUCT_ID = M_PRODUCT.M_PRODUCT_ID
+              LEFT JOIN C_PROJECT ON FACT_ACCT.C_PROJECT_ID = C_PROJECT.C_PROJECT_ID
+              LEFT JOIN(
+                  select account_id, record_id2, sum(amtacctdr-amtacctcr) as sum
+                  from fact_acct f1
+                  where 5=5
+                  group by account_id, record_id2
+                ) f2 ON fact_acct.account_id = f2.account_id and fact_acct.record_id2 = f2.record_id2
+            WHERE (?='Y' OR FACT_ACCT.ACCOUNT_ID IN (
+                      SELECT c_elementvalue_id as name
+                      FROM C_ELEMENTVALUE
+                      WHERE value >= (  select value from c_elementvalue where c_elementvalue_id = ?)
+                        and value <= (  select value from c_elementvalue where c_elementvalue_id = ?)
+                        and c_elementvalue.ELEMENTLEVEL = 'S'
+                    ))
+              AND FACT_ACCT.AD_ORG_ID IN ('1')
+              AND FACT_ACCT.AD_CLIENT_ID IN ('1')
+              AND (? = 'N' OR (fact_acct.RECORD_ID2 IS NULL) OR (SUM != 0))
+              AND 1=1
+              AND  FACT_ACCT.AD_ORG_ID IN ('2')
+              AND 2=2
+              AND 3=3) D
+            WHERE 6=6
+            GROUP BY groupbyname, groupbyid, VALUE, NAME, ID,
+            DATEACCT, FACTACCTTYPE, FACT_ACCT_GROUP_ID, DESCRIPTION, ISDEBIT
+            HAVING SUM(AMTACCTDR) - SUM(AMTACCTCR) <> 0
+            ORDER  BY groupbyname, groupbyid, VALUE, NAME, ID,
+            DATEACCT, FACTACCTTYPE,  FACT_ACCT_GROUP_ID, DESCRIPTION, ISDEBIT
+          ) C
+        ) B WHERE 1=1
+      ) A ORDER BY  groupbyname, groupbyid, VALUE, DATEACCT, FACTACCTTYPE, FACT_ACCT_GROUP_ID, DESCRIPTION, ISDEBIT
+      ]]></Sql>
+    <Field name="rownum" value="count"/>
+    <Parameter name="rownum" type="replace" optional="true" after="FROM ( SELECT " text="'0'" />
+    <Parameter name="groupbytext"/>
+    <Parameter name="groupby"/>
+    <Parameter name="groupby"/>
+    <Parameter name="adLanguage"/>
+    <Parameter name="adLanguage"/>
+    <Parameter name="adLanguage"/>
+    <Parameter name="adLanguage"/>
+    <Parameter name="adLanguage"/>
+    <Parameter name="adLanguage"/>
+    <Parameter name="parDateFrom" optional="true" after="where 5=5"><![CDATA[AND DATEACCT >= TO_DATE(?) ]]></Parameter>
+    <Parameter name="parDateTo" optional="true" after="where 5=5"><![CDATA[AND DATEACCT < TO_DATE(?) ]]></Parameter>
+    <Parameter name="allaccounts"/>
+    <Parameter name="accountFrom"/>
+    <Parameter name="accountTo"/>
+    <Parameter name="adUserOrg" type="replace" optional="true" after="AND FACT_ACCT.AD_ORG_ID IN (" text="'1'"/>
+    <Parameter name="adUserClient" type="replace" optional="true" after="AND FACT_ACCT.AD_CLIENT_ID IN (" text="'1'"/>
+    <Parameter name="hideMatched"/>
+    <Parameter name="acctschema" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.C_ACCTSCHEMA_ID = ? ]]></Parameter>
+    <Parameter name="parDateFrom2" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.DATEACCT >= TO_DATE(?) ]]></Parameter>
+    <Parameter name="parDateTo2" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.DATEACCT < TO_DATE(?) ]]></Parameter>
+    <Parameter name="org" type="replace" optional="true" after="AND  FACT_ACCT.AD_ORG_ID IN (" text="'2'"/>
+    <Parameter name="cBpartnerId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_BPARTNER_ID IN]]></Parameter>
+    <Parameter name="mProductId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.M_PRODUCT_ID IN]]></Parameter>
+    <Parameter name="cProjectId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_PROJECT_ID IN]]></Parameter>
+    <Parameter name="cSalesregionId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_SALESREGION_ID IN]]></Parameter>
+     <Parameter name="cCampaignId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_CAMPAIGN_ID IN]]></Parameter>
+     <Parameter name="cActivityId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_ACTIVITY_ID IN]]></Parameter>
+     <Parameter name="user1Id" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.USER1_ID IN]]></Parameter>
+     <Parameter name="user2Id" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.USER2_ID IN]]></Parameter>
+    <Parameter name="paramAmtFrom" optional="true" after="3=3"><![CDATA[ AND (FACT_ACCT.AMTACCTDR + FACT_ACCT.AMTACCTCR)>=TO_NUMBER(?) ]]></Parameter>
+    <Parameter name="paramAmtTo" optional="true" after="3=3"><![CDATA[ AND (FACT_ACCT.AMTACCTDR + FACT_ACCT.AMTACCTCR)<=TO_NUMBER(?) ]]></Parameter>
+    <Parameter name="accountId" optional="true" after="WHERE 6=6"><![CDATA[AND ID = ? ]]></Parameter>
+    <Parameter name="factAcctId" optional="true" after="WHERE 6=6"><![CDATA[and to_char(DATEACCT,'J')||FACT_ACCT_GROUP_ID||DESCRIPTION||ISDEBIT < ? ]]></Parameter>
+    <Parameter name="cBPartner" optional="true" after="WHERE 6=6"><![CDATA[AND groupbyid = ? ]]></Parameter>
+    <Parameter name="pgLimit" type="argument" optional="true" after=",  FACT_ACCT_GROUP_ID, DESCRIPTION, ISDEBIT"><![CDATA[ LIMIT ]]></Parameter>
+    <Parameter name="oraLimit1" type="argument" optional="true" after=") C"><![CDATA[ WHERE ROWNUM <= ]]></Parameter>
+    <Parameter name="oraLimit2" type="argument" optional="true" after="WHERE 1=1"><![CDATA[ AND RN1 BETWEEN ]]></Parameter>
+    
+    
+  </SqlMethod>
+
+  <SqlMethod name="select2sum" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        SELECT Coalesce(SUM(S.amtacctdr), 0) AS AMTACCTDR,
+               Coalesce(SUM(S.amtacctcr), 0) AS AMTACCTCR
+        FROM (
+          SELECT *
+          FROM ( SELECT '0' AS RN1, C.* FROM (
+            SELECT VALUE, NAME, DATEACCT,
+                COALESCE(SUM(AMTACCTDR),0) AS AMTACCTDR, COALESCE(SUM(AMTACCTCR),0) AS AMTACCTCR, COALESCE(SUM(AMTACCTDR-AMTACCTCR),0) AS TOTAL,
+                MAX(FACT_ACCT_ID) AS FACT_ACCT_ID,
+                FACT_ACCT_GROUP_ID, ID,uniquecode, groupbyid, groupbyname,
+                DESCRIPTION, ISDEBIT,
+                0 AS TOTALACCTDR, 0 AS TOTALACCTCR, 0 AS TOTALACCTSUB,
+                0 AS PREVIOUSDEBIT, 0 AS PREVIOUSCREDIT, 0 AS PREVIOUSTOTAL,
+                0 AS FINALDEBIT, 0 AS FINALCREDIT, 0 AS FINALTOTAL,
+                TO_CHAR(DATEACCT,'J') AS DATEACCTNUMBER,
+                ? AS groupby, '' as bpid, '' as bpname, '' as pdid, '' as pdname, '' as pjid, '' as pjname, factaccttype
+                , 0 AS AMTACCTDRPREVSUM, 0 AS AMTACCTCRPREVSUM
+            FROM
+              (SELECT FACT_ACCT.ACCTVALUE AS VALUE, FACT_ACCT.ACCTDESCRIPTION AS NAME,
+                  DATEACCT, AMTACCTDR, AMTACCTCR, FACT_ACCT_ID,
+                  FACT_ACCT_GROUP_ID, FACT_ACCT.ACCOUNT_ID AS ID,FACT_ACCT.em_efin_uniquecode as uniquecode, FACT_ACCT.DESCRIPTION,
+                  CASE ?
+                    WHEN 'BPartner' THEN c_bpartner.c_bpartner_id
+                    WHEN 'Product' THEN m_product.m_product_id
+                    WHEN 'Project' THEN c_project.c_project_id
+                    ELSE '' END AS groupbyid,
+                  CASE ?
+                    WHEN 'BPartner' THEN (select to_char(name) from c_bpartner b where b.c_bpartner_id = c_bpartner.c_bpartner_id)
+                    WHEN 'Product' THEN (select to_char(value || ' - ' || name) from m_product p where p.m_product_id = m_product.m_product_id)
+                    WHEN 'Project' THEN (select to_char(name) from c_project pj where pj.c_project_id = c_project.c_project_id)
+                    ELSE '' END AS groupbyname,
+                  CASE WHEN AMTACCTDR <> 0 THEN 'Y' ELSE 'N' END AS ISDEBIT, 
+          CASE WHEN FACT_ACCT.FACTACCTTYPE = 'O' THEN 1 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'N' THEN 2 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'R' THEN 3 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'C' THEN 4 END) END) END) END AS FACTACCTTYPE
+              FROM FACT_ACCT
+                LEFT JOIN C_BPARTNER ON FACT_ACCT.C_BPARTNER_ID = C_BPARTNER.C_BPARTNER_ID
+                LEFT JOIN M_PRODUCT ON FACT_ACCT.M_PRODUCT_ID = M_PRODUCT.M_PRODUCT_ID
+                LEFT JOIN C_PROJECT ON FACT_ACCT.C_PROJECT_ID = C_PROJECT.C_PROJECT_ID
+              WHERE (?='Y' OR FACT_ACCT.ACCOUNT_ID IN (
+                        SELECT c_elementvalue_id as name
+                        FROM C_ELEMENTVALUE
+                        WHERE value >= (  select value from c_elementvalue where c_elementvalue_id = ?)
+                          and value <= (  select value from c_elementvalue where c_elementvalue_id = ?)
+                          and c_elementvalue.ELEMENTLEVEL = 'S'
+                      ))
+                AND FACT_ACCT.AD_ORG_ID IN ('1')
+                AND FACT_ACCT.AD_CLIENT_ID IN ('1')
+                AND FACT_ACCT.ACCOUNT_ID IN (select act.c_elementvalue_id from efin_security_rules_act act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.C_Salesregion_ID in (select dep.C_Salesregion_ID from Efin_Security_Rules_Dept dep
+                    join efin_security_rules ru on ru.efin_security_rules_id=dep.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y') 
+          AND FACT_ACCT.C_Project_ID in (select proj.c_project_id from efin_security_rules_proj proj
+                    join efin_security_rules ru on ru.efin_security_rules_id=proj.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.C_CAMPAIGN_ID IN(select bud.C_campaign_ID from efin_security_rules_budtype bud
+                    join efin_security_rules ru on ru.efin_security_rules_id=bud.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.C_Activity_ID in (select act.C_Activity_ID from efin_security_rules_activ act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.User1_ID in (select fut1.User1_ID from efin_security_rules_fut1 fut1
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut1.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.User2_ID in (select fut2.User2_ID from efin_security_rules_fut2 fut2
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut2.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+                AND 1=1
+                AND  FACT_ACCT.AD_ORG_ID IN ('2')
+                AND 2=2
+                AND 3=3) D
+              WHERE 6=6
+              GROUP BY groupbyname, groupbyid, VALUE, NAME, ID,uniquecode,
+              DATEACCT, FACTACCTTYPE, FACT_ACCT_GROUP_ID, DESCRIPTION, ISDEBIT
+              HAVING SUM(AMTACCTDR) - SUM(AMTACCTCR) <> 0
+              ORDER  BY groupbyname, groupbyid, VALUE, NAME, ID,
+              DATEACCT, FACTACCTTYPE, FACT_ACCT_GROUP_ID,  FACT_ACCT_ID, DESCRIPTION, ISDEBIT
+            ) C
+          ) B WHERE 1=1) S
+        WHERE S.uniquecode = ?
+      ]]></Sql>
+    <Field name="rownum" value="count"/>
+    <Parameter name="rownum" type="replace" optional="true" after="FROM ( SELECT " text="'0'" />
+    <Parameter name="groupbytext"/>
+    <Parameter name="groupby"/>
+    <Parameter name="groupby"/>
+    <Parameter name="allaccounts"/>
+    <Parameter name="accountFrom"/>
+    <Parameter name="accountTo"/>
+    <Parameter name="adUserOrg" type="replace" optional="true" after="AND FACT_ACCT.AD_ORG_ID IN (" text="'1'"/>
+    <Parameter name="adUserClient" type="replace" optional="true" after="AND FACT_ACCT.AD_CLIENT_ID IN (" text="'1'"/>
+    <Parameter name="RoleId"/>
+    <Parameter name="RoleId"/>
+    <Parameter name="RoleId"/>
+    <Parameter name="RoleId"/>
+    <Parameter name="RoleId"/>
+    <Parameter name="RoleId"/>
+    <Parameter name="RoleId"/>
+    <Parameter name="acctschema" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.C_ACCTSCHEMA_ID = ? ]]></Parameter>
+    <Parameter name="parDateFrom2" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.DATEACCT >= TO_DATE(?) ]]></Parameter>
+    <Parameter name="parDateTo2" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.DATEACCT < TO_DATE(?) ]]></Parameter>
+    <Parameter name="org" type="replace" optional="true" after="AND  FACT_ACCT.AD_ORG_ID IN (" text="'2'"/>
+    <Parameter name="cBpartnerId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_BPARTNER_ID IN]]></Parameter>
+    <Parameter name="mProductId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.M_PRODUCT_ID IN]]></Parameter>
+    <Parameter name="cProjectId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_PROJECT_ID IN]]></Parameter>
+    <Parameter name="cSalesregionId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_SALESREGION_ID IN]]></Parameter>
+    <Parameter name="cCampaignId" optional="true" after="AND 2=2"><![CDATA[ AND coalesce(FACT_ACCT.C_CAMPAIGN_ID, (select c.C_CAMPAIGN_ID from C_CAMPAIGN c where em_efin_budgettype = 'F' and ad_client_id = FACT_ACCT.ad_client_id limit 1))= ?]]></Parameter>
+     <Parameter name="cActivityId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_ACTIVITY_ID IN]]></Parameter>
+     <Parameter name="user1Id" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.USER1_ID IN]]></Parameter>
+     <Parameter name="user2Id" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.USER2_ID IN]]></Parameter>
+    <Parameter name="paramAmtFrom" optional="true" after="3=3"><![CDATA[ AND (FACT_ACCT.AMTACCTDR + FACT_ACCT.AMTACCTCR)>=TO_NUMBER(?) ]]></Parameter>
+    <Parameter name="paramAmtTo" optional="true" after="3=3"><![CDATA[ AND (FACT_ACCT.AMTACCTDR + FACT_ACCT.AMTACCTCR)<=TO_NUMBER(?) ]]></Parameter>
+    <Parameter name="paramDocNo" optional="true"  after="3=3"><![CDATA[ and FACT_ACCT.em_efin_documentno like ? ]]></Parameter>
+    <Parameter name="paramAccSeq" optional="true"  after="3=3"><![CDATA[ and FACT_ACCT.em_efin_acctseq like ? ]]></Parameter>
+    <Parameter name="accountId" optional="true" after="WHERE 6=6"><![CDATA[AND uniquecode = ? ]]></Parameter>
+    <Parameter name="cBPartner" optional="true" after="WHERE 6=6"><![CDATA[AND groupbyid = ? ]]></Parameter>
+    <Parameter name="pgLimit" type="argument" optional="true" after=",  FACT_ACCT_ID, DESCRIPTION, ISDEBIT"><![CDATA[ LIMIT ]]></Parameter>
+    <Parameter name="oraLimit1" type="argument" optional="true" after=") C"><![CDATA[ WHERE ROWNUM <= ]]></Parameter>
+    <Parameter name="oraLimit2" type="argument" optional="true" after="WHERE 1=1"><![CDATA[ AND RN1 BETWEEN ]]></Parameter>
+    <Parameter name="factAcctId" optional="true" after="WHERE 1=1"><![CDATA[ and to_char(DATEACCT,'J')||FACTACCTTYPE||FACT_ACCT_GROUP_ID||FACT_ACCT_ID < ? ]]></Parameter>
+    <Parameter name="accountId2"/>
+  </SqlMethod>
+
+  <SqlMethod name="select2" type="preparedStatement" return="scrollable">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        SELECT *
+        FROM ( SELECT '0' AS RN1,C.* FROM (
+          SELECT VALUE, NAME,eut_convert_to_hijri(to_char(DATEACCT,'YYYY-MM-DD')) as DATEACCT,
+              DATEACCT as DATEACCTGREGORIAN,docnumber,ACCOUNTSEQ,TRANSACTIONTYPE,
+              COALESCE(SUM(AMTACCTDR),0) AS AMTACCTDR, COALESCE(SUM(AMTACCTCR),0) AS AMTACCTCR, COALESCE(SUM(AMTACCTDR-AMTACCTCR),0) AS TOTAL,
+              MAX(FACT_ACCT_ID) AS FACT_ACCT_ID,
+              FACT_ACCT_GROUP_ID, ID, groupbyid, groupbyname,
+              DESCRIPTION, ISDEBIT,periodid,C_ACCTSCHEMA_ID,
+              0 AS TOTALACCTDR, 0 AS TOTALACCTCR, 0 AS TOTALACCTSUB,
+              0 AS PREVIOUSDEBIT, 0 AS PREVIOUSCREDIT, 0 AS PREVIOUSTOTAL,
+              0 AS FINALDEBIT, 0 AS FINALCREDIT, 0 AS FINALTOTAL,
+              TO_CHAR(DATEACCT,'J') AS DATEACCTNUMBER,
+              ? AS groupby, '' as bpid, '' as bpname, '' as pdid, '' as pdname, '' as pjid, '' as pjname, factaccttype
+              , 0 AS AMTACCTDRPREVSUM, 0 AS AMTACCTCRPREVSUM
+          FROM
+            (SELECT coalesce(FACT_ACCT.EM_EFIN_UNIQUECODE,FACT_ACCT.ACCTVALUE) AS VALUE, FACT_ACCT.ACCTDESCRIPTION AS NAME,
+                DATEACCT,FACT_ACCT.em_efin_documentno as docnumber,FACT_ACCT.EM_EFIN_ACCTSEQ as ACCOUNTSEQ,
+                (select name from AD_REF_LIST_V WHERE AD_REFERENCE_ID = '9E075867CEC44FD3984AF76FAB5199B8' and VALUE=FACT_ACCT.DOCBASETYPE AND AD_LANGUAGE=?) as TRANSACTIONTYPE,
+                 AMTACCTDR, AMTACCTCR, FACT_ACCT_ID,C_ACCTSCHEMA_ID,
+                FACT_ACCT_GROUP_ID, FACT_ACCT.ACCOUNT_ID AS ID, FACT_ACCT.DESCRIPTION,C_PERIOD.c_period_id as periodid,
+                CASE ?
+                  WHEN 'BPartner' THEN c_bpartner.c_bpartner_id
+                  WHEN 'Product' THEN m_product.m_product_id
+                  WHEN 'Project' THEN c_project.c_project_id
+                  ELSE '' END AS groupbyid,
+                CASE ?
+                  WHEN 'BPartner' THEN (select to_char(name) from c_bpartner b where b.c_bpartner_id = c_bpartner.c_bpartner_id)
+                  WHEN 'Product' THEN (select to_char(value || ' - ' || name) from m_product p where p.m_product_id = m_product.m_product_id)
+                  WHEN 'Project' THEN (select to_char(value || ' - ' || name) from c_project pj where pj.c_project_id = c_project.c_project_id)
+                  ELSE '' END AS groupbyname,
+                CASE WHEN AMTACCTDR <> 0 THEN 'Y' ELSE 'N' END AS ISDEBIT, 
+        CASE WHEN FACT_ACCT.FACTACCTTYPE = 'O' THEN 1 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'N' THEN 2 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'R' THEN 3 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'C' THEN 4 END) END) END) END AS FACTACCTTYPE
+            FROM FACT_ACCT
+              LEFT JOIN C_BPARTNER ON FACT_ACCT.C_BPARTNER_ID = C_BPARTNER.C_BPARTNER_ID
+              LEFT JOIN M_PRODUCT ON FACT_ACCT.M_PRODUCT_ID = M_PRODUCT.M_PRODUCT_ID
+              LEFT JOIN C_PROJECT ON FACT_ACCT.C_PROJECT_ID = C_PROJECT.C_PROJECT_ID
+              JOIN C_PERIOD ON FACT_ACCT.C_PERIOD_ID = C_PERIOD.C_PERIOD_ID
+            WHERE (?='Y' OR FACT_ACCT.ACCOUNT_ID IN (
+                      SELECT c_elementvalue_id as name
+                      FROM C_ELEMENTVALUE
+                      WHERE value >= (  select value from c_elementvalue where c_elementvalue_id = ?)
+                        and value <= (  select value from c_elementvalue where c_elementvalue_id = ?)
+                        and c_elementvalue.ELEMENTLEVEL = 'S' and c_elementvalue.accounttype ='E'
+                    ))
+              AND   FACT_ACCT.AD_ORG_ID IN ('1')
+              AND   FACT_ACCT.AD_CLIENT_ID IN ('1')
+              AND 1=1
+              AND   fact_acct.ad_org_id IN ('2')
+              AND 2=2
+              AND 3=3
+              AND FACT_ACCT.ACCOUNT_ID IN (select act.c_elementvalue_id from efin_security_rules_act act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.C_Salesregion_ID in (select dep.C_Salesregion_ID from Efin_Security_Rules_Dept dep
+                    join efin_security_rules ru on ru.efin_security_rules_id=dep.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y') 
+          AND FACT_ACCT.C_Project_ID in (select proj.c_project_id from efin_security_rules_proj proj
+                    join efin_security_rules ru on ru.efin_security_rules_id=proj.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.C_CAMPAIGN_ID IN(select bud.C_campaign_ID from efin_security_rules_budtype bud
+                    join efin_security_rules ru on ru.efin_security_rules_id=bud.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.C_Activity_ID in (select act.C_Activity_ID from efin_security_rules_activ act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.User1_ID in (select fut1.User1_ID from efin_security_rules_fut1 fut1
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut1.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.User2_ID in (select fut2.User2_ID from efin_security_rules_fut2 fut2
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut2.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y') 
+        UNION
+              SELECT coalesce(FACT_ACCT.EM_EFIN_UNIQUECODE,FACT_ACCT.ACCTVALUE) AS VALUE, FACT_ACCT.ACCTDESCRIPTION AS NAME,
+               DATEACCT,FACT_ACCT.em_efin_documentno as docnumber,FACT_ACCT.EM_EFIN_ACCTSEQ as ACCOUNTSEQ,
+               (select name from AD_REF_LIST_V WHERE AD_REFERENCE_ID = '9E075867CEC44FD3984AF76FAB5199B8' and VALUE=FACT_ACCT.DOCBASETYPE AND AD_LANGUAGE=?) as TRANSACTIONTYPE,
+                AMTACCTDR, AMTACCTCR, FACT_ACCT_ID,C_ACCTSCHEMA_ID,
+                FACT_ACCT_GROUP_ID, FACT_ACCT.ACCOUNT_ID AS ID, FACT_ACCT.DESCRIPTION,C_PERIOD.c_period_id as periodid,
+                CASE ?
+                  WHEN 'BPartner' THEN c_bpartner.c_bpartner_id
+                  WHEN 'Product' THEN m_product.m_product_id
+                  WHEN 'Project' THEN c_project.c_project_id
+                  ELSE '' END AS groupbyid,
+                CASE ?
+                  WHEN 'BPartner' THEN (select to_char(name) from c_bpartner b where b.c_bpartner_id = c_bpartner.c_bpartner_id)
+                  WHEN 'Product' THEN (select to_char(value || ' - ' || name) from m_product p where p.m_product_id = m_product.m_product_id)
+                  WHEN 'Project' THEN (select to_char(value || ' - ' || name) from c_project pj where pj.c_project_id = c_project.c_project_id)
+                  ELSE '' END AS groupbyname,
+                CASE WHEN AMTACCTDR <> 0 THEN 'Y' ELSE 'N' END AS ISDEBIT, 
+        CASE WHEN FACT_ACCT.FACTACCTTYPE = 'O' THEN 1 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'N' THEN 2 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'R' THEN 3 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'C' THEN 4 END) END) END) END AS FACTACCTTYPE
+            FROM FACT_ACCT
+              LEFT JOIN C_BPARTNER ON FACT_ACCT.C_BPARTNER_ID = C_BPARTNER.C_BPARTNER_ID
+              LEFT JOIN M_PRODUCT ON FACT_ACCT.M_PRODUCT_ID = M_PRODUCT.M_PRODUCT_ID
+              LEFT JOIN C_PROJECT ON FACT_ACCT.C_PROJECT_ID = C_PROJECT.C_PROJECT_ID
+              JOIN C_PERIOD ON FACT_ACCT.C_PERIOD_ID = C_PERIOD.C_PERIOD_ID
+            WHERE (?='Y' OR FACT_ACCT.ACCOUNT_ID IN (
+                      SELECT c_elementvalue_id as name
+                      FROM C_ELEMENTVALUE
+                      WHERE value >= (  select value from c_elementvalue where c_elementvalue_id = ?)
+                        and value <= (  select value from c_elementvalue where c_elementvalue_id = ?)
+                        and c_elementvalue.ELEMENTLEVEL = 'S' and c_elementvalue.accounttype !='E'
+                    ))
+              AND    FACT_ACCT.AD_ORG_ID IN ('1')
+              AND    FACT_ACCT.AD_CLIENT_ID IN ('1')
+              AND 4=4
+              AND    fact_acct.ad_org_id IN ('2')
+              AND 5=5
+              AND 6=6
+              AND FACT_ACCT.ACCOUNT_ID IN (select act.c_elementvalue_id from efin_security_rules_act act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.C_Salesregion_ID in (select dep.C_Salesregion_ID from Efin_Security_Rules_Dept dep
+                    join efin_security_rules ru on ru.efin_security_rules_id=dep.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y') 
+          AND FACT_ACCT.C_Project_ID in (select proj.c_project_id from efin_security_rules_proj proj
+                    join efin_security_rules ru on ru.efin_security_rules_id=proj.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.C_CAMPAIGN_ID IN(select bud.C_campaign_ID from efin_security_rules_budtype bud
+                    join efin_security_rules ru on ru.efin_security_rules_id=bud.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.C_Activity_ID in (select act.C_Activity_ID from efin_security_rules_activ act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.User1_ID in (select fut1.User1_ID from efin_security_rules_fut1 fut1
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut1.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.User2_ID in (select fut2.User2_ID from efin_security_rules_fut2 fut2
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut2.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y') 
+              ) D
+            WHERE 7=7
+            GROUP BY groupbyname, groupbyid, VALUE, NAME, ID,periodid,C_ACCTSCHEMA_ID,
+            DATEACCTGREGORIAN,docnumber,ACCOUNTSEQ,TRANSACTIONTYPE,
+             FACTACCTTYPE, FACT_ACCT_GROUP_ID, DESCRIPTION, ISDEBIT
+            HAVING SUM(AMTACCTDR) - SUM(AMTACCTCR) <> 0
+            ORDER  BY DATEACCT desc ,ACCOUNTSEQ desc
+          ) C
+        ) B WHERE 8=8
+      ]]></Sql>
+    <Field name="rownum" value="count"/>
+    <Parameter name="rownum" type="replace" optional="true" after="FROM ( SELECT " text="'0'" />
+    <Parameter name="groupbytext"/>
+    <Parameter name="paramLanguage"></Parameter>
+    <Parameter name="groupby"/>
+    <Parameter name="groupby"/>
+    <Parameter name="allaccounts"/>
+    <Parameter name="accountFrom"/>
+    <Parameter name="accountTo"/>
+    <Parameter name="adUserOrg" type="replace" optional="true" after="AND   FACT_ACCT.AD_ORG_ID IN (" text="'1'"/>
+    <Parameter name="adUserClient" type="replace" optional="true" after="AND   FACT_ACCT.AD_CLIENT_ID IN (" text="'1'"/>
+    <Parameter name="dateBalanced" optional="true" after="AND 1=1"><![CDATA[AND (FACT_ACCT.DATEBALANCED IS NULL OR FACT_ACCT.DATEBALANCED > TO_DATE(?)) ]]></Parameter>
+    <Parameter name="acctschema" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.C_ACCTSCHEMA_ID = ? ]]></Parameter>
+    <Parameter name="parDateFrom2" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.DATEACCT >= TO_DATE(?) ]]></Parameter>
+    <Parameter name="parDateTo2" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.DATEACCT < TO_DATE(?) ]]></Parameter>
+    <Parameter name="org" type="replace" optional="true" after="AND   fact_acct.ad_org_id IN (" text="'2'"/>
+    <Parameter name="cBpartnerId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_BPARTNER_ID IN]]></Parameter>
+    <Parameter name="mProductId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.M_PRODUCT_ID IN]]></Parameter>
+    <Parameter name="cProjectId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_PROJECT_ID IN]]></Parameter>
+    <Parameter name="cSalesregionId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_SALESREGION_ID IN]]></Parameter>
+    <Parameter name="cCampaignId" optional="true" after="AND 2=2"><![CDATA[ AND coalesce(FACT_ACCT.C_CAMPAIGN_ID, (select c.C_CAMPAIGN_ID from C_CAMPAIGN c where em_efin_budgettype = 'F' and ad_client_id = FACT_ACCT.ad_client_id limit 1))= ?]]></Parameter>
+    <Parameter name="cActivityId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_ACTIVITY_ID IN]]></Parameter>
+    <Parameter name="user1Id" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.USER1_ID IN]]></Parameter>
+    <Parameter name="user2Id" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.USER2_ID IN]]></Parameter>
+     <Parameter name="uniquecode" optional="true" after="AND 2=2"><![CDATA[ AND ( FACT_ACCT.EM_EFIN_UNIQUECODE  = ?]]></Parameter>
+     <Parameter name="uniquecode" optional="true"  after="AND 2=2"><![CDATA[ or FACT_ACCT.ACCTVALUE = ? ) ]]></Parameter>
+    <Parameter name="paramAmtFrom" optional="true" after="3=3"><![CDATA[ AND (FACT_ACCT.AMTACCTDR + FACT_ACCT.AMTACCTCR)>=TO_NUMBER(?) ]]></Parameter>
+    <Parameter name="paramAmtTo" optional="true" after="3=3"><![CDATA[ AND (FACT_ACCT.AMTACCTDR + FACT_ACCT.AMTACCTCR)<=TO_NUMBER(?) ]]></Parameter>
+    <Parameter name="paramDocNo" optional="true"  after="3=3"><![CDATA[ and FACT_ACCT.em_efin_documentno like ? ]]></Parameter>
+    <Parameter name="paramAccSeq" optional="true"  after="3=3"><![CDATA[ and FACT_ACCT.em_efin_acctseq like ? ]]></Parameter>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+    <Parameter name="paramLanguage"></Parameter>
+    <Parameter name="groupby"/>
+    <Parameter name="groupby"/>
+    <Parameter name="allaccounts"/>
+    <Parameter name="accountFrom"/>
+    <Parameter name="accountTo"/>
+    <Parameter name="adUserOrg" type="replace" optional="true" after="AND    FACT_ACCT.AD_ORG_ID IN (" text="'1'"/>
+    <Parameter name="adUserClient" type="replace" optional="true" after="AND    FACT_ACCT.AD_CLIENT_ID IN (" text="'1'"/>
+    <Parameter name="dateBalanced" optional="true" after="AND 4=4"><![CDATA[AND (FACT_ACCT.DATEBALANCED IS NULL OR FACT_ACCT.DATEBALANCED > TO_DATE(?)) ]]></Parameter>
+    <Parameter name="acctschema" optional="true" after="AND 4=4"><![CDATA[AND FACT_ACCT.C_ACCTSCHEMA_ID = ? ]]></Parameter>
+    <Parameter name="parDateFrom2" optional="true" after="AND 4=4"><![CDATA[AND FACT_ACCT.DATEACCT >= TO_DATE(?) ]]></Parameter>
+    <Parameter name="parDateTo2" optional="true" after="AND 4=4"><![CDATA[AND FACT_ACCT.DATEACCT < TO_DATE(?) ]]></Parameter>
+    <Parameter name="org" type="replace" optional="true" after="AND    fact_acct.ad_org_id IN (" text="'2'"/>
+    <Parameter name="cBpartnerId" optional="true" type="argument" after="AND 5=5"><![CDATA[ AND FACT_ACCT.C_BPARTNER_ID IN]]></Parameter>
+    <Parameter name="mProductId" optional="true" type="argument" after="AND 5=5"><![CDATA[ AND FACT_ACCT.M_PRODUCT_ID IN]]></Parameter>
+    <Parameter name="cProjectId" optional="true" type="argument" after="AND 5=5"><![CDATA[ AND FACT_ACCT.C_PROJECT_ID IN]]></Parameter>
+    <Parameter name="cSalesregionId" optional="true" type="argument" after="AND 5=5"><![CDATA[ AND FACT_ACCT.C_SALESREGION_ID IN]]></Parameter>
+    <Parameter name="cCampaignId" optional="true" after="AND 5=5"><![CDATA[ AND coalesce(FACT_ACCT.C_CAMPAIGN_ID, (select c.C_CAMPAIGN_ID from C_CAMPAIGN c where em_efin_budgettype = 'F' and ad_client_id = FACT_ACCT.ad_client_id limit 1))= ?]]></Parameter>
+    <Parameter name="cActivityId" optional="true" type="argument" after="AND 5=5"><![CDATA[ AND FACT_ACCT.C_ACTIVITY_ID IN]]></Parameter>
+    <Parameter name="user1Id" optional="true" type="argument" after="AND 5=5"><![CDATA[ AND FACT_ACCT.USER1_ID IN]]></Parameter>
+    <Parameter name="user2Id" optional="true" type="argument" after="AND 5=5"><![CDATA[ AND FACT_ACCT.USER2_ID IN]]></Parameter>
+     <Parameter name="uniquecode" optional="true"  after="AND 5=5"><![CDATA[ AND ( FACT_ACCT.EM_EFIN_UNIQUECODE  = ? ]]></Parameter>
+     <Parameter name="uniquecode" optional="true"  after="AND 5=5"><![CDATA[ or FACT_ACCT.ACCTVALUE = ? ) ]]></Parameter>
+    <Parameter name="paramAmtFrom" optional="true" after="6=6"><![CDATA[ AND (FACT_ACCT.AMTACCTDR + FACT_ACCT.AMTACCTCR)>=TO_NUMBER(?) ]]></Parameter>
+    <Parameter name="paramAmtTo" optional="true" after="6=6"><![CDATA[ AND (FACT_ACCT.AMTACCTDR + FACT_ACCT.AMTACCTCR)<=TO_NUMBER(?) ]]></Parameter>
+    <Parameter name="paramDocNo" optional="true"  after="6=6"><![CDATA[ and FACT_ACCT.em_efin_documentno like ? ]]></Parameter>
+    <Parameter name="paramAccSeq" optional="true"  after="6=6"><![CDATA[ and FACT_ACCT.em_efin_acctseq like ? ]]></Parameter>
+    <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+     <Parameter name="RoleId"/>
+    <Parameter name="accountId" optional="true" after="WHERE 7=7"><![CDATA[AND ID = ? ]]></Parameter>
+    <Parameter name="cBPartner" optional="true" after="WHERE 7=7"><![CDATA[AND groupbyid = ? ]]></Parameter>
+    <Parameter name="pgLimit" type="argument" optional="true" after=",ACCOUNTSEQ desc"><![CDATA[ LIMIT ]]></Parameter>
+    <Parameter name="oraLimit1" type="argument" optional="true" after=") C"><![CDATA[ WHERE ROWNUM <= ]]></Parameter>
+    <Parameter name="oraLimit2" type="argument" optional="true" after="WHERE 8=8"><![CDATA[ AND RN1 BETWEEN ]]></Parameter>
+    <Parameter name="factAcctId" optional="true" after="WHERE 8=8"><![CDATA[ and to_char(DATEACCT,'J')||FACTACCTTYPE||FACT_ACCT_GROUP_ID||FACT_ACCT_ID < ? ]]></Parameter>
+  </SqlMethod>
+  
+  <SqlMethod name="select2Total" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+        SELECT COALESCE(SUM(AMTACCTDR),0) AS AMTACCTDR, COALESCE(SUM(AMTACCTCR),0) AS AMTACCTCR
+        FROM ( SELECT '0' AS RN1, C.* FROM (
+          SELECT VALUE, NAME, DATEACCT,
+          COALESCE(SUM(AMTACCTDR),0) AS AMTACCTDR, COALESCE(SUM(AMTACCTCR),0) AS AMTACCTCR,
+              COALESCE(SUM(AMTACCTDR-AMTACCTCR),0) AS TOTAL,
+              MAX(FACT_ACCT_ID) AS FACT_ACCT_ID,
+              FACT_ACCT_GROUP_ID, ID,uniquecode, groupbyid, groupbyname,
+              DESCRIPTION, ISDEBIT,
+              0 AS TOTALACCTDR, 0 AS TOTALACCTCR, 0 AS TOTALACCTSUB,
+              0 AS PREVIOUSDEBIT, 0 AS PREVIOUSCREDIT, 0 AS PREVIOUSTOTAL,
+              0 AS FINALDEBIT, 0 AS FINALCREDIT, 0 AS FINALTOTAL,
+              TO_CHAR(DATEACCT,'J') AS DATEACCTNUMBER,
+              ? AS groupby, '' as bpid, '' as bpname, '' as pdid, '' as pdname, '' as pjid, '' as pjname, factaccttype
+          FROM
+            (SELECT FACT_ACCT.ACCTVALUE AS VALUE, FACT_ACCT.ACCTDESCRIPTION AS NAME,
+                DATEACCT, AMTACCTDR, AMTACCTCR, FACT_ACCT_ID,
+                FACT_ACCT_GROUP_ID, FACT_ACCT.ACCOUNT_ID AS ID,FACT_ACCT.em_efin_uniquecode as uniquecode, FACT_ACCT.DESCRIPTION,
+                CASE ?
+                  WHEN 'BPartner' THEN c_bpartner.c_bpartner_id
+                  WHEN 'Product' THEN m_product.m_product_id
+                  WHEN 'Project' THEN c_project.c_project_id
+                  ELSE '' END AS groupbyid,
+                CASE ?
+                  WHEN 'BPartner' THEN (select to_char(name) from c_bpartner b where b.c_bpartner_id = c_bpartner.c_bpartner_id)
+                  WHEN 'Product' THEN (select to_char(value || ' - ' || name) from m_product p where p.m_product_id = m_product.m_product_id)
+                  WHEN 'Project' THEN (select to_char(value || ' - ' || name) from c_project pj where pj.c_project_id = c_project.c_project_id)
+                  ELSE '' END AS groupbyname,
+                CASE WHEN AMTACCTDR <> 0 THEN 'Y' ELSE 'N' END AS ISDEBIT, 
+        CASE WHEN FACT_ACCT.FACTACCTTYPE = 'O' THEN 1 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'N' THEN 2 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'R' THEN 3 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'C' THEN 4 END) END) END) END AS FACTACCTTYPE
+            FROM FACT_ACCT
+              LEFT JOIN C_BPARTNER ON FACT_ACCT.C_BPARTNER_ID = C_BPARTNER.C_BPARTNER_ID
+              LEFT JOIN M_PRODUCT ON FACT_ACCT.M_PRODUCT_ID = M_PRODUCT.M_PRODUCT_ID
+              LEFT JOIN C_PROJECT ON FACT_ACCT.C_PROJECT_ID = C_PROJECT.C_PROJECT_ID
+            WHERE (?='Y' OR FACT_ACCT.ACCOUNT_ID IN (
+                      SELECT c_elementvalue_id as name
+                      FROM C_ELEMENTVALUE
+                      WHERE value >= (  select value from c_elementvalue where c_elementvalue_id = ?)
+                        and value <= (  select value from c_elementvalue where c_elementvalue_id = ?)
+                        and c_elementvalue.ELEMENTLEVEL = 'S'
+                    ))
+              AND FACT_ACCT.AD_ORG_ID IN ('1')
+              AND FACT_ACCT.AD_CLIENT_ID IN ('1')
+              AND FACT_ACCT.ACCOUNT_ID IN (select act.c_elementvalue_id from efin_security_rules_act act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.C_Salesregion_ID in (select dep.C_Salesregion_ID from Efin_Security_Rules_Dept dep
+                    join efin_security_rules ru on ru.efin_security_rules_id=dep.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y') 
+          AND FACT_ACCT.C_Project_ID in (select proj.c_project_id from efin_security_rules_proj proj
+                    join efin_security_rules ru on ru.efin_security_rules_id=proj.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.C_CAMPAIGN_ID IN(select bud.C_campaign_ID from efin_security_rules_budtype bud
+                    join efin_security_rules ru on ru.efin_security_rules_id=bud.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.C_Activity_ID in (select act.C_Activity_ID from efin_security_rules_activ act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.User1_ID in (select fut1.User1_ID from efin_security_rules_fut1 fut1
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut1.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.User2_ID in (select fut2.User2_ID from efin_security_rules_fut2 fut2
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut2.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+              AND 1=1
+              AND  FACT_ACCT.AD_ORG_ID IN ('2')
+              AND 2=2
+              AND 3=3) D
+            WHERE 6=6
+            GROUP BY groupbyname, groupbyid, VALUE, NAME, ID,uniquecode,
+            DATEACCT, FACTACCTTYPE, FACT_ACCT_GROUP_ID, DESCRIPTION, ISDEBIT
+            HAVING SUM(AMTACCTDR) - SUM(AMTACCTCR) <> 0
+            ORDER  BY groupbyname, groupbyid, VALUE, NAME, ID,
+            DATEACCT, FACTACCTTYPE, FACT_ACCT_GROUP_ID,  FACT_ACCT_ID, DESCRIPTION, ISDEBIT
+          ) C
+        ) B WHERE 1=1
+      ]]></Sql>
+    <Field name="rownum" value="count"/>
+    <Parameter name="rownum" type="replace" optional="true" after="FROM ( SELECT " text="'0'" />
+    <Parameter name="groupbytext"/>
+    <Parameter name="groupby"/>
+    <Parameter name="groupby"/>
+    <Parameter name="allaccounts"/>
+    <Parameter name="accountFrom"/>
+    <Parameter name="accountTo"/>
+    <Parameter name="adUserOrg" type="replace" optional="true" after="AND FACT_ACCT.AD_ORG_ID IN (" text="'1'"/>
+    <Parameter name="adUserClient" type="replace" optional="true" after="AND FACT_ACCT.AD_CLIENT_ID IN (" text="'1'"/>
+    <Parameter name="RoleId"/>
+    <Parameter name="RoleId"/>
+    <Parameter name="RoleId"/>
+    <Parameter name="RoleId"/>
+    <Parameter name="RoleId"/>
+    <Parameter name="RoleId"/>
+    <Parameter name="RoleId"/>
+    <Parameter name="acctschema" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.C_ACCTSCHEMA_ID = ? ]]></Parameter>
+    <Parameter name="parDateFrom2" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.DATEACCT >= TO_DATE(?) ]]></Parameter>
+    <Parameter name="parDateTo2" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.DATEACCT < TO_DATE(?) ]]></Parameter>
+    <Parameter name="org" type="replace" optional="true" after="AND  FACT_ACCT.AD_ORG_ID IN (" text="'2'"/>
+    <Parameter name="cBpartnerId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_BPARTNER_ID IN]]></Parameter>
+    <Parameter name="mProductId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.M_PRODUCT_ID IN]]></Parameter>
+    <Parameter name="cProjectId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_PROJECT_ID IN]]></Parameter>
+     <Parameter name="cSalesregionId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_SALESREGION_ID IN]]></Parameter>
+    <Parameter name="cCampaignId" optional="true" after="AND 2=2"><![CDATA[ AND coalesce(FACT_ACCT.C_CAMPAIGN_ID, (select c.C_CAMPAIGN_ID from C_CAMPAIGN c where em_efin_budgettype = 'F' and ad_client_id = FACT_ACCT.ad_client_id limit 1))= ?]]></Parameter>
+     <Parameter name="cActivityId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_ACTIVITY_ID IN]]></Parameter>
+     <Parameter name="user1Id" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.USER1_ID IN]]></Parameter>
+     <Parameter name="user2Id" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.USER2_ID IN]]></Parameter>
+    <Parameter name="paramAmtFrom" optional="true" after="3=3"><![CDATA[ AND (FACT_ACCT.AMTACCTDR + FACT_ACCT.AMTACCTCR)>=TO_NUMBER(?) ]]></Parameter>
+    <Parameter name="paramAmtTo" optional="true" after="3=3"><![CDATA[ AND (FACT_ACCT.AMTACCTDR + FACT_ACCT.AMTACCTCR)<=TO_NUMBER(?) ]]></Parameter>
+    <Parameter name="paramDocNo" optional="true"  after="3=3"><![CDATA[ and FACT_ACCT.em_efin_documentno like ? ]]></Parameter>
+    <Parameter name="paramAccSeq" optional="true"  after="3=3"><![CDATA[ and FACT_ACCT.em_efin_acctseq like ? ]]></Parameter>
+    <Parameter name="accountId" optional="true" after="WHERE 6=6"><![CDATA[AND uniquecode = ? ]]></Parameter>
+    <Parameter name="cBPartner" optional="true" after="WHERE 6=6"><![CDATA[AND groupbyid = ? ]]></Parameter>
+    <Parameter name="pgLimit" type="argument" optional="true" after=",  FACT_ACCT_ID, DESCRIPTION, ISDEBIT"><![CDATA[ LIMIT ]]></Parameter>
+    <Parameter name="oraLimit1" type="argument" optional="true" after=") C"><![CDATA[ WHERE ROWNUM <= ]]></Parameter>
+    <Parameter name="oraLimit2" type="argument" optional="true" after="WHERE 1=1"><![CDATA[ AND RN1 BETWEEN ]]></Parameter>
+    <Parameter name="factAcctId" optional="true" after="WHERE 1=1"><![CDATA[ and to_char(DATEACCT,'J')||FACTACCTTYPE||FACT_ACCT_GROUP_ID||FACT_ACCT_ID < ? ]]></Parameter>
+  </SqlMethod>
+
+  <SqlMethod name="selectXLS" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+      SELECT VALUE, NAME, DATEACCT,
+          SUM(AMTACCTDR) AS AMTACCTDR, SUM(AMTACCTCR) AS AMTACCTCR,
+          FACT_ACCT_GROUP_ID, ID, bpid, bpname, pdid, pdname, pjid, pjname,
+          DESCRIPTION, FACTACCTTYPE
+      FROM
+        (SELECT FACT_ACCT.ACCTVALUE AS VALUE, FACT_ACCT.ACCTDESCRIPTION AS NAME,
+            DATEACCT, AMTACCTDR, AMTACCTCR,
+            FACT_ACCT_GROUP_ID, FACT_ACCT.ACCOUNT_ID AS ID, FACT_ACCT.DESCRIPTION,
+            c_bpartner.c_bpartner_id as bpid, m_product.m_product_id as pdid, c_project.c_project_id as pjid,
+            (case AD_COLUMN_IDENTIFIER('C_Bpartner',c_bpartner.c_bpartner_id, ?) when '**' then '' else AD_COLUMN_IDENTIFIER('C_Bpartner',c_bpartner.c_bpartner_id, ?) end) as bpname, (case AD_COLUMN_IDENTIFIER('M_Product',m_product.m_product_id, ?) when '**' then '' else AD_COLUMN_IDENTIFIER('M_Product',m_product.m_product_id, ?) end) as pdname, (case AD_COLUMN_IDENTIFIER('C_Project',c_project.c_project_id, ?) when '**' then '' else AD_COLUMN_IDENTIFIER('C_Project',c_project.c_project_id, ?) end)  as pjname,
+            CASE WHEN AMTACCTDR <> 0 THEN 'Y' ELSE 'N' END AS ISDEBIT,
+            CASE WHEN FACT_ACCT.FACTACCTTYPE = 'O' THEN 1 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'N' THEN 2 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'R' THEN 3 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'C' THEN 4 END) END) END) END AS FACTACCTTYPE
+        FROM FACT_ACCT
+          LEFT JOIN C_BPARTNER ON FACT_ACCT.C_BPARTNER_ID = C_BPARTNER.C_BPARTNER_ID
+          LEFT JOIN M_PRODUCT ON FACT_ACCT.M_PRODUCT_ID = M_PRODUCT.M_PRODUCT_ID
+          LEFT JOIN C_PROJECT ON FACT_ACCT.C_PROJECT_ID = C_PROJECT.C_PROJECT_ID
+          LEFT JOIN(
+              select account_id, record_id2, sum(amtacctdr-amtacctcr) as sum
+              from fact_acct f1
+              where 5=5
+              group by account_id, record_id2
+            ) f2 ON fact_acct.account_id = f2.account_id and fact_acct.record_id2 = f2.record_id2
+        WHERE (?='Y' OR FACT_ACCT.ACCOUNT_ID IN (
+                  SELECT c_elementvalue_id as name
+                  FROM C_ELEMENTVALUE
+                  WHERE value >= (  select value from c_elementvalue where c_elementvalue_id = ?)
+                    and value <= (  select value from c_elementvalue where c_elementvalue_id = ?)
+                    and c_elementvalue.ELEMENTLEVEL = 'S'
+                ))
+          AND FACT_ACCT.AD_ORG_ID IN ('1')
+          AND FACT_ACCT.AD_CLIENT_ID IN ('1')
+          AND (? = 'N' OR (fact_acct.RECORD_ID2 IS NULL) OR (SUM != 0))
+          AND 1=1
+          AND  FACT_ACCT.AD_ORG_ID IN ('2')
+          AND 2=2
+          AND 3=3) D
+        WHERE 6=6
+        GROUP BY VALUE, NAME, ID, FACTACCTTYPE, DATEACCT, FACT_ACCT_GROUP_ID, description, bpname, bpid, pdname, pdid, pjname, pjid, ISDEBIT
+        HAVING SUM(AMTACCTDR) - SUM(AMTACCTCR) <> 0
+        ORDER BY VALUE, NAME, ID, DATEACCT, FACTACCTTYPE, FACT_ACCT_GROUP_ID, description,  bpname, bpid, pdname, pdid, pjname, pjid, ISDEBIT
+      ]]></Sql>
+    <Field name="rownum" value="count"/>
+    <Parameter name="adLanguage"/>
+    <Parameter name="adLanguage"/>
+    <Parameter name="adLanguage"/>
+    <Parameter name="adLanguage"/>
+    <Parameter name="adLanguage"/>
+    <Parameter name="adLanguage"/>
+    <Parameter name="parDateFrom" optional="true" after="where 5=5"><![CDATA[AND DATEACCT >= TO_DATE(?) ]]></Parameter>
+    <Parameter name="parDateTo" optional="true" after="where 5=5"><![CDATA[AND DATEACCT < TO_DATE(?) ]]></Parameter>
+    <Parameter name="allaccounts"/>
+    <Parameter name="accountFrom"/>
+    <Parameter name="accountTo"/>
+    <Parameter name="adUserOrg" type="replace" optional="true" after="AND FACT_ACCT.AD_ORG_ID IN (" text="'1'"/>
+    <Parameter name="adUserClient" type="replace" optional="true" after="AND FACT_ACCT.AD_CLIENT_ID IN (" text="'1'"/>
+    <Parameter name="hideMatched"/>
+    <Parameter name="acctschema" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.C_ACCTSCHEMA_ID = ? ]]></Parameter>
+    <Parameter name="parDateFrom2" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.DATEACCT >= TO_DATE(?) ]]></Parameter>
+    <Parameter name="parDateTo2" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.DATEACCT < TO_DATE(?) ]]></Parameter>
+    <Parameter name="org" type="replace" optional="true" after="AND  FACT_ACCT.AD_ORG_ID IN (" text="'2'"/>
+    <Parameter name="cBpartnerId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_BPARTNER_ID IN]]></Parameter>
+    <Parameter name="mProductId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.M_PRODUCT_ID IN]]></Parameter>
+    <Parameter name="cProjectId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_PROJECT_ID IN]]></Parameter>
+    <Parameter name="cSalesregionId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_SALESREGION_ID IN]]></Parameter>
+    <Parameter name="cCampaignId" optional="true" after="AND 2=2"><![CDATA[ AND coalesce(FACT_ACCT.C_CAMPAIGN_ID, (select c.C_CAMPAIGN_ID from C_CAMPAIGN c where em_efin_budgettype = 'F' and ad_client_id = FACT_ACCT.ad_client_id limit 1))= ?]]></Parameter>
+     <Parameter name="cActivityId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_ACTIVITY_ID IN]]></Parameter>
+     <Parameter name="user1Id" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.USER1_ID IN]]></Parameter>
+     <Parameter name="user2Id" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.USER2_ID IN]]></Parameter>
+    <Parameter name="paramAmtFrom" optional="true" after="3=3"><![CDATA[ AND (FACT_ACCT.AMTACCTDR + FACT_ACCT.AMTACCTCR)>=TO_NUMBER(?) ]]></Parameter>
+    <Parameter name="paramAmtTo" optional="true" after="3=3"><![CDATA[ AND (FACT_ACCT.AMTACCTDR + FACT_ACCT.AMTACCTCR)<=TO_NUMBER(?) ]]></Parameter>
+  </SqlMethod>
+
+  <SqlMethod name="selectXLS2" type="preparedStatement" return="scrollable">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+      <![CDATA[
+      SELECT VALUE, NAME, DATEACCT,
+          COALESCE(SUM(AMTACCTDR),0) AS AMTACCTDR, COALESCE(SUM(AMTACCTCR),0) AS AMTACCTCR,
+          FACT_ACCT_GROUP_ID, ID, bpid, bpname, pdid, pdname, pjid, pjname,
+          DESCRIPTION, FACTACCTTYPE
+      FROM
+        (SELECT FACT_ACCT.ACCTVALUE AS VALUE, FACT_ACCT.ACCTDESCRIPTION AS NAME,
+            DATEACCT, AMTACCTDR, AMTACCTCR,
+            FACT_ACCT_GROUP_ID, FACT_ACCT.ACCOUNT_ID AS ID, FACT_ACCT.DESCRIPTION,
+            c_bpartner.c_bpartner_id as bpid, m_product.m_product_id as pdid, c_project.c_project_id as pjid,
+            (select name from c_bpartner b where b.c_bpartner_id = c_bpartner.c_bpartner_id) as bpname, 
+            (select value || ' - ' || name from m_product p where p.m_product_id = m_product.m_product_id) as pdname, 
+            (select value || ' - ' || name from c_project pj where pj.c_project_id = c_project.c_project_id)  as pjname,
+            CASE WHEN AMTACCTDR <> 0 THEN 'Y' ELSE 'N' END AS ISDEBIT,
+            CASE WHEN FACT_ACCT.FACTACCTTYPE = 'O' THEN 1 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'N' THEN 2 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'R' THEN 3 ELSE (CASE WHEN FACT_ACCT.FACTACCTTYPE = 'C' THEN 4 END) END) END) END AS FACTACCTTYPE
+        FROM FACT_ACCT
+          LEFT JOIN C_BPARTNER ON FACT_ACCT.C_BPARTNER_ID = C_BPARTNER.C_BPARTNER_ID
+          LEFT JOIN M_PRODUCT ON FACT_ACCT.M_PRODUCT_ID = M_PRODUCT.M_PRODUCT_ID
+          LEFT JOIN C_PROJECT ON FACT_ACCT.C_PROJECT_ID = C_PROJECT.C_PROJECT_ID
+        WHERE (?='Y' OR FACT_ACCT.ACCOUNT_ID IN (
+                  SELECT c_elementvalue_id as name
+                  FROM C_ELEMENTVALUE
+                  WHERE value >= (  select value from c_elementvalue where c_elementvalue_id = ?)
+                    and value <= (  select value from c_elementvalue where c_elementvalue_id = ?)
+                    and c_elementvalue.ELEMENTLEVEL = 'S'
+                ))
+          AND FACT_ACCT.AD_ORG_ID IN ('1')
+          AND FACT_ACCT.AD_CLIENT_ID IN ('1')
+          AND 1=1
+          AND  FACT_ACCT.AD_ORG_ID IN ('2')
+          AND 2=2
+          AND 3=3) D
+        WHERE 6=6
+        GROUP BY VALUE, NAME, ID, FACTACCTTYPE, DATEACCT, FACT_ACCT_GROUP_ID, description, bpname, bpid, pdname, pdid, pjname, pjid, ISDEBIT
+        HAVING SUM(AMTACCTDR) - SUM(AMTACCTCR) <> 0
+        ORDER BY VALUE, NAME, ID, DATEACCT, FACTACCTTYPE, FACT_ACCT_GROUP_ID, description,  bpname, bpid, pdname, pdid, pjname, pjid, ISDEBIT
+      ]]></Sql>
+    <Field name="rownum" value="count"/>
+    <Parameter name="allaccounts"/>
+    <Parameter name="accountFrom"/>
+    <Parameter name="accountTo"/>
+    <Parameter name="adUserOrg" type="replace" optional="true" after="AND FACT_ACCT.AD_ORG_ID IN (" text="'1'"/>
+    <Parameter name="adUserClient" type="replace" optional="true" after="AND FACT_ACCT.AD_CLIENT_ID IN (" text="'1'"/>
+    <Parameter name="dateBalanced" optional="true" after="AND 1=1"><![CDATA[AND (FACT_ACCT.DATEBALANCED IS NULL OR FACT_ACCT.DATEBALANCED > TO_DATE(?)) ]]></Parameter>
+    <Parameter name="acctschema" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.C_ACCTSCHEMA_ID = ? ]]></Parameter>
+    <Parameter name="parDateFrom2" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.DATEACCT >= TO_DATE(?) ]]></Parameter>
+    <Parameter name="parDateTo2" optional="true" after="AND 1=1"><![CDATA[AND FACT_ACCT.DATEACCT < TO_DATE(?) ]]></Parameter>
+    <Parameter name="org" type="replace" optional="true" after="AND  FACT_ACCT.AD_ORG_ID IN (" text="'2'"/>
+    <Parameter name="cBpartnerId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_BPARTNER_ID IN]]></Parameter>
+    <Parameter name="mProductId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.M_PRODUCT_ID IN]]></Parameter>
+    <Parameter name="cProjectId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_PROJECT_ID IN]]></Parameter>
+    <Parameter name="cSalesregionId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_SALESREGION_ID IN]]></Parameter>
+    <Parameter name="cCampaignId" optional="true" after="AND 2=2"><![CDATA[ AND coalesce(FACT_ACCT.C_CAMPAIGN_ID, (select c.C_CAMPAIGN_ID from C_CAMPAIGN c where em_efin_budgettype = 'F' and ad_client_id = FACT_ACCT.ad_client_id limit 1))= ?]]></Parameter>
+     <Parameter name="cActivityId" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.C_ACTIVITY_ID IN]]></Parameter>
+     <Parameter name="user1Id" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.USER1_ID IN]]></Parameter>
+     <Parameter name="user2Id" optional="true" type="argument" after="AND 2=2"><![CDATA[ AND FACT_ACCT.USER2_ID IN]]></Parameter>
+    <Parameter name="paramAmtFrom" optional="true" after="3=3"><![CDATA[ AND (FACT_ACCT.AMTACCTDR + FACT_ACCT.AMTACCTCR)>=TO_NUMBER(?) ]]></Parameter>
+    <Parameter name="paramAmtTo" optional="true" after="3=3"><![CDATA[ AND (FACT_ACCT.AMTACCTDR + FACT_ACCT.AMTACCTCR)<=TO_NUMBER(?) ]]></Parameter>
+    <Parameter name="paramDocNo" optional="true"  after="3=3"><![CDATA[ and FACT_ACCT.em_efin_documentno like ? ]]></Parameter>
+    <Parameter name="paramAccSeq" optional="true"  after="3=3"><![CDATA[ and FACT_ACCT.em_efin_acctseq like ? ]]></Parameter>
+  </SqlMethod>
+
+  <SqlMethod name="set" type="constant" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql></Sql>
+  </SqlMethod>
+
+  <SqlMethod name="selectCompany" type="preparedStatement" return="string" default="0">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+        SELECT NAME
+        FROM AD_CLIENT
+        WHERE AD_CLIENT_ID = ?
+      ]]></Sql>
+    <Parameter name="client"/>
+  </SqlMethod>
+
+  <SqlMethod name="selectOrganization" type="preparedStatement" return="string" default="0">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+        SELECT NAME
+        FROM AD_ORG
+        WHERE AD_ORG_ID = ?
+      ]]></Sql>
+    <Parameter name="org"/>
+  </SqlMethod>
+
+  <SqlMethod name="selectTotal" type="preparedStatement" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql><![CDATA[
+      SELECT COALESCE(SUM(AMTACCTDR),0) AS TOTALACCTDR, COALESCE(SUM(AMTACCTCR),0) AS TOTALACCTCR,
+      COALESCE(SUM(AMTACCTDR-AMTACCTCR),0) AS TOTAL
+      FROM FACT_ACCT
+      LEFT JOIN(
+        select account_id, record_id2, sum(amtacctdr-amtacctcr) as sum
+        from fact_acct f1
+        where 5=5
+        group by account_id, record_id2
+      ) f2 ON fact_acct.account_id = f2.account_id and fact_acct.record_id2 = f2.record_id2
+      WHERE 1=1
+      AND FACT_ACCT.ACCOUNT_ID = ?
+      AND DATEACCT >= TO_DATE(?)
+      AND DATEACCT < TO_DATE(?)
+      AND FACT_ACCT.AD_ORG_ID IN ('1')
+      AND (? = 'N' OR ((fact_acct.RECORD_ID2 IS NULL) OR (DATEACCT < TO_DATE(?)) OR (SUM != 0)))
+      ]]></Sql>
+      <Parameter name="dateFrom" optional="true" after="where 5=5"><![CDATA[AND DATEACCT >= TO_DATE(?) ]]></Parameter>
+      <Parameter name="dateTo" optional="true" after="where 5=5"><![CDATA[AND DATEACCT < TO_DATE(?) ]]></Parameter>
+      <Parameter name="bpartner" optional="true" type="argument" after="1=1"><![CDATA[ AND FACT_ACCT.C_BPARTNER_ID IN]]></Parameter>
+      <Parameter name="bpartnerNULL" optional="true" type="argument" after="1=1"><![CDATA[ AND FACT_ACCT.C_BPARTNER_ID IS NULL]]></Parameter>
+      <Parameter name="product" optional="true" type="argument" after="1=1"><![CDATA[ AND FACT_ACCT.M_PRODUCT_ID IN]]></Parameter>
+      <Parameter name="productNULL" optional="true" type="argument" after="1=1"><![CDATA[ AND FACT_ACCT.M_PRODUCT_ID IS NULL]]></Parameter>
+      <Parameter name="project" optional="true" type="argument" after="1=1"><![CDATA[ AND FACT_ACCT.C_PROJECT_ID IN]]></Parameter>
+      <Parameter name="projectNULL" optional="true" type="argument" after="1=1"><![CDATA[ AND FACT_ACCT.C_PROJECT_ID IS NULL]]></Parameter>
+      <Parameter name="acctschema" optional="true" after="1=1"><![CDATA[ AND FACT_ACCT.C_ACCTSCHEMA_ID = ? ]]></Parameter>
+      <Parameter name="account"/>
+      <Parameter name="initialYearBalance"/>
+      <Parameter name="dateTo2"/>
+      <Parameter name="orgs" type="replace" optional="true" after="AND FACT_ACCT.AD_ORG_ID IN (" text="'1'"/>
+      <Parameter name="hideMatched"/>
+      <Parameter name="dateFrom"/>
+   </SqlMethod>
+
+  <SqlMethod name="selectTotal2" type="preparedStatement" return="multiple">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql><![CDATA[
+      SELECT COALESCE(SUM(AMTACCTDR),0) AS TOTALACCTDR, COALESCE(SUM(AMTACCTCR),0) AS TOTALACCTCR,
+      COALESCE(SUM(AMTACCTDR-AMTACCTCR),0) AS TOTAL
+      FROM FACT_ACCT
+      WHERE 1=1
+      AND FACT_ACCT.em_efin_uniquecode = ?
+      AND DATEACCT < TO_DATE(?)
+      AND FACT_ACCT.AD_CLIENT_ID IN ('1')
+      AND FACT_ACCT.AD_ORG_ID IN ('2')
+      AND FACT_ACCT.ACCOUNT_ID IN (select act.c_elementvalue_id from efin_security_rules_act act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.C_Salesregion_ID in (select dep.C_Salesregion_ID from Efin_Security_Rules_Dept dep
+                    join efin_security_rules ru on ru.efin_security_rules_id=dep.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y') 
+          AND FACT_ACCT.C_Project_ID in (select proj.c_project_id from efin_security_rules_proj proj
+                    join efin_security_rules ru on ru.efin_security_rules_id=proj.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.C_CAMPAIGN_ID IN(select bud.C_campaign_ID from efin_security_rules_budtype bud
+                    join efin_security_rules ru on ru.efin_security_rules_id=bud.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.C_Activity_ID in (select act.C_Activity_ID from efin_security_rules_activ act
+                    join efin_security_rules ru on ru.efin_security_rules_id=act.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.User1_ID in (select fut1.User1_ID from efin_security_rules_fut1 fut1
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut1.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+          AND FACT_ACCT.User2_ID in (select fut2.User2_ID from efin_security_rules_fut2 fut2
+                    join efin_security_rules ru on ru.efin_security_rules_id=fut2.efin_security_rules_id
+                    where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y')
+      ]]></Sql>
+      <Parameter name="bpartner" optional="true" type="argument" after="1=1"><![CDATA[ AND FACT_ACCT.C_BPARTNER_ID IN]]></Parameter>
+      <Parameter name="bpartnerNULL" optional="true" type="argument" after="1=1"><![CDATA[ AND FACT_ACCT.C_BPARTNER_ID IS NULL]]></Parameter>
+      <Parameter name="product" optional="true" type="argument" after="1=1"><![CDATA[ AND FACT_ACCT.M_PRODUCT_ID IN]]></Parameter>
+      <Parameter name="productNULL" optional="true" type="argument" after="1=1"><![CDATA[ AND FACT_ACCT.M_PRODUCT_ID IS NULL]]></Parameter>
+      <Parameter name="project" optional="true" type="argument" after="1=1"><![CDATA[ AND FACT_ACCT.C_PROJECT_ID IN]]></Parameter>
+      <Parameter name="projectNULL" optional="true" type="argument" after="1=1"><![CDATA[ AND FACT_ACCT.C_PROJECT_ID IS NULL]]></Parameter>
+      <Parameter name="acctschema" optional="true" after="1=1"><![CDATA[ AND FACT_ACCT.C_ACCTSCHEMA_ID = ? ]]></Parameter>
+      <Parameter name="paramDocNo" optional="true"  after="1=1"><![CDATA[ and FACT_ACCT.em_efin_documentno like ? ]]></Parameter>
+      <Parameter name="paramAccSeq" optional="true"  after="1=1"><![CDATA[ and FACT_ACCT.em_efin_acctseq like ? ]]></Parameter>
+      <Parameter name="uniquecode"/>
+      <Parameter name="dateFrom" optional="true" after="em_efin_uniquecode = ?"><![CDATA[ AND DATEACCT >= TO_DATE(?) ]]></Parameter>
+      <Parameter name="dateTo2"/>
+      <Parameter name="adUserClient" type="replace" optional="true" after="AND FACT_ACCT.AD_CLIENT_ID IN (" text="'1'"/>
+      <Parameter name="orgs" type="replace" optional="true" after="AND FACT_ACCT.AD_ORG_ID IN (" text="'2'"/>
+      <Parameter name="RoleId"/>
+      <Parameter name="RoleId"/>
+      <Parameter name="RoleId"/>
+      <Parameter name="RoleId"/>
+      <Parameter name="RoleId"/>
+      <Parameter name="RoleId"/>
+      <Parameter name="RoleId"/>
+   </SqlMethod>
+   
+  <SqlMethod name="yearInitialDate" type="preparedStatement" return="string">
+      <SqlMethodComment></SqlMethodComment>
+      <Sql><![CDATA[
+      SELECT TO_CHAR(MAX(INI),?) AS STARTDATE
+      FROM
+        (
+        SELECT MIN(P.STARTDATE) AS INI
+        FROM C_YEAR Y, C_PERIOD P, C_PERIODCONTROL PC
+        WHERE Y.C_YEAR_ID = P.C_YEAR_ID
+          AND P.C_PERIOD_ID = PC.C_PERIOD_ID
+          AND P.STARTDATE <= TO_DATE(?)
+          AND PC.AD_CLIENT_ID IN ('1')
+          AND PC.AD_ORG_ID IN ('1')
+        GROUP BY Y.YEAR
+        ) PERIOD
+      ]]></Sql>
+      <Parameter name="dateTemplate"/>
+      <Parameter name="date"/>
+      <Parameter name="client" type="replace" optional="true" after="AND PC.AD_CLIENT_ID IN (" text="'1'"/>
+      <Parameter name="orgs" type="replace" optional="true" after="AND PC.AD_ORG_ID IN (" text="'1'"/>
+   </SqlMethod>
+
+  <SqlMethod name="selectC_PERIOD_ID" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql><![CDATA[
+      SELECT C_PERIOD_ID as id, ((CASE C_PERIOD.isActive WHEN 'N' THEN '**' ELSE '' END) || C_PERIOD.Name) as name FROM C_PERIOD
+      left join c_year yr on yr.c_year_id = C_PERIOD.c_year_id
+      WHERE C_PERIOD.AD_Org_ID IN('1') AND C_PERIOD.AD_Client_ID IN('1')  AND (C_PERIOD.isActive = 'Y' OR C_PERIOD.C_PERIOD_ID = ? )
+      ORDER BY  yr.year , periodno
+    ]]></Sql>
+
+    <Parameter name="adOrgClient" type="replace" optional="true" after="C_PERIOD.AD_Org_ID IN(" text="'1'"/>
+    <Parameter name="adUserClient" type="replace" optional="true" after="C_PERIOD.AD_Client_ID IN(" text="'1'"/>
+    <Parameter name="cPeriodId"/>
+  </SqlMethod>
+  
+  <SqlMethod name="selectFromToDate" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql><![CDATA[
+      SELECT C_PERIOD_ID as id, startdate ,enddate FROM C_PERIOD
+      WHERE C_PERIOD.AD_Org_ID IN('1') AND C_PERIOD.AD_Client_ID IN('1')  AND (C_PERIOD.isActive = 'Y' and C_PERIOD.C_PERIOD_ID = ? )
+      ORDER BY name
+    ]]></Sql>
+
+    <Parameter name="adOrgClient" type="replace" optional="true" after="C_PERIOD.AD_Org_ID IN(" text="'1'"/>
+    <Parameter name="adUserClient" type="replace" optional="true" after="C_PERIOD.AD_Client_ID IN(" text="'1'"/>
+    <Parameter name="cPeriodId"/>
+  </SqlMethod>
+  
+  <SqlMethod name="selectCsalesRegion" type="preparedStatement" return="multiple">
+    <Sql>
+    <![CDATA[
+      SELECT C_SALESREGION.C_SALESREGION_ID AS ID,C_SALESREGION.NAME
+      FROM C_SALESREGION
+      WHERE AD_ORG_ID IN ('1')
+      AND AD_CLIENT_ID IN ('1')
+      AND (1=2 )
+     ]]></Sql>
+     <Parameter name="adOrgClient" type="replace" optional="true" after="AD_ORG_ID IN (" text="'1'"/>
+     <Parameter name="adUserClient" type="replace" optional="true" after="AND AD_CLIENT_ID IN (" text="'1'"/>
+     <Parameter name="cSalesRegionId" optional="true" type="argument" after="(1=2" text=" OR C_SALESREGION_ID IN"/>
+  </SqlMethod>
+  
+  <SqlMethod name="selectCsalesRegionUniquecode" type="preparedStatement" return="multiple">
+    <Sql>
+    <![CDATA[
+      select f.c_salesregion_id as ID ,sal.name from fact_acct f join c_salesregion sal on sal.c_salesregion_id = f.c_salesregion_id  
+      WHERE f.AD_ORG_ID IN ('1') AND f.AD_CLIENT_ID IN ('1') AND f.em_efin_uniquecode = ?  
+      and f.c_salesregion_id is not null and f.c_project_id is not null and f.c_campaign_id is not null and f.c_activity_id is not null and f.user1_id is not null and f.user2_id is not null limit 1;
+     ]]></Sql>
+     <Parameter name="adOrgClient" type="replace" optional="true" after="f.AD_ORG_ID IN (" text="'1'"/>
+     <Parameter name="adUserClient" type="replace" optional="true" after="AND f.AD_CLIENT_ID IN (" text="'1'"/>  
+     <Parameter name="salesregionID"/>
+  </SqlMethod>
+  
+  <SqlMethod name="selectprojectUniquecode" type="preparedStatement" return="multiple">
+    <Sql>
+    <![CDATA[
+      select f.c_project_id as ID,pro.name from fact_acct f join c_project pro on pro.c_project_id = f.c_project_id  
+      WHERE f.AD_ORG_ID IN ('1') AND f.AD_CLIENT_ID IN ('1') AND f.em_efin_uniquecode = ?
+      and f.c_salesregion_id is not null and f.c_project_id is not null and f.c_campaign_id is not null and f.c_activity_id is not null and f.user1_id is not null and f.user2_id is not null limit 1; 
+      ]]></Sql>
+     <Parameter name="adOrgClient" type="replace" optional="true" after="f.AD_ORG_ID IN (" text="'1'"/>
+     <Parameter name="adUserClient" type="replace" optional="true" after="AND f.AD_CLIENT_ID IN (" text="'1'"/>  
+     <Parameter name="ProjectID"/>
+  </SqlMethod>
+  
+  <SqlMethod name="selectactivityUniquecode" type="preparedStatement" return="multiple">
+    <Sql>
+    <![CDATA[
+      select f.c_activity_id as ID,act.name from fact_acct f join c_activity act on act.c_activity_id = f.c_activity_id  
+      WHERE f.AD_ORG_ID IN ('1') AND f.AD_CLIENT_ID IN ('1') AND f.em_efin_uniquecode = ?
+      and f.c_salesregion_id is not null and f.c_project_id is not null and f.c_campaign_id is not null and f.c_activity_id is not null and f.user1_id is not null and f.user2_id is not null limit 1; 
+      ]]></Sql>
+     <Parameter name="adOrgClient" type="replace" optional="true" after="f.AD_ORG_ID IN (" text="'1'"/>
+     <Parameter name="adUserClient" type="replace" optional="true" after="AND f.AD_CLIENT_ID IN (" text="'1'"/>  
+     <Parameter name="activityID"/>
+  </SqlMethod>
+  
+  <SqlMethod name="selectuserUniquecode" type="preparedStatement" return="multiple">
+    <Sql>
+    <![CDATA[
+      select f.user1_id as ID,us1.name from fact_acct f join user1 us1 on us1.user1_id = f.user1_id  
+      WHERE f.AD_ORG_ID IN ('1') AND f.AD_CLIENT_ID IN ('1') AND f.em_efin_uniquecode = ?
+      and f.c_salesregion_id is not null and f.c_project_id is not null and f.c_campaign_id is not null and f.c_activity_id is not null and f.user1_id is not null and f.user2_id is not null limit 1;
+      ]]></Sql>
+     <Parameter name="adOrgClient" type="replace" optional="true" after="f.AD_ORG_ID IN (" text="'1'"/>
+     <Parameter name="adUserClient" type="replace" optional="true" after="AND f.AD_CLIENT_ID IN (" text="'1'"/>  
+     <Parameter name="user1ID"/>
+  </SqlMethod>
+  
+  <SqlMethod name="selectuser2Uniquecode" type="preparedStatement" return="multiple">
+    <Sql>
+    <![CDATA[
+      select f.user2_id as ID,us2.name from fact_acct f join user2 us2 on us2.user2_id = f.user2_id  
+      WHERE f.AD_ORG_ID IN ('1') AND f.AD_CLIENT_ID IN ('1') AND f.em_efin_uniquecode = ?
+      and f.c_salesregion_id is not null and f.c_project_id is not null and f.c_campaign_id is not null and f.c_activity_id is not null and f.user1_id is not null and f.user2_id is not null limit 1;
+      ]]></Sql>
+     <Parameter name="adOrgClient" type="replace" optional="true" after="f.AD_ORG_ID IN (" text="'1'"/>
+     <Parameter name="adUserClient" type="replace" optional="true" after="AND f.AD_CLIENT_ID IN (" text="'1'"/>  
+     <Parameter name="user2ID"/>
+  </SqlMethod>
+  
+   <SqlMethod name="selectCCampaign" type="preparedStatement" return="multiple">
+    <Sql>
+    <![CDATA[
+      SELECT C_CAMPAIGN.C_CAMPAIGN_ID AS ID,C_CAMPAIGN.NAME
+      FROM C_CAMPAIGN
+      WHERE AD_ORG_ID IN ('1')
+      AND AD_CLIENT_ID IN ('1')
+      AND (1=2 )
+     ]]></Sql>
+     <Parameter name="adOrgClient" type="replace" optional="true" after="AD_ORG_ID IN (" text="'1'"/>
+     <Parameter name="adUserClient" type="replace" optional="true" after="AND AD_CLIENT_ID IN (" text="'1'"/>
+     <Parameter name="cCampaignId" optional="true" type="argument" after="(1=2" text=" OR C_CAMPAIGN_ID IN"/>
+  </SqlMethod>
+   <SqlMethod name="selectCActivity" type="preparedStatement" return="multiple">
+    <Sql>
+    <![CDATA[
+      SELECT C_ACTIVITY.C_ACTIVITY_ID AS ID,C_ACTIVITY.NAME
+      FROM C_ACTIVITY
+      WHERE AD_ORG_ID IN ('1')
+      AND AD_CLIENT_ID IN ('1')
+      AND (1=2 )
+     ]]></Sql>
+     <Parameter name="adOrgClient" type="replace" optional="true" after="AD_ORG_ID IN (" text="'1'"/>
+     <Parameter name="adUserClient" type="replace" optional="true" after="AND AD_CLIENT_ID IN (" text="'1'"/>
+     <Parameter name="cActivityId" optional="true" type="argument" after="(1=2" text=" OR C_ACTIVITY_ID IN"/>
+  </SqlMethod>
+   <SqlMethod name="selectUser1" type="preparedStatement" return="multiple">
+    <Sql>
+    <![CDATA[
+      SELECT USER1.USER1_ID AS ID,USER1.NAME
+      FROM USER1
+      WHERE AD_ORG_ID IN ('1')
+      AND AD_CLIENT_ID IN ('1')
+      AND (1=2 )
+     ]]></Sql>
+     <Parameter name="adOrgClient" type="replace" optional="true" after="AD_ORG_ID IN (" text="'1'"/>
+     <Parameter name="adUserClient" type="replace" optional="true" after="AND AD_CLIENT_ID IN (" text="'1'"/>
+     <Parameter name="user1Id" optional="true" type="argument" after="(1=2" text=" OR USER1_ID IN"/>
+  </SqlMethod>
+   <SqlMethod name="selectUser2" type="preparedStatement" return="multiple">
+    <Sql>
+    <![CDATA[
+      SELECT USER2.USER2_ID AS ID,USER2.NAME
+      FROM USER2
+      WHERE AD_ORG_ID IN ('1')
+      AND AD_CLIENT_ID IN ('1')
+      AND (1=2 )
+     ]]></Sql>
+     <Parameter name="adOrgClient" type="replace" optional="true" after="AD_ORG_ID IN (" text="'1'"/>
+     <Parameter name="adUserClient" type="replace" optional="true" after="AND AD_CLIENT_ID IN (" text="'1'"/>
+     <Parameter name="user2Id" optional="true" type="argument" after="(1=2" text=" OR USER2_ID IN"/>
+  </SqlMethod>
+  
+  
+  <SqlMethod name="selectSubaccountDescription" type="preparedStatement" return="string">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql><![CDATA[
+      SELECT COALESCE(TO_CHAR(NAME),TO_CHAR(''))
+      FROM C_ELEMENTVALUE
+      WHERE C_ELEMENTVALUE_ID = ?
+    ]]></Sql>
+    <Parameter name="elementValueId"/>
+  </SqlMethod>
+  <SqlMethod name="getFinancialOrgs" type="preparedStatement" return="multiple">
+     <SqlMethodComment></SqlMethodComment>
+     <Sql><![CDATA[
+     	SELECT NODE_ID AS ID
+	FROM AD_TREENODE
+	WHERE AD_TREE_ID = ?
+	AND (AD_ISORGINCLUDED(?, NODE_ID, ?) <> -1
+	  OR AD_ISORGINCLUDED(NODE_ID, ?, ?) <> -1)
+     ]]></Sql>
+     <Parameter name="adTreeId"/>
+     <Parameter name="adOrgId"/>
+     <Parameter name="adClientId"/>
+     <Parameter name="adOrgId"/>
+     <Parameter name="adClientId"/>
+  </SqlMethod>
+  
+  <SqlMethod name="selectC_CAMPAIGN_ID" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql><![CDATA[
+      SELECT C_CAMPAIGN_ID as id, ((CASE C_CAMPAIGN.isActive WHEN 'N' THEN '**' ELSE '' END) || C_CAMPAIGN.Name) as name FROM C_CAMPAIGN 
+      WHERE C_CAMPAIGN.AD_Org_ID IN('1') AND C_CAMPAIGN.AD_Client_ID IN('1')  AND C_CAMPAIGN.em_efin_budgettype = 'F'  AND (C_CAMPAIGN.isActive = 'Y' OR C_CAMPAIGN.C_CAMPAIGN_ID = ? )
+      AND C_CAMPAIGN_ID IN(select bud.C_campaign_ID from efin_security_rules_budtype bud
+        join efin_security_rules ru on ru.efin_security_rules_id=bud.efin_security_rules_id
+         where ru.efin_security_rules_id=(select em_efin_security_rules_id from ad_role where ad_role_id=? )and efin_processbutton='Y') 
+      ORDER BY name
+    ]]></Sql>
+
+    <Parameter name="adOrgClient" type="replace" optional="true" after="C_CAMPAIGN.AD_Org_ID IN(" text="'1'"/>
+    <Parameter name="adUserClient" type="replace" optional="true" after="C_CAMPAIGN.AD_Client_ID IN(" text="'1'"/>
+    <Parameter name="cCampaignId"/>
+    <Parameter name="roleId"/>
+  </SqlMethod>
+  
+  <SqlMethod name="checkdept" type="preparedStatement" return="string">
+      <SqlMethodComment></SqlMethodComment>
+  		<Sql><![CDATA[
+  		select count(*) from c_salesregion where c_salesregion.AD_Org_ID IN('1') AND c_salesregion.AD_Client_ID IN('1') and isdefault = 'Y' and 1=1
+  		]]></Sql>
+  		
+  	<Parameter name="adOrgClient" type="replace" optional="true" after="c_salesregion.AD_Org_ID IN(" text="'1'"/>
+    <Parameter name="adUserClient" type="replace" optional="true" after="c_salesregion.AD_Client_ID IN(" text="'1'"/>
+    <Parameter name="cSalesregionId" optional="true" type="argument" after="1=1" text=" AND C_SALESREGION.C_SALESREGION_ID IN"/>
+  </SqlMethod>
+
+ <SqlMethod name="checkaccount" type="preparedStatement" return="string">
+      <SqlMethodComment></SqlMethodComment>
+  		<Sql><![CDATA[
+  		select e.accounttype from fact_acct f join c_elementvalue e on e.c_elementvalue_id=f.account_id where f.AD_Org_ID IN('1') AND f.AD_Client_ID IN('1') and f.fact_acct_id = ? 
+  		]]></Sql>
+  		
+  	<Parameter name="adOrgClient" type="replace" optional="true" after="f.AD_Org_ID IN(" text="'1'"/>
+    <Parameter name="adUserClient" type="replace" optional="true" after="f.AD_Client_ID IN(" text="'1'"/>
+    <Parameter name="FactacctId"/>
+  </SqlMethod>
+  
+     <SqlMethod name="selectFrmPerStrtDate" type="preparedStatement" return="string">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql><![CDATA[
+     select startdate from c_period where  C_PERIOD.AD_Org_ID IN('1') AND C_PERIOD.AD_Client_ID IN('1')  and c_year_id =(
+    select c_year_id from c_period where c_period_id= ?)
+    and periodno ='1'
+    ]]></Sql>
+
+    <Parameter name="adOrgClient" type="replace" optional="true" after="C_PERIOD.AD_Org_ID IN(" text="'1'"/>
+    <Parameter name="adUserClient" type="replace" optional="true" after="C_PERIOD.AD_Client_ID IN(" text="'1'"/>
+    <Parameter name="cPeriodId"/>
+  </SqlMethod>
+  
+   <SqlMethod name="selectStrtDateFC" type="preparedStatement" return="string">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql><![CDATA[
+    select min(startdate) as startdate from c_period    where  C_PERIOD.AD_Org_ID IN('1') AND C_PERIOD.AD_Client_ID IN('1')  
+    ]]></Sql>
+
+    <Parameter name="adOrgClient" type="replace" optional="true" after="C_PERIOD.AD_Org_ID IN(" text="'1'"/>
+    <Parameter name="adUserClient" type="replace" optional="true" after="C_PERIOD.AD_Client_ID IN(" text="'1'"/>
+  </SqlMethod>
+  
+    <SqlMethod name="selectOrgValidation" type="preparedStatement" return="multiple">
+    <SqlMethodComment></SqlMethodComment>
+    <Sql>
+    <![CDATA[
+        SELECT ORG.AD_ORG_ID 
+        FROM AD_ORG ORG JOIN AD_ORGTYPE ORGT ON ORG.AD_ORGTYPE_ID=ORGT.AD_ORGTYPE_ID 
+        WHERE (ORGT.ISTRANSACTIONSALLOWED='Y' AND ORG.ISREADY='Y' 
+        AND ORG.AD_Client_ID IN('1')) OR ORG.AD_ORG_ID='0'
+      ]]></Sql>
+          <Parameter name="adUserClient" type="replace" optional="true" after="AD_Client_ID IN(" text="'1'"/>
+  </SqlMethod>
+  
+</SqlClass>

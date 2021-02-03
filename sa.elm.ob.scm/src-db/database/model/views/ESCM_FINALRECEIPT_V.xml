@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_FINALRECEIPT_V">
+    <view name="ESCM_FINALRECEIPT_V"><![CDATA[SELECT COALESCE(ln.m_inoutline_id, init.escm_initialreceipt_id) AS escm_finalreceipt_v_id, init.ad_client_id, init.ad_org_id, init.created, init.createdby, init.isactive, init.updated, init.updatedby, init.m_product_id, init.line, init.c_uom_id, CASE WHEN ln.em_escm_custody_item = 'Y' THEN 'Y' ELSE 'N' END AS custodyitem, COALESCE(init.accepted_qty, 0) + COALESCE(init.delivered_qty, 0) AS accepted_qty, ln.description, init.escm_initialreceipt_id, ln.m_inoutline_id, COALESCE(ln.m_inout_id, init.m_inout_id) AS m_inout_id, COALESCE(ln.movementqty, 0) AS quantity FROM escm_initialreceipt init LEFT JOIN escm_inspection ins ON ins.escm_initialreceipt_id = init.escm_initialreceipt_id AND ins.status = 'A' LEFT JOIN m_inoutline ln ON ln.em_escm_initialreceipt_id = init.escm_initialreceipt_id]]></view>
+  </database>

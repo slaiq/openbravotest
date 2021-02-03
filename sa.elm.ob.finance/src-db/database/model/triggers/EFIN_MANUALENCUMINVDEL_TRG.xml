@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_MANUALENCUMINVDEL_TRG">
+    <trigger name="EFIN_MANUALENCUMINVDEL_TRG" table="EFIN_MANUALENCUMINVOICE" fires="before" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Trigger to update the used amount,remaining amount in manual encumbrance invoice line 
+while insert a record in Efin_ManualEncumnvoice table
+* Contributor(s):  Divya.
+************************************************************************/
+v_invdocstatus VARCHAR(60);--OBTG:VARCHAR2--
+v_id VARCHAR2(60);
+v_count NUMBER;
+v_docstatus VARCHAR(60);
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	
+	
+	IF DELETING THEN
+	
+	 
+	select inv.docstatus,count( enc.efin_budget_manencum_id),enc.docstatus  into v_invdocstatus ,v_count,v_docstatus from efin_manualencuminvoice  maninv
+	left join c_invoice inv on inv.c_invoice_id= maninv.c_invoice_id
+	left join efin_budget_manencumlines ln on ln.efin_budget_manencumlines_id=maninv.efin_budget_manencumlines_id
+	left join efin_budget_manencum enc on enc.efin_budget_manencum_id=ln.efin_budget_manencum_id
+	where maninv.efin_manualencuminvoice_id = :old.efin_manualencuminvoice_id and encum_type in ('IE') group by inv.docstatus,enc.docstatus;
+	
+	if(v_count > 0) then
+		if(v_invdocstatus <> 'DR') then
+			IF(v_docstatus <>'DR' and v_docstatus<>'RW' ) THEN
+				RAISE_APPLICATION_ERROR(-20501,'@20501@');
+			END IF;
+	END IF;	
+	END IF;	
+	
+	
+	END IF;
+	END EFIN_MANUALENCUMINVDEL_TRG
+]]></body>
+    </trigger>
+  </database>

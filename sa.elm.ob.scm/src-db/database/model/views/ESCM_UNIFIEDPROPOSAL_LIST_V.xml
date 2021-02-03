@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_UNIFIEDPROPOSAL_LIST_V">
+    <view name="ESCM_UNIFIEDPROPOSAL_LIST_V"><![CDATA[SELECT prop.escm_proposalmgmt_id AS escm_unifiedproposal_list_v_id, prop.ad_client_id, prop.ad_org_id, prop.isactive, prop.created, prop.createdby, prop.updated, prop.updatedby, prop.proposalno, bp.name AS suppliername, loc.name AS supplierbranch, prop.awardamount FROM escm_proposalmgmt prop JOIN c_bpartner bp ON prop.supplier = bp.c_bpartner_id JOIN c_bpartner_location loc ON prop.branchname = loc.c_bpartner_location_id]]></view>
+  </database>

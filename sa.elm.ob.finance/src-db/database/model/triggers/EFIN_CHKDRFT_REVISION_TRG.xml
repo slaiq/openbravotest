@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_CHKDRFT_REVISION_TRG">
+    <trigger name="EFIN_CHKDRFT_REVISION_TRG" table="EFIN_BUD_MANENCUM_REV" fires="before" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[
+v_docstatus  VARCHAR2(60); 
+v_efin_bud_manencum_rev_id  VARCHAR2(60); 
+v_app_amt NUMBER;
+v_used_amt NUMBER;
+
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	IF DELETING THEN
+		v_efin_bud_manencum_rev_id = :old.efin_bud_manencum_rev_id;
+	END IF;
+  -- Delete  Operation
+	IF DELETING THEN
+	
+	select status into v_docstatus from Efin_Bud_Manencum_Rev where efin_bud_manencum_rev_id = v_efin_bud_manencum_rev_id ;
+	
+    
+
+	select hdr.APP_Amt,hdr.Usedamount into v_app_amt,v_used_amt from Efin_Budget_Manencum hdr join Efin_Budget_Manencumlines lns 
+		on hdr.Efin_Budget_Manencum_id = lns.Efin_Budget_Manencum_id
+		join Efin_Bud_Manencum_Rev rev on rev.Efin_Budget_Manencumlines_id = lns.Efin_Budget_Manencumlines_id
+		where efin_bud_manencum_rev_id =  v_efin_bud_manencum_rev_id;
+
+	IF(v_docstatus = 'APP'  AND :old.isauto='N' and (v_app_amt > 0 or v_used_amt > 0)) THEN
+	RAISE_APPLICATION_ERROR(-20501,'@20501@');
+	END IF;
+		
+	END IF;
+
+	
+	
+	END EFIN_CHKDRFT_REVISION_TRG
+]]></body>
+    </trigger>
+  </database>

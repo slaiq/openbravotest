@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_C_CAMPAIGN_TRG">
+    <trigger name="EFIN_C_CAMPAIGN_TRG" table="C_CAMPAIGN" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+/************************************************************************
+* All Rights Reserved.
+* Contributor(s): Prakash
+*************************************************************************/
+  v_CampCount NUMBER;
+BEGIN
+  IF AD_isTriggerEnabled()='N' THEN RETURN;
+  END IF;
+
+   IF INSERTING THEN
+
+	select count(c_campaign_id) into v_CampCount from c_campaign where em_efin_budgettype = :NEW.em_efin_budgettype and ad_client_id = :NEW.ad_client_id;
+
+	IF(v_CampCount > 0) THEN
+		RAISE_APPLICATION_ERROR(-20501,'@EFIN_BudgetType_AlreadyExists@');
+	END IF;
+	
+   END IF;
+
+   IF UPDATING THEN
+	select count(c_campaign_id) into v_CampCount from c_campaign where em_efin_budgettype = :NEW.em_efin_budgettype and ad_client_id = :NEW.ad_client_id 
+	and c_campaign_id <> :NEW.c_campaign_id;
+
+	IF(v_CampCount > 0) THEN
+		RAISE_APPLICATION_ERROR(-20501,'@EFIN_BudgetType_AlreadyExists@');
+	END IF;	
+	
+   END IF;
+
+  
+END EFIN_C_CAMPAIGN_TRG
+]]></body>
+    </trigger>
+  </database>

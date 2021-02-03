@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_RDVLINEEXISTFIELDUPDATE">
+    <trigger name="EFIN_RDVLINEEXISTFIELDUPDATE" table="EFIN_RDVTXNLINE" fires="after" insert="false" update="true" delete="true" foreach="row">
+      <body><![CDATA[ v_clientId VARCHAR(32);
+ v_prec NUMBER;
+ v_matchamtDiff NUMBER;
+ v_matchQtyDiff NUMBER;
+ v_penAmtDiff NUMBER;
+ v_advAmtDiff NUMBER;
+ v_holdAmtDiff NUMBER;
+ v_version NUMBER;
+ cur_furtherVersion record;
+ v_txntype VARCHAR(32);
+ v_receivetype VARCHAR(32);
+
+BEGIN
+v_matchamtDiff :=0;
+v_matchQtyDiff :=0;
+v_penAmtDiff :=0;
+v_advAmtDiff :=0;
+v_holdAmtDiff :=0;
+v_receivetype :='QTY';
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+	in (select c_currency_id from ad_client where ad_client_id  = :old.ad_client_id);
+	
+    select txn_version into v_version from efin_rdvtxn where efin_rdvtxn_id = :old.efin_rdvtxn_id;
+    select txn_type into v_txntype from efin_rdv where efin_rdv_id =:old.efin_rdv_id;
+    
+	-- get checking order is amt based or qty based.
+	if v_txntype ='POD' then
+    	select em_escm_receivetype into v_receivetype from efin_rdv rdv
+        join m_inout rec on rec.m_inout_id = rdv.m_inout_id where rdv.efin_rdv_id =:old.efin_rdv_id;
+    else
+  		select em_escm_receivetype into v_receivetype from efin_rdv rdv 
+    	join c_order ord on ord.c_order_id = rdv.c_order_id where rdv.efin_rdv_id =:old.efin_rdv_id;
+    end if;
+
+	-- Insert/Update/Delete Operation	
+	IF UPDATING THEN
+    	
+        IF((:old.match_amt <> :new.match_amt) OR (:old.match_qty <> :new.match_qty) ) THEN
+          :new.match_amt := round(:new.match_amt,v_prec);
+          :new.match_qty := round(:new.match_qty,v_prec);
+          v_matchAmtDiff = :new.match_amt - :old.match_amt;
+          v_matchQtyDiff = :new.match_qty - :old.match_qty;
+			FOR cur_furtherVersion in (select efin_rdvtxnline_id from efin_rdvtxnline ln
+                                     join efin_rdvtxn txn on txn.efin_rdvtxn_id = ln.efin_rdvtxn_id
+                                     where ln.efin_rdv_id = :new.efin_rdv_id and ln.efin_rdv_id=txn.efin_rdv_id and txn_version > v_version and ln.item_desc = :new.item_desc)
+            LOOP
+            	update efin_rdvtxnline set eximatch_amt = eximatch_amt + v_matchAmtDiff,eximatch_qty = eximatch_qty+v_matchQtyDiff where efin_rdvtxnline_id = cur_furtherVersion.efin_rdvtxnline_id;
+          	END LOOP;
+		END IF;
+        
+        IF( :old.penalty_amt <> :new.penalty_amt ) THEN
+          :new.penalty_amt := round(:new.penalty_amt,v_prec);
+          v_penAmtDiff = :new.penalty_amt - :old.penalty_amt;
+			FOR cur_furtherVersion in (select efin_rdvtxnline_id from efin_rdvtxnline ln
+                                     join efin_rdvtxn txn on txn.efin_rdvtxn_id = ln.efin_rdvtxn_id
+                                     where ln.efin_rdv_id = :new.efin_rdv_id and ln.efin_rdv_id=txn.efin_rdv_id and txn_version > v_version and ln.item_desc = :new.item_desc)
+            LOOP
+            	update efin_rdvtxnline set exipenalty_amt = exipenalty_amt + v_penAmtDiff where efin_rdvtxnline_id = cur_furtherVersion.efin_rdvtxnline_id;
+          	END LOOP;
+		END IF;
+
+        IF( :old.adv_deduct <> :new.adv_deduct ) THEN
+          :new.adv_deduct := round(:new.adv_deduct,v_prec);
+          v_advAmtDiff = :new.adv_deduct - :old.adv_deduct;
+			FOR cur_furtherVersion in (select efin_rdvtxnline_id,txn.efin_rdvtxn_id from efin_rdvtxnline ln
+                                     join efin_rdvtxn txn on txn.efin_rdvtxn_id = ln.efin_rdvtxn_id
+                                     where ln.efin_rdv_id = :new.efin_rdv_id and ln.efin_rdv_id=txn.efin_rdv_id and txn_version > v_version and ln.item_desc = :new.item_desc)
+            LOOP
+            	update efin_rdvtxnline set exiadv_deduct = exiadv_deduct + v_advAmtDiff,advamt_rem=advamt_rem-v_advAmtDiff where efin_rdvtxnline_id = cur_furtherVersion.efin_rdvtxnline_id;
+                update efin_rdvtxn set advamt_rem = advamt_rem - v_advAmtDiff where efin_rdvtxn_id = cur_furtherVersion.efin_rdvtxn_id;
+          	END LOOP;
+		END IF;
+
+        IF( :old.holdamt <> :new.holdamt ) THEN
+          :new.holdamt := round(:new.holdamt,v_prec);
+          v_holdAmtDiff = :new.holdamt - :old.holdamt;
+			FOR cur_furtherVersion in (select efin_rdvtxnline_id from efin_rdvtxnline ln
+                                     join efin_rdvtxn txn on txn.efin_rdvtxn_id = ln.efin_rdvtxn_id
+                                     where ln.efin_rdv_id = :new.efin_rdv_id and ln.efin_rdv_id=txn.efin_rdv_id and txn_version > v_version and ln.item_desc = :new.item_desc)
+            LOOP
+            	update efin_rdvtxnline set existing_hold_amount = existing_hold_amount + v_holdAmtDiff where efin_rdvtxnline_id = cur_furtherVersion.efin_rdvtxnline_id;
+          	END LOOP;
+		END IF;
+    
+    END IF;
+    
+    IF DELETING THEN
+			FOR cur_furtherVersion in (select efin_rdvtxnline_id,txn.efin_rdvtxn_id from efin_rdvtxnline ln
+                                     join efin_rdvtxn txn on txn.efin_rdvtxn_id = ln.efin_rdvtxn_id
+                                     where ln.efin_rdv_id = :old.efin_rdv_id and ln.efin_rdv_id=txn.efin_rdv_id and txn_version > v_version and ln.item_desc = :old.item_desc)
+            LOOP
+				IF v_receivetype = 'AMT' THEN
+            		update efin_rdvtxnline set eximatch_amt = eximatch_amt - round(:old.match_amt,v_prec),
+                	exipenalty_amt = exipenalty_amt - round(:old.penalty_amt,v_prec), exiadv_deduct = exiadv_deduct - round(:old.adv_deduct,v_prec),
+                	existing_hold_amount = existing_hold_amount - round(:old.holdamt,v_prec),advamt_rem = advamt_rem + round(:old.adv_deduct,v_prec)
+                	where efin_rdvtxnline_id = cur_furtherVersion.efin_rdvtxnline_id;        
+                ELSE
+                	update efin_rdvtxnline set eximatch_amt = eximatch_amt - round(:old.match_amt,v_prec),eximatch_qty = eximatch_qty-round(:old.match_qty,v_prec),
+                	exipenalty_amt = exipenalty_amt - round(:old.penalty_amt,v_prec), exiadv_deduct = exiadv_deduct - round(:old.adv_deduct,v_prec),
+                	existing_hold_amount = existing_hold_amount - round(:old.holdamt,v_prec),advamt_rem = advamt_rem + round(:old.adv_deduct,v_prec)
+                	where efin_rdvtxnline_id = cur_furtherVersion.efin_rdvtxnline_id;   
+                END IF;
+                
+                update efin_rdvtxn set advamt_rem = advamt_rem + round(:old.adv_deduct,v_prec) where efin_rdvtxn_id = cur_furtherVersion.efin_rdvtxn_id;
+            END LOOP;
+
+	END IF;
+    
+	END EFIN_RDVLINEEXISTFIELDUPDATE
+]]></body>
+    </trigger>
+  </database>

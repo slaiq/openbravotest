@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_RDV_BUDGHOLDLINE_TRG">
+    <trigger name="EFIN_RDV_BUDGHOLDLINE_TRG" table="EFIN_RDV_BUDGHOLDLINE" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[
+v_remainingAmount NUMBER;
+
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+    --while deleting,insert or update  then update remaining amt in Budget Hold plan details LInes
+  
+    IF (INSERTING OR UPDATING ) THEN
+      v_remainingAmount = (coalesce(:NEW.hold_amount,0) - coalesce(:NEW.release_amount,0));
+    END IF;
+
+    IF (INSERTING) THEN
+
+        update EFIN_Rdv_BudgHoldLine set Remaining_Amount = coalesce(v_remainingAmount,0)
+        where  EFIN_Rdv_BudgHoldLine_id = :NEW.EFIN_Rdv_BudgHoldLine_id ;
+
+    END IF;
+
+      IF (UPDATING ) THEN
+
+        IF((coalesce(:NEW.hold_amount,0) <> coalesce(:OLD.hold_amount,0)) 
+            OR (coalesce(:NEW.release_amount,0) <> coalesce(:OLD.release_amount,0))) THEN
+            
+        update EFIN_Rdv_BudgHoldLine set Remaining_Amount = coalesce(v_remainingAmount,0)
+        where  EFIN_Rdv_BudgHoldLine_id = :NEW.EFIN_Rdv_BudgHoldLine_id ;
+
+        END IF;
+
+    END IF;
+
+    END EFIN_RDV_BUDGHOLDLINE_TRG
+]]></body>
+    </trigger>
+  </database>

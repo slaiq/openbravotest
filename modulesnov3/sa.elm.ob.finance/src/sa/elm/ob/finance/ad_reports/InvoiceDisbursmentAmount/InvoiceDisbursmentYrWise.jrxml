@@ -1,0 +1,1261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="InvoiceDisbursmentYrWise" pageWidth="2050" pageHeight="595" orientation="Landscape" columnWidth="2050" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="48f6ebcb-ead0-4a79-9da6-7d7426301bfc">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="LocalHostDB"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<parameter name="C_Year_ID" class="java.lang.String"/>
+	<parameter name="Chapter_ID" class="java.lang.String"/>
+	<parameter name="element_from" class="java.lang.String"/>
+	<parameter name="element_to" class="java.lang.String"/>
+	<parameter name="AUXinpAcctID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[($P{element_from}==null || $P{element_from}.equals( "" )) ?  "    AND 1=1    " : "     AND act.VALUE BETWEEN (SELECT value  FROM c_elementvalue WHERE c_elementvalue_id = '"+$P{element_from}+"'      limit 1)   AND (SELECT value  FROM c_elementvalue  WHERE c_elementvalue_id =  '"+$P{element_to}+"'  limit 1)         "]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+	case
+		when act.value like '21%' then '1'
+		when act.value like '22%' then '2'
+		when act.value like '23%' then '2'
+		when act.value like '24%' then '2'
+		when act.value like '25%' then '2'
+		when act.value like '26%' then '2'
+		when act.value like '27%' then '2'
+		when act.value like '28%' then '2'
+		when act.value like '3%' then '3'
+		when act.value like '4%' then '4'
+		else ''
+	end as chapter,
+	act.value as element,
+	act.name as elementname,
+	coalesce(
+		lines.amount,
+		0
+	) as approved_Budget,
+	coalesce(
+		lines.updated_Budget,
+		0
+	)  updated_Budget,
+	coalesce(
+		lines.org_budgt_amt,
+		0
+	)  org_budgt_amt,
+	coalesce(
+		janinvln.actualamount,
+		0
+	) as jan_amount,
+	coalesce(
+		febinvln.actualamount,
+		0
+	) as feb_amount,
+	coalesce(
+		marchinvln.actualamount,
+		0
+	) as March_Amount,
+	coalesce(
+		aprilinvln.actualamount,
+		0
+	) as April_Amount,
+	coalesce(
+		mayinvln.actualamount,
+		0
+	) as May_Amount,
+	coalesce(
+		juninvln.actualamount,
+		0
+	) as Jun_Amount,
+	coalesce(
+		julinvln.actualamount,
+		0
+	) as Jul_Amount,
+	coalesce(
+		auginvln.actualamount,
+		0
+	) as Aug_Amount,
+	coalesce(
+		sepinvln.actualamount,
+		0
+	) as Sep_Amount,
+	coalesce(
+		octinvln.actualamount,
+		0
+	) as Oct_Amount,
+	coalesce(
+		novinvln.actualamount,
+		0
+	) as Nov_Amount,
+	coalesce(
+		decinvln.actualamount,
+		0
+	) as Dec_Amount,
+	coalesce(
+		totalinvln.actualamount,
+		0
+	) as total
+from
+	(
+	/*	select
+			distinct coalesce(
+				budline.c_elementvalue_id,
+				EM_Efin_C_Elementvalue_ID
+			) as c_elementvalue_id,
+			coalesce(
+				budline.amount,
+				0
+			) as amount,
+			coalesce(
+				budline.c_campaign_id,
+				'0'
+			) as c_campaign_id
+		from
+			efin_budgetlines budline
+		left join c_invoiceline invln on
+			budline.c_elementvalue_id = invln.EM_Efin_C_Elementvalue_ID
+		join efin_budget bud on
+			bud.efin_budget_id = budline.efin_budget_id
+		join Efin_Budgetint bint on
+			bud.efin_budgetint_id = bint.efin_budgetint_id
+		where bint.c_year_id=    */
+		
+	select  coalesce(binq.current_budget,0) as amount,
+	/* coalesce((select sum(binq1.current_budget) from efin_budgetinquiry binq1 where  binq1.efin_budgetint_id=bint.efin_budgetint_id 
+	           and  binq1.c_elementvalue_id= binq.c_elementvalue_id 
+			   and binq1.c_campaign_id = binq.c_campaign_id  ---- 02 budget type
+	           and binq1.c_salesregion_id='6FDD24E8EB1D47E38E4AA4415BC1D40C'---999 changed as per Majed feedback
+			   ),0) as amount,  */
+	binq.REV_Amount updated_budget,
+			(
+				select
+					coalesce(
+						sum( bl.amount ),
+						0
+					) org_budgt_amt
+				from
+					efin_budget bud,
+					efin_budgetlines bl
+				where
+					bud.efin_budget_id = bl.efin_budget_id
+					and bl.c_salesregion_id = sg.c_salesregion_id
+					and bl.c_campaign_id = binq.c_campaign_id
+					AND bl.C_Elementvalue_ID = binq.C_Elementvalue_ID
+					and bud.c_year_id = bint.c_year_id
+					
+			) org_budgt_amt	,
+	coalesce(
+				binq.c_campaign_id,
+				'0'
+			) as c_campaign_id,
+			binq.c_elementvalue_id
+    from Efin_Budgetint bint,	
+	efin_budgetinquiry binq,
+	c_salesregion sg
+	where  bint.efin_budgetint_id = binq.efin_budgetint_id
+	and binq.c_salesregion_id= sg.c_salesregion_id
+	and sg.value='990'
+	and binq.c_campaign_id= '11F9670AC2DC499885BAE97494C595AD'
+	and bint.c_year_id=  $P{C_Year_ID} 		
+	) lines 
+	--janauary
+left join(
+		select
+			'January' as janmonth,
+			sum( linenetamt *(
+						case
+							when inv.c_currency_id = '317' then 1
+							else coalesce(
+								(
+									select
+										multiplyrate
+									from
+										c_conversion_rate
+									where
+										c_currency_id = inv.c_currency_id
+								),
+								1
+							)
+						end
+					) ) as actualamount,
+			EM_Efin_C_Elementvalue_ID --inv.documentno
+		from
+			c_invoiceline ln
+		join c_invoice inv on
+			inv.c_invoice_id = ln.c_invoice_id
+		join Efin_Budgetint bint on	inv.EM_Efin_Budgetint_ID = bint.efin_budgetint_id
+		--join efin_purchasein_app_hist hist on inv.c_invoice_id = hist.c_invoice_id	
+		join (select  distinct  c_invoice_id,trunc(created) created,seqno from efin_purchasein_app_hist a) hist on inv.c_invoice_id = hist.c_invoice_id
+		join (select c_invoice_id,max( seqno ) seqno	from efin_purchasein_app_hist h	group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno
+		where
+			date_part(
+				'month',
+				hist.created
+			)= 1
+			and inv.docstatus = 'CO'
+			and  bint.c_year_id=  $P{C_Year_ID} 
+		group by
+			--inv.documentno,
+ EM_Efin_C_Elementvalue_ID
+	) janinvln on
+	janinvln.EM_Efin_C_Elementvalue_ID = lines.c_elementvalue_id --febraury
+left join(
+		select
+			'Febraury' as janmonth,
+			sum( linenetamt *(
+						case
+							when inv.c_currency_id = '317' then 1
+							else coalesce(
+								(
+									select
+										multiplyrate
+									from
+										c_conversion_rate
+									where
+										c_currency_id = inv.c_currency_id
+								),
+								1
+							)
+						end
+					) )  as actualamount,
+			EM_Efin_C_Elementvalue_ID --inv.documentno
+		from
+			c_invoiceline ln
+		join c_invoice inv on
+			inv.c_invoice_id = ln.c_invoice_id
+		join Efin_Budgetint bint on
+			inv.EM_Efin_Budgetint_ID = bint.efin_budgetint_id
+		--join efin_purchasein_app_hist hist on inv.c_invoice_id = hist.c_invoice_id	
+		join (select  distinct  c_invoice_id,trunc(created) created,seqno from efin_purchasein_app_hist a) hist on inv.c_invoice_id = hist.c_invoice_id
+		join (select c_invoice_id,max( seqno ) seqno	from efin_purchasein_app_hist h	group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno
+		where
+			date_part(
+				'month',
+				hist.created
+			)= 2
+			and inv.docstatus = 'CO'
+			and  bint.c_year_id=  $P{C_Year_ID} 
+		group by
+			--inv.documentno,
+ EM_Efin_C_Elementvalue_ID
+	) febinvln on
+	febinvln.EM_Efin_C_Elementvalue_ID = lines.c_elementvalue_id --March
+left join(
+		select
+			'March' as janmonth,
+			sum( linenetamt *(
+						case
+							when inv.c_currency_id = '317' then 1
+							else coalesce(
+								(
+									select
+										multiplyrate
+									from
+										c_conversion_rate
+									where
+										c_currency_id = inv.c_currency_id
+								),
+								1
+							)
+						end
+					) )  as actualamount,
+			EM_Efin_C_Elementvalue_ID --inv.documentno
+		from
+			c_invoiceline ln
+		join c_invoice inv on
+			inv.c_invoice_id = ln.c_invoice_id
+		join Efin_Budgetint bint on
+			inv.EM_Efin_Budgetint_ID = bint.efin_budgetint_id
+	--	join efin_purchasein_app_hist hist on inv.c_invoice_id = hist.c_invoice_id	
+		join (select  distinct  c_invoice_id,trunc(created) created,seqno from efin_purchasein_app_hist a) hist on inv.c_invoice_id = hist.c_invoice_id
+		join (select c_invoice_id,max( seqno ) seqno	from efin_purchasein_app_hist h	group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno	
+		where
+			date_part(
+				'month',
+				hist.created
+			)= 3
+			and inv.docstatus = 'CO'
+			and  bint.c_year_id=  $P{C_Year_ID} 
+		group by
+			--inv.documentno,
+ EM_Efin_C_Elementvalue_ID
+	) marchinvln on
+	marchinvln.EM_Efin_C_Elementvalue_ID = lines.c_elementvalue_id --april
+left join(
+		select
+			'April' as janmonth,
+			sum( linenetamt *(
+						case
+							when inv.c_currency_id = '317' then 1
+							else coalesce(
+								(
+									select
+										multiplyrate
+									from
+										c_conversion_rate
+									where
+										c_currency_id = inv.c_currency_id
+								),
+								1
+							)
+						end
+					) )  as actualamount,
+			EM_Efin_C_Elementvalue_ID --inv.documentno
+		from
+			c_invoiceline ln
+		join c_invoice inv on
+			inv.c_invoice_id = ln.c_invoice_id
+		join Efin_Budgetint bint on
+			inv.EM_Efin_Budgetint_ID = bint.efin_budgetint_id
+		--join efin_purchasein_app_hist hist on inv.c_invoice_id = hist.c_invoice_id	
+		join (select  distinct  c_invoice_id,trunc(created) created,seqno from efin_purchasein_app_hist a) hist on inv.c_invoice_id = hist.c_invoice_id
+		join (select c_invoice_id,max( seqno ) seqno	from efin_purchasein_app_hist h	group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno
+		where
+			date_part(
+				'month',
+				hist.created
+			)= 4
+			and inv.docstatus = 'CO'
+			and  bint.c_year_id=  $P{C_Year_ID} 
+		group by
+			--inv.documentno,
+ EM_Efin_C_Elementvalue_ID
+	) aprilinvln on
+	aprilinvln.EM_Efin_C_Elementvalue_ID = lines.c_elementvalue_id --may
+left join(
+		select
+			'May' as janmonth,
+			sum( linenetamt *(
+						case
+							when inv.c_currency_id = '317' then 1
+							else coalesce(
+								(
+									select
+										multiplyrate
+									from
+										c_conversion_rate
+									where
+										c_currency_id = inv.c_currency_id
+								),
+								1
+							)
+						end
+					) )  as actualamount,
+			EM_Efin_C_Elementvalue_ID --inv.documentno
+		from
+			c_invoiceline ln
+		join c_invoice inv on
+			inv.c_invoice_id = ln.c_invoice_id
+		join Efin_Budgetint bint on
+			inv.EM_Efin_Budgetint_ID = bint.efin_budgetint_id
+	--	join efin_purchasein_app_hist hist on inv.c_invoice_id = hist.c_invoice_id	
+	    join (select  distinct  c_invoice_id,trunc(created) created,seqno from efin_purchasein_app_hist a) hist on inv.c_invoice_id = hist.c_invoice_id
+		join (select c_invoice_id,max( seqno ) seqno	from efin_purchasein_app_hist h	group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno	
+		where
+			date_part(
+				'month',
+				hist.created
+			)= 5
+			and inv.docstatus = 'CO'
+			and  bint.c_year_id=  $P{C_Year_ID} 
+		group by
+			--inv.documentno,
+ EM_Efin_C_Elementvalue_ID
+	) mayinvln on
+	mayinvln.EM_Efin_C_Elementvalue_ID = lines.c_elementvalue_id --- June	
+left join(
+		select
+			'June' as janmonth,
+			sum( linenetamt *(
+						case
+							when inv.c_currency_id = '317' then 1
+							else coalesce(
+								(
+									select
+										multiplyrate
+									from
+										c_conversion_rate
+									where
+										c_currency_id = inv.c_currency_id
+								),
+								1
+							)
+						end
+					) )  as actualamount,
+			EM_Efin_C_Elementvalue_ID --inv.documentno
+		from
+			c_invoiceline ln
+		join c_invoice inv on
+			inv.c_invoice_id = ln.c_invoice_id
+		join Efin_Budgetint bint on
+			inv.EM_Efin_Budgetint_ID = bint.efin_budgetint_id
+	--	join efin_purchasein_app_hist hist on inv.c_invoice_id = hist.c_invoice_id	
+	    join (select  distinct  c_invoice_id,trunc(created) created,seqno from efin_purchasein_app_hist a) hist on inv.c_invoice_id = hist.c_invoice_id
+		join (select c_invoice_id,max( seqno ) seqno	from efin_purchasein_app_hist h	group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno		
+		where
+			date_part(
+				'month',
+				hist.created
+			)= 6
+			and inv.docstatus = 'CO'
+			and  bint.c_year_id=  $P{C_Year_ID} 
+		group by
+			--inv.documentno,
+ EM_Efin_C_Elementvalue_ID
+	) juninvln on
+	juninvln.EM_Efin_C_Elementvalue_ID = lines.c_elementvalue_id --- July
+left join(
+		select
+			'July' as janmonth,
+			sum( linenetamt *(
+						case
+							when inv.c_currency_id = '317' then 1
+							else coalesce(
+								(
+									select
+										multiplyrate
+									from
+										c_conversion_rate
+									where
+										c_currency_id = inv.c_currency_id
+								),
+								1
+							)
+						end
+					) )  as actualamount,
+			EM_Efin_C_Elementvalue_ID --inv.documentno
+		from
+			c_invoiceline ln
+		join c_invoice inv on
+			inv.c_invoice_id = ln.c_invoice_id
+		join Efin_Budgetint bint on
+			inv.EM_Efin_Budgetint_ID = bint.efin_budgetint_id
+	--	join efin_purchasein_app_hist hist on inv.c_invoice_id = hist.c_invoice_id	
+	    join (select  distinct  c_invoice_id,trunc(created) created,seqno from efin_purchasein_app_hist a) hist on inv.c_invoice_id = hist.c_invoice_id
+		join (select c_invoice_id,max( seqno ) seqno	from efin_purchasein_app_hist h	group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno			
+		where
+			date_part(
+				'month',
+				hist.created
+			)= 7
+			and inv.docstatus = 'CO'
+			and  bint.c_year_id=  $P{C_Year_ID} 
+		group by
+			--inv.documentno,
+ EM_Efin_C_Elementvalue_ID
+	) julinvln on
+	julinvln.EM_Efin_C_Elementvalue_ID = lines.c_elementvalue_id --- August
+left join(
+		select
+			'August' as janmonth,
+			sum( linenetamt *(
+						case
+							when inv.c_currency_id = '317' then 1
+							else coalesce(
+								(
+									select
+										multiplyrate
+									from
+										c_conversion_rate
+									where
+										c_currency_id = inv.c_currency_id
+								),
+								1
+							)
+						end
+					) )  as actualamount,
+			EM_Efin_C_Elementvalue_ID --inv.documentno
+		from
+			c_invoiceline ln
+		join c_invoice inv on
+			inv.c_invoice_id = ln.c_invoice_id
+		join Efin_Budgetint bint on
+			inv.EM_Efin_Budgetint_ID = bint.efin_budgetint_id
+	--	join efin_purchasein_app_hist hist on inv.c_invoice_id = hist.c_invoice_id	
+	    join (select  distinct  c_invoice_id,trunc(created) created,seqno from efin_purchasein_app_hist a) hist on inv.c_invoice_id = hist.c_invoice_id
+		join (select c_invoice_id,max( seqno ) seqno	from efin_purchasein_app_hist h	group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno				
+		where
+			date_part(
+				'month',
+				hist.created
+			)= 8
+			and inv.docstatus = 'CO'
+			and  bint.c_year_id=  $P{C_Year_ID} 
+		group by
+			--inv.documentno,
+ EM_Efin_C_Elementvalue_ID
+	) auginvln on
+	auginvln.EM_Efin_C_Elementvalue_ID = lines.c_elementvalue_id --- September
+left join(
+		select
+			'September' as janmonth,
+			sum( linenetamt *(
+						case
+							when inv.c_currency_id = '317' then 1
+							else coalesce(
+								(
+									select
+										multiplyrate
+									from
+										c_conversion_rate
+									where
+										c_currency_id = inv.c_currency_id
+								),
+								1
+							)
+						end
+					) )  as actualamount,
+			EM_Efin_C_Elementvalue_ID --inv.documentno
+		from
+			c_invoiceline ln
+		join c_invoice inv on
+			inv.c_invoice_id = ln.c_invoice_id
+		join Efin_Budgetint bint on
+			inv.EM_Efin_Budgetint_ID = bint.efin_budgetint_id
+	--	join efin_purchasein_app_hist hist on inv.c_invoice_id = hist.c_invoice_id	
+	    join (select  distinct  c_invoice_id,trunc(created) created,seqno from efin_purchasein_app_hist a) hist on inv.c_invoice_id = hist.c_invoice_id
+		join (select c_invoice_id,max( seqno ) seqno	from efin_purchasein_app_hist h	group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno					
+		where
+			date_part(
+				'month',
+				hist.created
+			)= 9
+			and inv.docstatus = 'CO'
+			and  bint.c_year_id=  $P{C_Year_ID} 
+		group by
+			--inv.documentno,
+ EM_Efin_C_Elementvalue_ID
+	) sepinvln on
+	sepinvln.EM_Efin_C_Elementvalue_ID = lines.c_elementvalue_id --- October
+left join(
+		select
+			'October' as janmonth,
+			sum( linenetamt *(
+						case
+							when inv.c_currency_id = '317' then 1
+							else coalesce(
+								(
+									select
+										multiplyrate
+									from
+										c_conversion_rate
+									where
+										c_currency_id = inv.c_currency_id
+								),
+								1
+							)
+						end
+					) )  as actualamount,
+			EM_Efin_C_Elementvalue_ID --inv.documentno
+		from
+			c_invoiceline ln
+		join c_invoice inv on
+			inv.c_invoice_id = ln.c_invoice_id
+		join Efin_Budgetint bint on
+			inv.EM_Efin_Budgetint_ID = bint.efin_budgetint_id
+	--	join efin_purchasein_app_hist hist on inv.c_invoice_id = hist.c_invoice_id	
+	    join (select  distinct  c_invoice_id,trunc(created) created,seqno from efin_purchasein_app_hist a) hist on inv.c_invoice_id = hist.c_invoice_id
+		join (select c_invoice_id,max( seqno ) seqno	from efin_purchasein_app_hist h	group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno						
+		where
+			date_part(
+				'month',
+				hist.created
+			)= 10
+			and inv.docstatus = 'CO'
+			and  bint.c_year_id=  $P{C_Year_ID} 
+		group by
+			--inv.documentno,
+ EM_Efin_C_Elementvalue_ID
+	) octinvln on
+	octinvln.EM_Efin_C_Elementvalue_ID = lines.c_elementvalue_id --- November
+left join(
+		select
+			'November' as janmonth,
+			sum( linenetamt *(
+						case
+							when inv.c_currency_id = '317' then 1
+							else coalesce(
+								(
+									select
+										multiplyrate
+									from
+										c_conversion_rate
+									where
+										c_currency_id = inv.c_currency_id
+								),
+								1
+							)
+						end
+					) )  as actualamount,
+			EM_Efin_C_Elementvalue_ID --inv.documentno
+		from
+			c_invoiceline ln
+		join c_invoice inv on
+			inv.c_invoice_id = ln.c_invoice_id
+		join Efin_Budgetint bint on
+			inv.EM_Efin_Budgetint_ID = bint.efin_budgetint_id
+	--	join efin_purchasein_app_hist hist on inv.c_invoice_id = hist.c_invoice_id	
+	    join (select  distinct  c_invoice_id,trunc(created) created,seqno from efin_purchasein_app_hist a) hist on inv.c_invoice_id = hist.c_invoice_id
+		join (select c_invoice_id,max( seqno ) seqno	from efin_purchasein_app_hist h	group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno							
+		where
+			date_part(
+				'month',
+				hist.created
+			)= 11
+			and inv.docstatus = 'CO'
+			and  bint.c_year_id=  $P{C_Year_ID} 
+		group by
+			--inv.documentno,
+ EM_Efin_C_Elementvalue_ID
+	) novinvln on
+	novinvln.EM_Efin_C_Elementvalue_ID = lines.c_elementvalue_id --- December
+left join(
+		select
+			'December' as janmonth,
+			sum( linenetamt *(
+						case
+							when inv.c_currency_id = '317' then 1
+							else coalesce(
+								(
+									select
+										multiplyrate
+									from
+										c_conversion_rate
+									where
+										c_currency_id = inv.c_currency_id
+								),
+								1
+							)
+						end
+					) )  as actualamount,
+			EM_Efin_C_Elementvalue_ID --inv.documentno
+		from
+			c_invoiceline ln
+		join c_invoice inv on
+			inv.c_invoice_id = ln.c_invoice_id
+		join Efin_Budgetint bint on
+			inv.EM_Efin_Budgetint_ID = bint.efin_budgetint_id
+	--	join efin_purchasein_app_hist hist on inv.c_invoice_id = hist.c_invoice_id
+        join (select  distinct  c_invoice_id,trunc(created) created,seqno from efin_purchasein_app_hist a) hist on inv.c_invoice_id = hist.c_invoice_id	
+		join (select c_invoice_id,max( seqno ) seqno	from efin_purchasein_app_hist h	group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno								
+		where
+			date_part(
+				'month',
+				hist.created
+			)= 12
+			and inv.docstatus = 'CO'
+			and  bint.c_year_id=  $P{C_Year_ID} 
+		group by
+			--inv.documentno,
+ EM_Efin_C_Elementvalue_ID
+	) decinvln on
+	decinvln.EM_Efin_C_Elementvalue_ID = lines.c_elementvalue_id --total
+left join(
+		select
+			'Total' as janmonth,
+			sum( linenetamt *(
+						case
+							when inv.c_currency_id = '317' then 1
+							else coalesce(
+								(
+									select
+										multiplyrate
+									from
+										c_conversion_rate
+									where
+										c_currency_id = inv.c_currency_id
+								),
+								1
+							)
+						end
+					) )  as actualamount,
+			EM_Efin_C_Elementvalue_ID --inv.documentno
+		from
+			c_invoiceline ln
+		join c_invoice inv on
+			inv.c_invoice_id = ln.c_invoice_id
+		join Efin_Budgetint bint on
+			inv.EM_Efin_Budgetint_ID = bint.efin_budgetint_id
+	--	join efin_purchasein_app_hist hist on inv.c_invoice_id = hist.c_invoice_id	
+	    join (select  distinct  c_invoice_id,trunc(created) created,seqno from efin_purchasein_app_hist a) hist on inv.c_invoice_id = hist.c_invoice_id
+		join (select c_invoice_id,max( seqno ) seqno	from efin_purchasein_app_hist h	group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno	
+		where
+			 inv.docstatus = 'CO'
+			and  bint.c_year_id=  $P{C_Year_ID} 
+		group by
+			--inv.documentno,
+ EM_Efin_C_Elementvalue_ID
+	) totalinvln on
+	totalinvln.EM_Efin_C_Elementvalue_ID = lines.c_elementvalue_id
+join c_elementvalue act on
+	act.c_elementvalue_id = lines.c_elementvalue_id
+where
+	lines.c_campaign_id in(
+		'11F9670AC2DC499885BAE97494C595AD',
+		'0'
+	)
+	 and act.accounttype ='E'
+	 and (case
+			when     $P{Chapter_ID} = '1' then act.value like '21%'
+			when    $P{Chapter_ID}  = '2' then(
+				 act.value like '22%'
+				or  act.value like '23%'
+				or  act.value like '24%'
+				or  act.value like  '25%'
+				or  act.value like '26%'
+				or  act.value like '27%'
+				or  act.value like '28%'
+			)
+			when   $P{Chapter_ID}  = '3' then (act.value like  '30%' or act.value like  '36%' or act.value like  '37%')
+			when    $P{Chapter_ID} = '4' then  act.value like '4%'
+			else  
+			(act.value like '21%' 
+				or act.value like '22%'
+				or  act.value like '23%'
+				or  act.value like '24%'
+				or act.value like  '25%'
+				or  act.value like '26%'
+				or  act.value like '27%'
+				or  act.value like '28%'
+				or act.value like  '30%' 
+				or act.value like  '36%'
+				or act.value like  '37%'  
+				or act.value like '4%')
+		end 		
+		)
+order by
+	element]]>
+	</queryString>
+	<field name="chapter" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="chapter"/>
+	</field>
+	<field name="element" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="element"/>
+	</field>
+	<field name="elementname" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="elementname"/>
+	</field>
+	<field name="approved_budget" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="approved_budget"/>
+	</field>
+	<field name="updated_Budget" class="java.math.BigDecimal"/>
+	<field name="org_budgt_amt" class="java.math.BigDecimal"/>
+	<field name="jan_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="jan_amount"/>
+	</field>
+	<field name="feb_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="feb_amount"/>
+	</field>
+	<field name="march_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="march_amount"/>
+	</field>
+	<field name="april_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="april_amount"/>
+	</field>
+	<field name="may_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="may_amount"/>
+	</field>
+	<field name="jun_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="jun_amount"/>
+	</field>
+	<field name="jul_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="jul_amount"/>
+	</field>
+	<field name="aug_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="aug_amount"/>
+	</field>
+	<field name="sep_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="sep_amount"/>
+	</field>
+	<field name="oct_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="oct_amount"/>
+	</field>
+	<field name="nov_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nov_amount"/>
+	</field>
+	<field name="dec_amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="dec_amount"/>
+	</field>
+	<field name="total" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="total"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="25" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="1567" y="0" width="100" height="20" backcolor="#BFBDBD" uuid="3ba590ae-91ba-4a08-a244-cf4c3173dbd3">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الميزانية الأصلية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1200" y="0" width="100" height="20" backcolor="#BFBDBD" uuid="cdfdb5fe-7d4d-421e-9e28-9227f599ba35">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[مبالغ شهر يناير]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1100" y="0" width="100" height="20" backcolor="#BFBDBD" uuid="16618a6d-4e44-48ad-aad7-57deb7c34b49">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[مبالغ شهر فبراير]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1000" y="0" width="100" height="20" backcolor="#BFBDBD" uuid="d097e710-9d49-4975-b4b9-3848c48f33b4">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[مبالغ شهر مارس]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="800" y="0" width="100" height="20" backcolor="#BFBDBD" uuid="31e7148a-db79-4c61-93f2-02f6666a4895">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[مبالغ شهر مايو]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="700" y="0" width="100" height="20" backcolor="#BFBDBD" uuid="6a8f0258-f287-4436-8ce8-bdef762aa6ac">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[مبالغ شهر يونيو]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="900" y="0" width="100" height="20" backcolor="#BFBDBD" uuid="64b69be2-f796-4f88-9ae9-393aa7e21458">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[مبالغ شهر أبريل]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="600" y="0" width="100" height="20" backcolor="#BFBDBD" uuid="5df349c9-f3dc-4ea3-93ab-cfb9a45bfd6e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[مبالغ شهر يوليو]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="500" y="0" width="100" height="20" backcolor="#BFBDBD" uuid="57b0c6b0-d52c-4062-b37f-e507b2138c09">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[مبالغ شهر أغسطس]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="400" y="0" width="100" height="20" backcolor="#BFBDBD" uuid="f4d50a8c-f228-467d-9da0-6cbca9b40d07">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[مبالغ شهر سبتمبر]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="300" y="0" width="100" height="20" backcolor="#BFBDBD" uuid="7b7f2205-bb15-4984-9048-3ebfecdeb4bd">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[مبالغ شهر أكتوبر]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="200" y="0" width="100" height="20" backcolor="#BFBDBD" uuid="d8974958-f39c-45cf-b5d7-66fa20d318a1">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[مبالغ شهر نوفمبر]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="100" y="0" width="100" height="20" backcolor="#BFBDBD" uuid="5530482a-7a77-467b-86b6-f68ace0e32e3">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[مبالغ شهر ديسمبر]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="100" height="20" backcolor="#BFBDBD" uuid="d28f070c-e09c-48a5-860e-9205fd53a1b9">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[المبلغ الكلي]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1967" y="0" width="80" height="20" backcolor="#BFBDBD" uuid="a8963b3a-cee6-4252-8b21-bb36a9f4d170">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الباب]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1877" y="0" width="90" height="20" backcolor="#BFBDBD" uuid="9f77851d-7e59-483b-871d-7b49f91a97bb">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[رقم البند]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1667" y="0" width="210" height="20" backcolor="#BFBDBD" uuid="55cd20dc-69b3-4264-b6cb-078e35d90b0b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[اسم البند]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1436" y="0" width="131" height="20" backcolor="#BFBDBD" uuid="4f3b9999-dc1d-4e7b-bd85-c1ed7b09d8de">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الميزانية المعتمدة]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1300" y="0" width="136" height="20" backcolor="#BFBDBD" uuid="6846fa4a-63ce-4b6e-be44-3b44cd8f826d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الميزانية الحالية]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="25" splitType="Prevent">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true" hyperlinkTarget="">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="100" height="20" uuid="5c24e24c-b612-47a6-8760-8b0f911f2308"/>
+				<box leftPadding="3" bottomPadding="0" rightPadding="3">
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="100" y="0" width="100" height="20" uuid="142eb882-fa0a-4015-8175-bd253eb46c0c"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dec_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="200" y="0" width="100" height="20" uuid="d72a3bdb-52ca-4b08-896e-614bf98e5596"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nov_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true" hyperlinkTarget="">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="300" y="0" width="100" height="20" uuid="95a38ce1-f86c-4e61-997a-542a56fd3cca"/>
+				<box leftPadding="3" bottomPadding="0" rightPadding="3">
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{oct_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="400" y="0" width="100" height="20" uuid="877d726c-ac48-4481-a158-a81d3e47ae73"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sep_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="500" y="0" width="100" height="20" uuid="a2848d0f-815a-4b4b-a2ba-aeae37f8b992"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{aug_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true" hyperlinkTarget="">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="600" y="0" width="100" height="20" uuid="5409de73-6e9e-43ef-8e69-aef43d7e1806"/>
+				<box leftPadding="3" bottomPadding="0" rightPadding="3">
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{jul_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="700" y="0" width="100" height="20" uuid="9e23f90a-944c-4e13-a824-ea6805deb8bc"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{jun_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="800" y="0" width="100" height="20" uuid="bc751cc1-53ae-4237-944d-fcc13c093113"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{may_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true" hyperlinkTarget="">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="900" y="0" width="100" height="20" uuid="7720d01c-39d4-4e5e-a62f-0fd8d4c67f8a"/>
+				<box leftPadding="3" bottomPadding="0" rightPadding="3">
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{april_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="1000" y="0" width="100" height="20" uuid="ad0acc01-ae45-4f7b-ab86-d3bf8e2428b1"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{march_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="1100" y="0" width="100" height="20" uuid="29ed1d88-35a6-4d34-a2b1-16fd6092f369"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{feb_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true" hyperlinkTarget="">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="1200" y="0" width="100" height="20" uuid="ff321430-3780-498e-bd39-ebdbf0e14c5e"/>
+				<box leftPadding="3" bottomPadding="0" rightPadding="3">
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{jan_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="1567" y="0" width="100" height="20" uuid="ddc76546-a094-4cfd-8dcd-4554a565dc5f"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{org_budgt_amt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="1667" y="0" width="210" height="20" uuid="cf340c6b-9fc7-4bde-9866-106c6b86054a"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{elementname}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="1877" y="0" width="90" height="20" uuid="95e90efe-404e-403d-bbc7-65e53e99fe27"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{element}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="1967" y="0" width="80" height="20" uuid="687a9ca8-b46d-48af-8f22-b7ea49856d48"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{chapter}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="1436" y="0" width="131" height="20" uuid="88825a84-f9d4-4a63-b0ee-f79e37b50649"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{updated_Budget}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="1300" y="0" width="136" height="20" uuid="aa4a30a2-7a12-4c19-871f-ec285abeda84"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{approved_budget}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

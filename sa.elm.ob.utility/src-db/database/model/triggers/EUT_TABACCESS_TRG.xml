@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EUT_TABACCESS_TRG">
+    <trigger name="EUT_TABACCESS_TRG" table="AD_TAB_ACCESS" fires="before" insert="false" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_fieldCount NUMBER;
+
+BEGIN
+    IF AD_isTriggerEnabled()='N' THEN 
+    IF DELETING THEN 
+        RETURN OLD; 
+    ELSE 
+        RETURN NEW; 
+    END IF; 
+    END IF;
+      
+    IF  (UPDATING) AND (:new.ad_tab_id <> :old.ad_tab_id) THEN   
+    	 select count(*) into v_fieldCount from ad_field_access where ad_tab_access_id=:new.ad_tab_access_id;
+         IF(v_fieldCount > 0) THEN
+         	RAISE_APPLICATION_ERROR(-20000,'@EUT_Tab_CantChanged@'); 
+         END IF;   
+    END IF;  
+   
+END EUT_TABACCESS_TRG
+]]></body>
+    </trigger>
+  </database>

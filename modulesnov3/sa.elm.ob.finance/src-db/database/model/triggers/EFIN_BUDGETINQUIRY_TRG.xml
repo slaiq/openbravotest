@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_BUDGETINQUIRY_TRG">
+    <trigger name="EFIN_BUDGETINQUIRY_TRG" table="EFIN_BUDGETINQUIRY" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[
+v_revamount NUMBER;
+v_curbudget NUMBER;
+v_fundsavailable NUMBER;
+v_budgetinquiry_id VARCHAR(32);
+v_hqDept VARCHAR(32);
+v_costDept VARCHAR(32);
+
+BEGIN
+
+	IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+	
+	--update current budget and funds available.
+	IF UPDATING THEN
+		v_budgetinquiry_id = :new.efin_budgetinquiry_id;
+
+		select hq_budgetcontrolunit into v_hqDept from efin_budget_ctrl_param  where ad_client_id = :new.ad_client_id and isready = 'Y';
+	        select budgetcontrol_costcenter into v_costDept from efin_budget_ctrl_param  where ad_client_id = :new.ad_client_id and isready = 'Y';
+
+		
+		--update if dept == 999 
+		IF(((:old.obinc_amt <> :new.obinc_amt) or (:old.obdec_amt <> :new.obdec_amt) or
+		 (:old.revinc_amt <> :new.revinc_amt) or (:new.revdec_amt <> :old.revdec_amt) or 
+		 ( ((:old.disinc_amt <> :new.disinc_amt)  or (:old.disdec_amt <> :new.disdec_amt)) or 
+		 (:old.org_amt <> :new.org_amt)) )and :new.c_salesregion_id = v_costDept and :new.isvirtual ='N') THEN
+			
+			select (coalesce(:new.carryforward,0)+coalesce(:new.org_amt,0)+coalesce(:new.obinc_amt,0)-coalesce(:new.obdec_amt,0)) into v_revamount from efin_budgetinquiry where efin_budgetinquiry_id = v_budgetinquiry_id;
+		
+			select (coalesce(v_revamount,0)+coalesce(:new.revinc_amt,0)-coalesce(:new.revdec_amt,0)+coalesce(:new.disinc_amt,0)-coalesce(:new.disdec_amt,0)) into v_curbudget from efin_budgetinquiry where efin_budgetinquiry_id = v_budgetinquiry_id;
+		
+			select (coalesce(v_curbudget,0)-coalesce(:new.encumbrance,0)-coalesce(:new.spent_amt,0)) into v_fundsavailable from efin_budgetinquiry where efin_budgetinquiry_id = v_budgetinquiry_id;
+			
+			update efin_budgetinquiry set rev_amount = coalesce(v_revamount,0), current_budget = coalesce(v_curbudget,0), funds_available = coalesce(v_fundsavailable,0) where efin_budgetinquiry_id = v_budgetinquiry_id;							
+
+		END IF; 
+		--update if dept == 990 
+		IF(((:old.obinc_amt <> :new.obinc_amt) or (:old.obdec_amt <> :new.obdec_amt) or
+		 (:old.revinc_amt <> :new.revinc_amt) or (:new.revdec_amt <> :old.revdec_amt) or 
+		 ( ((:old.disinc_amt <> :new.disinc_amt)  or (:old.disdec_amt <> :new.disdec_amt)) or 
+		 (:old.org_amt <> :new.org_amt)) ) and :new.c_salesregion_id = v_hqDept and :new.isvirtual ='N' ) THEN
+
+			select (coalesce(:new.carryforward,0)+coalesce(:new.org_amt,0)+coalesce(:new.obinc_amt,0)-coalesce(:new.obdec_amt,0)) into v_revamount from efin_budgetinquiry where efin_budgetinquiry_id = v_budgetinquiry_id;
+		
+			select (coalesce(v_revamount,0)+coalesce(:new.revinc_amt,0)-coalesce(:new.revdec_amt,0)) into v_curbudget from efin_budgetinquiry where efin_budgetinquiry_id = v_budgetinquiry_id;
+		
+			select (coalesce(v_curbudget,0)-coalesce(:new.encumbrance,0)-coalesce(:new.spent_amt,0)) into v_fundsavailable from efin_budgetinquiry where efin_budgetinquiry_id = v_budgetinquiry_id;
+			
+			update efin_budgetinquiry set rev_amount = coalesce(v_revamount,0), current_budget = coalesce(v_curbudget,0), funds_available = coalesce(v_fundsavailable,0) where efin_budgetinquiry_id = v_budgetinquiry_id;	
+
+		 END IF;
+
+		 --update if dept <> 999 and 990 
+		IF(((:old.depinc_amt <> :new.depinc_amt) or (:old.depdec_amt  <> :new.depdec_amt ) )and (:new.c_salesregion_id <> v_costDept) and (:new.c_salesregion_id <> v_hqDept) and :new.isvirtual ='N' ) THEN
+		
+			select (coalesce(v_revamount,0) +coalesce(:new.depinc_amt,0)-coalesce(:new.depdec_amt,0)) into v_curbudget from efin_budgetinquiry where efin_budgetinquiry_id = v_budgetinquiry_id;
+		
+			select (coalesce(v_curbudget,0)-coalesce(:new.encumbrance,0)-coalesce(:new.spent_amt,0)) into v_fundsavailable from efin_budgetinquiry where efin_budgetinquiry_id = v_budgetinquiry_id;
+			
+			update efin_budgetinquiry set rev_amount = coalesce(v_revamount,0), current_budget = coalesce(v_curbudget,0), funds_available = coalesce(v_fundsavailable,0) where efin_budgetinquiry_id = v_budgetinquiry_id;							
+
+		END IF; 
+		
+		IF(((:old.encumbrance <> :new.encumbrance) or (:old.spent_amt <> :new.spent_amt)) and :new.isvirtual ='N') THEN
+		
+			select (coalesce(current_budget,0)-coalesce(:new.encumbrance,0)-coalesce(:new.spent_amt,0)) into v_fundsavailable from efin_budgetinquiry where efin_budgetinquiry_id = v_budgetinquiry_id;
+			
+			update efin_budgetinquiry set funds_available = coalesce(v_fundsavailable,0) where efin_budgetinquiry_id = v_budgetinquiry_id;									
+		END IF;
+		
+	END IF;
+	
+	END EFIN_BUDGETINQUIRY_TRG
+]]></body>
+    </trigger>
+  </database>

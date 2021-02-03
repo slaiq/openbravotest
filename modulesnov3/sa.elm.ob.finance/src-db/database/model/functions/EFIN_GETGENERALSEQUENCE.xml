@@ -1,0 +1,165 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_GETGENERALSEQUENCE">
+    <function name="EFIN_GETGENERALSEQUENCE" type="VARCHAR">
+      <parameter name="p_accountdate" type="TIMESTAMP" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_accttype" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_calid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_orgid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[vSeqNo NUMBER(10,0);
+			v_YearId VARCHAR2(32);
+			v_PeriodId VARCHAR2(32);
+			v_clientId VARCHAR2(32);
+			v_SeqId VARCHAR2(32);
+			v_yearseqId VARCHAR2(32);
+			v_monthseqId VARCHAR2(32);
+			v_SeqCount NUMBER;
+			v_parentOrg VARCHAR2(2000);
+			vTree VARCHAR2(32);
+			
+			BEGIN
+			   --get YearId
+			   
+			   select yr.c_year_id into v_YearId from c_period pr  left join c_year yr on pr.c_year_id=yr.c_year_id where TO_DATE(to_char(p_accountDate , 'YYYY-MM-DD H24:MI:SS'),'YYYY-MM-DD')  between pr.startdate and pr.enddate  and c_calendar_id=p_CalId;
+
+			    --get PeriodId
+			   select pr.c_period_id into v_PeriodId from c_period pr join c_year yr on pr.c_year_id=yr.c_year_id  
+			   where p_accountDate between pr.startdate and pr.enddate and c_calendar_id=p_CalId;
+			   --get ClientId
+			   select ad_client_id into v_clientId from ad_org where ad_org_id=p_orgid;
+			   --get parentOrg		      			      
+			   select eut_parent_org(p_orgId,v_clientId) into v_parentOrg;
+
+			  IF(p_acctType='GS') THEN
+			      -- get General Sequence
+			      select count(yrseq.efin_year_sequence_id) into v_SeqCount from ad_sequence seq
+			      join efin_year_sequence yrseq on seq.ad_sequence_id=yrseq.ad_sequence_id
+			      where yrseq.c_year_id=v_YearId and seq.em_efin_isgeneralseq='Y' and seq.ad_org_id=p_orgId
+			      and seq.ad_client_id=v_clientId;
+			      			
+			    IF (v_SeqCount=0) THEN
+
+			       SELECT ad_tree_id  INTO vTree  
+				FROM ad_tree 
+				WHERE ad_client_id=v_clientId
+				AND treetype='OO';
+			      WHILE (p_orgid is not null and p_orgid <> '')
+			      LOOP
+				SELECT parent_id INTO p_orgid
+				FROM ad_treenode
+				WHERE node_id = p_orgid
+				AND ad_tree_id = vTree;
+				IF p_orgid is not null THEN
+				  select yrseq.efin_year_sequence_id into v_SeqId from ad_sequence seq
+			          join efin_year_sequence yrseq on seq.ad_sequence_id=yrseq.ad_sequence_id
+			          where yrseq.c_year_id=v_YearId and seq.em_efin_isgeneralseq='Y' and seq.ad_org_id=				 p_orgId and seq.ad_client_id=v_clientId;
+				END IF;
+				EXIT WHEN v_SeqId is not null;
+			      End LOOP ;
+			      ELSE                                          
+			          select yrseq.efin_year_sequence_id into v_SeqId from ad_sequence seq
+			          join efin_year_sequence yrseq on seq.ad_sequence_id=yrseq.ad_sequence_id
+			          where yrseq.c_year_id=v_YearId and seq.em_efin_isgeneralseq='Y' and seq.ad_org_id=				 p_orgId and seq.ad_client_id=v_clientId;
+			      END IF;
+			      
+				-- get Year Sequence
+			      select  currentnext ,efin_year_sequence_id into  vSeqNo, v_yearseqId from efin_year_sequence where  efin_year_sequence_id=v_SeqId;
+
+			      --update next assigned No in Year sequence
+			       update  efin_year_sequence set  currentnext  =vSeqNo+1 where  efin_year_sequence_id=v_yearseqId;
+
+			   END IF;
+			   
+			   IF(p_acctType='NPS') THEN
+			      -- get General Sequence
+			     select count(mnseq.efin_month_sequence_id) into v_SeqCount from ad_sequence seq
+			     join efin_year_sequence yrseq on seq.ad_sequence_id=yrseq.ad_sequence_id
+	                     join efin_month_sequence mnseq on mnseq.efin_year_sequence_id=yrseq.efin_year_sequence_id
+                             where yrseq.c_year_id=v_YearId and seq.em_efin_isacctnonpaymentseq ='Y' and seq.ad_org_id=p_orgid and mnseq.c_period_id=v_PeriodId and seq.ad_client_id=v_clientId;
+			      IF (v_SeqCount=0) THEN
+			       SELECT ad_tree_id  INTO vTree  
+				FROM ad_tree 
+				WHERE ad_client_id=v_clientId
+				AND treetype='OO';
+			      WHILE (p_orgid is not null and p_orgid <> '')
+			      LOOP
+				SELECT parent_id INTO p_orgid
+				FROM ad_treenode
+				WHERE node_id = p_orgid
+				AND ad_tree_id = vTree;
+				IF p_orgid is not null THEN
+				 select mnseq.efin_month_sequence_id into v_SeqId from ad_sequence seq
+				join efin_year_sequence yrseq on seq.ad_sequence_id=yrseq.ad_sequence_id
+				join efin_month_sequence mnseq on mnseq.efin_year_sequence_id=yrseq.efin_year_sequence_id
+				where yrseq.c_year_id=v_YearId and seq.em_efin_isacctnonpaymentseq ='Y'
+				and seq.ad_org_id=p_orgid and mnseq.c_period_id=v_PeriodId and seq.ad_client_id=v_clientId;
+				END IF;
+				EXIT WHEN v_SeqId is not null;
+			     End LOOP ;
+			      ELSE                                          
+			      select mnseq.efin_month_sequence_id into v_SeqId from ad_sequence seq
+			     join efin_year_sequence yrseq on seq.ad_sequence_id=yrseq.ad_sequence_id
+	                     join efin_month_sequence mnseq on mnseq.efin_year_sequence_id=yrseq.efin_year_sequence_id
+                             where yrseq.c_year_id=v_YearId and seq.em_efin_isacctnonpaymentseq ='Y' 
+			     and seq.ad_org_id=p_orgid and mnseq.c_period_id=v_PeriodId and seq.ad_client_id=v_clientId;
+			      END IF;
+			      
+			      -- get Month Sequence
+			      select  currentnext, efin_month_sequence_id into  vSeqNo,v_monthseqId from efin_month_sequence   where efin_month_sequence_id=v_SeqId;
+
+			      --update next assigned No in Month Sequence 
+			       update  efin_month_sequence set  currentnext  =vSeqNo+1 where  efin_month_sequence_id=v_monthseqId;
+			   END IF;
+
+			   IF(p_acctType='PS') THEN
+			       -- get General Sequence
+			      select count(yrseq.efin_year_sequence_id) into v_SeqCount from ad_sequence seq
+			      join efin_year_sequence yrseq on seq.ad_sequence_id=yrseq.ad_sequence_id
+			      where yrseq.c_year_id=v_YearId and seq.em_efin_isacctpaymentseq='Y' and seq.ad_org_id=p_orgId
+			      and seq.ad_client_id=v_clientId;
+			      			
+			    IF (v_SeqCount=0) THEN
+
+			       SELECT ad_tree_id  INTO vTree  
+				FROM ad_tree 
+				WHERE ad_client_id=v_clientId
+				AND treetype='OO';
+			      WHILE (p_orgid is not null and p_orgid <> '')
+			      LOOP
+				SELECT parent_id INTO p_orgid
+				FROM ad_treenode
+				WHERE node_id = p_orgid
+				AND ad_tree_id = vTree;
+				IF p_orgid is not null THEN
+				  select yrseq.efin_year_sequence_id into v_SeqId from ad_sequence seq
+			          join efin_year_sequence yrseq on seq.ad_sequence_id=yrseq.ad_sequence_id
+			          where yrseq.c_year_id=v_YearId and seq.em_efin_isacctpaymentseq='Y' and seq.ad_org_id=				 p_orgId and seq.ad_client_id=v_clientId;
+				END IF;
+				EXIT WHEN v_SeqId is not null;
+			      End LOOP ;
+			      ELSE                                          
+			          select yrseq.efin_year_sequence_id into v_SeqId from ad_sequence seq
+			          join efin_year_sequence yrseq on seq.ad_sequence_id=yrseq.ad_sequence_id
+			          where yrseq.c_year_id=v_YearId and seq.em_efin_isacctpaymentseq='Y' and seq.ad_org_id=				 p_orgId and seq.ad_client_id=v_clientId;
+			      END IF;
+			      
+				-- get Year Sequence
+			      select  currentnext ,efin_year_sequence_id into  vSeqNo, v_yearseqId from efin_year_sequence where  efin_year_sequence_id=v_SeqId;
+
+			      --update next assigned No in Year sequence
+			       update  efin_year_sequence set  currentnext  =vSeqNo+1 where  efin_year_sequence_id=v_yearseqId;
+
+			   END IF;
+
+			    RETURN vSeqNo;
+END EFIN_GETGENERALSEQUENCE
+]]></body>
+    </function>
+  </database>

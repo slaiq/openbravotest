@@ -1,0 +1,690 @@
+# HG changeset patch
+# User Gowtham <gowtham@qualiantech.com>
+# Date 1600675856 -10800
+#      Mon Sep 21 11:10:56 2020 +0300
+# Node ID 5ef361e47e8f40d5fbfec69c706a20c41bacbaac
+# Parent  11934129957614dabfac97a14f3b50a168e25ddb
+epm 2nd service
+
+diff --git a/src-db/database/sourcedata/AD_REF_LIST.xml b/src-db/database/sourcedata/AD_REF_LIST.xml
+--- a/src-db/database/sourcedata/AD_REF_LIST.xml
++++ b/src-db/database/sourcedata/AD_REF_LIST.xml
+@@ -1410,6 +1410,17 @@
+ <!--2F1D89567E4D4027A7617804B898DF31-->  <AD_MODULE_ID><![CDATA[0B1224F8F87F4ED68E04C68BC423BC3A]]></AD_MODULE_ID>
+ <!--2F1D89567E4D4027A7617804B898DF31--></AD_REF_LIST>
+ 
++<!--3018936AF7794FDCADE7C5B3C6721A7C--><AD_REF_LIST>
++<!--3018936AF7794FDCADE7C5B3C6721A7C-->  <AD_REF_LIST_ID><![CDATA[3018936AF7794FDCADE7C5B3C6721A7C]]></AD_REF_LIST_ID>
++<!--3018936AF7794FDCADE7C5B3C6721A7C-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--3018936AF7794FDCADE7C5B3C6721A7C-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--3018936AF7794FDCADE7C5B3C6721A7C-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--3018936AF7794FDCADE7C5B3C6721A7C-->  <VALUE><![CDATA[ESCM_EPM_ExtractPrjAttach_URL]]></VALUE>
++<!--3018936AF7794FDCADE7C5B3C6721A7C-->  <NAME><![CDATA[EPM Add Extract Project Attachment URL]]></NAME>
++<!--3018936AF7794FDCADE7C5B3C6721A7C-->  <AD_REFERENCE_ID><![CDATA[A26BA480E2014707B47257024C3CBFF7]]></AD_REFERENCE_ID>
++<!--3018936AF7794FDCADE7C5B3C6721A7C-->  <AD_MODULE_ID><![CDATA[0B1224F8F87F4ED68E04C68BC423BC3A]]></AD_MODULE_ID>
++<!--3018936AF7794FDCADE7C5B3C6721A7C--></AD_REF_LIST>
++
+ <!--30353ED54D6E422F9DE63132E4410B49--><AD_REF_LIST>
+ <!--30353ED54D6E422F9DE63132E4410B49-->  <AD_REF_LIST_ID><![CDATA[30353ED54D6E422F9DE63132E4410B49]]></AD_REF_LIST_ID>
+ <!--30353ED54D6E422F9DE63132E4410B49-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -3194,6 +3205,17 @@
+ <!--7E50E900F0064562BFE944EC2828CDA3-->  <AD_MODULE_ID><![CDATA[0B1224F8F87F4ED68E04C68BC423BC3A]]></AD_MODULE_ID>
+ <!--7E50E900F0064562BFE944EC2828CDA3--></AD_REF_LIST>
+ 
++<!--7E83A9B2D5F84D39A50577C1E2AED873--><AD_REF_LIST>
++<!--7E83A9B2D5F84D39A50577C1E2AED873-->  <AD_REF_LIST_ID><![CDATA[7E83A9B2D5F84D39A50577C1E2AED873]]></AD_REF_LIST_ID>
++<!--7E83A9B2D5F84D39A50577C1E2AED873-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--7E83A9B2D5F84D39A50577C1E2AED873-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--7E83A9B2D5F84D39A50577C1E2AED873-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--7E83A9B2D5F84D39A50577C1E2AED873-->  <VALUE><![CDATA[ESCM_EPM_Project_URL]]></VALUE>
++<!--7E83A9B2D5F84D39A50577C1E2AED873-->  <NAME><![CDATA[EPM Add Project URL]]></NAME>
++<!--7E83A9B2D5F84D39A50577C1E2AED873-->  <AD_REFERENCE_ID><![CDATA[A26BA480E2014707B47257024C3CBFF7]]></AD_REFERENCE_ID>
++<!--7E83A9B2D5F84D39A50577C1E2AED873-->  <AD_MODULE_ID><![CDATA[0B1224F8F87F4ED68E04C68BC423BC3A]]></AD_MODULE_ID>
++<!--7E83A9B2D5F84D39A50577C1E2AED873--></AD_REF_LIST>
++
+ <!--7F42FBCC46244683A75BFBC0EDCF3DE2--><AD_REF_LIST>
+ <!--7F42FBCC46244683A75BFBC0EDCF3DE2-->  <AD_REF_LIST_ID><![CDATA[7F42FBCC46244683A75BFBC0EDCF3DE2]]></AD_REF_LIST_ID>
+ <!--7F42FBCC46244683A75BFBC0EDCF3DE2-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -3338,7 +3360,7 @@
+ <!--84B01EC25641492FA8E166587E918CBD-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
+ <!--84B01EC25641492FA8E166587E918CBD-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
+ <!--84B01EC25641492FA8E166587E918CBD-->  <VALUE><![CDATA[ESCM_EPM_URL]]></VALUE>
+-<!--84B01EC25641492FA8E166587E918CBD-->  <NAME><![CDATA[EPM URL]]></NAME>
++<!--84B01EC25641492FA8E166587E918CBD-->  <NAME><![CDATA[Enable EPM Service]]></NAME>
+ <!--84B01EC25641492FA8E166587E918CBD-->  <AD_REFERENCE_ID><![CDATA[A26BA480E2014707B47257024C3CBFF7]]></AD_REFERENCE_ID>
+ <!--84B01EC25641492FA8E166587E918CBD-->  <AD_MODULE_ID><![CDATA[0B1224F8F87F4ED68E04C68BC423BC3A]]></AD_MODULE_ID>
+ <!--84B01EC25641492FA8E166587E918CBD--></AD_REF_LIST>
+@@ -6145,6 +6167,17 @@
+ <!--FBFF8D643DD54486B693ECE0C31263CD-->  <AD_MODULE_ID><![CDATA[0B1224F8F87F4ED68E04C68BC423BC3A]]></AD_MODULE_ID>
+ <!--FBFF8D643DD54486B693ECE0C31263CD--></AD_REF_LIST>
+ 
++<!--FD62D2CC3CD94619944E782A803878D7--><AD_REF_LIST>
++<!--FD62D2CC3CD94619944E782A803878D7-->  <AD_REF_LIST_ID><![CDATA[FD62D2CC3CD94619944E782A803878D7]]></AD_REF_LIST_ID>
++<!--FD62D2CC3CD94619944E782A803878D7-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--FD62D2CC3CD94619944E782A803878D7-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--FD62D2CC3CD94619944E782A803878D7-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--FD62D2CC3CD94619944E782A803878D7-->  <VALUE><![CDATA[ESCM_EPM_ExtractPrj_URL]]></VALUE>
++<!--FD62D2CC3CD94619944E782A803878D7-->  <NAME><![CDATA[EPM Add Extract Project URL]]></NAME>
++<!--FD62D2CC3CD94619944E782A803878D7-->  <AD_REFERENCE_ID><![CDATA[A26BA480E2014707B47257024C3CBFF7]]></AD_REFERENCE_ID>
++<!--FD62D2CC3CD94619944E782A803878D7-->  <AD_MODULE_ID><![CDATA[0B1224F8F87F4ED68E04C68BC423BC3A]]></AD_MODULE_ID>
++<!--FD62D2CC3CD94619944E782A803878D7--></AD_REF_LIST>
++
+ <!--FDB6538A15534E39887DDEAA04AB4CF6--><AD_REF_LIST>
+ <!--FDB6538A15534E39887DDEAA04AB4CF6-->  <AD_REF_LIST_ID><![CDATA[FDB6538A15534E39887DDEAA04AB4CF6]]></AD_REF_LIST_ID>
+ <!--FDB6538A15534E39887DDEAA04AB4CF6-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff --git a/src/sa/elm/ob/scm/ad_process/POandContract/POContractSummaryAction.java b/src/sa/elm/ob/scm/ad_process/POandContract/POContractSummaryAction.java
+--- a/src/sa/elm/ob/scm/ad_process/POandContract/POContractSummaryAction.java
++++ b/src/sa/elm/ob/scm/ad_process/POandContract/POContractSummaryAction.java
+@@ -70,8 +70,6 @@
+ import sa.elm.ob.scm.ad_process.POandContract.dao.POContractSummaryDAO;
+ import sa.elm.ob.scm.util.AlertUtility;
+ import sa.elm.ob.scm.util.AlertWindow;
+-import sa.elm.ob.scm.webservice.epm.service.EmpServiceImpl;
+-import sa.elm.ob.scm.webservice.epm.service.EpmService;
+ import sa.elm.ob.utility.EutDocappDelegateln;
+ import sa.elm.ob.utility.EutNextRole;
+ import sa.elm.ob.utility.EutNextRoleLine;
+@@ -82,6 +80,8 @@
+ import sa.elm.ob.utility.ad_forms.nextrolebyrule.NextRoleByRuleVO;
+ import sa.elm.ob.utility.ad_process.Forward.ForwardRequestMoreInfoDAO;
+ import sa.elm.ob.utility.ad_process.Forward.ForwardRequestMoreInfoDAOImpl;
++import sa.elm.ob.utility.epm.service.EmpServiceImpl;
++import sa.elm.ob.utility.epm.service.EpmService;
+ import sa.elm.ob.utility.properties.Resource;
+ import sa.elm.ob.utility.util.ApprovalTables;
+ import sa.elm.ob.utility.util.Constants;
+@@ -153,7 +153,7 @@
+       Date check_period_date = new Date();
+       String created_user_id = objOrder.getCreatedBy().getId();
+       Organization object_reg_org = UtilityDAO.getUserRegion(created_user_id, clientId);
+-      String fieldName = "";
++      String fieldName = "", epmPreferenceValue = "";
+       Date orderDate = objOrder.getOrderDate();
+ 
+       // Check Mandatory fields based on setup in reference lookup configuration
+@@ -1862,31 +1862,35 @@
+             }
+ 
+           }
+-
+           if (count == 1
+               && objOrder.getEscmContactType().getId().equals("7A690E46B6E043C7A8B34B2D92E17D87")) {
+-
+             // -- EPM Web service starts
+ 
+             log.debug("EPM webservice starts");
++            epmPreferenceValue = Preferences.getPreferenceValue("ESCM_EPM_URL", true,
++                OBContext.getOBContext().getCurrentClient(),
++                OBContext.getOBContext().getCurrentOrganization(),
++                OBContext.getOBContext().getUser(), OBContext.getOBContext().getRole(), null, "N");
++            preferenceValue = (preferenceValue == null) ? "N" : preferenceValue;
+ 
+             // get Default city as Riyadh
+             // City Riyadh = OBDal.getInstance().get(City.class,
+             // "37AB29E2A42046EE98E95A5F27394DD7");
+             // 180 is city riyadhs project id in epm.
+-            long projectId = (objOrder.getEscmCCity() != null
+-                ? (objOrder.getEscmCCity().getEscmEpmprojectid() != null
+-                    ? objOrder.getEscmCCity().getEscmEpmprojectid()
+-                    : 180)
+-                : 180);
++            if ("Y".equals(preferenceValue)) {
++              long projectId = (objOrder.getEscmCCity() != null
++                  ? (objOrder.getEscmCCity().getEscmEpmprojectid() != null
++                      ? objOrder.getEscmCCity().getEscmEpmprojectid()
++                      : 180)
++                  : 180);
+ 
+-            EpmService service = new EmpServiceImpl();
+-            log.debug("ProjectId" + projectId);
+-            service.addProject(order, projectId == 0 ? null : (int) projectId,
+-                order.getEfinInvoiceAmt().subtract(order.getEfinLegacypaidAmt()));
++              EpmService service = new EmpServiceImpl();
++              log.debug("ProjectId" + projectId);
++              service.addProject(order, projectId == 0 ? null : (int) projectId,
++                  order.getEfinInvoiceAmt().subtract(order.getEfinLegacypaidAmt()));
+ 
+-            log.debug("EPM webservice ends");
+-
++              log.debug("EPM webservice ends");
++            }
+           }
+ 
+           // Check Encumbrance Amount is Negative
+diff --git a/src/sa/elm/ob/scm/webservice/epm/controller/EpmIntController.java b/src/sa/elm/ob/scm/webservice/epm/controller/EpmIntController.java
+deleted file mode 100644
+--- a/src/sa/elm/ob/scm/webservice/epm/controller/EpmIntController.java
++++ /dev/null
+@@ -1,57 +0,0 @@
+-package sa.elm.ob.scm.webservice.epm.controller;
+-
+-import org.openbravo.dal.core.OBContext;
+-import org.openbravo.model.common.order.Order;
+-import org.slf4j.Logger;
+-import org.slf4j.LoggerFactory;
+-import org.springframework.beans.factory.annotation.Autowired;
+-import org.springframework.http.HttpStatus;
+-import org.springframework.http.ResponseEntity;
+-import org.springframework.web.bind.annotation.RequestMapping;
+-import org.springframework.web.bind.annotation.RequestMethod;
+-import org.springframework.web.bind.annotation.RestController;
+-
+-import sa.elm.ob.scm.webservice.epm.service.EpmService;
+-
+-/**
+- * 
+- * @author Kazim Epm Integration
+- */
+-
+-@RestController
+-@RequestMapping("openerp/epm")
+-public class EpmIntController {
+-
+-  private static final Logger log4j = LoggerFactory.getLogger(EpmIntController.class);
+-
+-  @Autowired
+-  EpmService epmService;
+-
+-  /**
+-   * for testing webserivce in local env , not in stage, prod
+-   * 
+-   * @return
+-   * @throws Exception
+-   */
+-  @RequestMapping(value = "/project", method = RequestMethod.POST)
+-  public ResponseEntity<String> addProject() throws Exception {
+-
+-    log4j.info("PKI -> addProject start");
+-
+-    try {
+-      OBContext.setAdminMode();
+-
+-      Order order = new Order();
+-      order.setDocumentNo("1234");
+-      epmService.addProject(order, 100, null);
+-
+-    } catch (Exception exception) {
+-      log4j.error("PKI -> addProject Exception :", exception);
+-    } finally {
+-      OBContext.restorePreviousMode();
+-    }
+-    log4j.info("PKI -> addProject end");
+-    return new ResponseEntity<String>("OK", HttpStatus.OK);
+-
+-  }
+-}
+\ No newline at end of file
+diff --git a/src/sa/elm/ob/scm/webservice/epm/dao/EpmDao.java b/src/sa/elm/ob/scm/webservice/epm/dao/EpmDao.java
+deleted file mode 100644
+--- a/src/sa/elm/ob/scm/webservice/epm/dao/EpmDao.java
++++ /dev/null
+@@ -1,85 +0,0 @@
+-package sa.elm.ob.scm.webservice.epm.dao;
+-
+-import java.util.List;
+-
+-import org.openbravo.base.exception.OBException;
+-import org.openbravo.dal.core.OBContext;
+-import org.openbravo.dal.service.OBDal;
+-import org.openbravo.dal.service.OBQuery;
+-import org.openbravo.model.ad.utility.Attachment;
+-import org.openbravo.model.common.order.Order;
+-import org.slf4j.Logger;
+-import org.slf4j.LoggerFactory;
+-
+-import sa.elm.ob.scm.ESCMBGWorkbench;
+-
+-public class EpmDao {
+-
+-	public static Attachment findAttachment(String path, String fileName, String tableId) {
+-		Attachment attachment = null;
+-		OBQuery<Attachment> obQry = OBDal.getInstance().createQuery(Attachment.class,
+-				"as e where e.table.id=:tableId and e.name = :fileName and e.path=:path");
+-
+-		obQry.setNamedParameter("path", path);
+-		obQry.setNamedParameter("fileName", fileName);
+-		obQry.setNamedParameter("tableId", tableId);
+-		obQry.setFilterOnReadableClients(false);
+-		obQry.setFilterOnReadableOrganization(false);
+-
+-		if (obQry.list().size() > 0) {
+-			attachment = obQry.list().get(0);
+-		}
+-		return attachment;
+-	}
+-
+-	private final static Logger log = LoggerFactory.getLogger(EpmDao.class);
+-
+-	/**
+-	 * Method to insert the Order lines based on selection
+-	 * 
+-	 * @param orderId
+-	 * @return
+-	 */
+-	public static String getBgworkbenchd(String orderId) {
+-		String bgWorkbenchId = null;
+-		try {
+-			OBContext.setAdminMode();
+-			OBQuery<ESCMBGWorkbench> bg = OBDal.getInstance().createQuery(ESCMBGWorkbench.class,
+-					" as e where e.documentNo.id=:orderID ");
+-			bg.setNamedParameter("orderID", orderId);
+-			bg.setMaxResult(1);
+-			if (bg.list().size() > 0) {
+-				bgWorkbenchId = bg.list().get(0).getId();
+-				return bgWorkbenchId;
+-			}
+-			OBDal.getInstance().flush();
+-		} catch (Exception e) {
+-			log.error("Exception in getBgworkbenchd in POContractSummaryDAO: ", e);
+-			OBDal.getInstance().rollbackAndClose();
+-			return bgWorkbenchId;
+-		} finally {
+-			OBContext.restorePreviousMode();
+-		}
+-		return bgWorkbenchId;
+-	}
+-
+-	public static boolean checkAgreementRelease(Order objOrder) {
+-		List<Order> orderList = null;
+-		try {
+-			OBContext.setAdminMode();
+-			OBQuery<Order> order = OBDal.getInstance().createQuery(Order.class,
+-					" as e where e.escmPurchaseagreement.id=:orderId and (e.escmAppstatus='ESCM_IP' or e.escmAppstatus='DR')");
+-			order.setNamedParameter("orderId", objOrder.getId());
+-			orderList = order.list();
+-			if (orderList != null && orderList.size() > 0) {
+-				return true;
+-			}
+-		} catch (OBException e) {
+-			log.error("Exception while checkAgreementRelease:" + e);
+-			throw new OBException(e.getMessage());
+-		} finally {
+-			OBContext.restorePreviousMode();
+-		}
+-		return false;
+-	}
+-}
+\ No newline at end of file
+diff --git a/src/sa/elm/ob/scm/webservice/epm/dto/AddExtractProjectRequestDto.java b/src/sa/elm/ob/scm/webservice/epm/dto/AddExtractProjectRequestDto.java
+deleted file mode 100644
+--- a/src/sa/elm/ob/scm/webservice/epm/dto/AddExtractProjectRequestDto.java
++++ /dev/null
+@@ -1,58 +0,0 @@
+-package sa.elm.ob.scm.webservice.epm.dto;
+-
+-import java.math.BigDecimal;
+-
+-public class AddExtractProjectRequestDto {
+-
+-	private Integer extractValue;
+-	private String extractValueDate;
+-	private BigDecimal exchangeValue;
+-	private String exchangeValueDate;	
+-	private String gRPNumber;
+-
+-	public AddExtractProjectRequestDto() {
+-
+-	}
+-
+-	public Integer getExtractValue() {
+-		return extractValue;
+-	}
+-
+-	public void setExtractValue(Integer extractValue) {
+-		this.extractValue = extractValue;
+-	}
+-
+-	public String getExtractValueDate() {
+-		return extractValueDate;
+-	}
+-
+-	public void setExtractValueDate(String extractValueDate) {
+-		this.extractValueDate = extractValueDate;
+-	}
+-
+-	public BigDecimal getExchangeValue() {
+-		return exchangeValue;
+-	}
+-
+-	public void setExchangeValue(BigDecimal exchangeValue) {
+-		this.exchangeValue = exchangeValue;
+-	}
+-
+-	public String getExchangeValueDate() {
+-		return exchangeValueDate;
+-	}
+-
+-	public void setExchangeValueDate(String exchangeValueDate) {
+-		this.exchangeValueDate = exchangeValueDate;
+-	}
+-
+-	public String getgRPNumber() {
+-		return gRPNumber;
+-	}
+-
+-	public void setgRPNumber(String gRPNumber) {
+-		this.gRPNumber = gRPNumber;
+-	}
+-
+-	
+-}
+diff --git a/src/sa/elm/ob/scm/webservice/epm/dto/AddProjectRequestDto.java b/src/sa/elm/ob/scm/webservice/epm/dto/AddProjectRequestDto.java
+deleted file mode 100644
+--- a/src/sa/elm/ob/scm/webservice/epm/dto/AddProjectRequestDto.java
++++ /dev/null
+@@ -1,93 +0,0 @@
+-package sa.elm.ob.scm.webservice.epm.dto;
+-
+-import java.math.BigDecimal;
+-
+-public class AddProjectRequestDto {
+-
+-  private Integer projectPlaceId;
+-  private String name;
+-  private String year; // 2019,
+-  private String contractSignDate_Georgian;// 2019-10-29,
+-  private BigDecimal projectApprovedValue;
+-  private BigDecimal valueFinalContract;
+-  private String numberOfBaptism;
+-  private BigDecimal valueApprovedExtracts;
+-  private String gRPNumber;
+-
+-  public AddProjectRequestDto() {
+-
+-  }
+-
+-  public Integer getProjectPlaceId() {
+-    return projectPlaceId;
+-  }
+-
+-  public void setProjectPlaceId(Integer projectPlaceId) {
+-    this.projectPlaceId = projectPlaceId;
+-  }
+-
+-  public String getName() {
+-    return name;
+-  }
+-
+-  public void setName(String name) {
+-    this.name = name;
+-  }
+-
+-  public String getYear() {
+-    return year;
+-  }
+-
+-  public void setYear(String year) {
+-    this.year = year;
+-  }
+-
+-  public String getContractSignDate_Georgian() {
+-    return contractSignDate_Georgian;
+-  }
+-
+-  public void setContractSignDate_Georgian(String contractSignDate_Georgian) {
+-    this.contractSignDate_Georgian = contractSignDate_Georgian;
+-  }
+-
+-  public BigDecimal getProjectApprovedValue() {
+-    return projectApprovedValue;
+-  }
+-
+-  public void setProjectApprovedValue(BigDecimal projectApprovedValue) {
+-    this.projectApprovedValue = projectApprovedValue;
+-  }
+-
+-  public BigDecimal getValueFinalContract() {
+-    return valueFinalContract;
+-  }
+-
+-  public void setValueFinalContract(BigDecimal valueFinalContract) {
+-    this.valueFinalContract = valueFinalContract;
+-  }
+-
+-  public String getNumberOfBaptism() {
+-    return numberOfBaptism;
+-  }
+-
+-  public void setNumberOfBaptism(String numberOfBaptism) {
+-    this.numberOfBaptism = numberOfBaptism;
+-  }
+-
+-  public BigDecimal getValueApprovedExtracts() {
+-    return valueApprovedExtracts;
+-  }
+-
+-  public void setValueApprovedExtracts(BigDecimal valueApprovedExtracts) {
+-    this.valueApprovedExtracts = valueApprovedExtracts;
+-  }
+-
+-  public String getgRPNumber() {
+-    return gRPNumber;
+-  }
+-
+-  public void setgRPNumber(String gRPNumber) {
+-    this.gRPNumber = gRPNumber;
+-  }
+-
+-}
+diff --git a/src/sa/elm/ob/scm/webservice/epm/dto/AddProjectResponseDto.java b/src/sa/elm/ob/scm/webservice/epm/dto/AddProjectResponseDto.java
+deleted file mode 100644
+--- a/src/sa/elm/ob/scm/webservice/epm/dto/AddProjectResponseDto.java
++++ /dev/null
+@@ -1,49 +0,0 @@
+-package sa.elm.ob.scm.webservice.epm.dto;
+-
+-import com.fasterxml.jackson.annotation.JsonProperty;
+-
+-public class AddProjectResponseDto {
+-
+-  @JsonProperty("isSuccess")
+-  private boolean isSuccess;
+-  private AddProjectErrorResponse errors;
+-
+-  public boolean isSuccess() {
+-    return isSuccess;
+-  }
+-
+-  public void setSuccess(boolean isSuccess) {
+-    this.isSuccess = isSuccess;
+-  }
+-
+-  public AddProjectErrorResponse getErrors() {
+-    return errors;
+-  }
+-
+-  public void setErrors(AddProjectErrorResponse errors) {
+-    this.errors = errors;
+-  }
+-
+-}
+-
+-class AddProjectErrorResponse {
+-  private int Code;
+-  private String Description;
+-
+-  public int getCode() {
+-    return Code;
+-  }
+-
+-  public void setCode(int code) {
+-    Code = code;
+-  }
+-
+-  public String getDescription() {
+-    return Description;
+-  }
+-
+-  public void setDescription(String description) {
+-    Description = description;
+-  }
+-
+-}
+diff --git a/src/sa/elm/ob/scm/webservice/epm/service/EmpServiceImpl.java b/src/sa/elm/ob/scm/webservice/epm/service/EmpServiceImpl.java
+deleted file mode 100644
+--- a/src/sa/elm/ob/scm/webservice/epm/service/EmpServiceImpl.java
++++ /dev/null
+@@ -1,146 +0,0 @@
+-package sa.elm.ob.scm.webservice.epm.service;
+-
+-import java.math.BigDecimal;
+-import java.text.SimpleDateFormat;
+-import java.util.Date;
+-
+-import org.openbravo.base.provider.OBProvider;
+-import org.openbravo.dal.core.OBContext;
+-import org.openbravo.dal.service.OBDal;
+-import org.openbravo.erpCommon.businessUtility.Preferences;
+-import org.openbravo.model.common.order.Order;
+-import org.slf4j.Logger;
+-import org.slf4j.LoggerFactory;
+-import org.springframework.http.HttpStatus;
+-import org.springframework.http.ResponseEntity;
+-import org.springframework.stereotype.Service;
+-import org.springframework.web.client.RestTemplate;
+-
+-import com.fasterxml.jackson.databind.ObjectMapper;
+-
+-import sa.elm.ob.scm.webservice.epm.dto.AddExtractProjectRequestDto;
+-import sa.elm.ob.scm.webservice.epm.dto.AddProjectRequestDto;
+-import sa.elm.ob.scm.webservice.epm.dto.AddProjectResponseDto;
+-import sa.elm.ob.utility.WebserviceTrackerHeader;
+-
+-@Service
+-public class EmpServiceImpl implements EpmService {
+-
+-  private static final Logger log = LoggerFactory.getLogger(EmpServiceImpl.class);
+-
+-  // @Bean
+-  // public RestTemplate restTemplate() {
+-  // return new RestTemplate();
+-  // }
+-
+-  // @Autowired
+-  RestTemplate restTemplate = new RestTemplate();
+-
+-  /**
+-   * Add Project EPM Web service
+-   */
+-  @Override
+-  public void addProject(Order order, Integer cityProjectId, BigDecimal valueApprovedExtracts) {
+-    AddProjectRequestDto requestDto = new AddProjectRequestDto();
+-    ResponseEntity<AddProjectResponseDto> result = null;
+-    try {
+-      requestDto.setProjectPlaceId(cityProjectId);
+-      requestDto.setName(order.getDescription());
+-      if (order.getEfinBudgetint() != null && order.getEfinBudgetint().getDescription() != null) {
+-        requestDto.setYear(order.getEfinBudgetint().getDescription());
+-      }
+-      requestDto.setContractSignDate_Georgian(formatDate(order.getEscmSignaturedate()));
+-      requestDto.setProjectApprovedValue(order.getEscmTotPoUpdatedAmt());
+-      requestDto.setValueFinalContract(order.getGrandTotalAmount());
+-      requestDto.setNumberOfBaptism(order.getEscmReferenceNo());
+-      requestDto.setValueApprovedExtracts(valueApprovedExtracts);
+-      requestDto.setgRPNumber(order.getDocumentNo());
+-
+-      String url = Preferences.getPreferenceValue("ESCM_EPM_URL", true,
+-          OBContext.getOBContext().getCurrentClient(), null, null, null, null);
+-
+-      log.debug("---------Emp Add Project Calling Webservice------------");
+-
+-      result = restTemplate.postForEntity(url, requestDto, AddProjectResponseDto.class);
+-      log.debug("Emp Add Project Webservice response code " + result.getStatusCode());
+-      if (result != null && result.getStatusCode() == HttpStatus.OK) {
+-        log.debug("Emp Add Project Webservice :" + result.getBody().isSuccess());
+-      }
+-    } catch (Exception e) {
+-      log.error("Emp Add Project Webservice Excception :", e);
+-    } finally {
+-      addProjectDBLog(result, requestDto);
+-    }
+-
+-  }
+-
+-  private void addProjectDBLog(ResponseEntity<AddProjectResponseDto> result,
+-      AddProjectRequestDto requestDto) {
+-    try {
+-      OBContext.setAdminMode(true);
+-      ObjectMapper objMap = new ObjectMapper();
+-      String request = requestDto != null ? objMap.writeValueAsString(requestDto) : null;
+-      String response = result != null ? objMap.writeValueAsString(result) : null;
+-
+-      WebserviceTrackerHeader header = OBProvider.getInstance().get(WebserviceTrackerHeader.class);
+-      header.setOrganization(OBContext.getOBContext().getCurrentOrganization());
+-      header.setClient(OBContext.getOBContext().getCurrentClient());
+-      header.setRequestnumber(null);
+-      header.setResponse(response);
+-      header.setResponseerrormessage(request);// logging request, because no field present.
+-      header.setWebservicename("AddEpmProject");
+-      OBDal.getInstance().save(header);
+-      OBDal.getInstance().flush();
+-
+-    } catch (Exception e) {
+-      OBDal.getInstance().rollbackAndClose();
+-      log.error("addProjectDBLog Exception :", e);
+-    } finally {
+-      OBContext.restorePreviousMode();
+-    }
+-
+-  }
+-
+-  private String formatDate(Date date) {
+-    String dateFormat = null;
+-    if (date != null) {
+-      SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+-      dateFormat = formatter.format(date);
+-    }
+-
+-    return dateFormat;
+-  }
+-
+-  @Override
+-  public void addExtractProject(Order order, Integer cityProjectId) {
+-    AddExtractProjectRequestDto requestDto = new AddExtractProjectRequestDto();
+-    requestDto.setExtractValue(null);
+-    requestDto.setExtractValueDate(null);
+-    requestDto.setExchangeValue(null);
+-    requestDto.setExchangeValueDate(null);
+-    requestDto.setgRPNumber(order.getDocumentNo());
+-
+-    log.debug("---------Emp Add Project Calling Webservice------------");
+-
+-    try {
+-      // stage url
+-
+-      String url = Preferences.getPreferenceValue("ESCM_EPM_URL", false,
+-          OBContext.getOBContext().getCurrentClient(),
+-          OBContext.getOBContext().getCurrentOrganization(), OBContext.getOBContext().getUser(),
+-          OBContext.getOBContext().getRole(), null);
+-      // String url =
+-      // "http://epmdashboard.mot.gov.sa/EPMProjectAPI/api/ProjectAPI/AddExtractsInProject";
+-
+-      ResponseEntity<String> result = restTemplate.postForEntity(url, requestDto, String.class);
+-      log.debug("Emp Add Project Webservice response code " + result.getStatusCode());
+-      if (result.getStatusCode() == HttpStatus.OK) {
+-
+-      }
+-    } catch (Exception e) {
+-      log.error("Emp Add Project Webservice Exception :", e);
+-    }
+-
+-  }
+-
+-}
+diff --git a/src/sa/elm/ob/scm/webservice/epm/service/EpmService.java b/src/sa/elm/ob/scm/webservice/epm/service/EpmService.java
+deleted file mode 100644
+--- a/src/sa/elm/ob/scm/webservice/epm/service/EpmService.java
++++ /dev/null
+@@ -1,12 +0,0 @@
+-package sa.elm.ob.scm.webservice.epm.service;
+-
+-import java.math.BigDecimal;
+-
+-import org.openbravo.model.common.order.Order;
+-
+-public interface EpmService {
+-
+-	void addProject(Order order, Integer cityProjectId, BigDecimal valueApprovedExtracts);
+-
+-	void addExtractProject(Order order, Integer cityProjectId);
+-}

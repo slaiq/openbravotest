@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="A1BEC01A7464427B85931D7D34C4691D" identifier="Technical Evaluation Event Alert">
+    <id>A1BEC01A7464427B85931D7D34C4691D</id>
+    <active>true</active>
+    <name>Technical Evaluation Event Alert</name>
+    <tab id="7185D00B421A4F62B403E085F00176D6" entity-name="ADTab" identifier="Technical Evaluation Event - Technical Evaluation Event"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+  And ((ad_role_id is not null  and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>TEE</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

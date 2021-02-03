@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_MASTERCATEGORY_TRG">
+    <trigger name="ESCM_MASTERCATEGORY_TRG" table="M_PRODUCT_CATEGORY" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+  TYPE RECORD IS REF CURSOR;
+  v_parentId VARCHAR2(32);
+  v_treeId VARCHAR2(32);
+  v_count NUMBER;
+
+    
+BEGIN
+    
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+
+v_parentId = :new.em_escm_product_category;  
+--RAISE_APPLICATION_ERROR(-20000, v_parentId);
+
+UPDATE ad_treenode
+    SET parent_id = (COALESCE(v_parentId, '0'))
+  WHERE node_id =:new.m_product_category_id;
+
+  SELECT tr.ad_tree_id INTO v_treeId FROM m_product_category o JOIN ad_tree tr ON tr.ad_client_id = o.ad_client_id 
+WHERE o.m_product_category_id = :new.m_product_category_id AND tr.treetype = 'PC';
+--RAISE_APPLICATION_ERROR(-20000, v_treeId);
+ SELECT count(*) INTO v_count FROM ad_treenode WHERE node_id = :new.m_product_category_id ;
+--RAISE_APPLICATION_ERROR(-20000, v_count);
+IF(v_count = 0) THEN
+  --  Insert into TreeNode
+    INSERT
+    INTO AD_TreeNode
+      (
+        ad_treeNode_Id, AD_Client_ID, AD_Org_ID, IsActive,
+        Created, CreatedBy, Updated,
+        UpdatedBy, AD_Tree_ID, Node_ID,
+        Parent_ID, SeqNo
+      )
+      VALUES
+      (
+        get_uuid(), :new.AD_Client_ID, :new.AD_Org_ID, :new.IsActive,
+        :new.Created, :new.CreatedBy, :new.Updated,
+        :new.UpdatedBy, v_treeId,:new.m_product_category_id,
+        v_parentId,(
+        CASE :new.IsSummary
+          WHEN 'Y'
+          THEN 100
+          ELSE 999
+        END
+        )
+      )
+      ;
+END IF;
+
+--update subcategory as inactive when mastercategory is inactive
+IF (:new.isactive='N' and :new.issummary='Y') then
+update m_product_category set isactive='N' where em_escm_product_category=:new.m_product_category_id;
+END IF;
+END ESCM_MASTERCATEGORY_TRG
+]]></body>
+    </trigger>
+  </database>

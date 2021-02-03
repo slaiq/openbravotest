@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BidNewspaperAnnouncementReportOthers_subreport1" pageWidth="491" pageHeight="234" columnWidth="491" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="f9d010b0-102c-4c27-8bc2-4ac00a77b5e3">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="MediaName" class="java.lang.String"/>
+	<parameter name="AnnouncementID" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select distinct bid.Bidno as BidNo,bid.Bidname as BidName,(case when bid.Openenvday is null then null else(
+concat((SELECT EXTRACT(DOW FROM  bid.Openenvday::date)),'-',
+to_char((eut_cnvrttohjr_yyyymmdd(to_char(bid.Openenvday,'YYYY-MM-DD'))):: date,'DD/MM/YYYY'), ' ' ,'هـ')) end ) as OpenEnvDayTime,
+bid.rfpprice as RFPPrice
+from  escm_annoucements annou
+left join ESCM_AnnouSummaryBid bid on annou.escm_annoucements_id=bid.escm_annoucements_id
+left join ESCM_AnnouSummaryMedia media on media.escm_annoucements_id=annou.escm_annoucements_id
+where media.medianame= $P{MediaName}  and annou.escm_annoucements_id=$P{AnnouncementID}]]>
+	</queryString>
+	<field name="bidno" class="java.lang.String"/>
+	<field name="bidname" class="java.lang.String"/>
+	<field name="openenvdaytime" class="java.lang.String"/>
+	<field name="rfpprice" class="java.math.BigDecimal"/>
+	<variable name="$V{REPORT_COUNT}" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="179" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="104" width="491" height="37" uuid="2dc26859-fbbb-4280-b8f8-b659424e5f3e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="4">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[تعلن وزارة النقل (الإدارة العامة للمناقصات والعقود) عن المنافسات التالية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="188" y="141" width="72" height="37" backcolor="#A3C2F2" uuid="3448a665-969b-406b-9a8d-d0e50ca191c7">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="4">
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[رقم المنافسة]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="452" y="142" width="39" height="37" backcolor="#A3C2F2" uuid="cabb9484-4016-4644-8890-40330dc2af05">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="4">
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[م]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="260" y="141" width="192" height="37" backcolor="#A3C2F2" uuid="442c206e-d5d3-402f-a7f7-0a4f4bff198d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="4">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[اسم المشروع]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="141" width="126" height="37" backcolor="#A3C2F2" uuid="e7452261-8808-423c-af87-75ad8b551fac">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="4">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[تاريخ التقديم وفتح العطاءات]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="126" y="141" width="62" height="37" backcolor="#A3C2F2" uuid="a67fbac0-b689-4f5b-ad4a-c5ebf595e078">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitwidth" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="4">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[قيمة الوثيقة]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="55" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="188" y="0" width="72" height="55" uuid="bc669d3e-9fcd-4d6a-8f84-3b54ef9aee98"/>
+				<box rightPadding="4">
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{bidno}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="126" height="55" uuid="014177f2-b93a-47fe-a252-9279f2cc4fbe"/>
+				<box rightPadding="4">
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{openenvdaytime}==null ? "" :sa.elm.ob.utility.ad_reports.NumberToWords.ConvertNumbertoArabicwithdays($F{openenvdaytime}.toString()))]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="126" y="0" width="62" height="55" uuid="75cbc6fc-6572-4215-b3c8-95ef8169f44d"/>
+				<box rightPadding="4">
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{rfpprice}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="260" y="0" width="192" height="55" uuid="1ee7218a-ec7a-43f1-9c5c-6728f6a0286c"/>
+				<box rightPadding="4">
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bidname}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="452" y="0" width="39" height="55" uuid="0226e8bf-1511-4271-9e07-3310d35f73fa"/>
+				<box rightPadding="4">
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($V{REPORT_COUNT}.toString())]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

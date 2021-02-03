@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="A5E5C6217AC54ECE8E79242A30C0B715" identifier="Budget Revision Hold Alert for Budget User">
+    <id>A5E5C6217AC54ECE8E79242A30C0B715</id>
+    <active>true</active>
+    <name>Budget Revision Hold Alert for Budget User</name>
+    <tab id="B50C35C1DB7B4E30A6324FBB4D9CCA5D" entity-name="ADTab" identifier="Header - Budget Revision"/>
+    <filterClause>((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) and status='NEW'  and ((ad_role_id is not null and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>BUDGREVHOLD_APP</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

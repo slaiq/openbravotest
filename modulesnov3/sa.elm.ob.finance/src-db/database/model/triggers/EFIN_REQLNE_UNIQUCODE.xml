@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_REQLNE_UNIQUCODE">
+    <trigger name="EFIN_REQLNE_UNIQUCODE" table="M_REQUISITIONLINE" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[BEGIN
+
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF DELETING THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+
+    IF UPDATING THEN
+	IF (:new.em_escm_issummary <> :old.em_escm_issummary) THEN
+		if (:new.em_escm_issummary = 'Y') then
+			update m_requisitionline set em_efin_c_validcombination_id = null,em_efin_uniquecodename='' where m_requisitionline_id = :new.m_requisitionline_id;
+		end if;
+	END IF;
+    END IF;
+
+    END EFIN_REQLNE_UNIQUCODE
+]]></body>
+    </trigger>
+  </database>

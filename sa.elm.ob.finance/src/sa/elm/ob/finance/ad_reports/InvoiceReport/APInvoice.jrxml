@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="APInvoice" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="593" leftMargin="1" rightMargin="1" topMargin="1" bottomMargin="1" uuid="363e2634-9ccd-4e0b-9432-b521d3e8f38e">
+	<parameter name="DOCUMENT_ID" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select
+abs(case when condoc.c_invoice_id is null then(select c_currency_convert(sum(ln.linenetamt), inv.c_currency_id ,
+ (select efin_getcurrency(inv.ad_org_id,inv.ad_client_id,'false')) , inv.dateacct,'S',inv.ad_client_id ))else condoc.Foreign_Amount end) as converttotal,bp.name as paybenef,
+ (select sum(a.total) from (select sum(linenetamt) as total from c_invoiceline where c_invoice_id= $P{DOCUMENT_ID}  ) a) as totalWithDecimal
+ ,icb.name as paybenefnd,
+  (select b.name as bussines from c_invoice i join  c_bpartner b on b.c_bpartner_id= i.c_bpartner_id where c_invoice_id= $P{DOCUMENT_ID}  )
+  ||' '||
+  coalesce((
+	select
+		c1.em_escm_subcontractors
+	from
+		c_order c1
+	where
+		c1.c_order_id = inv.c_order_id
+		limit 1
+	),' ')   as bussines
+,case
+		when bp.name is null then
+		(select b.name as bussines from c_invoice i join  c_bpartner b on b.c_bpartner_id= i.c_bpartner_id where c_invoice_id= $P{DOCUMENT_ID}  )
+		||' '||
+		coalesce(
+			(
+				select
+					c1.em_escm_subcontractors
+				from
+					c_order c1
+				where
+					c1.c_order_id = inv.c_order_id limit 1
+			),
+			' '
+		)
+		else bp.name
+	end || case
+		when icb.name is null then ''
+		when substr(
+			icb.name,
+			1,
+			1
+		)= '/' then icb.name
+		else '-' || icb.name
+	end New_Payment_Beneficiary	
+ from c_invoiceline ln
+join c_elementvalue e on e.c_elementvalue_id=ln.em_efin_c_elementvalue_id
+left join c_project cpro on e.em_efin_project_id = cpro.c_project_id
+left join c_bpartner bp on bp.c_bpartner_id= ln.c_bpartner_id
+left join c_invoice inv on inv.c_invoice_id = ln.c_invoice_id
+left join C_Conversion_Rate_Document condoc on condoc.c_invoice_id = inv.c_invoice_id
+left join c_currency curr on curr.c_currency_id = inv.c_currency_id
+left join (select i.C_Bpartner_ID,i.EM_Efin_Beneficiary2_ID,i.c_invoiceline_id,cb.name from c_invoiceline i
+left join c_bpartner cb on cb.c_bpartner_id=i.EM_Efin_Beneficiary2_ID
+where c_invoice_id= $P{DOCUMENT_ID}  ) as icb on icb.c_invoiceline_id = ln.c_invoiceline_id
+where ln.c_invoice_id = $P{DOCUMENT_ID}
+group by ln.c_bpartner_id,inv.c_currency_id,inv.ad_org_id,inv.ad_client_id,inv.dateacct,bp.name,icb.name,inv.c_order_id,condoc.c_invoice_id,condoc.Foreign_Amount
+order by paybenef desc]]>
+	</queryString>
+	<field name="converttotal" class="java.math.BigDecimal"/>
+	<field name="paybenef" class="java.lang.String"/>
+	<field name="paybenefnd" class="java.lang.String"/>
+	<field name="New_Payment_Beneficiary" class="java.lang.String"/>
+	<field name="bussines" class="java.lang.String"/>
+	<field name="totalWithDecimal" class="java.math.BigDecimal"/>
+	<columnHeader>
+		<band height="15">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="220" height="15" uuid="f38a2ebb-5346-4cd1-881a-8ef3745dfa6d"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<text><![CDATA[اوامر الدفع]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="160" y="0" width="60" height="15" uuid="8991d573-4cae-429f-bf87-4a634d811a36">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="84300225-35c1-4f68-92f7-e21e1fb50397"/>
+				</reportElement>
+				<box leftPadding="2" rightPadding="4">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator($F{converttotal}.toString())]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="160" height="15" uuid="dbc2ed87-2bf4-458b-b7f5-2573a6d3277d"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{New_Payment_Beneficiary}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

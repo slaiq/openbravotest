@@ -1,0 +1,3 @@
+validateUrlTextBox=function(b){isValidUrlTextBox(b);var a=document.getElementById(b).getAttribute("required");if(a=="true"){isMissingUrlTextBox(b);}};isValidUrlTextBox=function(c){var b=this.isValidUrl(document.getElementById(c).value);var a=document.getElementById(c+"invalidSpan");if(b){a.style.display="none";
+}else{a.style.display="";}};isMissingUrlTextBox=function(c){var b=document.getElementById(c).value.length==0;var a=document.getElementById(c+"missingSpan");if(b){a.style.display="";}else{a.style.display="none";}};isValidUrl=function(b){if(b.length==0){return true;}var a=/^([https?|ftp|file])+\:\/\/\/?(([A-Za-z0-9]+)(\.)?(\-)?)+((\/)([A-Za-z0-9\-\_]*(\.)?[A-Za-z0-9\-\_]*))*$/;
+if(!a.exec(b)){return false;}return(true);};

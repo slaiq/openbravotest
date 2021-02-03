@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_ATTACHMENT_CHANGES">
+    <trigger name="ESCM_ATTACHMENT_CHANGES" table="C_FILE" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_proposalId CHARACTER VARYING(32);
+v_count NUMBER;
+v_file_id CHARACTER VARYING(32);
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+IF INSERTING OR TG_OP='UPDATE' THEN
+if(:new.ad_table_id ='C355ED11F0BA4828928A06E1D7A8B259') then
+select count(escm_proposal_attr) into v_count from escm_proposal_attr where 
+escm_proposal_attr_id = :new.ad_record_id and escm_proposalevl_event_id is not null;
+
+if(v_count > 0) then
+ 
+ select escm_proposalmgmt_id into v_proposalId from escm_proposal_attr where escm_proposal_attr_id = :new.ad_record_id;
+	IF INSERTING then
+	   v_file_id = get_uuid();
+        INSERT INTO public.c_file(
+            c_file_id, ad_client_id, ad_org_id, isactive, created, createdby, 
+            updated, updatedby, name, seqno, text, ad_table_id, 
+            ad_record_id, path,em_escm_attr_id)
+   		 VALUES (v_file_id, :new.ad_client_id, :new.ad_org_id, 'Y', :new.created, :new.createdby, 
+            :new.updated, :new.updatedby, :new.name, :new.seqno, :new.text, 'BB9A536E94FE4CF3AA815CBE6CC66C3D', 
+            v_proposalId, :new.path,:new.c_file_id);
+          end if;
+       IF  UPDATING then 
+
+       if(:old.text <> :new.text or :old.text is null) then
+		update c_file set text = :new.text where ad_record_id = v_proposalId and em_escm_attr_id = :new.c_file_id;
+
+       end if;
+       
+       end if;
+
+end if;
+end if;
+
+END IF;
+IF DELETING THEN
+--proposal attr table
+if(:old.ad_table_id ='C355ED11F0BA4828928A06E1D7A8B259') then
+ delete from c_file where em_escm_attr_id=:old.c_file_id;
+ end if;
+ --proposal table via proposal attr
+if(:old.ad_table_id ='BB9A536E94FE4CF3AA815CBE6CC66C3D' and :old.em_escm_attr_id is not null) then
+delete from c_file where c_file_id = :old.em_escm_attr_id;
+end if;
+END IF;
+
+END ESCM_ATTACHMENT_CHANGES
+]]></body>
+    </trigger>
+  </database>

@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_DELROLE_DELETEPROCESS">
+    <function name="EUT_DELROLE_DELETEPROCESS" type="NULL">
+      <parameter name="clientid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): Poongodi 24-10-2017
+************************************************************************/
+  
+
+BEGIN
+  
+	delete from eut_delegate_role_check where eut_docapp_delegateln_id in (select dll.eut_docapp_delegateln_id
+		from eut_docapp_delegateln dll left join eut_docapp_delegate dl on 
+		dll.eut_docapp_delegate_id = dl.eut_docapp_delegate_id
+		where TO_DATE(to_char(dl.TO_DATE,'yyyy-MM-dd'),'yyyy-MM-dd') < 
+		TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd')) and eut_delegate_role_check.
+		ad_client_id = clientid;
+	
+	delete from ad_window_access where em_eut_docapp_delegateln_id in (select dll.eut_docapp_delegateln_id
+		from eut_docapp_delegateln dll left join eut_docapp_delegate dl on 
+		dll.eut_docapp_delegate_id = dl.eut_docapp_delegate_id
+		where TO_DATE(to_char(dl.TO_DATE,'yyyy-MM-dd'),'yyyy-MM-dd') < 
+		TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd')) and ad_window_access.
+		ad_client_id = clientid;
+
+	delete from AD_Process_Access where em_eut_docapp_delegateln_id in (select dll.eut_docapp_delegateln_id
+		from eut_docapp_delegateln dll left join eut_docapp_delegate dl on 
+		dll.eut_docapp_delegate_id = dl.eut_docapp_delegate_id
+		where TO_DATE(to_char(dl.TO_DATE,'yyyy-MM-dd'),'yyyy-MM-dd') < 
+		TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd')) and AD_Process_Access.
+		ad_client_id = clientid;
+
+	delete from AD_Form_Access where em_eut_docapp_delegateln_id in (select dll.eut_docapp_delegateln_id
+		from eut_docapp_delegateln dll left join eut_docapp_delegate dl on 
+		dll.eut_docapp_delegate_id = dl.eut_docapp_delegate_id
+		where TO_DATE(to_char(dl.TO_DATE,'yyyy-MM-dd'),'yyyy-MM-dd') < 
+		TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd')) and AD_Form_Access.
+		ad_client_id = clientid;
+
+	delete from OBUIAPP_Process_Access where em_eut_docapp_delegateln_id in (select dll.eut_docapp_delegateln_id
+		from eut_docapp_delegateln dll left join eut_docapp_delegate dl on 
+		dll.eut_docapp_delegate_id = dl.eut_docapp_delegate_id
+		where TO_DATE(to_char(dl.TO_DATE,'yyyy-MM-dd'),'yyyy-MM-dd') < 
+		TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd')) and OBUIAPP_Process_Access.
+		ad_client_id = clientid;
+
+	delete from EUT_List_Access where docapp_delegateln_id in (select dll.eut_docapp_delegateln_id
+		from eut_docapp_delegateln dll left join eut_docapp_delegate dl on 
+		dll.eut_docapp_delegate_id = dl.eut_docapp_delegate_id
+		where TO_DATE(to_char(dl.TO_DATE,'yyyy-MM-dd'),'yyyy-MM-dd') < 
+		TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd')) and EUT_List_Access.
+		ad_client_id = clientid;
+	
+	delete from ad_Preference where em_eut_docapp_delegateln_id in (select dll.eut_docapp_delegateln_id
+		from eut_docapp_delegateln dll left join eut_docapp_delegate dl on 
+		dll.eut_docapp_delegate_id = dl.eut_docapp_delegate_id
+		where TO_DATE(to_char(dl.TO_DATE,'yyyy-MM-dd'),'yyyy-MM-dd') < 
+		TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd')) and ad_Preference.
+		ad_client_id = clientid;
+END EUT_DELROLE_DELETEPROCESS
+]]></body>
+    </function>
+  </database>

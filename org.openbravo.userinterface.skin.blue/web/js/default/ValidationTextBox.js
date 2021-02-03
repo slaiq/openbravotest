@@ -1,0 +1,2 @@
+validateTextBox=function(b){var a=document.getElementById(b).getAttribute("required");if(a=="true"){isMissingTextBox(b);}};isMissingTextBox=function(c){var b=document.getElementById(c).value.length==0;var a=document.getElementById(c+"missingSpan");if(b){a.style.display="";}else{a.style.display="none";
+}};

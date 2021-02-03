@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_RDV_AVAQTY">
+    <trigger name="EFIN_RDV_AVAQTY" table="EFIN_RDVTXNLINE_REF" fires="before" insert="false" update="true" delete="false" foreach="row">
+      <body><![CDATA[ v_del character(1);
+ v_DiffMatch NUMBER;
+ v_poqty NUMBER;
+ v_delQty NUMBER;
+ v_orderline VARCHAR(32);
+/*************************************************************************
+* All Rights Reserved. 
+* Trigger for Update Available Qty if < match qty
+* Contributor(s):  Gowtham.
+************************************************************************/
+BEGIN
+v_del :='N';
+v_DiffMatch :=0;
+v_poqty :=0;
+v_delQty :=0;
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+    
+    IF TG_OP ='UPDATE' THEN
+        if :new.available_qty <> :old.available_qty then
+        	if :new.available_qty < :new.match_qty then
+            	:new.available_qty:=:new.match_qty ;
+            	--update efin_rdvtxnline_ref set available_qty = new.match_qty where efin_rdvtxnline_ref_id = new.efin_rdvtxnline_ref_id;
+            end if; 
+        end if;
+   END IF;
+	
+END EFIN_RDV_AVAQTY
+]]></body>
+    </trigger>
+  </database>

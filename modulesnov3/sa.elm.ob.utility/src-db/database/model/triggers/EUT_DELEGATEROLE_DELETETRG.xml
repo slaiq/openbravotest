@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EUT_DELEGATEROLE_DELETETRG">
+    <trigger name="EUT_DELEGATEROLE_DELETETRG" table="EUT_DELEGATE_ROLE_CHECK" fires="before" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[
+v_count NUMBER;
+v_columname VARCHAR2(60);
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	IF DELETING THEN
+	select count(dr.eut_delegate_role_check_id),columname into v_count,v_columname from eut_delegate_role_check dr where dr.ad_role_id = 
+	:old.ad_role_id and dr.columname = :old.columname group by dr.columname;
+	if(v_count = 1 ) THEN
+		if(v_columname = 'LM') THEN
+		update ad_role set EM_Escm_Islinemanager = :old.oldvalue where ad_role_id = :old.ad_role_id;
+		else if(v_columname = 'DH') THEN
+		update ad_role set EM_Efin_Departmenthead = :old.oldvalue where ad_role_id = :old.ad_role_id;
+		else if(v_columname = 'WR') THEN
+		update ad_role set EM_Escm_Warehouse_Role = :old.oldvalue where ad_role_id = :old.ad_role_id;
+		else if(v_columname = 'PC') THEN
+		update ad_role set em_escm_isprocurecommitee = :old.oldvalue where ad_role_id = :old.ad_role_id;
+		end if;
+		end if;
+		end if;
+		end if;
+	end if;
+	END IF;
+	IF DELETING THEN RETURN OLD; ELSE RETURN NEW; 
+	END IF; 
+
+END EUT_DELEGATEROLE_DELETETRG
+]]></body>
+    </trigger>
+  </database>

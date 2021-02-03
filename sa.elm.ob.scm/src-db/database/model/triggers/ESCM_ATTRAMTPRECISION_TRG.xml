@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_ATTRAMTPRECISION_TRG">
+    <trigger name="ESCM_ATTRAMTPRECISION_TRG" table="ESCM_PROPOSAL_ATTR" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+	v_totalLineAmt NUMBER;
+	v_prec NUMBER;
+	v_clientId VARCHAR(32);
+	v_discountAmt NUMBER;
+    v_grossprice NUMBER;
+	BEGIN
+
+	IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+		IF (INSERTING OR UPDATING ) THEN 
+			-- To get current Client ID 
+			Select ad_client_id INTO v_clientId from escm_proposal_attr 
+			where escm_proposal_attr_id = :new.escm_proposal_attr_id;
+			-- To get Standarrd Precision from Currency by using Current Client ID
+			select stdPrecision INTO v_prec from c_currency where c_currency_id 
+			in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+			 
+			IF (INSERTING) THEN
+			v_totalLineAmt := ROUND(:new.Netprice , v_prec);
+			v_discountAmt := ROUND(coalesce(:new.Discountamt,0) , v_prec);
+            v_grossprice := Round(coalesce(:new.Prosal_Grossprice,0) , v_prec);
+            
+			UPDATE escm_proposal_attr 
+			set Netprice = v_totalLineAmt,Discountamt = v_discountAmt,Prosal_Grossprice = v_grossprice
+			where escm_proposal_attr_id = :new.escm_proposal_attr_id;
+			
+			ELSE
+				IF(:new.Netprice <> :old.Netprice)THEN
+					v_totalLineAmt := ROUND(:new.Netprice , v_prec);
+					IF(coalesce(:new.Discountamt,0) <> coalesce(:old.Discountamt,0))THEN
+						v_discountAmt := ROUND(coalesce(:new.Discountamt,0) , v_prec);
+					END IF;
+					UPDATE escm_proposal_attr 
+					set Netprice = v_totalLineAmt,Discountamt = coalesce(v_discountAmt,0) 
+					where escm_proposal_attr_id = :new.escm_proposal_attr_id;
+				END IF;
+			END IF;
+		END IF;
+			END ESCM_ATTRAMTPRECISION_TRG
+]]></body>
+    </trigger>
+  </database>

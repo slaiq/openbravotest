@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="6B32324BF2A745CB8E79C56308E4FE29" identifier="Technical Evaluation Event Forward">
+    <id>6B32324BF2A745CB8E79C56308E4FE29</id>
+    <active>true</active>
+    <name>Technical Evaluation Event Forward</name>
+    <tab id="7185D00B421A4F62B403E085F00176D6" entity-name="ADTab" identifier="Technical Evaluation Event - Technical Evaluation Event"/>
+    <filterClause>((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) </filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>TEEF</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

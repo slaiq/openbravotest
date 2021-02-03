@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_PAYMENT_REPORT_V">
+    <view name="EFIN_PAYMENT_REPORT_V"><![CDATA[SELECT to_number(pay.em_efin_mofchequeno) AS efin_payment_report_v_id, pay.fin_payment_id, pay.documentno, pay.paymentdate, pay.em_efin_paymentsequence AS payment_sequence, pay.status, pay.em_efin_payinst AS payinst, pay.amount, pay.em_efin_mofchequedate AS cheque_date, pay.c_bpartner_id, pay.em_efin_invoice_id AS c_invoice_id, pay.ad_client_id, pay.ad_org_id, pay.isactive, pay.created, pay.createdby, pay.updated, pay.updatedby FROM fin_payment as pay WHERE to_number(pay.em_efin_mofchequeno) IS NOT NULL ORDER BY (to_number(pay.em_efin_mofchequeno))]]></view>
+  </database>

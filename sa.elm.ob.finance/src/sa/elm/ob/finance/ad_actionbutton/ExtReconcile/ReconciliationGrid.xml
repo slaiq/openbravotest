@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ *************************************************************************
+ * All Rights Reserved.
+ * Contributor(s):  Gopalakrishnan
+ *************************************************************************
+-->
+<REPORT>
+  <template file="ReconciliationGrid.srpt"/> 
+    
+  <PARAMETER id="param2" name="param2" default="2"/>
+    
+  <structure name="structure">
+    <FIELD id="fieldRownum1">rownum</FIELD>
+    <FIELD id="fieldSelectedTransactionId" attribute="value">markSelectedId</FIELD>
+    <FUNCTION id="funcEvenOddRowxx" name="MODULE" arg1="fieldRownum1" arg2="param2" format="integerEdition" attribute="class" replace="yy"/>
+
+    <FIELD id="fieldTransactionDate">transactionDate</FIELD>
+    <FIELD id="fieldBusinessPartner">businessPartnerTrunc</FIELD>
+    <FIELD id="fieldBusinessPartner" attribute="title" replace="zz">businessPartner</FIELD>
+    <FIELD id="fieldPaymentDocument">paymentDocument</FIELD>
+    <FIELD id="fieldBankName">BankName</FIELD>
+    <FIELD id="fieldChequeNo">ChequeNo</FIELD>
+    <FIELD id="fieldChequeStatus">ChequeStatus</FIELD>
+    <FIELD id="fieldChequeDate">ChequeDate</FIELD>
+    <FIELD id="fieldDescription">descriptionTrunc</FIELD>
+    <FIELD id="fieldDescription" attribute="title" replace="zz">description</FIELD>
+    <FIELD id="fieldPaymentAmount" format="euroEdition">paymentAmount</FIELD>
+    <FIELD id="fieldDepositAmount" format="euroEdition">depositAmount</FIELD>
+    <FIELD id="funcEvenOddRowxx" attribute="id" replace="xx">transactionId</FIELD>
+    
+    <FIELD id="fieldRecordPaymentAmt" attribute="value" format="euroEdition">paymentAmount</FIELD>
+    <FIELD id="fieldRecordDepositAmt" attribute="value" format="euroEdition">depositAmount</FIELD>
+    
+    <FIELD id="fieldRecordBankName" attribute="value">BankName</FIELD>
+    <FIELD id="fieldRecordChequeNo" attribute="value" >ChequeNo</FIELD>
+    <FIELD id="fieldRecordChequeStatus" attribute="value" >ChequeStatus</FIELD>
+    <FIELD id="fieldRecordChequeDate" attribute="value" >ChequeDate</FIELD>
+    <FIELD id="fieldRecordIsReceipt" attribute="value" >isReceipt</FIELD>
+    
+    <FIELD id="fieldRecordPaymentAmt" attribute="name" replace="xx">transactionId</FIELD>
+    <FIELD id="fieldRecordDepositAmt" attribute="name" replace="xx">transactionId</FIELD>
+    
+    <FIELD id="fieldRecordBankName" attribute="name" replace="xx">transactionId</FIELD>
+    <FIELD id="fieldRecordChequeNo" attribute="name" replace="xx" >transactionId</FIELD>
+    <FIELD id="fieldRecordChequeStatus" attribute="name" replace="xx" >transactionId</FIELD>
+    <FIELD id="fieldRecordChequeDate" attribute="name" replace="xx" >transactionId</FIELD>
+    <FIELD id="fieldRecordIsReceipt" attribute="name" replace="xx" >transactionId</FIELD>
+    
+    <FIELD id="fieldTransactionId_xx" boolean="checked" withId="fieldSelectedTransactionId">transactionId</FIELD>
+    <FIELD id="fieldTransactionId_xx" attribute="value">transactionId</FIELD>
+    <FIELD id="fieldTransactionId_xx" attribute="id">transactionId</FIELD>
+    <FIELD id="fieldTransactionId_xx" attribute="onclick" replace="xx">transactionId</FIELD>
+    
+    <SECTION id="sectionLinesDetail"/>
+  </structure>
+  
+</REPORT>

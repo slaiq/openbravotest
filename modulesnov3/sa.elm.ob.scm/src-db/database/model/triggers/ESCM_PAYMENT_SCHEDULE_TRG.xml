@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_PAYMENT_SCHEDULE_TRG">
+    <trigger name="ESCM_PAYMENT_SCHEDULE_TRG" table="ESCM_PAYMENT_SCHEDULE" fires="after" insert="false" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+ v_exist NUMBER;
+ v_invamt NUMBER;
+ v_parentid VARCHAR(32);
+ v_status VARCHAR(60);
+ v_documentno VARCHAR(30);
+ v_version NUMBER;
+ v_amt NUMBER;
+
+ 
+    
+BEGIN
+    
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+			
+
+ if(UPDATING) THEN
+  	select EM_Escm_Appstatus,documentno,EM_Escm_Revision into v_status,v_documentno,v_version from c_order where c_order_id= :new.c_order_id;
+  	if(:old.invoiced_amt!=:new.invoiced_amt) THEN
+  		v_invamt:= :new.invoiced_amt;
+  		v_parentid:= :new.parent_id;
+  		v_amt:= :new.amount;
+	  	if(v_status='ESCM_AP' and v_amt < v_invamt) then
+			raise exception '%', '@ESCM_PaySch_ApprovedPO_Amt_lt_InvAmt@'||'('||v_documentno||'-'||v_version||')';
+		end if;
+		-- This update statement is to execute the update trigger to update the Invoiced Amount for all the records which is linked from the current record.
+		update escm_payment_schedule set invoiced_amt=  v_invamt where parent_id = :new.escm_payment_schedule_id;
+  	end if;
+  END IF;      
+
+    END ESCM_PAYMENT_SCHEDULE_TRG
+]]></body>
+    </trigger>
+  </database>

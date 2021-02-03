@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_BID_MGMT_REPORT_V">
+    <view name="EFIN_BID_MGMT_REPORT_V"><![CDATA[SELECT bid.escm_bidmgmt_id AS efin_bid_mgmt_report_v_id, bid.ad_client_id, bid.ad_org_id, bid.isactive, bid.created, bid.createdby, bid.updated, bid.updatedby, (COALESCE(bid.bidno, '') || ' - ') || bid.bidname AS biddetails, bid.bidno, bid.bidname, bid.bidstatus, bid.bidappstatus, bid.finanyear, bid.bidpurpose FROM escm_bidmgmt bid WHERE bid.bidstatus = 'ACT' AND bid.bidappstatus = 'ESCM_AP' ORDER BY bid.bidno]]></view>
+  </database>

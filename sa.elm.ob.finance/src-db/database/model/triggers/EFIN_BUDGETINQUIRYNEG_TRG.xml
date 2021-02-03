@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_BUDGETINQUIRYNEG_TRG">
+    <trigger name="EFIN_BUDGETINQUIRYNEG_TRG" table="EFIN_BUDGETINQUIRY" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+v_message  VARCHAR2(2000);
+v_budgettype VARCHAR2(60);
+v_preClose VARCHAR2(60);
+v_budget_def_status VARCHAR2(60);
+BEGIN
+
+	IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+	
+	IF UPDATING or INSERTING THEN
+               -- Throw the error if negative value are present while inserting or updating records in Budget Enquiry
+		IF((coalesce(:new.org_amt,0) < 0) or (coalesce(:new.current_budget,0) < 0) or (coalesce(:new.funds_available,0) < 0) or
+		(coalesce(:new.encumbrance,0) < 0 ) or (coalesce(:new.revinc_amt,0) < 0) or (coalesce(:new.revdec_amt,0) < 0)
+		or (coalesce(:new.obinc_amt,0) < 0) or (coalesce(:new.obdec_amt,0) < 0) or (coalesce(:new.disinc_amt,0) < 0 ) 
+		or (coalesce(:new.disdec_amt,0) < 0) or (coalesce(:new.carryforward,0) < 0)
+		or (coalesce(:new.rev_amount,0) < 0) or (coalesce(:new.depinc_amt,0) < 0) or (coalesce(:new.depdec_amt,0) < 0) or
+		 (coalesce(:new.Cost_Funds_Available,0) < 0))
+		THEN
+
+		--Throw error negative value not allow
+			  raise exception '%','@EFIN_Negative_Not_Allowed@' ;	
+
+		END IF;
+
+                -- Actual always need to be ZERO for cost budget.
+		select em_efin_budgettype into v_budgettype from c_campaign budtype 
+		left join C_Validcombination actdm on budtype.c_campaign_id=actdm.c_campaign_id
+        left join efin_budgetinquiry budenq on actdm.C_Validcombination_ID=budenq.C_Validcombination_ID
+         where budenq.C_Validcombination_ID=:new.C_Validcombination_ID;
+      	  IF(v_budgettype='C' AND :new.spent_amt <> 0) THEN
+                     raise exception '%','@EFIN_CostBudget_Actual_Zero@';
+		END IF;
+        	--if preclose is 'Y' for budget definition then don't allow to update.
+	 select ispreclose,status into v_preClose,v_budget_def_status from efin_budgetint where efin_budgetint_id =:new.efin_budgetint_id;
+      IF UPDATING then  
+        if(v_budget_def_status='CL') then
+          raise exception '%','@Efin_Budget_Definition_Closed@';
+        end if;        
+  			if(v_preClose ='Y' and v_budgettype='C') then
+   			 IF(((coalesce(:new.org_amt,0)) <> (coalesce(:old.org_amt,0))) or ((coalesce(:new.current_budget,0)) <> (coalesce(:old.current_budget,0))) or 
+   					 ((coalesce(:new.funds_available,0)) <> (coalesce(:old.funds_available,0))) or ((coalesce(:new.encumbrance,0)) <> (coalesce(:old.encumbrance,0))) or
+   					((coalesce(:new.revinc_amt,0)) <> (coalesce(:old.revinc_amt,0))) or ((coalesce(:new.revdec_amt,0)) <> (coalesce(:old.revdec_amt,0))) or 
+  				 ((coalesce(:new.obinc_amt,0)) <> (coalesce(:old.obinc_amt,0))) or ((coalesce(:new.obdec_amt,0)) <> (coalesce(:old.obdec_amt,0))) or 
+    			 ((coalesce(:new.disinc_amt,0)) <> (coalesce(:old.disinc_amt,0))) or ((coalesce(:new.disdec_amt,0)) <> (coalesce(:old.disdec_amt,0))) or 
+       			((coalesce(:new.carryforward,0)) <> (coalesce(:old.carryforward,0))) or ((coalesce(:new.rev_amount,0)) <> (coalesce(:old.rev_amount,0))) or 
+       			((coalesce(:new.depinc_amt,0)) <> (coalesce(:old.depinc_amt,0))) or ((coalesce(:new.depdec_amt,0)) <> (coalesce(:old.depdec_amt,0))) or 
+     			 ((coalesce(:new.Cost_Funds_Available,0)) <> (coalesce(:old.Cost_Funds_Available,0)))) then
+      				 raise exception '%','@EFIN_PreClose_Error@';
+   			 End if;
+				end if;
+    End if;
+    IF INSERTING then  
+   			 select em_efin_budgettype into  v_budgettype from c_campaign where c_campaign_id=:new.c_campaign_id;
+    if(v_budget_def_status='CL') then
+     raise exception '%','@Efin_Budget_Definition_Closed@';
+    end if;
+    if(v_preClose ='Y' and v_budgettype='C') then
+    raise exception '%','@EFIN_PreClose_Error@';
+    end if;
+    end if;
+	END IF;
+	
+	END EFIN_BUDGETINQUIRYNEG_TRG
+]]></body>
+    </trigger>
+  </database>

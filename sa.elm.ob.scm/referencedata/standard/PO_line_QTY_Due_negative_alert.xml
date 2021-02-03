@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="165D5CF0A37A4488802D3CCC802D62E9" identifier="PO line QTY Due negative alert ">
+    <id>165D5CF0A37A4488802D3CCC802D62E9</id>
+    <active>true</active>
+    <creationDate transient="true">2020-09-08T22:03:12.870Z</creationDate>
+    <createdBy transient="true" id="BCF72D95E15446FCB95F1B9333602E88" entity-name="ADUser" identifier="omar"/>
+    <updated transient="true">2020-09-09T10:49:58.181Z</updated>
+    <updatedBy transient="true" id="BCF72D95E15446FCB95F1B9333602E88" entity-name="ADUser" identifier="omar"/>
+    <name>PO line QTY Due negative alert </name>
+    <tab id="8F35A05BFBB34C34A80E9DEF769613F7" entity-name="ADTab" identifier="Lines Attributes - Purchase Order and Contracts Summary"/>
+    <filterClause xsi:nil="true"/>
+    <sql>SELECT ordship.c_orderline_id AS referencekey_id, 
+	 ord.documentno || ' - ' || ord.EM_Escm_Revision || ' - ' || ordship.line AS record_id,
+     '0' AS ad_role_id,
+     NULL AS ad_user_id,
+     'Order line ' || ord.documentno || ' - ' || ord.EM_Escm_Revision || ' - ' || ordship.line ||' has negative remaining amount/quantity' AS description,
+     'Y' AS isActive,
+      ord.ad_org_id, 
+      ord.ad_client_id, 
+      now() AS created,  
+      '0' AS createdBy,  
+      now() AS updated,
+      '0' AS updatedBy
+FROM c_orderline ordship
+     JOIN c_order ord ON ord.c_order_id = ordship.c_order_id
+WHERE ((ord.EM_Escm_Receivetype = 'AMT' 
+       and (COALESCE(ordship.linenetamt, 0) - (COALESCE(ordship.em_escm_amtporec, 0) - COALESCE(ordship.em_escm_amtreturned, 0)) 
+			- COALESCE(ordship.em_escm_amtcanceled, 0) - COALESCE(ordship.em_escm_legacy_amt_delivered, 0) &lt; 0))
+     or (ord.EM_Escm_Receivetype = 'QTY' and (COALESCE(ordship.qtyordered, 0) 
+		- (COALESCE(ordship.em_escm_qtyporec, 0) - COALESCE(ordship.em_escm_qtyirr, 0) 
+   		- COALESCE(ordship.em_escm_qtyrejected, 0) - COALESCE(ordship.em_escm_qtyreturned, 0))
+   		- COALESCE(ordship.em_escm_qtycanceled, 0) - COALESCE(ordship.em_escm_legacy_qty_delivered, 0) &lt; 0)))
+        and ordship.em_escm_issummarylevel = 'N'
+        and ord.EM_Escm_Appstatus != 'ESCM_CA'</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

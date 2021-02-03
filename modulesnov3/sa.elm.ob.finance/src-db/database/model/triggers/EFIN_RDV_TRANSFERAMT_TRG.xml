@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_RDV_TRANSFERAMT_TRG">
+    <trigger name="EFIN_RDV_TRANSFERAMT_TRG" table="EFIN_RDV_BUDGTRANSFER" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[
+transfer_id varchar(32);
+holdline_id varchar(32);
+v_oldAmt NUMBER;
+v_newAmt NUMBER;
+v_totaltransferamt NUMBER;
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+	IF (INSERTING OR UPDATING ) THEN
+    holdline_id = :NEW.efin_rdv_budgholdline_id;
+    
+	ELSE
+    holdline_id = :OLD.efin_rdv_budgholdline_id;
+    
+	END IF;
+	 IF (INSERTING OR DELETING ) THEN
+		 select COALESCE(sum(amount),'0') into v_totalTransferAmt from efin_rdv_budgtransfer
+		 where efin_rdv_budgholdline_id=holdline_id and released ='N';
+		 update efin_rdv_budgholdline set budg_transferamt = v_totalTransferAmt 
+		 where  efin_rdv_budgholdline_id = holdline_id;
+	 END IF;
+	 IF (UPDATING ) THEN
+	 v_oldAmt=coalesce(:OLD.amount,0);
+	 v_newAmt=coalesce(:NEW.amount,0);
+		IF(v_oldAmt <> v_newAmt) THEN
+			select COALESCE(sum(amount),'0') into v_totalTransferAmt from efin_rdv_budgtransfer
+			where efin_rdv_budgholdline_id=holdline_id and released ='N';
+			 update efin_rdv_budgholdline set budg_transferamt = v_totalTransferAmt 
+		 where  efin_rdv_budgholdline_id = holdline_id;
+		END IF;	
+		
+		
+	 END IF;
+	END EFIN_RDV_TRANSFERAMT_TRG
+]]></body>
+    </trigger>
+  </database>

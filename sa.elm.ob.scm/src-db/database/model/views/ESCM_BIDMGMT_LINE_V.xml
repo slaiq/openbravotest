@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_BIDMGMT_LINE_V">
+    <view name="ESCM_BIDMGMT_LINE_V"><![CDATA[SELECT bidline.escm_bidmgmt_line_id AS escm_bidmgmt_line_v_id, bidline.ad_client_id, bidline.ad_org_id, bidline.description, bidline.ismanual, bidline.c_uom_id, bidline.escm_bidmgmt_id, bidline.isactive, bidline.created, bidline.createdby, bidline.updated, bidline.updatedby, bidline.m_product_category_id, bidline.m_product_id, bidline.issummarylevel, bidline.movementqty, bidline.line, (COALESCE(bidline.line, 0) || ' - ') || COALESCE(bidline.description, '') AS code FROM escm_bidmgmt_line bidline]]></view>
+  </database>

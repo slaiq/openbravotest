@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE ESCM_PROPOSALMGMT_LINE">
+    <table name="ESCM_PROPOSALMGMT_LINE" primaryKey="ESCM_PROPOSALMGMT_LINE_KEY">
+      <column name="EM_EFIN_C_VALIDCOMBINATION_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_UNIQUECODENAME" primaryKey="false" required="false" type="VARCHAR" size="2000" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_FUNDS_AVAILABLE" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_FAILURE_REASON" primaryKey="false" required="false" type="VARCHAR" size="2000" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_BUDGMANENCUMLINE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="C_VALIDCOMBINATION" name="EM_EFIN_PROSALLN_COMB">
+        <reference local="EM_EFIN_C_VALIDCOMBINATION_ID" foreign="C_VALIDCOMBINATION_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_BUDGET_MANENCUMLINES" name="EM_EFIN_PROSALLN_ENCMLN">
+        <reference local="EM_EFIN_BUDGMANENCUMLINE_ID" foreign="EFIN_BUDGET_MANENCUMLINES_ID"/>
+      </foreign-key>
+    </table>
+  </database>

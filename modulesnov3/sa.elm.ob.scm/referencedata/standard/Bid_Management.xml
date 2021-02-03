@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="3D614B178DB04A9C9D04AAC91C6E4BCE" identifier="Bid Management">
+    <id>3D614B178DB04A9C9D04AAC91C6E4BCE</id>
+    <active>true</active>
+    <creationDate transient="true">2017-06-06T16:07:02.60Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-07-01T18:45:53.539Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Bid Management</name>
+    <tab id="31960EC365D746A180594FFB7B403ABB" entity-name="ADTab" identifier="Header - Bid Management"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+  And ((ad_role_id is not null  and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>BM</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

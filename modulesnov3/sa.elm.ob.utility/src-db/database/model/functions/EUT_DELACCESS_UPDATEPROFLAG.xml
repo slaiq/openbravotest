@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_DELACCESS_UPDATEPROFLAG">
+    <function name="EUT_DELACCESS_UPDATEPROFLAG" type="VARCHAR">
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2001-2008 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  Gopalakrishnan.
+************************************************************************/
+--p VARCHAR(32767); --OBTG:VARCHAR2--
+
+Cur_Delegation RECORD;
+
+ 
+BEGIN
+
+ FOR Cur_Delegation IN (
+ --select query
+select t1.eut_docapp_delegate_id as delegation,t2.document_type as doctype,t1.TO_DATE as enddate,t2.ad_role_id as torole,
+     t2.eut_docapp_delegateln_id as lineid,rol.ad_role_id as roleid
+from eut_docapp_delegate t1
+left join eut_docapp_delegateln t2 on t2.eut_docapp_delegate_id=t1.eut_docapp_delegate_id
+and t1.ad_client_id=p_client_id
+left join ad_role rol on rol.em_eut_documenttype=t2.document_type 
+and rol.ad_client_id=p_client_id
+where  t1.ad_role_id is not null
+and TO_DATE(to_char(t1.from_date,'yyyy-MM-dd'),'yyyy-MM-dd') <= 
+			TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd')
+			and TO_DATE(to_char(t1.TO_DATE,'yyyy-MM-dd'),'yyyy-MM-dd') >= 
+			TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd')and t1.processed = 'N')
+ LOOP 
+ 
+ if(Cur_Delegation.roleid is not null) then
+  Update eut_docapp_delegate set processed = 'Y'  where eut_docapp_delegate_id = Cur_Delegation.delegation;
+ end if;
+
+END LOOP;
+   
+      RETURN 1;
+END EUT_DELACCESS_UPDATEPROFLAG
+]]></body>
+    </function>
+  </database>

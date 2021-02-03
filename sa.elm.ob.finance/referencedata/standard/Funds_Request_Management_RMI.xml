@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="B506217419AB4490B00EA1A079665D55" identifier="Funds Request Management RMI">
+    <id>B506217419AB4490B00EA1A079665D55</id>
+    <active>true</active>
+    <name>Funds Request Management RMI</name>
+    <tab id="53C8735351FC4B4A810DD5A781BC929B" entity-name="ADTab" identifier="Funds Request - Funds Request Management"/>
+    <filterClause>((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) </filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>BCUR</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

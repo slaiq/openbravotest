@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_INVOICE_RDV_VIEW">
+    <view name="ESCM_INVOICE_RDV_VIEW"><![CDATA[SELECT sum(ln.linenetamt) AS annual_invoice, sum(inv.grandtotal) AS annual_rdv_amount, a.documentno FROM c_invoiceline ln JOIN c_invoice inv ON inv.c_invoice_id = ln.c_invoice_id JOIN c_order a ON a.c_order_id = inv.em_efin_c_order_id OR a.c_order_id = inv.c_order_id AND (a.em_escm_contact_type IN ('7A690E46B6E043C7A8B34B2D92E17D87', '96F23587553D46FB8AA6BD5605A1C65D')) WHERE inv.docstatus <> 'DR' AND inv.docstatus <> 'EFIN_CA' GROUP BY a.documentno]]></view>
+  </database>

@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_PRODUCT_V">
+    <view name="ESCM_PRODUCT_V"><![CDATA[SELECT m_product.m_product_id AS escm_product_v_id, (m_product.value || '-') || m_product.name AS name, m_product.ad_client_id, m_product.ad_org_id, m_product.isactive, m_product.created, m_product.createdby, m_product.updated, m_product.updatedby FROM m_product WHERE m_product.producttype = 'I']]></view>
+  </database>

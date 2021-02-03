@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_BUDGET_AMT_REPORT">
+    <function name="EFIN_BUDGET_AMT_REPORT" type="NULL">
+      <parameter name="v_classification" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="v_bud_amt" type="NUMERIC" mode="out">
+        <default/>
+      </parameter>
+      <body><![CDATA[-- v_bud_amt NUMERIC(10); 
+ 	declare
+ 	
+	  BEGIN	  
+select
+	coalesce(
+		sum( binq.current_budget ),
+		0
+	)  into v_bud_amt
+from
+	c_elementvalue e,
+ efin_budgetint bint,
+	efin_budgetinquiry binq,
+	c_salesregion salereg,
+	C_Campaign comp
+where
+	1 = 1
+	and bint.efin_budgetint_id = binq.efin_budgetint_id
+	and binq.c_salesregion_id = salereg.c_salesregion_id
+	and binq.c_elementvalue_id = e.c_elementvalue_id
+	and binq.C_Campaign_ID = comp.C_Campaign_ID
+	and e.em_efin_classification = v_classification-- 'Purchase Invoices (AP)'
+	---and 'Purchase Invoices'::text =  v_classification :: text
+--	and  v_classification= 'Purchase Invoices'
+	and comp.value = '02'
+	and salereg.value = '990'	;
+END EFIN_BUDGET_AMT_REPORT
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="5A29C2D5B06849C08D7243D6D33D724F" identifier="Property Comp RMI">
+    <id>5A29C2D5B06849C08D7243D6D33D724F</id>
+    <active>true</active>
+    <name>Property Comp RMI</name>
+    <tab id="4FF6B76AAE424D6EB5D5F29129EBC1F6" entity-name="ADTab" identifier="Header - Property Compensation"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+   And ((ad_role_id is not null  and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>PCR</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+  <ADAlertRule id="A271FF9AAFB044FA93FD2BC8087B2648" identifier="Property Comp Action">
+    <id>A271FF9AAFB044FA93FD2BC8087B2648</id>
+    <active>true</active>
+    <name>Property Comp Action</name>
+    <tab id="4FF6B76AAE424D6EB5D5F29129EBC1F6" entity-name="ADTab" identifier="Header - Property Compensation"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+   And ((ad_role_id is not null  and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>PROPERTY_COMP</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+  <ADAlertRule id="F6DC4D9CB5834516A79796A857E68DDD" identifier="Property Comp Forward">
+    <id>F6DC4D9CB5834516A79796A857E68DDD</id>
+    <active>true</active>
+    <name>Property Comp Forward</name>
+    <tab id="4FF6B76AAE424D6EB5D5F29129EBC1F6" entity-name="ADTab" identifier="Header - Property Compensation"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+   And ((ad_role_id is not null  and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>PCF</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

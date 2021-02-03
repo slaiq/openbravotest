@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_CHECKFUNDSAVAIL_ARINVOICE">
+    <function name="EFIN_CHECKFUNDSAVAIL_ARINVOICE" type="NULL">
+      <parameter name="p_pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_issotrx VARCHAR2(2000):='';
+  v_butint_id VARCHAR2(2000):='';
+  v_Message VARCHAR2(2000):='';
+  v_Record_ID VARCHAR2(32);
+  v_Costcombination_id VARCHAR2(32);
+  v_Result NUMBER:=1; -- Success
+  v_funds_fundsavailable NUMBER:=0;
+  v_cost_fundsavailable NUMBER:=0; 
+  v_ResultStr VARCHAR2(2000):='';
+  v_msg VARCHAR2(2000):='';
+  v_total NUMBER:=0; 
+
+
+
+  
+  TYPE RECORD IS REF CURSOR;
+  Cur_Parameter RECORD;
+  Cur_Params RECORD;
+
+BEGIN
+
+    IF (p_pinstance_id IS NOT NULL) THEN
+    --  Update AD_PInstance
+    DBMS_OUTPUT.PUT_LINE('Updating PInstance - Processing ' || p_pinstance_id) ;
+    v_ResultStr:='PInstanceNotFound';
+    AD_UPDATE_PINSTANCE(p_pinstance_id, NULL, 'Y', NULL, NULL) ;
+  END IF;
+  
+  FOR Cur_Params IN (SELECT * FROM ad_ep_instance_para WHERE ad_ep_instance_id = 
+	p_pinstance_id) 
+  LOOP
+	    IF (cur_params.parametername LIKE 'Record_ID') THEN
+	      v_Record_ID := Cur_Params.p_string;
+	   END IF;
+  END LOOP;
+
+ select issotrx, em_efin_budgetint_id into v_issotrx, v_butint_id from c_invoice where c_invoice_id = v_Record_ID;
+
+ if(v_issotrx ='Y') THEN
+ 
+   select grandtotal into v_total from c_invoice where c_invoice_id = v_Record_ID;
+   
+   IF(v_total <=0) THEN
+    	RAISE_APPLICATION_ERROR(-20000, '@EFIN_ARINVOICE_TOTAL@');
+   END IF;
+  
+ 
+   for Cur_Parameter IN (Select em_efin_c_validcombination_id, linenetamt,c_invoiceline_id  from c_invoiceline where c_invoice_id = v_Record_ID)
+   LOOP
+   select em_efin_costcombination into v_Costcombination_id from c_validcombination where c_validcombination_ID =Cur_Parameter.em_efin_c_validcombination_id;
+   
+   -- get fundsavailable for the uniquecode
+   select efin_getfundsavailable(Cur_Parameter.em_efin_c_validcombination_id,v_butint_id) into v_funds_fundsavailable from dual;   
+   
+   -- if linenetamount is less than zero that means funds available is decrease and check it is less than available funds available
+   if((Cur_Parameter.linenetamt < 0) and ((v_funds_fundsavailable+Cur_Parameter.linenetamt) <0) ) THEN
+      v_Result:=v_Result+1;
+      v_Message:='available fundsavailable (' || v_funds_fundsavailable || ') is less than the amount entered (' ||Cur_Parameter.linenetamt||')';
+ 	RAISE_APPLICATION_ERROR(-20000, v_Message);
+   END IF;
+
+   END LOOP; -- Get Parameter
+ END IF;
+END EFIN_CHECKFUNDSAVAIL_ARINVOICE
+]]></body>
+    </function>
+  </database>

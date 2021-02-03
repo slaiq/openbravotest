@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_LINKPROJECTWITHACCOUNT">
+    <function name="EFIN_LINKPROJECTWITHACCOUNT" type="NULL">
+      <parameter name="pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): Sathish Kumar on 28-09-2017
+************************************************************************/
+v_client_id VARCHAR2(32);
+v_user_id VARCHAR2(32);
+v_ResultStr VARCHAR2(2000):='';
+v_Message VARCHAR2(2000):='';
+
+
+TYPE RECORD IS REF CURSOR;
+Cur_Account RECORD;
+
+BEGIN
+--get client id
+SELECT  i.ad_client_id,i.AD_User_ID into v_client_id,v_user_id
+      FROM AD_PInstance i 
+      WHERE i.AD_PInstance_ID=PInstance_ID ;
+      
+
+--get account with same searchkey of project and project is null
+   FOR Cur_Account IN
+      ( SELECT  subacc.C_elementvalue_id as accountId, subacc.value  as elementsearchkey, proj.C_project_id as projectId
+	FROM c_campaign  budget         
+	JOIN EFIN_BudgetType_Acct parentacc on budget.c_campaign_id = parentacc.c_campaign_id         
+	JOIN ad_treenode treenode on treenode.node_id in (select  replace(unnest(string_to_array
+         (public.eut_getchildacct(parentacc.C_ElementValue_id),',')::character varying []),'''','')) 
+        JOIN C_ElementValue subacc on (subacc.accounttype ='E' and subacc.em_efin_project_id is null)
+         and treenode.node_id = subacc.C_ElementValue_id and subacc.elementlevel ='S' and subacc.isactive ='Y' and subacc.issummary ='N'  
+        JOIN c_project proj on subacc.value =proj.value and subacc.ad_client_id =proj.ad_client_id
+        WHERE   subacc.ad_client_id =v_client_id
+      )
+      LOOP
+
+        UPDATE c_elementvalue SET  em_efin_project_id = Cur_Account.projectId where c_elementvalue_id = Cur_Account.accountId;
+ 
+    END LOOP;
+        
+  v_Message='Process Completed Successfully';
+  DBMS_OUTPUT.PUT_LINE('--<<Insertion finished>> ' || v_Message) ;
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 1, v_Message) ;
+    EXCEPTION
+WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 0, v_ResultStr) ;
+  RETURN;
+END EFIN_LINKPROJECTWITHACCOUNT
+]]></body>
+    </function>
+  </database>

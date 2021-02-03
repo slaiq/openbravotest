@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_POCONTRACT_LINEDEL_TRG">
+    <trigger name="ESCM_POCONTRACT_LINEDEL_TRG" table="C_ORDERLINE" fires="before" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[
+v_status VARCHAR2(60);
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+	--while deleting the update totalpayment as difference of current amount
+
+	IF DELETING THEN
+	select po.em_escm_appstatus into v_status from c_order po left join c_orderline pl on po.c_order_id = pl.c_order_id
+	where po.c_order_id = :old.c_order_id;
+	if(v_status<>'DR' and v_status<>'ESCM_REJ' and v_status<>'ESCM_RA') then
+        raise exception '%','@ESCM_POContractDelete@';
+        end if;
+	
+	END IF;
+	END ESCM_POCONTRACT_LINEDEL_TRG
+]]></body>
+    </trigger>
+  </database>

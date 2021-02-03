@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="50153CFE95EA4F01A6BE2667A1D82B92" identifier="Relese encumbrance from Order to receive">
+    <id>50153CFE95EA4F01A6BE2667A1D82B92</id>
+    <active>true</active>
+    <creationDate transient="true">2016-12-08T11:54:28.646Z</creationDate>
+    <createdBy transient="true" id="178194DF587B47C4B1C1525368F66FD6" entity-name="ADUser" identifier="Divya"/>
+    <updated transient="true">2016-12-09T18:31:20.490Z</updated>
+    <updatedBy transient="true" id="178194DF587B47C4B1C1525368F66FD6" entity-name="ADUser" identifier="Divya"/>
+    <name>Release encumbrance from Order to receive</name>
+    <tab id="9CBD55F879EA4DCAA4E944C0B7DC03D4" entity-name="ADTab" identifier="Header - Encumbrance"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select efin_budget_manencum_id as referencekey_id,
+ad_column_identifier('efin_budget_manencum', efin_budget_manencum_id, 'en_US') AS record_id,
+0 AS ad_role_id,
+     NULL AS ad_user_id,
+     ('Prepayment invoice &lt;'|| inv.documentno ||'&gt; used in order to receipt &lt;'|| inc.documentno ||'&gt;, please release the encumbrance &lt;'|| encum.documentno ||'&gt;.') AS description,
+     'Y' AS isActive,
+      invln.ad_org_id, 
+      invln.ad_client_id, 
+      now() AS created,  
+      0 AS createdBy,  
+      now() AS updated,
+      0 AS updatedBy
+ from c_invoiceline invln 
+join c_invoice inv on invln.em_efin_prepayment = inv.c_invoice_id 
+join c_invoice inc on inc.c_invoice_id = invln.c_invoice_id
+join efin_budget_manencum encum on encum.efin_budget_manencum_id = inv.em_efin_manualencumbrance_id
+where invln.em_efin_receipt_type='pp' and inc.docstatus='CO'</sql>
+    <type>D</type>
+  </ADAlertRule>
+</ob:Openbravo>

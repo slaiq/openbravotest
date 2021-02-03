@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BGVerficationLetterReport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="15" bottomMargin="0" isFloatColumnFooter="true" uuid="daebcd3a-3402-4bd9-b7c0-ec0292adf70e">
+	<property name="ireport.zoom" value="1.2100000000000009"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="336"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<parameter name="inpBgDetailId" class="java.lang.String"/>
+	<parameter name="BASE_DESIGN" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select coalesce(trl.name,list.name) as bgtype,bank.bankname as
+bankname,bp.name as vendor,bid.bidname as bidname,contact.name as contact,bghd.bidname as bidnamehd
+,bghd.fax,bghd.email,bg.bankbgno,eut_convert_to_hijri(to_char(bg.bgstartdateh,'YYYY-MM-DD')) as bgstartdateh,
+concat (bg.bgamount,' ',coalesce(cur.cursymbol,iso_code)) as amount
+ from escm_bankguarantee_detail bg
+ join escm_bgworkbench bghd on bghd.escm_bgworkbench_id = bg.escm_bgworkbench_id
+join ad_ref_list list on list.value= bghd.bankguaranteetype and list.ad_reference_id='1336B73B7AB444B7AFD8FDE56579391D'
+left join AD_Ref_List_Trl trl on list.ad_ref_list_id=trl.ad_ref_list_id  and trl.ad_language='ar_SA'
+left join  efin_bank bank on bank.efin_bank_id = bg.bankname
+left join c_bpartner bp on bp.c_bpartner_id = bghd.c_bpartner_id
+left join escm_bidmgmt bid on bid.escm_bidmgmt_id = bghd.escm_bidmgmt_id
+left join c_bpartner contact on contact.c_bpartner_id = bghd.contactname
+left join c_currency cur on cur.c_currency_id = bghd.c_currency_id
+where bg.escm_bankguarantee_detail_id = $P{inpBgDetailId} and bghd.verified ='N']]>
+	</queryString>
+	<field name="bgtype" class="java.lang.String"/>
+	<field name="bankname" class="java.lang.String"/>
+	<field name="vendor" class="java.lang.String"/>
+	<field name="bidname" class="java.lang.String"/>
+	<field name="contact" class="java.lang.String"/>
+	<field name="fax" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<field name="email" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:NVARCHAR--]]></fieldDescription>
+	</field>
+	<field name="bankbgno" class="java.lang.String"/>
+	<field name="bgstartdateh" class="java.lang.String"/>
+	<field name="amount" class="java.lang.String"/>
+	<field name="bidnamehd" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="338">
+			<staticText>
+				<reportElement x="215" y="112" width="142" height="33" uuid="967e6f21-bb03-42bc-aca7-17c2a5c6f8f4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="18"/>
+				</textElement>
+				<text><![CDATA[((عاجــــــــــل جدا))]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="-20" y="157" width="279" height="25" isPrintWhenDetailOverflows="true" uuid="1cd017d7-16a8-4679-b46f-68c3737b1adc"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["الموضوع : التحقق من صحة بيانات "+ " " +$F{bgtype}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="503" y="217" width="52" height="25" uuid="a2d7c8bc-9e1f-4295-b186-67a4af30d090"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[السادة /]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="214" y="217" width="289" height="25" isPrintWhenDetailOverflows="true" uuid="527ce0ac-73bc-4496-9271-0c6c975c9787"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bankname}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="242" width="555" height="22" uuid="aa1ade1b-cfca-4d6e-8d88-01b21ccbd24a"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[السلام عليكم ورحمة الله وبركاته,,,,,,]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="-20" y="264" width="575" height="25" uuid="02910f6c-a470-4610-9fbc-be1ce9be54d2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["نأمل الإفادة عن صحة الضمان الصادر من قبلكم لصالح شركة"+ " " +$F{vendor}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="-1" y="217" width="215" height="25" uuid="9ee2a185-980e-47ae-8275-42da28d8c60d"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[المحترمين]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="-20" y="286" width="574" height="22" isPrintWhenDetailOverflows="true" uuid="016605ec-f12e-4052-99ef-978fde48b2d5"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["والمقدم لعملية" + " " +($F{bidname}==null?($F{bidnamehd}==null?" ":$F{bidnamehd})	:$F{bidname})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="-20" y="308" width="574" height="25" uuid="0a6e7582-50c5-48b4-b009-3e78a59beb90"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[و الموضح بياناته أدناه:]]></text>
+			</staticText>
+			<image scaleImage="FillFrame" hAlign="Center">
+				<reportElement x="0" y="0" width="555" height="125" uuid="02051e52-4fe4-4f16-910f-fdf2f2a55366"/>
+				<graphicElement fill="Solid"/>
+				<imageExpression><![CDATA["/export/home/erpuser/apache-tomcat-7.0.77/webapps/grp/web/sa.elm.ob.scm/images/page_header_log.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="25" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="503" y="0" width="52" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="6bd66ec5-de75-40eb-ae5f-c2f888bd0fc6"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16"/>
+				</textElement>
+				<text><![CDATA[م]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="319" y="0" width="184" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="b496b95e-5372-4d5f-abd2-0df39314d73b"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16"/>
+				</textElement>
+				<text><![CDATA[رقم الضمان]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="172" y="0" width="147" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="d1879723-124f-4a46-b67f-506b5315e925"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16"/>
+				</textElement>
+				<text><![CDATA[تاريخه]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="-1" y="0" width="173" height="25" forecolor="#000000" backcolor="#FFFFFF" uuid="0cb14cd3-88dd-4cb5-80dd-662cb9fa3296"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16"/>
+				</textElement>
+				<text><![CDATA[مبلغه]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="22" splitType="Prevent">
+			<textField>
+				<reportElement x="-1" y="0" width="173" height="22" uuid="73ec1339-12da-4f62-bcd4-20f627e916f6"/>
+				<box>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{amount}.toString())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="172" y="0" width="147" height="22" uuid="834fea68-668e-4318-9257-1ac5c4d3a48e"/>
+				<box>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{bgstartdateh}.toString())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="319" y="0" width="184" height="22" uuid="214777e5-feba-45cd-a545-b8127c350197"/>
+				<box>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{bankbgno}.toString())]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="503" y="0" width="52" height="22" uuid="c1f4871d-168f-41b6-8e53-a051c1089d09"/>
+				<box>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[۱]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="337" splitType="Prevent">
+			<staticText>
+				<reportElement x="-11" y="28" width="539" height="25" uuid="5f3c1cb3-3dce-46cf-9e17-9e51417d5cef"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[وموافاتنا على البريد الأليكتروني bankguarantee@mot.gov.sa]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="62" width="243" height="25" uuid="1e34c17f-7e6f-4d07-942d-71f20fd526d2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[ولكم تحياتي ,,,]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="-1" y="89" width="188" height="25" uuid="b4cf546b-cefc-4df5-b2ca-404719825b6f"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[مدير عام إدارة المنافسات والعقود]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="40" y="144" width="123" height="25" uuid="f069a500-a1b2-4290-abae-d936f935a7c0"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[حامد بن محمد الشمري]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="175" width="555" height="1" uuid="e3c9be44-a782-4b70-9f17-80dcd7c2bf80"/>
+			</line>
+			<staticText>
+				<reportElement x="322" y="312" width="226" height="25" uuid="3efed2e7-2ca1-4306-9e87-36e71c4b0702"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[.................................................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="364" y="292" width="115" height="25" uuid="c4966e12-0d18-4be0-a1a2-b9945b97fc74"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[المفوضون بالتوقيع]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="279" y="257" width="276" height="25" uuid="1c214930-04bb-4934-9156-1c90653ab0bc"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[( ) الضمان البنكي مزور ولايوجد بسجلات البنك.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="161" y="237" width="394" height="25" uuid="ab2fb813-11a4-4228-aa08-3699668a82f9"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[( ) الضمان البنكي صحيح ومقيد بسجلات البنك حسب البيانات أعلاه.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="198" y="217" width="357" height="25" uuid="735db560-af49-446c-873f-3f61066cc66f"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[نفيدكم انه بالاستعلام عن الضمان الموضح بيانته, اتضح مايلي:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="364" y="197" width="191" height="25" uuid="30a6e5c7-cc80-40b3-b405-682c367e8528"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[السلام عليكم ورحمة الله وبركاته]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="301" y="177" width="240" height="25" uuid="62f2c013-4c91-4c85-9a21-af5b7064b673"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[المكرم مدير عام إدارة المناقصات والعقود]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="60" y="177" width="117" height="25" uuid="d45786a1-b5ed-4074-8841-9b7a77c5a6ff"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ المحتــــــــــــــرم]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="60" y="297" width="58" height="25" uuid="e033758b-4992-4e19-838b-85c500699d61"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ختم البنك]]></text>
+			</staticText>
+			<image scaleImage="FillFrame" hAlign="Center">
+				<reportElement x="380" y="62" width="123" height="99" uuid="ad78e450-0a74-4718-87f4-ce72350ef67a"/>
+				<graphicElement fill="Solid"/>
+				<imageExpression><![CDATA["/export/home/erpuser/apache-tomcat-7.0.77/webapps/grp/web/sa.elm.ob.scm/images/mot_stamp1.jpg"]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame" hAlign="Center">
+				<reportElement x="50" y="117" width="110" height="25" uuid="d289ff18-81a0-4402-a46e-af5c841e0469"/>
+				<graphicElement fill="Solid"/>
+				<imageExpression><![CDATA["/export/home/erpuser/apache-tomcat-7.0.77/webapps/grp/web/sa.elm.ob.scm/images/po_manager_signature1.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="80">
+			<image scaleImage="FillFrame" hAlign="Center">
+				<reportElement x="-20" y="0" width="595" height="80" uuid="21390700-647a-414f-a447-daca077f4c9f"/>
+				<graphicElement fill="Solid"/>
+				<imageExpression><![CDATA["/export/home/erpuser/apache-tomcat-7.0.77/webapps/grp/web/sa.elm.ob.scm/images/page_footer.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</pageFooter>
+</jasperReport>

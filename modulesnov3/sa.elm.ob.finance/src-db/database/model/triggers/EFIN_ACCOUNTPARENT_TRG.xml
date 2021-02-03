@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_ACCOUNTPARENT_TRG">
+    <trigger name="EFIN_ACCOUNTPARENT_TRG" table="C_VALIDCOMBINATION" fires="before" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[    v_parent_id VARCHAR(32);
+    v_isSummary CHAR(1);
+    BEGIN
+        IF(INSERTING) THEN
+		Select parent_id into v_parent_id from ad_treenode where node_id = :NEW.Account_ID and ad_client_id = :NEW.ad_client_id;
+        Select IsSummary into v_isSummary from c_elementvalue where c_elementvalue_id = :NEW.Account_ID and ad_client_id = :NEW.ad_client_id;
+        	IF (v_parent_id = '0' and v_isSummary = 'N') THEN
+        		RAISE_APPLICATION_ERROR(-20000, '@EFIN_NoAccountParent@');
+	        ELSE
+        		:new.em_efin_accountparent := v_parent_id;
+        	END IF;
+        END IF;
+        IF DELETING THEN RETURN OLD; ELSE RETURN NEW; END IF;
+    END EFIN_ACCOUNTPARENT_TRG
+]]></body>
+    </trigger>
+  </database>

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_GETTAB_GLJOURNAL">
+    <function name="EFIN_GETTAB_GLJOURNAL" type="VARCHAR">
+      <parameter name="p_table_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_docbasetype" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="record_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_tabId VARCHAR(32);--OBTG:VARCHAR2--
+	v_count NUMBER;
+	v_count2 NUMBER;
+
+ BEGIN
+	select count(*) into v_count from gl_journal where gl_journal_id = record_id;
+	IF (v_count > 0) THEN
+		select count(*) into v_count2 from gl_journal where gl_journal_id = record_id and gl_journalbatch_id is not null;
+		IF (v_count2 > 0) THEN
+			v_tabId = '160';
+		ELSE
+			v_tabId = '5A6F0ED7230C462BA4010653BA3F816A';
+		END IF;
+	ElSE
+		select ad_gettab_from_table(p_table_id, p_docbasetype, p_client_id) into v_tabId;
+	END IF;
+	RETURN v_tabId;
+END EFIN_GETTAB_GLJOURNAL
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+  <vector>
+    <versionInfo version="3.0.28838"/>
+    <columnDataChange tablename="AD_PREFERENCE" columnname="VALUE" pkRow="D965E00387CB434DAD78493B417AFD37">
+      <oldValue><![CDATA[200]]></oldValue>
+      <newValue><![CDATA[2000]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="859">
+      <oldValue/>
+      <newValue><![CDATA[9EDCC972E12D427D95C98B88301ED81B]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="2901">
+      <oldValue/>
+      <newValue><![CDATA[@EM_Ehcm_Emp_Perinfo_ID@!'']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISIDENTIFIER" pkRow="803715">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="143">
+      <oldValue/>
+      <newValue><![CDATA[e.id in ( select a.organization.id from Ehcm_Hrorg_Classfication a where  a.organizationClassification.classification='HR'  and a.enabled='Y')]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="AD_TABLE_TREE_ID" pkRow="143">
+      <oldValue><![CDATA[21E9F7EED1F24E95B0F4F21CF87AF995]]></oldValue>
+      <newValue><![CDATA[D91BF7373DCA46D7985F4630156CD644]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="8DC990A3A2FB4030AD590DAF7D9191F3">
+      <oldValue/>
+      <newValue><![CDATA[e.id in ( select a.organization.id from Ehcm_Hrorg_Classfication a where  a.organizationClassification.classification='SCM'  and a.enabled='Y') or e.id='0']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="FA493E4A48CC449DA13AA53B55EDA4E4">
+      <oldValue><![CDATA[e.ehcmOrgtyp.id in (select id from EHCM_org_type where level in (2,3))  or e.id = '0']]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="FD3C057A0DF1442DB293D44937999985">
+      <oldValue/>
+      <newValue><![CDATA[e.id in ( select a.organization.id from Ehcm_Hrorg_Classfication a where  a.organizationClassification.classification='FIN'  and a.enabled='Y') or e.id='0']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1553">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1553">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1418FA20C83B4B6A99BB2729D52997E3">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1418FA20C83B4B6A99BB2729D52997E3">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="5B3FD298B84141B39EED1388230CD44D">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="FCB3CA79979643A7A84C5EAF2F8E6C4F">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="FCB3CA79979643A7A84C5EAF2F8E6C4F">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="PARENT_ID" pkRow="52118BF1A2114D84E040007F01005FEC">
+      <oldValue><![CDATA[175]]></oldValue>
+      <newValue><![CDATA[76C3EE954BB24D50B72EF0BDB1E10E01]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2114D84E040007F01005FEC">
+      <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[60]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A5CB4D84E040007F01005FEC">
+      <oldValue><![CDATA[150]]></oldValue>
+      <newValue><![CDATA[60]]></newValue>
+    </columnDataChange>
+  </vector>

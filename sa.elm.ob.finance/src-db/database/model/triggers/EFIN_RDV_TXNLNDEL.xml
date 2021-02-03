@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_RDV_TXNLNDEL">
+    <trigger name="EFIN_RDV_TXNLNDEL" table="EFIN_RDVTXNLINE" fires="before" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved. 
+* Trigger for delete TXN line reference
+* Contributor(s):  Gowtham.
+************************************************************************/
+v_isadvance character(1);
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	-- Insert Operation
+	IF DELETING THEN
+    	delete from efin_rdvtxnline_ref where efin_rdvtxnline_id=:old.efin_rdvtxnline_id;
+        
+        select isAdvancetransaction  into v_isadvance from efin_rdvtxn where efin_rdvtxn_id=:old.efin_rdvtxn_id;
+        
+        if(v_isadvance='Y') then 
+        update efin_rdvtxn set match_amt= match_amt- :old.match_amt, netmatch_amt= netmatch_amt- :old.netmatch_amt
+        where efin_rdvtxn_id=:old.efin_rdvtxn_id;
+        end if;
+	END IF;	
+	
+END EFIN_RDV_TXNLNDEL
+]]></body>
+    </trigger>
+  </database>

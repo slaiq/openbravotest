@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_RDV_IMPACTACC_DETAIL_V">
+    <view name="EFIN_RDV_IMPACTACC_DETAIL_V"><![CDATA[SELECT get_uuid() AS efin_rdv_impactacc_detail_v_id, txn.ad_client_id, txn.ad_org_id, txn.isactive, txn.created, txn.createdby, txn.updated, txn.updatedby, account.uniquecode, account.amt, account.accsign, account.efin_rdvtxn_id, txn.txn_version, account.em_efin_accounttype, account.em_efin_uniquecodename FROM (SELECT acc.efin_rdvtxn_id, sum(COALESCE(acc.amt, 0)) AS amt, acc.accsign, acc.uniquecode, acc.em_efin_uniquecodename, acc.em_efin_accounttype FROM efin_rdv_impactaccounting_v acc GROUP BY acc.accsign, acc.uniquecode, acc.em_efin_uniquecodename, acc.efin_rdvtxn_id, acc.em_efin_accounttype) account JOIN efin_rdvtxn txn ON txn.efin_rdvtxn_id = account.efin_rdvtxn_id]]></view>
+  </database>

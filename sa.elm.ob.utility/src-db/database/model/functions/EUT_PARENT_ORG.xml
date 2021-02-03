@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_PARENT_ORG">
+    <function name="EUT_PARENT_ORG" type="VARCHAR">
+      <parameter name="p_org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2001-2008 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************/
+p VARCHAR2(32767);
+vp VARCHAR2(32);
+vTree VARCHAR2(32);
+vOrgList VARCHAR(32767);
+BEGIN
+
+    SELECT ad_tree_id  INTO vTree  
+    FROM ad_tree 
+    WHERE ad_client_id=p_client_id
+    AND treetype='OO';
+
+    vp := p_org_id;
+    vOrgList:='';
+    WHILE (vp is not null and vp <> '')
+    LOOP
+	vOrgList:= vOrgList ||''''||vp||'''';
+	SELECT parent_id INTO vp
+	FROM ad_treenode
+	WHERE node_id = vp
+	AND ad_tree_id = vTree;
+	IF vp is not null THEN
+		vOrgList:= vOrgList ||',';
+	END IF;
+    End LOOP ;
+    RETURN  vOrgList;
+END EUT_PARENT_ORG
+]]></body>
+    </function>
+  </database>

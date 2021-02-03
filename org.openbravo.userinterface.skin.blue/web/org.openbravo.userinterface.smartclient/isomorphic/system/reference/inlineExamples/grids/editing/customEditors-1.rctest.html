@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>customEditors-1.rctest</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">customEditors-1.rctest</td></tr>
+</thead><tbody>
+<tr>
+	<td>exampleOpen</td>
+	<td>smartgwt</td>
+	<td>grid_editing_custom_editors</td>
+</tr>
+<tr>
+	<td>waitForElementClickable</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/body/row[pk=3||countryName=India.||government=Republic||3]/col[fieldName=government||1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>var dataSource = selenium.browserbot.getCurrentWindow().isc.AutoTest.getLocatorCanvas(&quot;//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]&quot;).dataSource; dataSource.autoCacheAllData = true; dataSource.setClientOnly(true); true</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>waitForCondition</td>
+	<td>var dataSource = selenium.browserbot.getCurrentWindow().isc.AutoTest.getLocatorCanvas(&quot;//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]&quot;).dataSource; dataSource.hasAllData()</td>
+	<td>5000</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/body/row[pk=3||countryName=India.||government=Republic||3]/col[fieldName=government||1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementClickable</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/editRowForm/item[title=Government||value=federal%20republic||index=1||Class=TextAreaItem]/element</td>
+	<td></td>
+</tr>
+<tr>
+	<td>keyPress</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/editRowForm/item[title=Government||value=federal%20republic||index=1||Class=TextAreaItem]/element</td>
+	<td>13</td>
+</tr>
+<tr>
+	<td>waitForElementClickable</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/editRowForm/item[title=Government||value=federal%20republic%0A||index=1||Class=TextAreaItem]/element</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/editRowForm/item[title=Government||value=federal%20republic%0A||index=1||Class=TextAreaItem]/element</td>
+	<td>federal republic<br /></td>
+</tr>
+<tr>
+	<td>waitForElementClickable</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/editRowForm/item[title=Government||value=federal%20republic%0A||index=1||Class=TextAreaItem]/element</td>
+	<td></td>
+</tr>
+<tr>
+	<td>keyPress</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/editRowForm/item[title=Government||value=federal%20republic%0A||index=1||Class=TextAreaItem]/element</td>
+	<td>27</td>
+</tr>
+<tr>
+	<td>waitForElementClickable</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/body/row[pk=4||countryName=Germany||government=federal%20republic||4]/col[fieldName=government||1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/body/row[pk=4||countryName=Germany||government=federal%20republic||4]/col[fieldName=government||1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementClickable</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/editRowForm/item[title=Government||value=republic||index=1||Class=TextAreaItem]/element</td>
+	<td></td>
+</tr>
+<tr>
+	<td>keyPress</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/editRowForm/item[title=Government||value=republic||index=1||Class=TextAreaItem]/element</td>
+	<td>13</td>
+</tr>
+<tr>
+	<td>waitForElementClickable</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/editRowForm/item[title=Government||value=republic%0A||index=1||Class=TextAreaItem]/element</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/editRowForm/item[title=Government||value=republic%0A||index=1||Class=TextAreaItem]/element</td>
+	<td>republic<br /></td>
+</tr>
+<tr>
+	<td>waitForElementClickable</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/editRowForm/item[name=countryName||title=Country||value=Germany||index=0||Class=TextItem]/element</td>
+	<td></td>
+</tr>
+<tr>
+	<td>keyPress</td>
+	<td>scLocator=//testRoot[]/member[Class=ListGrid||index=0||length=1||classIndex=0||classLength=1||roleIndex=0||roleLength=1||scRole=list]/editRowForm/item[name=countryName||title=Country||value=Germany||index=0||Class=TextItem]/element</td>
+	<td>13</td>
+</tr>
+</tbody></table>
+</body>
+</html>

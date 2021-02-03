@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_ORDER_MOT_TRG">
+    <trigger name="ESCM_ORDER_MOT_TRG" table="C_ORDER" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_order_id VARCHAR2(60);
+v_ordertype VARCHAR2(60);
+v_org_id VARCHAR2(60);
+v_status VARCHAR2(60);
+v_confCount NUMBER; --OBTG:VARCHAR2--
+v_mot_position VARCHAR(60);
+v_mot_person VARCHAR(60);
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;   
+    IF UPDATING THEN
+        v_confCount :=0;
+        v_order_id = :NEW.C_Order_ID;
+        v_org_id = :NEW.AD_ORG_ID;
+        
+                    
+        if(:new.em_escm_ordertype!=:old.em_escm_ordertype) then
+        
+        -- checking with org in po
+        
+        select count(escm_poorder_config_id) into v_confCount
+             from escm_poorder_config config
+               where ordertype = :new.em_escm_ordertype and config.ad_org_id = v_org_id 
+             and config.ad_client_id = :NEW.AD_CLIENT_ID limit 1;
+        
+             select substring(mot_con_pos,0,59),substring(bp.name,0,59) into v_mot_position,v_mot_person
+             from escm_poorder_config config
+             left join c_bpartner bp on bp.c_bpartner_id = config.c_bpartner_id
+               where ordertype = :new.em_escm_ordertype and config.ad_org_id = v_org_id 
+             and config.ad_client_id = :NEW.AD_CLIENT_ID
+             group by mot_con_pos, bp.name limit 1;
+             
+             -- If no records are ther check with HQ
+            
+            if(v_confCount=0) then
+            
+            select agency_hq_org into v_org_id from efin_budget_ctrl_param where ad_client_id =:NEW.AD_CLIENT_ID  limit 1;
+            
+            select count(escm_poorder_config_id) into v_confCount
+             from escm_poorder_config config
+               where ordertype = :new.em_escm_ordertype and config.ad_org_id = v_org_id 
+             and config.ad_client_id = :NEW.AD_CLIENT_ID limit 1;
+        
+             select  substring(mot_con_pos,0,59),substring(bp.name,0,59) into v_mot_position,v_mot_person
+             from escm_poorder_config config
+             left join c_bpartner bp on bp.c_bpartner_id = config.c_bpartner_id
+               where ordertype = :new.em_escm_ordertype and config.ad_org_id = v_org_id 
+             and config.ad_client_id = :NEW.AD_CLIENT_ID
+             group by mot_con_pos, bp.name limit 1;
+             
+            -- If no records in HQ are ther check with *
+
+             if(v_confCount=0) then
+                 v_org_id ='0';
+                 
+             select count(escm_poorder_config_id) into v_confCount
+             from escm_poorder_config config
+               where ordertype = :new.em_escm_ordertype and config.ad_org_id = v_org_id 
+             and config.ad_client_id = :NEW.AD_CLIENT_ID limit 1;
+        
+             select  substring(mot_con_pos,0,59),substring(bp.name,0,59) into v_mot_position,v_mot_person
+             from escm_poorder_config config
+             left join c_bpartner bp on bp.c_bpartner_id = config.c_bpartner_id
+               where ordertype = :new.em_escm_ordertype and config.ad_org_id = v_org_id 
+             and config.ad_client_id = :NEW.AD_CLIENT_ID
+             group by mot_con_pos, bp.name limit 1;
+             
+                 update c_order set em_escm_motcontperson=v_mot_person, em_escm_motcontposition=v_mot_position where c_order_id =v_order_id;                             
+            else         
+                 update c_order set em_escm_motcontperson=v_mot_person, em_escm_motcontposition=v_mot_position where c_order_id =v_order_id;        
+             end if;
+            else
+                update c_order set em_escm_motcontperson=v_mot_person, em_escm_motcontposition=v_mot_position where c_order_id =v_order_id;        
+            end if;
+        end if;                          
+           
+    END IF;
+    END ESCM_ORDER_MOT_TRG
+]]></body>
+    </trigger>
+  </database>

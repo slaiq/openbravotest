@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Don't add user-scalable=no here because in Android 4.3 Browser/WebView, this permanently
+     fixes the scale to 1 and disables user scrolling. -->
+<meta name="viewport" content="initial-scale=1">
+<title>SmartClient&trade; v10.0d_2014-02-13 Feature Explorer</title>
+</head>
+<body STYLE="overflow:hidden">
+
+<script>
+
+window.isomorphicDir='../../';
+
+</script>
+
+<LINK REL="stylesheet" TYPE="text/css" HREF="skin/shell_styles.css">
+<LINK REL="stylesheet" TYPE="text/css" HREF="sourceColorizer.css">
+
+<SCRIPT>var isc_maxCSSLoaders=200</SCRIPT>
+
+<!-- load ISC -->
+<SCRIPT SRC="../modules/ISC_History.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../development/ISC_FileLoader.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../modules/ISC_Core.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<!--  -->
+<SCRIPT SRC="../modules/ISC_Foundation.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../modules/ISC_Containers.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../modules/ISC_Grids.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../modules/ISC_Forms.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../modules/ISC_RichTextEditor.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../modules/ISC_DataBinding.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../modules/ISC_Calendar.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<!-- //>PluginBridges -->
+<SCRIPT SRC="../modules/ISC_PluginBridges.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<!-- //<PluginBridges -->
+<SCRIPT SRC="../modules/ISC_Drawing.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<!--  -->
+<!--  -->
+<SCRIPT SRC="../development/ISC_SyntaxHiliter.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../development/ISC_ExampleViewer.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+
+<script>
+if (isc.Browser.isTouch) { 
+    isc.Canvas.addProperties({
+        scrollbarConstructor: "NativeScrollbar"
+    });
+
+    if (isc.Browser.isTablet) {
+        var scale = Math.min(window.screen.width, window.screen.height) > 600 ? 1.25 : 1,
+            width = null,
+            scalable = true,
+            extraVpProps = { "minimum-scale": 1 };
+
+        
+        if (isc.Browser.isAndroidWebView && isc.Browser.androidMinorVersion < 4.4) {
+            scale = 1;
+        } else {
+            
+            width = "device-width";
+            scalable = false;
+        }
+
+        isc.Page.updateViewport(scale, width, null, scalable, extraVpProps);
+
+    // In handsets, set to large enough to view the app as a whole (but allow the user to scale
+    // so  they can zoom in and make text readable!).
+    } else {
+        isc.Page.updateViewport(null, 700, null, true);
+    }
+} 
+
+// Determine what skin file to load
+isc.currentSkin = isc.params.skin;
+if (isc.currentSkin == null) isc.currentSkin = "Enterprise";
+
+// use the file loader to load the appropriate skin file.
+// then, incorporate locale into the feature explorer.
+isc.FileLoader.loadSkin(isc.currentSkin, function () {
+    var localeFile = "../../locales/frameworkMessages.properties";
+    if (isc.params.locale) {
+        if (isc.params.locale != "en")
+            localeFile = "../../locales/frameworkMessages_" + isc.params.locale + ".properties";
+    }
+    isc.FileLoader.loadJSFiles(localeFile, "showExplorer()");
+});
+</script>
+
+<!-- SCRIPT src=../../skins/SmartClient/load_skin.js?isc_version=v10.0d_2014-02-13.js></SCRIPT -->
+
+<script src=exampleTree.js></script>
+<script>
+isc.Page.leaveScrollbarGap = false;
+
+function showExplorer () {
+    if (window.location.protocol == "file:") {
+        isc.warn("The Feature Explorer requires the SmartClient server to be running. See the"
+                +"Quickstart section of the Release Notes for instructions on starting the server."
+                +"<br><br>You may also access these examples online at"
+                +" <a href='http://www.smartclient.com'>http://www.SmartClient.com</a>");
+    } else {
+    // Allow the skin switcher to show
+    isc.ExampleViewer.addProperties({
+        suppressSkinSwitch : false,
+        currentSkin:isc.currentSkin
+    });
+    isc.FeatureExplorer.create({
+        ID: "featureExplorer",
+        width: "100%",
+        height: "100%",
+        treeData: exampleTree,
+        autoDraw: true
+    });
+    }
+}
+</script>
+
+<!-- Load the system schema for examples that require them -->
+<script src="../../DataSourceLoader?dataSource=$systemSchema"></script>
+
+</body>
+</html>

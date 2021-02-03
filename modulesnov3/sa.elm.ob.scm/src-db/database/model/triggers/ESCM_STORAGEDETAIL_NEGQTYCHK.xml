@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_STORAGEDETAIL_NEGQTYCHK">
+    <trigger name="ESCM_STORAGEDETAIL_NEGQTYCHK" table="M_STORAGE_DETAIL" fires="before" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[ v_qtyonhand  NUMBER;
+v_Message VARCHAR2(2000):='';
+    
+BEGIN
+    
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+	IF(TG_OP='DELETE') THEN
+	v_qtyonhand= :OLD.qtyonhand;
+	ELSE
+	v_qtyonhand= :NEW.qtyonhand;
+  IF(TG_OP='DELETE' OR TG_OP='UPDATE' OR TG_OP='INSERT') THEN
+	IF(v_qtyonhand < 0) THEN
+	RAISE_APPLICATION_ERROR(-20000, '@ESCM_StorageDetail_QtyonHand@') ;
+	 v_Message:= '@ERROR=' ||'@ESCM_StorageDetail_QtyonHand@' ;
+	 AD_UPDATE_PINSTANCE(get_uuid(), NULL, 'N', 0, v_Message) ;
+    END IF;
+    END IF;
+  END IF;
+
+
+END ESCM_STORAGEDETAIL_NEGQTYCHK
+]]></body>
+    </trigger>
+  </database>

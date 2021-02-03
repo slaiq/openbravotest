@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_INITIALRECEIPT_V">
+    <view name="ESCM_INITIALRECEIPT_V"><![CDATA[SELECT escm_initialreceipt.escm_initialreceipt_id AS escm_initialreceipt_v_id, escm_initialreceipt.ad_client_id, escm_initialreceipt.ad_org_id, escm_initialreceipt.isactive, escm_initialreceipt.created, escm_initialreceipt.createdby, escm_initialreceipt.updated, escm_initialreceipt.updatedby, escm_initialreceipt.line, escm_initialreceipt.description, escm_initialreceipt.m_inout_id, escm_initialreceipt.ismanual, escm_initialreceipt.issummary, (COALESCE(escm_initialreceipt.line, 0) || '-') || COALESCE(escm_initialreceipt.description, '') AS code FROM escm_initialreceipt]]></view>
+  </database>

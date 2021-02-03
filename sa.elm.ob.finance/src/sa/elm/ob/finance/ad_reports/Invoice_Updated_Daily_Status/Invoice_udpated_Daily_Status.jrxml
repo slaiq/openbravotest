@@ -1,0 +1,2574 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Daily_Status_Invoice" pageWidth="595" pageHeight="862" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="10" bottomMargin="10" uuid="19eac589-ae33-401f-96dc-50975b7b603f">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="LocalHostDB"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<parameter name="Invoice_Date" class="java.lang.String"/>
+	<parameter name="AUX_Inv_date" class="java.lang.String">
+		<defaultValueExpression><![CDATA[($P{Invoice_Date}==null || $P{Invoice_Date}.equals( "" )) ?  "  and 1=1   " : "    and trunc(inv.created)  <=   trunc(eut_convertto_gregorian( '"+$P{Invoice_Date}+"'  ))      "]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_DESIGN" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select 
+coalesce(sum(Prec_Maint_completed),0) Prec_Maint_completed,
+coalesce(sum(Prec_Maint_inprog),0) Prec_Maint_inprog,
+count(Prec_Maint_completed) Prec_Maint_completed_cnt,
+count(Prec_Maint_inprog) Prec_Maint_inprog_cnt,
+---
+coalesce(sum(Regular_Maint_completed),0) Regular_Maint_completed,
+coalesce(sum(Regular_Maint_inprog),0) Regular_Maint_inprog,
+count(Regular_Maint_completed) Regular_Maint_completed_cnt,
+count(Regular_Maint_inprog) Regular_Maint_inprog_cnt,
+---
+coalesce(sum(Per_Road_Maint_completed),0) Per_Road_Maint_completed,
+coalesce(sum(Per_Raod_Maint_inprog),0) Per_Raod_Maint_inprog,
+count(Per_Road_Maint_completed) Per_Road_Maint_completed_cnt,
+count(Per_Raod_Maint_inprog) Per_Raod_Maint_inprog_cnt,
+---
+coalesce(sum(Maint_Elect_completed),0) Maint_Elect_completed,
+coalesce(sum(Maint_Elect_inprog),0) Maint_Elect_inprog,
+count(Maint_Elect_completed) Maint_Elect_completed_cnt,
+count(Maint_Elect_inprog) Maint_Elect_inprog_cnt,
+---
+coalesce(sum(Other_Maint_completed),0) Other_Maint_completed,
+coalesce(sum(Other_Maint_inprog),0) Other_Maint_inprog,
+count(Other_Maint_completed) Other_Maint_completed_cnt,
+count(Other_Maint_inprog) Other_Maint_inprog_cnt,
+-------------
+coalesce(sum(rdv_tanfeez_cencel),0) rdv_tanfeez_cencel,
+coalesce(sum(rdv_tanfeez_completed),0) rdv_tanfeez_completed, 
+coalesce(sum(rdv_tanfeez_draft),0) rdv_tanfeez_draft,
+coalesce(sum(rdv_tanfeez_wait_approval),0) rdv_tanfeez_wait_approval,
+count(rdv_tanfeez_cencel) rdv_tanfeez_cencel_cnt,
+count(rdv_tanfeez_completed) rdv_tanfeez_completed_cnt,
+count(rdv_tanfeez_draft) rdv_tanfeez_draft_cnt,
+count(rdv_tanfeez_wait_approval) rdv_tanfeez_wait_approval_cnt,
+---------------
+coalesce(sum(po_match_cencel),0) po_match_cencel,
+coalesce(sum(po_match_completed),0) po_match_completed,
+coalesce(sum(po_match_draft),0) po_match_draft,
+coalesce(sum(po_match_wait_approval),0) po_match_wait_approval,
+count(po_match_cencel) po_match_cencel_cnt,
+count(po_match_completed) po_match_completed_cnt,
+count(po_match_draft) po_match_draft_cnt,
+count(po_match_wait_approval) po_match_wait_approval_cnt,
+-------------
+coalesce(sum(consult_complete),0) consult_complete,
+coalesce(sum(consult_draft),0) consult_draft,
+coalesce(sum(consult_cancel),0) consult_cancel,
+coalesce(sum(consult_wait_appr),0) consult_wait_appr,
+count(consult_complete) consult_complete_cnt,
+count(consult_cancel) consult_cancel_cnt,
+count(consult_draft) consult_draft_cnt,
+count(consult_wait_appr) consult_wait_appr_cnt,
+---------
+coalesce(sum(init_complete),0) init_complete,
+coalesce(sum(init_draft),0) init_draft,
+coalesce(sum(init_cancel),0) init_cancel,
+coalesce(sum(init_wait_appr),0) init_wait_appr,
+count(init_complete) init_complete_cnt,
+count(init_draft) init_draft_cnt,
+count(init_cancel) init_cancel_cnt,
+count(init_wait_appr) init_wait_appr_cnt,
+-------
+coalesce(sum(ap_cencel),0) ap_cencel,
+coalesce(sum(ap_completed),0) ap_completed,
+coalesce(sum(ap_draft),0) ap_draft,
+coalesce(sum(ap_wait_approval),0) ap_wait_approval,
+count(ap_cencel) ap_cencel_cnt,
+count(ap_completed) ap_completed_cnt,
+count(ap_draft) ap_draft_cnt,
+count(ap_wait_approval) ap_wait_approval_cnt,
+------------
+coalesce(sum(pre_cencel),0) pre_cencel,
+coalesce(sum(pre_completed),0) pre_completed,
+coalesce(sum(pre_draft),0) pre_draft,
+coalesce(sum(pre_wait_approval),0) pre_wait_approval,
+count(pre_cencel) pre_cencel_cnt,
+count(pre_completed) pre_completed_cnt,
+count(pre_draft) pre_draft_cnt,
+count(pre_wait_approval) pre_wait_approval_cnt,  
+--------
+coalesce(sum(mawared_completed),0) mawared_completed,
+coalesce(sum(mawared_cancel),0)  mawared_cancel,
+coalesce(sum(mawared_draft),0)  mawared_draft,
+coalesce(sum(mawared_wait_appr),0)  mawared_wait_appr,
+count(mawared_completed) mawared_completed_cnt,
+count(mawared_cancel)  mawared_cancel_cnt,
+count(mawared_draft) mawared_draft_cnt,
+count(mawared_wait_appr)  mawared_wait_appr_cnt,
+---------
+coalesce(sum(mumtalaqat_completed),0) mumtalaqat_completed,
+coalesce(sum(mumtalaqat_cancel),0)  mumtalaqat_cancel,
+coalesce(sum(mumtalaqat_draft),0)  mumtalaqat_draft,
+coalesce(sum(mumtalaqat_wait_appr),0)  mumtalaqat_wait_appr,
+count(mumtalaqat_completed) mumtalaqat_completed_cnt,
+count(mumtalaqat_cancel)  mumtalaqat_cancel_cnt,
+count(mumtalaqat_draft) mumtalaqat_draft_cnt,
+count(mumtalaqat_wait_appr)  mumtalaqat_wait_appr_cnt,
+---------
+To_char(
+		now(),
+		'DD/MM/YYYY'
+	) as GregorianDate,
+Case when 	$P{Invoice_Date} is not null 
+then To_char(eut_convertto_gregorian($P{Invoice_Date}),'DD/MM/YYYY')
+else To_char(now(),'DD/MM/YYYY'	)
+end  till_date	
+from(
+select
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Tanfeeth'
+	and inv1.docstatus = 'CO'
+	) rdv_tanfeez_completed,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Tanfeeth'
+	and inv1.docstatus = 'DR'
+	) rdv_tanfeez_draft,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Tanfeeth'
+	and inv1.docstatus = 'EFIN_CA'
+	) rdv_tanfeez_cencel,	
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Tanfeeth'
+	and inv1.docstatus = 'EFIN_WFA'
+	and inv1.c_invoice_id in (select a.c_invoice_id from efin_purchasein_app_hist a where a.Pendingapproval='معتمد أمر الصرف - مدير عام الشؤون المالية')
+	) rdv_tanfeez_wait_approval
+/*
+( 
+select
+	inv1.grandtotal
+from
+	c_invoice inv1,
+	c_order co
+where inv1.docstatus ='EFIN_CA'
+	and inv1.c_order_id = co.c_order_id
+	and co.EM_Escm_Contact_Type = '7A690E46B6E043C7A8B34B2D92E17D87'
+	and inv1.c_doctypetarget_id = '03D803F0610C424A8B32D1FA029DEFD8'
+	and inv1.c_invoice_id = inv.c_invoice_id
+) rdv_tanfeez_cencel
+,( 
+select
+	inv1.grandtotal
+from
+	c_invoice inv1,
+	c_order co
+where inv1.docstatus ='CO'
+	and inv1.c_order_id = co.c_order_id
+	and co.EM_Escm_Contact_Type = '7A690E46B6E043C7A8B34B2D92E17D87'
+	and inv1.c_doctypetarget_id = '03D803F0610C424A8B32D1FA029DEFD8'
+	and inv1.c_invoice_id = inv.c_invoice_id
+) rdv_tanfeez_completed
+,( 
+select
+	inv1.grandtotal
+from
+	c_invoice inv1,
+	c_order co
+where inv1.docstatus ='DR'
+	and inv1.c_order_id = co.c_order_id
+	and co.EM_Escm_Contact_Type = '7A690E46B6E043C7A8B34B2D92E17D87'
+	and inv1.c_doctypetarget_id = '03D803F0610C424A8B32D1FA029DEFD8'
+	and inv1.c_invoice_id = inv.c_invoice_id
+) rdv_tanfeez_draft
+,(
+select
+	inv1.grandtotal
+from
+	c_invoice inv1,
+	c_order co
+where inv1.docstatus ='EFIN_WFA'
+	and inv1.c_order_id = co.c_order_id
+	and co.EM_Escm_Contact_Type = '7A690E46B6E043C7A8B34B2D92E17D87'
+	and inv1.c_doctypetarget_id = '03D803F0610C424A8B32D1FA029DEFD8'
+	and inv1.c_invoice_id = inv.c_invoice_id
+) rdv_tanfeez_wait_approval  */
+,( select  inv1.grandtotal from c_invoice inv1 where inv1.c_invoice_id = inv.c_invoice_id
+and inv1.docstatus='EFIN_CA'
+and inv1.c_doctypetarget_id='DE4AB46E74E44C1A9BE40D03BEA10A44'
+) po_match_cencel
+,( select  inv1.grandtotal from c_invoice inv1 where inv1.c_invoice_id = inv.c_invoice_id
+and inv1.docstatus='CO'
+and inv1.c_doctypetarget_id='DE4AB46E74E44C1A9BE40D03BEA10A44'
+) po_match_completed
+,( select  inv1.grandtotal from c_invoice inv1 where inv1.c_invoice_id = inv.c_invoice_id
+and inv1.docstatus='DR'
+and inv1.c_doctypetarget_id='DE4AB46E74E44C1A9BE40D03BEA10A44'
+) po_match_draft
+,( select  inv1.grandtotal from c_invoice inv1 where inv1.c_invoice_id = inv.c_invoice_id
+and inv1.docstatus='EFIN_WFA'
+and inv1.c_doctypetarget_id='DE4AB46E74E44C1A9BE40D03BEA10A44'
+) po_match_wait_approval,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Purchase Invoices (AP)'
+	and inv1.docstatus = 'CO'
+	) ap_completed,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Purchase Invoices (AP)'
+	and inv1.docstatus = 'DR'
+	) ap_draft,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Purchase Invoices (AP)'
+	and inv1.docstatus = 'EFIN_CA'
+	) ap_cencel,	
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Purchase Invoices (AP)'
+	and inv1.docstatus = 'EFIN_WFA'
+	and inv1.c_invoice_id in (select a.c_invoice_id from efin_purchasein_app_hist a where a.Pendingapproval='معتمد أمر الصرف - مدير عام الشؤون المالية')
+	) ap_wait_approval,
+/*
+,( select  inv1.grandtotal from c_invoice inv1 where inv1.c_invoice_id = inv.c_invoice_id
+and inv1.docstatus='EFIN_CA'
+and inv1.c_doctypetarget_id='5C6E02993E9B4FCA81C07955EF676C62'
+) ap_cencel
+,( select  inv1.grandtotal from c_invoice inv1 where inv1.c_invoice_id = inv.c_invoice_id
+and inv1.docstatus='CO'
+and inv1.c_doctypetarget_id='5C6E02993E9B4FCA81C07955EF676C62'
+) ap_completed
+,( select  inv1.grandtotal from c_invoice inv1 where inv1.c_invoice_id = inv.c_invoice_id
+and inv1.docstatus='DR'
+and inv1.c_doctypetarget_id='5C6E02993E9B4FCA81C07955EF676C62'
+) ap_draft
+,( select  inv1.grandtotal from c_invoice inv1 where inv1.c_invoice_id = inv.c_invoice_id
+and inv1.docstatus='EFIN_WFA'
+and inv1.c_doctypetarget_id='5C6E02993E9B4FCA81C07955EF676C62'
+) ap_wait_approval
+*/
+( select  inv1.grandtotal from c_invoice inv1 where inv1.c_invoice_id = inv.c_invoice_id
+and inv1.docstatus='EFIN_CA'
+and inv1.c_doctypetarget_id='757A043DA459420A9CB5A5216189BA1D'
+) pre_cencel
+,( select  inv1.grandtotal from c_invoice inv1 where inv1.c_invoice_id = inv.c_invoice_id
+and inv1.docstatus='CO'
+and inv1.c_doctypetarget_id='757A043DA459420A9CB5A5216189BA1D'
+) pre_completed
+,( select  inv1.grandtotal from c_invoice inv1 where inv1.c_invoice_id = inv.c_invoice_id
+and inv1.docstatus='DR'
+and inv1.c_doctypetarget_id='757A043DA459420A9CB5A5216189BA1D'
+) pre_draft
+,( select  inv1.grandtotal from c_invoice inv1 where inv1.c_invoice_id = inv.c_invoice_id
+and inv1.docstatus='EFIN_WFA'
+and inv1.c_doctypetarget_id='757A043DA459420A9CB5A5216189BA1D'
+) pre_wait_approval,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Consultants'
+	and inv1.docstatus = 'CO'
+	) consult_complete,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Consultants'
+	and inv1.docstatus = 'DR'
+	) consult_draft,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Consultants'
+	and inv1.docstatus = 'EFIN_CA'
+	) consult_cancel,	
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Consultants'
+	and inv1.docstatus = 'EFIN_WFA'
+	and inv1.c_invoice_id in (select a.c_invoice_id from efin_purchasein_app_hist a where a.Pendingapproval='معتمد أمر الصرف - مدير عام الشؤون المالية')
+	) consult_wait_appr	,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Initiatives'
+	and inv1.docstatus = 'CO'
+	) init_complete,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Initiatives'
+	and inv1.docstatus = 'DR'
+	) init_draft,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Initiatives'
+	and inv1.docstatus = 'EFIN_CA'
+	) init_cancel,	
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Initiatives'
+	and inv1.docstatus = 'EFIN_WFA'
+	and inv1.c_invoice_id in (select a.c_invoice_id from efin_purchasein_app_hist a where a.Pendingapproval='معتمد أمر الصرف - مدير عام الشؤون المالية')
+	) init_wait_appr,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Mawarid'
+	and inv1.docstatus = 'CO'
+	) mawared_completed,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Mawarid'
+	and inv1.docstatus = 'DR'
+	) mawared_draft,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Mawarid'
+	and inv1.docstatus = 'EFIN_CA'
+	) mawared_cancel,	
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Mawarid'
+	and inv1.docstatus = 'EFIN_WFA'
+	and inv1.c_invoice_id in (select a.c_invoice_id from efin_purchasein_app_hist a where a.Pendingapproval='معتمد أمر الصرف - مدير عام الشؤون المالية')
+	) mawared_wait_appr,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Compensation'
+	and inv1.docstatus = 'CO'
+	) mumtalaqat_completed,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Compensation'
+	and inv1.docstatus = 'DR'
+	) mumtalaqat_draft,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Compensation'
+	and inv1.docstatus = 'EFIN_CA'
+	) mumtalaqat_cancel,	
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Compensation'
+	and inv1.docstatus = 'EFIN_WFA'
+	and inv1.c_invoice_id in (select a.c_invoice_id from efin_purchasein_app_hist a where a.Pendingapproval='معتمد أمر الصرف - مدير عام الشؤون المالية')
+	) mumtalaqat_wait_appr,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Precation Maintenance'
+	and inv1.docstatus = 'CO'
+	) Prec_Maint_completed,	
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Precation Maintenance'
+	and inv1.docstatus ='EFIN_WFA'  --in('DR','EFIN_WFA')
+	and inv1.c_invoice_id in (select a.c_invoice_id from efin_purchasein_app_hist a where a.Pendingapproval='معتمد أمر الصرف - مدير عام الشؤون المالية')
+	) Prec_Maint_inprog,	
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Regular Maintenance'
+	and inv1.docstatus = 'CO'
+	) Regular_Maint_completed,	
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Regular Maintenance'
+	and inv1.docstatus ='EFIN_WFA'  --in('DR','EFIN_WFA')
+	and inv1.c_invoice_id in (select a.c_invoice_id from efin_purchasein_app_hist a where a.Pendingapproval='معتمد أمر الصرف - مدير عام الشؤون المالية')
+	) Regular_Maint_inprog,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Performance Road Maintenance'
+	and inv1.docstatus = 'CO'
+	) Per_Road_Maint_completed,	
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Performance Road Maintenance'
+	and inv1.docstatus ='EFIN_WFA'  --in('DR','EFIN_WFA')
+	and inv1.c_invoice_id in (select a.c_invoice_id from efin_purchasein_app_hist a where a.Pendingapproval='معتمد أمر الصرف - مدير عام الشؤون المالية')
+	) Per_Raod_Maint_inprog,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Maintenance of electrical works related to roads'
+	and inv1.docstatus = 'CO'
+	) Maint_Elect_completed,	
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Maintenance of electrical works related to roads'
+	and inv1.docstatus ='EFIN_WFA'  --in('DR','EFIN_WFA')
+	and inv1.c_invoice_id in (select a.c_invoice_id from efin_purchasein_app_hist a where a.Pendingapproval='معتمد أمر الصرف - مدير عام الشؤون المالية')
+	) Maint_Elect_inprog,
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Other Maintenance'
+	and inv1.docstatus = 'CO'
+	) Other_Maint_completed,	
+(select
+	sum(invl2.linenetamt)
+from
+	c_invoice inv1,
+	c_invoiceline invl2,
+	c_elementvalue e1
+where
+	inv1.c_invoice_id = inv.c_invoice_id
+	and inv1.c_invoice_id = invl2.c_invoice_id
+	and invl2.em_efin_c_elementvalue_id = e1.c_elementvalue_id
+	and e1.em_efin_classification = 'Other Maintenances'
+	and inv1.docstatus ='EFIN_WFA'  --in('DR','EFIN_WFA')
+	and inv1.c_invoice_id in (select a.c_invoice_id from efin_purchasein_app_hist a where a.Pendingapproval='معتمد أمر الصرف - مدير عام الشؤون المالية')
+	) Other_Maint_inprog	
+from c_invoice inv
+where 1=1
+--and  inv.c_doctypetarget_id in ('DE4AB46E74E44C1A9BE40D03BEA10A44','03D803F0610C424A8B32D1FA029DEFD8','5C6E02993E9B4FCA81C07955EF676C62','757A043DA459420A9CB5A5216189BA1D')
+ --and inv.documentno='400000016'
+  $P!{AUX_Inv_date} 
+) main]]>
+	</queryString>
+	<field name="rdv_tanfeez_cencel" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="rdv_tanfeez_cencel"/>
+	</field>
+	<field name="rdv_tanfeez_completed" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="rdv_tanfeez_completed"/>
+	</field>
+	<field name="rdv_tanfeez_draft" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="rdv_tanfeez_draft"/>
+	</field>
+	<field name="rdv_tanfeez_wait_approval" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="rdv_tanfeez_wait_approval"/>
+	</field>
+	<field name="po_match_cencel" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="po_match_cencel"/>
+	</field>
+	<field name="po_match_completed" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="po_match_completed"/>
+	</field>
+	<field name="po_match_draft" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="po_match_draft"/>
+	</field>
+	<field name="po_match_wait_approval" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="po_match_wait_approval"/>
+	</field>
+	<field name="ap_cencel" class="java.math.BigDecimal"/>
+	<field name="ap_completed" class="java.math.BigDecimal"/>
+	<field name="ap_draft" class="java.math.BigDecimal"/>
+	<field name="ap_wait_approval" class="java.math.BigDecimal"/>
+	<field name="pre_cencel" class="java.math.BigDecimal"/>
+	<field name="pre_completed" class="java.math.BigDecimal"/>
+	<field name="pre_draft" class="java.math.BigDecimal"/>
+	<field name="pre_wait_approval" class="java.math.BigDecimal"/>
+	<field name="rdv_tanfeez_cencel_cnt" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="rdv_tanfeez_cencel_cnt"/>
+	</field>
+	<field name="rdv_tanfeez_completed_cnt" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="rdv_tanfeez_completed_cnt"/>
+	</field>
+	<field name="rdv_tanfeez_draft_cnt" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="rdv_tanfeez_draft_cnt"/>
+	</field>
+	<field name="rdv_tanfeez_wait_approval_cnt" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="rdv_tanfeez_wait_approval_cnt"/>
+	</field>
+	<field name="po_match_cencel_cnt" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="po_match_cencel_cnt"/>
+	</field>
+	<field name="po_match_completed_cnt" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="po_match_completed_cnt"/>
+	</field>
+	<field name="po_match_draft_cnt" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="po_match_draft_cnt"/>
+	</field>
+	<field name="po_match_wait_approval_cnt" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="po_match_wait_approval_cnt"/>
+	</field>
+	<field name="ap_cencel_cnt" class="java.lang.Integer"/>
+	<field name="ap_completed_cnt" class="java.lang.Integer"/>
+	<field name="ap_draft_cnt" class="java.lang.Integer"/>
+	<field name="ap_wait_approval_cnt" class="java.lang.Integer"/>
+	<field name="pre_cencel_cnt" class="java.lang.Integer"/>
+	<field name="pre_completed_cnt" class="java.lang.Integer"/>
+	<field name="pre_draft_cnt" class="java.lang.Integer"/>
+	<field name="pre_wait_approval_cnt" class="java.lang.Integer"/>
+	<field name="consult_complete" class="java.math.BigDecimal"/>
+	<field name="consult_draft" class="java.math.BigDecimal"/>
+	<field name="consult_cancel" class="java.math.BigDecimal"/>
+	<field name="consult_wait_appr" class="java.math.BigDecimal"/>
+	<field name="consult_complete_cnt" class="java.lang.Integer"/>
+	<field name="consult_cancel_cnt" class="java.lang.Integer"/>
+	<field name="consult_draft_cnt" class="java.lang.Integer"/>
+	<field name="consult_wait_appr_cnt" class="java.lang.Integer"/>
+	<field name="init_complete" class="java.math.BigDecimal"/>
+	<field name="init_draft" class="java.math.BigDecimal"/>
+	<field name="init_cancel" class="java.math.BigDecimal"/>
+	<field name="init_wait_appr" class="java.math.BigDecimal"/>
+	<field name="init_complete_cnt" class="java.lang.Integer"/>
+	<field name="init_draft_cnt" class="java.lang.Integer"/>
+	<field name="init_cancel_cnt" class="java.lang.Integer"/>
+	<field name="init_wait_appr_cnt" class="java.lang.Integer"/>
+	<field name="mawared_completed" class="java.math.BigDecimal"/>
+	<field name="mawared_cancel" class="java.math.BigDecimal"/>
+	<field name="mawared_draft" class="java.math.BigDecimal"/>
+	<field name="mawared_wait_appr" class="java.math.BigDecimal"/>
+	<field name="mawared_completed_cnt" class="java.lang.Integer"/>
+	<field name="mawared_cancel_cnt" class="java.lang.Integer"/>
+	<field name="mawared_draft_cnt" class="java.lang.Integer"/>
+	<field name="mawared_wait_appr_cnt" class="java.lang.Integer"/>
+	<field name="mumtalaqat_completed" class="java.math.BigDecimal"/>
+	<field name="mumtalaqat_cancel" class="java.math.BigDecimal"/>
+	<field name="mumtalaqat_draft" class="java.math.BigDecimal"/>
+	<field name="mumtalaqat_wait_appr" class="java.math.BigDecimal"/>
+	<field name="mumtalaqat_completed_cnt" class="java.lang.Integer"/>
+	<field name="mumtalaqat_cancel_cnt" class="java.lang.Integer"/>
+	<field name="mumtalaqat_draft_cnt" class="java.lang.Integer"/>
+	<field name="mumtalaqat_wait_appr_cnt" class="java.lang.Integer"/>
+	<field name="Prec_Maint_completed" class="java.math.BigDecimal"/>
+	<field name="Prec_Maint_inprog" class="java.math.BigDecimal"/>
+	<field name="Prec_Maint_completed_cnt" class="java.lang.Integer"/>
+	<field name="Prec_Maint_inprog_cnt" class="java.lang.Integer"/>
+	<field name="Regular_Maint_completed" class="java.math.BigDecimal"/>
+	<field name="Regular_Maint_inprog" class="java.math.BigDecimal"/>
+	<field name="Regular_Maint_completed_cnt" class="java.lang.Integer"/>
+	<field name="Regular_Maint_inprog_cnt" class="java.lang.Integer"/>
+	<field name="Per_Road_Maint_completed" class="java.math.BigDecimal"/>
+	<field name="Per_Raod_Maint_inprog" class="java.math.BigDecimal"/>
+	<field name="Per_Road_Maint_completed_cnt" class="java.lang.Integer"/>
+	<field name="Per_Raod_Maint_inprog_cnt" class="java.lang.Integer"/>
+	<field name="Maint_Elect_completed" class="java.math.BigDecimal"/>
+	<field name="Maint_Elect_inprog" class="java.math.BigDecimal"/>
+	<field name="Maint_Elect_completed_cnt" class="java.lang.Integer"/>
+	<field name="Maint_Elect_inprog_cnt" class="java.lang.Integer"/>
+	<field name="Other_Maint_completed" class="java.math.BigDecimal"/>
+	<field name="Other_Maint_inprog" class="java.math.BigDecimal"/>
+	<field name="Other_Maint_completed_cnt" class="java.lang.Integer"/>
+	<field name="Other_Maint_inprog_cnt" class="java.lang.Integer"/>
+	<field name="gregoriandate" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="gregoriandate"/>
+	</field>
+	<field name="till_date" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="748" splitType="Prevent">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="149" width="232" height="20" backcolor="#56B4FC" uuid="b99ad905-6d48-4d45-8264-8ab50cd24da3">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Invoice Status]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="392" y="149" width="40" height="20" backcolor="#56B4FC" uuid="3384a542-fb72-4ccc-9db1-8a105bf817bd">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Count]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="432" y="149" width="120" height="20" backcolor="#56B4FC" uuid="33154928-b873-4851-965a-3998ca05d0e3">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="169" width="232" height="20" forecolor="#000000" backcolor="#FFFFFF" uuid="544dbade-281b-4f1f-9e48-e227d0ccfe6d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineColor="#030202"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Preventive Maintenance]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="189" width="232" height="20" forecolor="#000000" backcolor="#56B4FC" uuid="3630edf7-3c3c-4e52-bc27-0fd380d689c4">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Regular Maintenance]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="209" width="232" height="20" backcolor="#56B4FC" uuid="ec4a004f-d423-4962-ae50-29bd47e1ca21">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Performance Road Maintenance]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="229" width="232" height="20" backcolor="#56B4FC" uuid="5a7f62bf-838a-4424-a213-e52dbfc3ce18">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Maintenance of Electrical works related to Roads]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="269" width="232" height="20" backcolor="#B0B0B0" uuid="2f2396dd-e475-4db1-9af7-d36ea95f906b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="289" width="232" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="c13a7bc1-228b-4d4f-bd48-bd83e519e5e7">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineColor="#030202"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="392" y="269" width="40" height="20" backcolor="#B0B0B0" uuid="3c2647d6-ee04-45cc-8e9e-4f5fd8144d80">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="432" y="269" width="120" height="20" backcolor="#B0B0B0" uuid="052edbc5-e113-499e-8402-13bdc01b7e8f">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="392" y="169" width="40" height="20" forecolor="#000000" uuid="6fa662e5-569e-4753-a8a5-b44b50c1d762"/>
+				<box leftPadding="0" rightPadding="0">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Prec_Maint_inprog_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="392" y="189" width="40" height="20" uuid="e44db51c-91d7-464d-b18b-7c972c62b39a"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Regular_Maint_inprog_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="392" y="209" width="40" height="20" uuid="bfdff312-f9b6-4f81-98ab-c2376df8b551"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Per_Raod_Maint_inprog_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="392" y="229" width="40" height="20" uuid="00d81d82-d66e-4340-9f59-cec262a1a6b5"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Maint_Elect_inprog_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="432" y="169" width="120" height="20" forecolor="#000000" uuid="2162e333-23c4-4a58-bd76-7222a2148e70"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Prec_Maint_inprog}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="432" y="189" width="120" height="20" uuid="926d7e6d-9b07-41bf-a63d-caa71d991e2f"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Regular_Maint_inprog}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="432" y="209" width="120" height="20" uuid="e7b1c08e-1a08-4be9-a008-e762b6665947"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Per_Raod_Maint_inprog}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="432" y="229" width="120" height="20" uuid="d207bd68-c1c6-499e-9068-f382e642a43c"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Maint_Elect_inprog}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="392" y="289" width="40" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="8b26f47a-2a14-40f2-aabe-73eeaac794ee"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Prec_Maint_inprog_cnt}+$F{Regular_Maint_inprog_cnt}+$F{Per_Raod_Maint_inprog_cnt}+$F{Maint_Elect_inprog_cnt}+$F{Other_Maint_inprog_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="432" y="289" width="120" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="df823ec4-869e-4a26-9bf5-92dc2bcbd74a"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Prec_Maint_inprog}.add($F{Regular_Maint_inprog}).add($F{Per_Raod_Maint_inprog}).add($F{Maint_Elect_inprog}).add($F{Other_Maint_inprog})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="352" width="100" height="20" backcolor="#56B4FC" uuid="04d3c315-88d3-4ad8-82dd-3f8c74131fb4">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Invoice Status]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="100" y="352" width="70" height="20" backcolor="#56B4FC" uuid="2d9aaa45-a263-418b-b946-15f59934c365">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Count]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="170" y="352" width="100" height="20" backcolor="#56B4FC" uuid="0a496290-8424-4eff-a2e7-d44d17fb67b4">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="373" width="100" height="20" backcolor="#56B4FC" uuid="a96356a0-2f1f-4290-8426-94ddeb52de79">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Completed]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="393" width="100" height="20" backcolor="#56B4FC" uuid="cc5c94a2-cbff-40a3-849e-b888dd7916fd">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[In Progress]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="413" width="100" height="20" backcolor="#B0B0B0" uuid="1fe8a964-11cc-48e3-af49-366015300f7c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="433" width="100" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="bb9bcd11-4ee8-4feb-a961-872e0cccb068">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineColor="#030202"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="100" y="413" width="70" height="20" backcolor="#B0B0B0" uuid="1dee2da7-8382-4ed1-b454-ce9dd3a16020">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="170" y="413" width="100" height="20" backcolor="#B0B0B0" uuid="3817dd7f-204d-41f3-a8d9-e5f760d442f7">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="100" y="373" width="70" height="20" uuid="6b203d8a-5726-4ab4-9d5e-76a45d7c801a"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{consult_complete_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="100" y="393" width="70" height="20" uuid="e99a4cf7-0206-409e-b57e-b8821f25edc8"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{consult_wait_appr_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="170" y="373" width="100" height="20" uuid="5ecf4408-774a-400d-9cf9-8049b3b04bd4"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{consult_complete}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="170" y="393" width="100" height="20" uuid="8d516653-7435-4822-a4ea-392f0fea4d20"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{consult_wait_appr}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="100" y="433" width="70" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="71e2bac8-8a30-4ae7-8ad6-c6cd6d0ca135"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{consult_complete_cnt}+$F{consult_wait_appr_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="170" y="433" width="100" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="40d0597e-fe98-4b81-910b-1174acb6210c"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{consult_complete}.add($F{consult_wait_appr})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="645" width="100" height="20" backcolor="#56B4FC" uuid="4a1d02f2-7d4d-4edb-aa8a-e9e5b67dd904">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Invoice Status]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="100" y="645" width="70" height="20" backcolor="#56B4FC" uuid="a21caec5-88dd-440b-b339-0a7397b1fe97">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Count]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="170" y="645" width="100" height="20" backcolor="#56B4FC" uuid="941b414c-3e25-4230-b3fa-dd7730a93b84">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="665" width="100" height="20" backcolor="#56B4FC" uuid="be83f705-48bb-47b0-b985-9688a3a80f94">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Completed]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="685" width="100" height="20" backcolor="#56B4FC" uuid="c7c638e3-64ea-49c4-99b7-05116b512441">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[In Progress]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="705" width="100" height="20" backcolor="#B0B0B0" uuid="bbf327e3-aa0c-4997-a21c-ae637dcb76d5">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="725" width="100" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="86f6e41b-b371-4635-9e26-2b1ec8e430df">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineColor="#030202"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="100" y="705" width="70" height="20" backcolor="#B0B0B0" uuid="7d2d000a-2ce7-4c73-80bf-4a20f370dee7">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="170" y="705" width="100" height="20" backcolor="#B0B0B0" uuid="bb0eb312-b21d-404c-9074-d0e5e7606748">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="100" y="665" width="70" height="20" uuid="e7d14807-f8f5-4c85-8663-90c88419d323"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rdv_tanfeez_completed_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="100" y="685" width="70" height="20" uuid="86d300ed-ee97-4675-8eb9-a8986de3354d"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rdv_tanfeez_wait_approval_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="170" y="665" width="100" height="20" uuid="59ed3f1a-50dd-41a8-9a2e-4f72afb4528a"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rdv_tanfeez_completed}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="170" y="685" width="100" height="20" uuid="772adea3-8dff-4c46-b28a-235c08aa126a"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rdv_tanfeez_wait_approval}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="100" y="725" width="70" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="5e77128d-141b-4516-b913-28522b54f568"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rdv_tanfeez_completed_cnt}+$F{rdv_tanfeez_wait_approval_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="170" y="725" width="100" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="bfd5cb71-9576-423f-b5b9-45c219fae28e"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rdv_tanfeez_completed}.add($F{rdv_tanfeez_wait_approval})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="89" width="553" height="20" backcolor="#F7924F" uuid="3cbb325e-9be3-4611-ad4d-57a4d2c03b8d"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{till_date}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="200" y="0" width="140" height="80" uuid="3f197390-d0bd-4fb8-b957-f07bf463059e"/>
+				<imageExpression><![CDATA[org.openbravo.erpCommon.utility.Utility.showImageLogo("yourcompanylegal","")]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="332" width="270" height="20" backcolor="#96E3B5" uuid="bd5d5d24-f491-40e9-9bca-8900fa2056db">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Consultations Invoices]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="625" width="270" height="20" backcolor="#96E3B5" uuid="5fec63be-85d9-4875-8524-7c436c095e2e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Tanfeeth Invoices]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="500" width="100" height="20" backcolor="#56B4FC" uuid="cdc935e4-c23c-4b0b-a5f1-5903b039fca5">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Invoice Status]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="100" y="500" width="70" height="20" backcolor="#56B4FC" uuid="74d1e96a-13bf-4fde-9436-6416dff759fd">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Count]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="170" y="500" width="100" height="20" backcolor="#56B4FC" uuid="fd0b0f6e-907f-4d75-87ad-b76ef20c16fb">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="520" width="100" height="20" backcolor="#56B4FC" uuid="32918ea3-5fd2-4712-bf12-e4ef087ab4a6">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Completed]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="540" width="100" height="20" backcolor="#56B4FC" uuid="a175c7dd-103a-4365-8f1a-51d69fa54d0c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[In Progress]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="560" width="100" height="20" backcolor="#B0B0B0" uuid="f5649487-9980-4ebc-9f0a-3063df6390a8">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="580" width="100" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="ab667a2e-1a3b-4ad9-87f5-0a5e507f6a79">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineColor="#030202"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="100" y="560" width="70" height="20" backcolor="#B0B0B0" uuid="cf9b899e-25bd-495e-889e-c57cf2924332">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="170" y="560" width="100" height="20" backcolor="#B0B0B0" uuid="e0c2bbe8-42c7-448d-bb44-6b5fb8812021">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="100" y="520" width="70" height="20" uuid="4719ffc1-7599-432b-8c4f-5f92596136d2"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ap_completed_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="100" y="540" width="70" height="20" uuid="e9ce7b1b-24ef-43fd-90e2-7302669c3fa2"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ap_wait_approval_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="170" y="520" width="100" height="20" uuid="cf72886c-9362-4ed5-a401-f9a2a211452f"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ap_completed}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="170" y="540" width="100" height="20" uuid="34a5e725-36d8-4651-96c2-52404c17aca7"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ap_wait_approval}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="100" y="580" width="70" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="079e76ef-cdc4-4af7-9e88-e8542803ac13"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ap_completed_cnt}+$F{ap_wait_approval_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="170" y="580" width="100" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="c9a287cd-9c45-4c2a-b1ab-b58be3be7189"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ap_completed}.add($F{ap_wait_approval})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="500" width="100" height="20" backcolor="#56B4FC" uuid="2a207364-af10-45b7-b1d0-e63cce2782a6">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Invoice Status]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="390" y="500" width="70" height="20" backcolor="#56B4FC" uuid="87b6b906-5503-4447-85d3-06fa0bc797c1">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Count]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="460" y="500" width="93" height="20" backcolor="#56B4FC" uuid="155e99cc-4333-477d-98f3-b651501b5f87">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="290" y="520" width="100" height="20" backcolor="#56B4FC" uuid="0ba6a1cb-f48e-4fb9-a10f-4657a23dfc0d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Completed]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="290" y="540" width="100" height="20" backcolor="#56B4FC" uuid="3c59a79c-1643-45e8-85e6-7546aa224596">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[In Progress]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="560" width="100" height="20" backcolor="#B0B0B0" uuid="37b4ca97-6e02-4658-bd95-43d70973ff4e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="580" width="100" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="09bb4d0c-83b7-480e-953e-14094dabd089">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineColor="#030202"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="390" y="560" width="70" height="20" backcolor="#B0B0B0" uuid="9fc3d2c5-d40d-4c4a-b338-04fdb240254f">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="460" y="560" width="93" height="20" backcolor="#B0B0B0" uuid="8560f3bf-a7b7-48b4-ae49-c260e2489138">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="390" y="520" width="70" height="20" uuid="91b01e7e-7e11-465d-854f-f47a6c6615db"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mumtalaqat_completed_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="390" y="540" width="70" height="20" uuid="92423e08-4d0d-4917-9652-8f8a94900119"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mumtalaqat_wait_appr_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="460" y="520" width="93" height="20" uuid="cc46d246-9f84-4326-b15e-f9139b58c8a7"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mumtalaqat_completed}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="460" y="540" width="93" height="20" uuid="5455e89a-e674-4773-a6e1-c87037385e75"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mumtalaqat_wait_appr}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="390" y="580" width="70" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="74cb9769-0546-4642-a7dc-1accf6d63090"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mumtalaqat_completed_cnt}+$F{mumtalaqat_wait_appr_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="460" y="580" width="93" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="918f1eaf-9e14-4a96-8ea0-cf99272d0b03"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mumtalaqat_completed}.add($F{mumtalaqat_wait_appr})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="480" width="270" height="20" backcolor="#96E3B5" uuid="c4179b60-8401-49b1-b748-8c12ba25e622">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Purchase Invoices (AP) ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="480" width="263" height="20" backcolor="#96E3B5" uuid="06755565-6e73-4566-baaa-ceb536638954">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Compensation Invoices]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="109" width="553" height="20" backcolor="#96E3B5" uuid="a86ef3da-ea92-4ff7-a327-f0be25af27c8">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Maintenance Invoices]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="232" y="269" width="40" height="20" backcolor="#B0B0B0" uuid="665d63e5-8e5a-4036-ba72-da24bc1e2b9d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="232" y="169" width="40" height="20" forecolor="#000000" uuid="4d40688d-8f7e-473a-93ee-ec596451c4a0"/>
+				<box leftPadding="0" rightPadding="0">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Prec_Maint_completed_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="232" y="189" width="40" height="20" uuid="d4d30949-bfee-4dab-aa53-353c3c99a07c"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Regular_Maint_completed_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="232" y="209" width="40" height="20" uuid="9416e804-94dc-4a7a-a005-d0699506b948"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Per_Road_Maint_completed_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="232" y="229" width="40" height="20" uuid="193cdefb-d2f1-48d3-92b6-fde3e691db17"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Maint_Elect_completed_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="232" y="289" width="40" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="c646a4ec-3e00-4089-a516-39a518fe1ea1"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Prec_Maint_completed_cnt}+$F{Regular_Maint_completed_cnt}+$F{Per_Road_Maint_completed_cnt}+$F{Maint_Elect_completed_cnt}+$F{Other_Maint_completed_cnt}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="232" y="149" width="40" height="20" backcolor="#56B4FC" uuid="a0759183-6109-4487-aa86-d1f2c294a06e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Count]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="272" y="269" width="120" height="20" backcolor="#B0B0B0" uuid="b294baef-b1a9-44e2-a3fa-fecf097c10e7">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="272" y="169" width="120" height="20" forecolor="#000000" uuid="12e76958-a090-4bec-bd28-0dbbf59e1b45"/>
+				<box leftPadding="0" rightPadding="0">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Prec_Maint_completed}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="272" y="189" width="120" height="20" uuid="5b382ad4-d303-4cbc-8ad2-4ab9fc86be3e"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Regular_Maint_completed}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="272" y="209" width="120" height="20" uuid="616e1ad4-6e0d-474a-b762-2e87fd2e387d"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Per_Road_Maint_completed}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="272" y="229" width="120" height="20" uuid="d8779744-5b32-4224-a292-d5c96cdf18e3"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Maint_Elect_completed}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="272" y="289" width="120" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="657bb43b-01f1-4a61-b747-3cbf155d5db0"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Prec_Maint_completed}.add($F{Regular_Maint_completed}).add($F{Per_Road_Maint_completed}).add($F{Maint_Elect_completed}).add($F{Other_Maint_completed})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="272" y="149" width="120" height="20" backcolor="#56B4FC" uuid="3d646a87-c60f-41bd-bed3-9447bc8bd00e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="249" width="232" height="20" backcolor="#56B4FC" uuid="a82f76dd-6bdd-4152-bc98-b6cbf71af158">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Other Maintenance]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="232" y="249" width="40" height="20" uuid="40b56abb-7949-4c97-b03d-6b492811a073"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Other_Maint_completed_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="272" y="249" width="120" height="20" uuid="af350b0c-4e5f-4999-8028-100b42520664"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Other_Maint_completed}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="392" y="249" width="40" height="20" uuid="f38fa6ee-6fdb-4f0a-a9f1-3dbf050d721c"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Other_Maint_inprog_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="432" y="249" width="120" height="20" uuid="b6accb4a-c31a-4896-887c-cfb83c999640"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Other_Maint_inprog}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="232" y="129" width="160" height="20" backcolor="#56B4FC" uuid="d9954b96-92e6-4bc5-85f7-269b93034975">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Completed]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="392" y="129" width="161" height="20" backcolor="#56B4FC" uuid="09f208f5-86f4-470e-80b0-be494ae2e4f2">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[In Progress]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="129" width="232" height="20" backcolor="#56B4FC" uuid="61ad52b0-17e9-4a4d-9e95-0cebe713b534">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="352" width="93" height="20" backcolor="#56B4FC" uuid="3e0615af-0403-4a6c-bbfc-2d8374aac45b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Invoice Status]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="383" y="352" width="70" height="20" backcolor="#56B4FC" uuid="f1a304da-9554-4e38-92f5-614125eec6d3">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Count]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="453" y="352" width="100" height="20" backcolor="#56B4FC" uuid="29d1d471-5394-43cc-aa40-9b6d83d0a59a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="290" y="372" width="93" height="20" backcolor="#56B4FC" uuid="ac1f3c9f-d6fe-48e0-b72b-df9ddcabf3c5">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Completed]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="290" y="392" width="93" height="20" backcolor="#56B4FC" uuid="0292f2c9-7f66-416f-9803-f98720ea533b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[In Progress]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="412" width="93" height="20" backcolor="#B0B0B0" uuid="2610b623-6b1c-4994-846c-b8becd41c98a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="432" width="93" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="dea0cfa7-8176-475d-aaab-f48836638392">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineColor="#030202"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="383" y="412" width="70" height="20" backcolor="#B0B0B0" uuid="8ec15b68-0efd-408a-86ec-13b15c0d90f8">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="453" y="412" width="100" height="20" backcolor="#B0B0B0" uuid="fae532f9-914d-4a3d-ad42-cf984843080b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="383" y="372" width="70" height="20" uuid="aa8f53c2-0aa7-42ba-b684-6559f17197e3"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{init_complete_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="383" y="392" width="70" height="20" uuid="1d0e0a28-e517-4e08-b85d-fd4330a1ffd1"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{init_wait_appr_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="453" y="372" width="100" height="20" uuid="e6e904ea-ca97-4f36-85c2-55ba45b71530"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{init_complete}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="453" y="392" width="100" height="20" uuid="4234fb5f-997b-43cd-a42d-1e1dd7ef414e"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{init_wait_appr}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="383" y="432" width="70" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="c90aeb5c-8b64-4c0c-a139-8ebfef982e88"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{init_complete_cnt}+$F{init_wait_appr_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="453" y="432" width="100" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="40abf3eb-8f4d-4642-883a-fc5419ca0ec4"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{init_complete}.add($F{init_wait_appr})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="332" width="263" height="20" backcolor="#96E3B5" uuid="f0c60aad-0f7a-4973-ab02-a95f8b98b021">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Initiatives Invoices]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="644" width="93" height="20" backcolor="#56B4FC" uuid="735eed46-d7fa-4696-b40c-7bc10debec4c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Invoice Status]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="383" y="644" width="70" height="20" backcolor="#56B4FC" uuid="6c92c580-f29f-499a-aaa0-1a366e93bd34">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Count]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="453" y="644" width="100" height="20" backcolor="#56B4FC" uuid="f8009244-dc2c-451b-b183-e964d91da910">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="290" y="664" width="93" height="20" backcolor="#56B4FC" uuid="aee3d65f-afda-43d7-b66d-e6d0c7223b88">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Completed]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="290" y="684" width="93" height="20" backcolor="#56B4FC" uuid="f66237b1-478b-47f5-a5d9-dfdff37abd88">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[In Progress]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="704" width="93" height="20" backcolor="#B0B0B0" uuid="db6ac190-c206-4e0f-b33e-50f34eadeb16">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="724" width="93" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="f887451e-f06a-4fb9-aede-03283d85ed06">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineColor="#030202"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="383" y="704" width="70" height="20" backcolor="#B0B0B0" uuid="2be44419-6b07-4f18-a67e-fa4480624c7b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="453" y="704" width="100" height="20" backcolor="#B0B0B0" uuid="f870e22b-5f18-4fa2-8f6d-a03fec02da98">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="383" y="664" width="70" height="20" uuid="034e7cf8-c7e7-4b6d-9c4b-6f3ac66e52e7"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mawared_completed_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="383" y="684" width="70" height="20" uuid="dde6beb0-4e60-49c3-972c-0a6751482f54"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mawared_wait_appr_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="453" y="664" width="100" height="20" uuid="381a2aac-9a75-4556-a868-c4a1850edafb"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mawared_completed}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="453" y="684" width="100" height="20" uuid="a49666b6-ae86-4cb4-af32-5313491e8a76"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mawared_wait_appr}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="383" y="724" width="70" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="c145511e-05dc-4b36-9e68-1f9a2f7aefae"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mawared_completed_cnt}+$F{mawared_wait_appr_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="453" y="724" width="100" height="20" forecolor="#FC0015" backcolor="#96E3B5" uuid="17f864a7-5a6a-4612-8a36-cb1ed01cbb46"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mawared_completed}.add($F{mawared_wait_appr})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="624" width="263" height="20" backcolor="#96E3B5" uuid="725f4270-699c-4619-b3ef-b88ed2e550c1">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Mawarid Invoices]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="10">
+			<subreport>
+				<reportElement x="-11" y="0" width="581" height="10" uuid="48518e0c-2822-4b59-b3ac-9ad3c566d3ae"/>
+				<subreportParameter name="Invoice_Date">
+					<subreportParameterExpression><![CDATA[$P{Invoice_Date}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="AUX_Inv_date">
+					<subreportParameterExpression><![CDATA[$P{AUX_Inv_date}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="BASE_DESIGN">
+					<subreportParameterExpression><![CDATA[$P{BASE_DESIGN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/finance/ad_reports/Invoice_Updated_Daily_Status/Invoice_udpated_Daily_Status-2.jrxml")]]></subreportExpression>
+			</subreport>
+		</band>
+	</summary>
+</jasperReport>

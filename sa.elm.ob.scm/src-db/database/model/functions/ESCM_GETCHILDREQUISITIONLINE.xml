@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION ESCM_GETCHILDREQUISITIONLINE">
+    <function name="ESCM_GETCHILDREQUISITIONLINE" type="VARCHAR">
+      <parameter name="parentid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[parentArray character varying[] := ARRAY[ parentId ];
+    childArray character varying[] := '{}';
+    newChildArray character varying[];
+    childLines character varying;
+BEGIN
+    WHILE ( array_upper( parentArray, 1 ) IS NOT NULL ) LOOP
+        newChildArray := ARRAY( SELECT m_requisitionline_id FROM m_requisitionline 
+        WHERE em_escm_parentlineno  = ANY( parentArray )  AND m_requisitionline_id <> ALL( childArray ) );
+        childArray := childArray || newChildArray;
+        parentArray := newChildArray;
+    END LOOP;
+    childLines:=replace(replace(replace(childArray::text,'{',''''),'}',''''),',',''',''');
+    RETURN childLines ;
+END ESCM_GETCHILDREQUISITIONLINE
+]]></body>
+    </function>
+  </database>

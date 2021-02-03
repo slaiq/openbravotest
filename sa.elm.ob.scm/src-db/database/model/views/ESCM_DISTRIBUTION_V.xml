@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_DISTRIBUTION_V">
+    <view name="ESCM_DISTRIBUTION_V"><![CDATA[SELECT get_uuid() AS escm_distribution_v_id, t1.ad_client_id, t1.ad_org_id, t1.isactive, t1.created, t1.createdby, t1.updated, t1.updatedby, row_number() OVER (PARTITION BY t1.c_order_id) AS sequenceno, sum(t2.linenetamt) AS reservedamount, t1.em_escm_finanyear, t1.c_order_id, t4.efin_budget_manencum_id, t3.c_validcombination_id, t3.em_efin_uniquecodename AS project_name FROM c_order t1 JOIN c_orderline t2 ON t1.c_order_id = t2.c_order_id JOIN c_validcombination t3 ON t2.em_efin_c_validcombination_id = t3.c_validcombination_id JOIN efin_budget_manencum t4 ON t1.em_efin_budget_manencum_id = t4.efin_budget_manencum_id GROUP BY t3.c_validcombination_id, t1.c_order_id, t4.efin_budget_manencum_id, t1.em_escm_finanyear, t2.em_efin_c_validcombination_id]]></view>
+  </database>

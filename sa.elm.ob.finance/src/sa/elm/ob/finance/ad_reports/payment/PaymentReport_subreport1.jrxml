@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PaymentReport_subreport1" pageWidth="370" pageHeight="35" columnWidth="370" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="4f2e50f5-c435-4742-9ecb-2edd63dfd68f">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="inpfinPaymentId" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+to_number(split_part(abs(invln.LineNetAmt)::text,'.',1)) as LineNetAmt,
+split_part(abs(invln.LineNetAmt)::text,'.',2) as LineNetAmtdecimal,
+elmval.value as element
+from fin_payment pay
+left join ad_org org on org.ad_org_id=pay.ad_org_id
+left join c_bpartner bp on bp.c_bpartner_id=pay.c_bpartner_id
+left join c_bpartner bpf on bpf.c_bpartner_id=pay.em_efin_bpartner_id
+join fin_payment_detail_v dt on dt.fin_payment_id = pay.fin_payment_id
+join fin_payment_sched_inv_v psd on psd.fin_payment_sched_inv_v_id = dt.fin_payment_sched_inv_v_id
+join c_invoice inv on inv.c_invoice_id = psd.c_invoice_id
+left join c_invoiceline invln on invln.c_invoice_id=inv.c_invoice_id and( (invln.c_bpartner_id = pay.em_efin_bpartner_id and invln.c_bpartner_id  is not null) or( invln.c_bpartner_id  is null and pay.em_efin_bpartner_id is null))
+left join c_elementvalue elmval on elmval.c_elementvalue_id=invln.EM_Efin_C_Elementvalue_ID
+where pay.fin_payment_id=$P{inpfinPaymentId}
+and invln.LineNetAmt<0
+and elmval.accounttype <>'E' 
+group by invln.LineNetAmt, elmval.value;]]>
+	</queryString>
+	<field name="linenetamt" class="java.math.BigDecimal"/>
+	<field name="element" class="java.lang.String"/>
+	<field name="LineNetAmtdecimal" class="java.lang.String"/>
+	<group name="linenetamt">
+		<groupExpression><![CDATA[$F{linenetamt}]]></groupExpression>
+	</group>
+	<group name="element">
+		<groupExpression><![CDATA[$F{element}]]></groupExpression>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="23" splitType="Stretch">
+			<textField pattern="###0.0" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="7" y="0" width="90" height="23" isRemoveLineWhenBlank="true" uuid="23ea564c-e293-499c-a2b5-e2a9eb4d2313">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator($F{linenetamt}.toString()).split("\\.")[0]]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="112" y="0" width="190" height="23" isRemoveLineWhenBlank="true" uuid="ec2dd9d9-4fa4-414e-ac5e-078892ebe915">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{element}.toString())]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.0" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="66" y="0" width="12" height="23" isRemoveLineWhenBlank="true" uuid="37116d09-b3be-4f65-9b7a-4e82daf6d2f6">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{LineNetAmtdecimal})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

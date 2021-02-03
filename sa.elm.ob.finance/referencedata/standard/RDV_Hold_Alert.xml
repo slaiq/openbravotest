@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="A923865F3A654E72AFF2791C474288AE" identifier="RDV Hold Alert">
+    <id>A923865F3A654E72AFF2791C474288AE</id>
+    <active>true</active>
+    <creationDate transient="true">2019-06-19T18:03:38.930Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-02-19T13:09:24.69Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>RDV Hold Alert</name>
+    <tab id="49E486772F20481092DED9599B9BF9A3" entity-name="ADTab" identifier="PO - Hold Plan Details - PO - Hold Plan Details"/>
+    <filterClause>((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null))  and ((ad_role_id is not null and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>RDV_HOLD</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

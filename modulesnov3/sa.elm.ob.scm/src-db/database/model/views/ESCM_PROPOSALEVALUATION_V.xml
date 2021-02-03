@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_PROPOSALEVALUATION_V">
+    <view name="ESCM_PROPOSALEVALUATION_V"><![CDATA[SELECT evl.escm_proposalevl_event_id AS escm_proposalevaluation_v_id, evl.ad_client_id, evl.ad_org_id, evl.isactive, evl.created, evl.createdby, evl.updated, evl.updatedby, evl.eventno, evl.date_hijri, evl.date_gregorian, evl.time_evaluation, evl.preparername AS ad_user_id, 10 AS seq, evl.escm_bidmgmt_id, pm.escm_proposalmgmt_id FROM escm_proposalevl_event evl JOIN escm_proposal_attr attr ON attr.escm_proposalevl_event_id = evl.escm_proposalevl_event_id JOIN escm_proposalmgmt pm ON pm.escm_proposalmgmt_id = attr.escm_proposalmgmt_id OR pm.escm_baseproposal_id = attr.escm_proposalmgmt_id WHERE evl.status = 'CO']]></view>
+  </database>

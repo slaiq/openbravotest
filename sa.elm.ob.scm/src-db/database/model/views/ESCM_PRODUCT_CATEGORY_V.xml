@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_PRODUCT_CATEGORY_V">
+    <view name="ESCM_PRODUCT_CATEGORY_V"><![CDATA[SELECT prodcat.m_product_category_id AS escm_product_category_v_id, prodcat.ad_client_id, prodcat.ad_org_id, prodcat.description, prodcat.a_asset_group_id, prodcat.isactive, prodcat.created, prodcat.createdby, prodcat.updated, prodcat.updatedby, prodcat.em_escm_itproduct, prodcat.value, prodcat.issummary, prodcat.isdefault, prodcat.name, prodcat.em_escm_product_category, (((((COALESCE(mastprodcat.name, '') || ' - ') || COALESCE(mastprodcat.value, '')) || ' - ') || COALESCE(prodcat.name, '')) || ' - ') || COALESCE(prodcat.value, '') AS code FROM m_product_category prodcat LEFT JOIN m_product_category mastprodcat ON prodcat.em_escm_product_category = mastprodcat.m_product_category_id]]></view>
+  </database>

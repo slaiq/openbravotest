@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_ADDRECEIPT">
+    <trigger name="ESCM_ADDRECEIPT" table="M_INOUT" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[cur_receipt record;
+cur_mulreceipt record;
+cur_return record;
+cur_addrecipt1 record;
+cur_addrecipt2 record;
+cur_receiptIR record;
+cur_srreturn record;
+cur_projreturn record;
+v_del boolean :=false ;
+v_ins boolean :=false ;
+BEGIN
+
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF DELETING THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+    
+	--inserting/updating Operation
+	IF ( INSERTING OR (UPDATING and :new.C_Order_ID is not null and :new.C_Order_ID<> coalesce(:old.C_Order_ID,'') )) THEN
+         delete from escm_addreceipt where m_inout_id=:new.m_inout_id;
+
+		if (:new.em_escm_receivingtype = 'INS') then
+			for cur_receipt in (select distinct m.m_inout_id from m_inout m 
+			where m.em_escm_receivingtype = 'IR' and m.poreference = :new.poreference and m.C_BPartner_ID = :new.C_BPartner_ID and m.EM_Escm_Docstatus = 'CO'
+			and m.m_warehouse_id = :new.m_warehouse_id and m.movementdate <= :new.movementdate and m_inout_id in (select m_inout_id from escm_initialreceipt rc 
+				where ((rc.accepted_qty + rejected_qty +delivered_qty) - return_qty) < (quantity - ir_return_qty)) and m.em_escm_isinspected = 'N')
+		loop
+			insert into escm_addreceipt (escm_addreceipt_id,ad_client_id,ad_org_id,isactive,createdby,updatedby,receipt,m_inout_id)
+			values(get_uuid(),:new.ad_client_id,:new.ad_org_id,'Y',:new.createdby,:new.updatedby,cur_receipt.m_inout_id,:new.m_inout_id);
+		end loop;
+		end if;
+		
+		if (:new.em_escm_receivingtype = 'DEL') then
+			for cur_receipt in (select * from m_inout m where m.em_escm_receivingtype = 'INS' and m.poreference = :new.poreference and m.C_BPartner_ID = :new.C_BPartner_ID and m.EM_Escm_Docstatus = 'CO' 
+				and m.m_warehouse_id in (select m_warehouse_id from m_warehouse where ad_org_id = :new.ad_org_id and  em_escm_warehouse_type  = 'REW' and m_warehouse.isactive='Y') and m.movementdate <= :new.movementdate and m_inout_id in (select distinct rec.m_inout_id from escm_addreceipt rec	join escm_initialreceipt init  on init.m_inout_id = rec.receipt 
+								where init.accepted_qty > 0 ))
+			loop
+				for cur_mulreceipt in (select receipt from escm_addreceipt where m_inout_id = cur_receipt.m_inout_id)
+				loop
+					insert into escm_addreceipt (escm_addreceipt_id,ad_client_id,ad_org_id,isactive,createdby,updatedby,receipt,inspection,m_inout_id)
+					values(get_uuid(),:new.ad_client_id,:new.ad_org_id,'Y',:new.createdby,:new.updatedby,cur_mulreceipt.receipt,cur_receipt.m_inout_id,:new.m_inout_id);
+				end loop;
+			end loop;
+			--for noinspection product we should not check with inspection.
+			for cur_receiptIR in (select * from m_inout m where m.em_escm_receivingtype = 'IR' and m.poreference = :new.poreference and m.C_BPartner_ID = :new.C_BPartner_ID and m.EM_Escm_Docstatus = 'CO' 
+				and m.m_warehouse_id in (select m_warehouse_id from m_warehouse where ad_org_id = :new.ad_org_id and  em_escm_warehouse_type  = 'REW' and m_warehouse.isactive='Y') and m.movementdate <= :new.movementdate and m_inout_id in (
+				select distinct init.m_inout_id from escm_initialreceipt init 
+				join m_inout on  init.m_inout_id = m_inout.m_inout_id and m_inout.em_escm_receivingtype = 'IR'
+				join m_product pro on pro.m_product_id = init.m_product_id and em_escm_noinspection  = 'Y'
+				where init.accepted_qty > 0 ))
+			loop
+				insert into escm_addreceipt (escm_addreceipt_id,ad_client_id,ad_org_id,isactive,createdby,updatedby,receipt,m_inout_id)
+				values(get_uuid(),:new.ad_client_id,:new.ad_org_id,'Y',:new.createdby,:new.updatedby,cur_receiptIR.m_inout_id,:new.m_inout_id);
+			end loop;
+		end if;
+		
+		if(:new.em_escm_receivingtype = 'RET') then
+			for cur_srreturn in (select distinct m.m_inout_id from m_inout m where m.em_escm_receivingtype = 'SR' and m.poreference = :new.poreference and m.C_BPartner_ID = :new.C_BPartner_ID and m.EM_Escm_Docstatus = 'CO' 
+				and m.m_warehouse_id in (select m_warehouse_id from m_warehouse where ad_org_id = :new.ad_org_id and  em_escm_warehouse_type  = 'REW' and m_warehouse.isactive='Y') and m.movementdate <= :new.movementdate and m_inout_id in (select m_inout_id from escm_initialreceipt e where ((coalesce(e.quantity,0) - coalesce(e.return_qty,0)) > 0 )))
+			loop
+				insert into escm_addreceipt (escm_addreceipt_id,ad_client_id,ad_org_id,isactive,createdby,updatedby,receipt,m_inout_id)
+				values(get_uuid(),:new.ad_client_id,:new.ad_org_id,'Y',:new.createdby,:new.updatedby,cur_srreturn.m_inout_id,:new.m_inout_id);
+			end loop;
+            
+            for cur_projreturn in (select distinct m.m_inout_id from m_inout m where m.em_escm_receivingtype = 'PROJ' and m.poreference = :new.poreference and m.C_BPartner_ID = :new.C_BPartner_ID and m.EM_Escm_Docstatus = 'CO' 
+				 and m.movementdate <= :new.movementdate 
+                 and m_inout_id in (select m_inout_id from escm_initialreceipt e where ((coalesce(e.tot_line_amt,0) - coalesce(e.return_amt,0)) > 0 )))
+			loop
+				insert into escm_addreceipt (escm_addreceipt_id,ad_client_id,ad_org_id,isactive,createdby,updatedby,receipt,m_inout_id)
+				values(get_uuid(),:new.ad_client_id,:new.ad_org_id,'Y',:new.createdby,:new.updatedby,cur_projreturn.m_inout_id,:new.m_inout_id);
+			end loop;
+            
+			for cur_return in (select distinct m.m_inout_id from m_inout m where m.em_escm_receivingtype = 'IR' and m.poreference = :new.poreference and m.C_BPartner_ID = :new.C_BPartner_ID and m.EM_Escm_Docstatus = 'CO' 
+				and m.m_warehouse_id in (select m_warehouse_id from m_warehouse where ad_org_id = :new.ad_org_id and  em_escm_warehouse_type  = 'REW' and m_warehouse.isactive='Y') and m.movementdate <= :new.movementdate and m_inout_id in (select m_inout_id from escm_initialreceipt e where ((e.accepted_qty+e.rejected_qty+e.delivered_qty) > 0 ) or (((e.accepted_qty+e.rejected_qty+e.delivered_qty+e.return_qty) = 0 ) and ((e.quantity - e.ir_return_qty) > 0 ))))
+			loop
+				v_ins = false;
+				for cur_addrecipt1 in (select distinct e.m_inout_id from escm_addreceipt e 
+						join m_inout m1 on m1.m_inout_id = e.m_inout_id and m1.em_escm_receivingtype='INS' and EM_Escm_Docstatus = 'CO'
+						 where e.receipt = cur_return.m_inout_id)
+				loop
+					v_ins = true;
+					v_del = false;
+					for cur_addrecipt2 in (select distinct e.m_inout_id from escm_addreceipt e
+						join m_inout m2 on m2.m_inout_id = e.m_inout_id and m2.em_escm_receivingtype = 'DEL' and EM_Escm_Docstatus = 'CO'
+						where e.inspection = cur_addrecipt1.m_inout_id and m2.m_warehouse_id = :new.m_warehouse_id)
+					loop
+						v_del = true;
+						insert into escm_addreceipt (escm_addreceipt_id,ad_client_id,ad_org_id,isactive,createdby,updatedby,receipt,inspection,delivery,m_inout_id)
+						values(get_uuid(),:new.ad_client_id,:new.ad_org_id,'Y',:new.createdby,:new.updatedby,cur_return.m_inout_id,cur_addrecipt1.m_inout_id,cur_addrecipt2.m_inout_id,:new.m_inout_id);
+					end loop;
+				if(v_del = false) then
+					insert into escm_addreceipt (escm_addreceipt_id,ad_client_id,ad_org_id,isactive,createdby,updatedby,receipt,inspection,m_inout_id)
+					values(get_uuid(),:new.ad_client_id,:new.ad_org_id,'Y',:new.createdby,:new.updatedby,cur_return.m_inout_id,cur_addrecipt1.m_inout_id,:new.m_inout_id);
+				end if;	
+				end loop;
+			if(v_ins = false) then
+				insert into escm_addreceipt (escm_addreceipt_id,ad_client_id,ad_org_id,isactive,createdby,updatedby,receipt,m_inout_id)
+				values(get_uuid(),:new.ad_client_id,:new.ad_org_id,'Y',:new.createdby,:new.updatedby,cur_return.m_inout_id,:new.m_inout_id);
+			end if;
+			end loop;
+		end if;
+	END IF;
+    
+    IF(TG_OP='UPDATE' and :new.C_Order_ID is null and :old.C_Order_ID is not null) THEN
+    
+    delete from escm_addreceipt where m_inout_id=:new.m_inout_id;
+    END IF;
+	 
+END ESCM_ADDRECEIPT
+]]></body>
+    </trigger>
+  </database>

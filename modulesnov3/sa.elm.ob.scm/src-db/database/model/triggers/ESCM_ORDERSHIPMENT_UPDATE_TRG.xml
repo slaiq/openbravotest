@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_ORDERSHIPMENT_UPDATE_TRG">
+    <trigger name="ESCM_ORDERSHIPMENT_UPDATE_TRG" table="ESCM_ORDERSHIPMENT" fires="after" insert="false" update="true" delete="false" foreach="row">
+      <body><![CDATA[  v_OrdershipmentID varchar2(32);
+  v_OrderID varchar2(32);
+  v_pendingQty NUMBER;   
+  v_TotalQty NUMBER;   
+
+ 
+    
+BEGIN
+    
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+			
+
+  if(UPDATING) THEN
+   v_OrdershipmentID:=:new.escm_ordershipment_id;
+   if(v_OrdershipmentID IS NOT NULL) THEN
+	-- update receiving control status in purchase order and contract summary
+	select t1.c_order_id  into v_OrderID from c_orderline t1 
+		join escm_ordershipment t2 on t1.c_orderline_id = t2.c_orderline_id
+		 where t2.escm_ordershipment_id = v_OrdershipmentID;
+
+	select (coalesce(sum(ship.movementqty),0)-(coalesce(sum(ship.quantityporec),0)- coalesce(sum(ship.quantityreturned),0)
+	-coalesce(sum(ship.quantityrejected),0)-coalesce(sum(ship.quantityirr),0))-coalesce(sum(ship.quantitycanceled) ,0)),coalesce(sum(ship.movementqty),0)
+	  into v_pendingQty, v_TotalQty  from c_order t1
+		join c_orderline t2 on t1.c_order_id = t2.c_order_id
+		join escm_ordershipment ship on t2.c_orderline_id = ship.c_orderline_id	
+		where t1.c_order_id = v_OrderID	;
+		
+	IF(v_TotalQty = v_pendingQty) then 
+		update c_order set em_escm_receiving_control ='OP' where c_order_id =v_OrderID;
+		else if (v_pendingQty = 0) then
+		update c_order set em_escm_receiving_control ='CR' where c_order_id =v_OrderID;
+		else if(v_pendingQty > 0) then
+	        update c_order set em_escm_receiving_control ='PR' where c_order_id =v_OrderID;
+	END IF;
+	END IF;
+	END IF;
+		
+		
+    END IF;      
+    END IF;      
+
+    END ESCM_ORDERSHIPMENT_UPDATE_TRG
+]]></body>
+    </trigger>
+  </database>

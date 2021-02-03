@@ -1,0 +1,54 @@
+# HG changeset patch
+# User Gowtham <gowtham@qualiantech.com>
+# Date 1600679334 -10800
+#      Mon Sep 21 12:08:54 2020 +0300
+# Node ID 8c958cd1238202390dc695990abfa03aed30ec06
+# Parent  6f38f4bd6484ec3f72458600695081d73f049229
+epm 2nd servie
+
+diff --git a/src/sa/elm/ob/finance/ad_process/PurchaseInvoice/PurchaseInvoiceSubmit.java b/src/sa/elm/ob/finance/ad_process/PurchaseInvoice/PurchaseInvoiceSubmit.java
+--- a/src/sa/elm/ob/finance/ad_process/PurchaseInvoice/PurchaseInvoiceSubmit.java
++++ b/src/sa/elm/ob/finance/ad_process/PurchaseInvoice/PurchaseInvoiceSubmit.java
+@@ -37,6 +37,7 @@
+ import org.openbravo.erpCommon.utility.OBError;
+ import org.openbravo.erpCommon.utility.OBErrorBuilder;
+ import org.openbravo.erpCommon.utility.OBMessageUtils;
++import org.openbravo.erpCommon.utility.PropertyException;
+ import org.openbravo.erpCommon.utility.SequenceIdData;
+ import org.openbravo.model.ad.access.Role;
+ import org.openbravo.model.ad.access.User;
+@@ -94,6 +95,8 @@
+ import sa.elm.ob.utility.ad_forms.nextrolebyrule.NextRoleByRuleVO;
+ import sa.elm.ob.utility.ad_process.Forward.ForwardRequestMoreInfoDAO;
+ import sa.elm.ob.utility.ad_process.Forward.ForwardRequestMoreInfoDAOImpl;
++import sa.elm.ob.utility.epm.service.EmpServiceImpl;
++import sa.elm.ob.utility.epm.service.EpmService;
+ import sa.elm.ob.utility.properties.Resource;
+ import sa.elm.ob.utility.util.Constants;
+ import sa.elm.ob.utility.util.DocumentTypeE;
+@@ -2052,6 +2055,25 @@
+               header.getClient().getId(), Description, "NEW", alertWindow, alertKey,
+               Constants.GENERIC_TEMPLATE);
+ 
++          /******* EPM webservice Start *****/
++          try {
++            preferenceValue = org.openbravo.erpCommon.businessUtility.Preferences
++                .getPreferenceValue("ESCM_EPM_URL", true, vars.getClient(),
++                    invoice.getOrganization().getId(), vars.getUser(), vars.getRole(), null);
++
++            preferenceValue = (preferenceValue == null) ? "N" : preferenceValue;
++          } catch (PropertyException e) {
++            preferenceValue = "N";
++          }
++
++          if ("Y".equals(preferenceValue) && header.isEfinIsrdv() && header.getSalesOrder()
++              .getEscmContactType().getId().equals("7A690E46B6E043C7A8B34B2D92E17D87")) {
++            EpmService service = new EmpServiceImpl();
++            service.addExtractProject(header);
++            service.addExtractPDFInvoice(header);
++            service.addExtractPDFRdv(header);
++          }
++          /******* EPM webservice Ends *****/
+         }
+ 
+         // after approved by forwarded user removing the forward and rmi id

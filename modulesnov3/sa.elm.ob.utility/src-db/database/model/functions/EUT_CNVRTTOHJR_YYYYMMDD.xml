@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_CNVRTTOHJR_YYYYMMDD">
+    <function name="EUT_CNVRTTOHJR_YYYYMMDD" type="VARCHAR">
+      <parameter name="p_gregorian_date" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_hijri_date NVARCHAR2 (10);
+
+BEGIN
+	select substr(hijri_date, 1,4)||'-'||substr(hijri_date, 5,2) ||'-'||substr(hijri_date, 7,2) into v_hijri_date from eut_hijri_dates where gregorian_date =TO_DATE( p_gregorian_date,'YYYY-MM-DD');
+  return v_hijri_date;
+END EUT_CNVRTTOHJR_YYYYMMDD
+]]></body>
+    </function>
+  </database>

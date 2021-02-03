@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="F0FFB338281C4A08AC55D033CBFAB242" identifier="Budget Adjustment Forward">
+    <id>F0FFB338281C4A08AC55D033CBFAB242</id>
+    <active>true</active>
+    <creationDate transient="true">2019-02-11T19:09:53.24Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-02-19T12:37:36.81Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Budget Adjustment Forward</name>
+    <tab id="A9D394A5BE374ADC815DABBAF3D6D591" entity-name="ADTab" identifier="Fund and Cost Adjustment - Fund and Cost Adjustment"/>
+    <filterClause>((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) </filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>BUDADJF</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

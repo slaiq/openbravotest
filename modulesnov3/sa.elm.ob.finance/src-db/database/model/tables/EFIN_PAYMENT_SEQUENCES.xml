@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+  <database name="TABLE EFIN_PAYMENT_SEQUENCES">
+    <table name="EFIN_PAYMENT_SEQUENCES" primaryKey="EFIN_PAYMENT_SEQUENCES_KEY">
+      <column name="EFIN_PAYMENT_SEQUENCES_ID" primaryKey="true" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_CLIENT_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_ORG_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="ISACTIVE" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[Y]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="FIN_PAYMENTMETHOD_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="SAVE_PAYMENT" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="APPLY" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="RETURN" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EFIN_BANK_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EFIN_ACCOUNT_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="NAME" primaryKey="false" required="false" type="VARCHAR" size="30" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="FIN_PAYMENTMETHOD" name="EFIN_PAYMENT_METHOD">
+        <reference local="FIN_PAYMENTMETHOD_ID" foreign="FIN_PAYMENTMETHOD_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_ACCOUNT" name="EFIN_PAYMENTACCOUNT_FK">
+        <reference local="EFIN_ACCOUNT_ID" foreign="EFIN_ACCOUNT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_BANK" name="EFIN_PAYMENTBANK_FK">
+        <reference local="EFIN_BANK_ID" foreign="EFIN_BANK_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_CLIENT" name="EFIN_PAYSEQ_CLI">
+        <reference local="AD_CLIENT_ID" foreign="AD_CLIENT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_ORG" name="EFIN_PAYSEQ_ORG">
+        <reference local="AD_ORG_ID" foreign="AD_ORG_ID"/>
+      </foreign-key>
+      <index name="EFIN_PAYMENTACCOUNT_FK" unique="false">
+        <index-column name="EFIN_ACCOUNT_ID"/>
+      </index>
+      <index name="EFIN_PAYMENTBANK_FK" unique="false">
+        <index-column name="EFIN_BANK_ID"/>
+      </index>
+      <index name="FKI_EFIN_PAYMENTBANK_FK" unique="false">
+        <index-column name="EFIN_BANK_ID"/>
+      </index>
+      <unique name="EFIN_PAYMENT_SEQ_UNIQ">
+        <unique-column name="AD_CLIENT_ID"/>
+        <unique-column name="AD_ORG_ID"/>
+        <unique-column name="FIN_PAYMENTMETHOD_ID"/>
+        <unique-column name="EFIN_BANK_ID"/>
+        <unique-column name="EFIN_ACCOUNT_ID"/>
+      </unique>
+    </table>
+  </database>

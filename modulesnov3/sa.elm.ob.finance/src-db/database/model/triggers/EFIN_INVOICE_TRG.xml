@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_INVOICE_TRG">
+    <trigger name="EFIN_INVOICE_TRG" table="C_INVOICE" fires="before" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_status VARCHAR(60);
+v_invoice_id VARCHAR(32);
+v_count NUMBER(32);
+BEGIN
+v_count :=0;
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF DELETING THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+    
+	-- Delete Operation
+	IF DELETING THEN
+		v_invoice_id = :old.c_invoice_id;
+	END IF;
+
+	
+	--inserting/updating Operation
+	IF INSERTING  OR UPDATING THEN
+		v_invoice_id = :new.c_invoice_id;
+	END IF;
+	IF  DELETING THEN 
+		select docstatus into v_status from c_invoice  where c_invoice_id=v_invoice_id;
+		IF(v_status='EFIN_WFA' OR v_status='CO' OR v_status='VO' OR  v_status='CL' ) THEN
+			RAISE_APPLICATION_ERROR(-20501,'@EFIN_Invoice_CannotDelete@');
+		END IF;
+	END IF; 
+    
+END EFIN_INVOICE_TRG
+]]></body>
+    </trigger>
+  </database>

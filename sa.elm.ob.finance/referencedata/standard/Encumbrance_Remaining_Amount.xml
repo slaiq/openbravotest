@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="6A55900EF6534E1DB9AAA333B9DC924A" identifier="Encumbrance Remaining Amount">
+    <id>6A55900EF6534E1DB9AAA333B9DC924A</id>
+    <active>true</active>
+    <name>Encumbrance Remaining Amount</name>
+    <tab id="9CBD55F879EA4DCAA4E944C0B7DC03D4" entity-name="ADTab" identifier="Header - Encumbrance"/>
+    <filterClause xsi:nil="true"/>
+    <sql>SELECT hdr.efin_budget_manencum_id AS referencekey_id,
+     ad_column_identifier('efin_budget_manencum',hdr.efin_budget_manencum_id , 'en_US') AS record_id,
+     '0' AS ad_role_id,
+     NULL AS ad_user_id,
+     'Encumbrance - ' || hdr.documentno  ||' Remaining amount Less than Zero '  AS description,
+     'Y' AS isActive,
+      ln.ad_org_id, 
+      ln.ad_client_id, 
+      now() AS created,  
+      '0' AS createdBy,  
+      now() AS updated,
+      '0' AS updatedBy
+ FROM efin_budget_manencumlines ln
+ JOIN  efin_budget_manencum hdr on   ln.efin_budget_manencum_id = hdr.efin_budget_manencum_id
+ WHERE ln.remaining_amount &lt; 0</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+</ob:Openbravo>

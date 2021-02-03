@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="General_Auditing_Idbara" pageWidth="595" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="d8ee1bf4-6e35-4b53-bf21-a3a914f63569">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="LocalHostDB"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<parameter name="C_Year_ID" class="java.lang.String"/>
+	<parameter name="C_Period_ID_Fr" class="java.lang.String"/>
+	<parameter name="C_Period_ID_To" class="java.lang.String"/>
+	<parameter name="Chapter_ID" class="java.lang.String"/>
+	<parameter name="element_from" class="java.lang.String"/>
+	<parameter name="element_to" class="java.lang.String"/>
+	<parameter name="accountType_id" class="java.lang.String"/>
+	<parameter name="Aux_Elementvalue_Id" class="java.lang.String">
+		<defaultValueExpression><![CDATA[($P{element_from}==null || $P{element_from}.equals( "" )) ?  "    AND 1=1    " : "     AND f.acctvalue BETWEEN (SELECT value  FROM c_elementvalue WHERE c_elementvalue_id = '"+$P{element_from}+"'      limit 1)   AND (SELECT value  FROM c_elementvalue  WHERE c_elementvalue_id =  '"+$P{element_to}+"'  limit 1)         "]]></defaultValueExpression>
+	</parameter>
+	<parameter name="Aux_C_Year_ID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[($P{C_Year_ID}==null || $P{C_Year_ID}.equals( "" )) ?  "    AND 1=1    " : "   and  per.c_year_id  = '"+$P{C_Year_ID}+"'    "]]></defaultValueExpression>
+	</parameter>
+	<parameter name="Aux_period_fr" class="java.lang.String">
+		<defaultValueExpression><![CDATA[($P{C_Period_ID_Fr}==null || $P{C_Period_ID_Fr}.equals( "" )) ?  "    AND 1=1    " : " and trunc(per.startdate) >= (select trunc(p.startdate) from c_period p where p.c_period_id= '"+$P{C_Period_ID_Fr}+"' )    "]]></defaultValueExpression>
+	</parameter>
+	<parameter name="Aux_period_to" class="java.lang.String">
+		<defaultValueExpression><![CDATA[($P{C_Period_ID_To}==null || $P{C_Period_ID_To}.equals( "" )) ?  "    AND 1=1    " : " and trunc(per.enddate) <= (select trunc(p.enddate) from c_period p where p.c_period_id ='"+$P{C_Period_ID_To}+"' )    "]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+per.name period_name,
+/*	case
+		when f.acctvalue like '21%' then '1'
+		when f.acctvalue like '22%' then '2'
+		when f.acctvalue like '23%' then '2'
+		when f.acctvalue like '24%' then '2'
+		when f.acctvalue like '25%' then '2'
+		when f.acctvalue like '26%' then '2'
+		when f.acctvalue like '27%' then '2'
+		when f.acctvalue like '28%' then '2'
+		when f.acctvalue like '30%' then '3'
+		when f.acctvalue like '36%' then '3'
+		when f.acctvalue like '4%' then '4'
+		else 'Liability'
+	end chapter, */
+	case
+		when f.acctvalue like '21%' then '0'--'1'
+		when f.acctvalue like '22%' then '0'--'2'
+		when f.acctvalue like '23%' then '0'--'2'
+		when f.acctvalue like '24%' then '0'--'2'
+		when f.acctvalue like '25%' then '0'--'2'
+		when f.acctvalue like '26%' then '0'--'2'
+		when f.acctvalue like '27%' then '0'--'2'
+		when f.acctvalue like '28%' then '0'--'2'
+		when f.acctvalue like '30%' then f.acctvalue -- '3'
+		when f.acctvalue like '36%' then f.acctvalue -- '3'
+		when f.acctvalue like '4%' then f.acctvalue --  '4'
+		else '0'
+	end chapter,
+--	f.acctvalue item,
+case
+		when f.acctvalue like '21%' then f.acctvalue--'1'
+		when f.acctvalue like '22%' then f.acctvalue--'2'
+		when f.acctvalue like '23%' then f.acctvalue--'2'
+		when f.acctvalue like '24%' then f.acctvalue--'2'
+		when f.acctvalue like '25%' then f.acctvalue--'2'
+		when f.acctvalue like '26%' then f.acctvalue--'2'
+		when f.acctvalue like '27%' then f.acctvalue--'2'
+		when f.acctvalue like '28%' then f.acctvalue--'2'
+		when f.acctvalue like '30%' then sbacct.value -- '3'
+		when f.acctvalue like '36%' then sbacct.value -- '3'
+		when f.acctvalue like '4%' then sbacct.value --  '4'
+		else f.acctvalue
+	end  item,
+sum(	case
+		when AmtAcctDr = 0 then - amtAcctCr
+		else AmtAcctDr
+	end) amount,
+--	em_efin_documentno || '.pdf' fileName,
+    EM_Efin_Acctseq || '.pdf' fileName,
+	EM_Efin_Acctseq id
+from
+	Fact_Acct f,
+	c_period per,
+	c_project sbacct
+where
+	f.c_period_id = per.c_period_id
+	and f.c_project_id =sbacct.c_project_id
+	and (Case when $P{Chapter_ID}  = '1' then f.acctvalue like '21%'
+			          when $P{Chapter_ID}  = '2' then  
+			       ( f.acctvalue like '22%'
+				or  f.acctvalue like '23%'
+				or  f.acctvalue like '24%'
+				or f.acctvalue like  '25%'
+				or  f.acctvalue like '26%'
+				or  f.acctvalue like '27%'
+				or  f.acctvalue like '28%'
+				)
+				 when $P{Chapter_ID}  = '3' then (f.acctvalue like  '30%' or f.acctvalue like  '36%')
+				 when $P{Chapter_ID}  = '4' then f.acctvalue like  '4%'
+				 else  f.acctvalue like '%'
+				/* (f.acctvalue like '21%' 
+				or f.acctvalue like '22%'
+				or  f.acctvalue like '23%'
+				or  f.acctvalue like '24%'
+				or f.acctvalue like  '25%'
+				or  f.acctvalue like '26%'
+				or  f.acctvalue like '27%'
+				or  f.acctvalue like '28%'
+				or f.acctvalue like  '3%' 
+				or f.acctvalue like '4%'
+				)  */
+				end )					
+ $P!{Aux_C_Year_ID} 
+  $P!{Aux_period_fr} 
+   $P!{Aux_period_to} 
+  $P!{Aux_Elementvalue_Id} 
+  and case when $P{accountType_id} is null or $P{accountType_id}='' then 1=1
+           when $P{accountType_id} ='E' then f.acctvalue in (select value from c_elementvalue where accounttype='E')
+           when $P{accountType_id} ='NE' then  f.acctvalue in (select value from c_elementvalue where accounttype <>'E') 
+	  end	
+group by per.name,f.acctvalue,sbacct.value,EM_Efin_Acctseq	  
+order by
+ per.name ,
+	f.em_efin_acctseq]]>
+	</queryString>
+	<field name="period_name" class="java.lang.String"/>
+	<field name="chapter" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="chapter"/>
+	</field>
+	<field name="item" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.label" value="item"/>
+	</field>
+	<field name="amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="amount"/>
+	</field>
+	<field name="filename" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="filename"/>
+	</field>
+	<field name="id" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="id"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="100" height="20" uuid="669bc6fd-4474-4524-821d-22852a622341"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[chapter]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="100" y="0" width="100" height="20" uuid="6f1e1946-9cba-4c04-9803-2f84a432ce68"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[item]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="200" y="0" width="100" height="20" uuid="4f632ce2-1878-432e-abb8-b737cfa3c824"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="300" y="0" width="169" height="20" uuid="6ddee197-3608-4673-ab2b-5d695290ad69"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[filename]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="469" y="0" width="125" height="20" uuid="b5cd1f0e-fc9a-4b9f-b60c-26281be444a7"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[id]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField pattern="###0" isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="100" height="20" uuid="748a31c2-efd7-4411-b1ca-81b7d49a4ffa"/>
+				<box leftPadding="8">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{chapter}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0" isBlankWhenNull="true">
+				<reportElement x="300" y="0" width="169" height="20" uuid="9d5ebe6d-4308-4c8c-a6fb-19991822b68b"/>
+				<box leftPadding="8">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{filename}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00#" isBlankWhenNull="true">
+				<reportElement x="200" y="0" width="100" height="20" uuid="afdd14d2-059c-46da-8208-197b7bc9913c"/>
+				<box leftPadding="8">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{amount}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0" isBlankWhenNull="true">
+				<reportElement x="469" y="0" width="125" height="20" uuid="5773b790-893b-4298-bf21-12bfd8800509"/>
+				<box leftPadding="8">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0" isBlankWhenNull="true">
+				<reportElement x="100" y="0" width="100" height="20" uuid="1b16058b-1199-4526-a251-d97709811b6d"/>
+				<box leftPadding="8">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{item}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+	<noData>
+		<band height="50">
+			<staticText>
+				<reportElement x="223" y="8" width="169" height="35" uuid="6bbf7dc4-22b2-42bd-91ec-df28a93810bf"/>
+				<box>
+					<pen lineWidth="1.0"/>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No Data Found]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="1DA324D8D7394F009BA26DDAB6C6866A" identifier="Return Transaction Forward">
+    <id>1DA324D8D7394F009BA26DDAB6C6866A</id>
+    <active>true</active>
+    <creationDate transient="true">2018-12-25T16:10:44.499Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-07-01T18:47:29.193Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Return Transaction Forward</name>
+    <tab id="72A6B3CA5BE848ACA976304375A5B7A6" entity-name="ADTab" identifier="Header - Return Transaction"/>
+    <filterClause>((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) </filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>RTF</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

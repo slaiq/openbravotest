@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_USERBP_V">
+    <view name="ESCM_USERBP_V"><![CDATA[SELECT u.ad_user_id AS escm_userbp_v_id, u.ad_client_id, u.ad_org_id, u.isactive, u.created, u.createdby, u.updated, u.updatedby, (bp.value || '-') || bp.name AS value, bp.name, bp.value AS bpvalue, bp.isemployee FROM ad_user u JOIN c_bpartner bp ON u.c_bpartner_id = bp.c_bpartner_id WHERE bp.isactive = 'Y' AND u.isactive = 'Y']]></view>
+  </database>

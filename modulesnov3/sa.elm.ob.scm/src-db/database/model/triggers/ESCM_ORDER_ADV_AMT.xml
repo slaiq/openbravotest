@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_ORDER_ADV_AMT">
+    <trigger name="ESCM_ORDER_ADV_AMT" table="C_ORDER" fires="after" insert="false" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_total NUMBER;
+v_advper NUMBER;
+v_advamt NUMBER;
+v_prec NUMBER;
+BEGIN
+
+ 
+
+v_total :=0;
+v_advper :=0;
+v_advamt :=0;
+v_prec :=0;
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+ 
+
+      -- To get Standard Precision from Currency by using Current Client ID
+    select stdPrecision INTO v_prec from c_currency where c_currency_id 
+    in (select c_currency_id from ad_client where ad_client_id  = :new.ad_client_id);
+    
+    IF UPDATING THEN
+        IF (:old.grandtotal <> :new.grandtotal) and :new.grandtotal > 0 and :new.em_escm_advpaymnt_percntge > 0 and :new.em_escm_base_order is null THEN
+            select grandtotal,em_escm_advpaymnt_percntge into v_total, v_advper  from c_order  where c_order_id = :NEW.C_Order_ID;
+            v_advamt = v_total*(v_advper/100);
+            -- for initial version only advance payement amount will update
+            update c_order set em_escm_advpaymnt_amt = v_advamt where c_order_id = :NEW.C_Order_ID;
+        END IF;
+    END IF;
+    
+      IF(:old.grandtotal <> :new.grandtotal 
+           and :new.grandtotal <> round(:new.grandtotal,v_prec)
+          ) THEN
+            :new.grandtotal := round(:new.grandtotal,v_prec);
+           update c_order set grandtotal = round(:new.grandtotal,v_prec) where c_order_id = :NEW.C_Order_ID;
+        END IF;
+        
+         IF(:old.em_escm_tot_po_updated_amt <> :new.em_escm_tot_po_updated_amt 
+           and :new.em_escm_tot_po_updated_amt <> round(:new.em_escm_tot_po_updated_amt,v_prec)
+          ) THEN
+          :new.em_escm_tot_po_updated_amt := round(:new.em_escm_tot_po_updated_amt,v_prec);
+            update c_order set em_escm_tot_po_updated_amt = round(:new.em_escm_tot_po_updated_amt,v_prec) where c_order_id = :NEW.C_Order_ID;
+        END IF;
+         if(:old.em_escm_legacy_org_amount <> :new.em_escm_legacy_org_amount) then
+      	 update c_order set em_escm_legacy_org_amount = :new.em_escm_legacy_org_amount
+         where  (em_Escm_base_order = coalesce(:new.em_Escm_base_order,:new.c_order_id) or 
+                           c_order.c_order_id = 
+                           coalesce(:new.em_Escm_base_order,:new.c_order_id));
+        
+         end if;
+       
+        
+    END ESCM_ORDER_ADV_AMT
+]]></body>
+    </trigger>
+  </database>

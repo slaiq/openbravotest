@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_RDVHOLDACT_UPDTRDVLN">
+    <trigger name="EFIN_RDVHOLDACT_UPDTRDVLN" table="EFIN_RDV_HOLD_ACTION" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_holdAmt NUMBER:= 0;
+v_action_id CHARACTER VARYING(32);
+v_rdvtrxline_id CHARACTER VARYING(32);
+v_rdvholdtype_id CHARACTER VARYING(32);
+v_prec NUMBER;
+v_clientId VARCHAR(32);
+
+v_sumofaddremoveAmt NUMBER:= 0;
+cur_hold record;
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	
+
+IF TG_OP='INSERT' OR TG_OP='UPDATE' THEN
+
+-- To get current Client ID 
+	Select ad_client_id INTO v_clientId from efin_rdv_hold_action 
+	where efin_rdv_hold_action_id = :new.efin_rdv_hold_action_id;
+	-- To get Standarrd Precision from Currency by using Current Client ID
+	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+	in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+    
+	v_action_id := :NEW.efin_rdv_hold_action_id;
+	v_rdvtrxline_id := :new.efin_rdvtxnline_id;
+	v_rdvholdtype_id :=:new.efin_rdv_hold_types_id;
+ELSE 
+	v_action_id := :OLD.efin_rdv_hold_action_id;
+	v_rdvtrxline_id := :OLD.efin_rdvtxnline_id;
+	v_rdvholdtype_id :=:old.efin_rdv_hold_types_id;
+END IF;
+
+for cur_hold in (
+select distinct act.efin_rdv_hold_types_id , coalesce(( select coalesce(sum(pen.rdv_hold_amount),0) 
+from efin_rdv_hold_action pen 
+where pen.efin_rdvtxnline_id=act.efin_rdvtxnline_id and pen.action='AD' 
+and pen.efin_rdv_hold_types_id = act.efin_rdv_hold_types_id ) +
+( select coalesce(sum(pen.rdv_hold_amount),0) from efin_rdv_hold_action pen 
+where pen.efin_rdvtxnline_id=act.efin_rdvtxnline_id 
+and pen.action='RM' and pen.efin_rdv_hold_types_id = act.efin_rdv_hold_types_id 
+),0) as totpenamt from efin_rdv_hold_action act 
+where efin_rdvtxnline_id= v_rdvtrxline_id)
+
+Loop
+v_sumofaddremoveAmt := ROUND(v_sumofaddremoveAmt+cur_h:old.totpenamt , v_prec);
+end loop;
+
+-- Insert/Update/Delete Operation	
+IF INSERTING THEN
+	IF :new.rdv_hold_amount <> 0 then
+		v_holdAmt:=:new.rdv_hold_amount ;
+	end if;
+
+	update efin_rdvtxnline set holdamt= ROUND(holdamt+v_holdAmt , v_prec) where efin_rdvtxnline_id= :new.efin_rdvtxnline_id;
+
+END IF;
+
+IF UPDATING THEN
+	IF :new.rdv_hold_amount <> 0 and ((:new.rdv_hold_amount <> :old.rdv_hold_amount) 
+									or (:new.action <> :old.action) or 
+									(:new.efin_rdv_hold_types_id <> :old.efin_rdv_hold_types_id)) then
+		v_holdAmt := ROUND(v_sumofaddremoveAmt, v_prec);
+		update efin_rdvtxnline set holdamt= ROUND(v_sumofaddremoveAmt, v_prec) where efin_rdvtxnline_id= :new.efin_rdvtxnline_id;
+	END IF;
+END IF;
+
+IF DELETING THEN
+
+
+
+
+	-- To get Standarrd Precision from Currency by using Current Client ID
+	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+	in (select c_currency_id from ad_client where ad_client_id  = :old.ad_client_id);
+	IF :old.rdv_hold_amount <> 0 then
+		v_holdAmt:=Round(:old.rdv_hold_amount,v_prec) ;
+	end if;
+    
+	update efin_rdvtxnline set holdamt= ROUND(holdamt-v_holdAmt,  v_prec) where efin_rdvtxnline_id= :old.efin_rdvtxnline_id;   
+     -- update released amount if released hold delete
+     IF :old.rdv_hold_rel_id is not null then
+         update efin_rdv_hold_action set releasedamt= ROUND(releasedamt+:old.rdv_hold_Amount, v_prec) where efin_rdv_hold_action_id= :old.rdv_hold_rel_id;
+     END IF;     	
+
+END IF;
+
+END EFIN_RDVHOLDACT_UPDTRDVLN
+]]></body>
+    </trigger>
+  </database>

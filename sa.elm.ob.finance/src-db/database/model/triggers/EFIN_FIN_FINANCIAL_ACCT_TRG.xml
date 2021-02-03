@@ -1,0 +1,223 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_FIN_FINANCIAL_ACCT_TRG">
+    <trigger name="EFIN_FIN_FINANCIAL_ACCT_TRG" table="FIN_FINANCIAL_ACCOUNT_ACCT" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+    /*************************************************************************
+    * All Rights Reserved.
+    * Contributor(s): Gopalakrishnan.
+    ************************************************************************/
+  v_BudgetTypeValue VARCHAR2(60):='';
+  v_DepartmentValue VARCHAR(60):= '';--OBTG:VARCHAR2--
+  v_OrgValue VARCHAR(60):= '';--OBTG:VARCHAR2--
+  v_ProjectValue VARCHAR(60):='';--OBTG:VARCHAR2--
+  v_ActivityValue VARCHAR(60):= '';--OBTG:VARCHAR2--
+  v_UserOneValue VARCHAR(60):= '';--OBTG:VARCHAR2--
+  v_UserTwoValue VARCHAR(60):= '';--OBTG:VARCHAR2--
+  v_uniqueCode VARCHAR(60):= '';--OBTG:VARCHAR2--
+  v_efin_uniquecode VARCHAR(2000);--OBTG:VARCHAR2--
+  v_budgetTypeCount NUMBER;
+  v_org_id VARCHAR2(32);
+  vTree VARCHAR2(32);
+  v_accountcode VARCHAR(60);--OBTG:VARCHAR2--
+
+BEGIN
+
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+ --Common BudgetType
+ IF INSERTING THEN
+ select count(value) into v_budgetTypeCount from c_campaign where ad_org_id=:NEW.ad_org_id
+ and em_efin_iscarryforward='N' and ad_client_id=:NEW.ad_client_id;
+ if(v_budgetTypeCount=0) then
+				v_org_id :=:NEW.ad_org_id;
+				SELECT ad_tree_id  INTO vTree  
+				FROM ad_tree 
+				WHERE ad_client_id=:NEW.ad_client_id
+				AND treetype='OO';
+			      WHILE (v_org_id is not null and v_org_id <> '')
+			      LOOP
+				SELECT parent_id INTO v_org_id
+				FROM ad_treenode
+				WHERE node_id = v_org_id
+				AND ad_tree_id = vTree;
+				IF v_org_id is not null THEN
+				  select value into v_BudgetTypeValue from c_campaign
+				  where ad_org_id=v_org_id and em_efin_iscarryforward='N' and ad_client_id=:NEW.ad_client_id;
+				END IF;
+				EXIT WHEN v_BudgetTypeValue is not null;
+			      End LOOP ;
+ else
+   select value into v_BudgetTypeValue from c_campaign
+   where ad_org_id=:NEW.ad_org_id and em_efin_iscarryforward='N' and ad_client_id=:NEW.ad_client_id;
+ end if;
+ --common Department
+v_org_id :=:NEW.ad_org_id;
+SELECT ad_tree_id  INTO vTree  FROM ad_tree WHERE ad_client_id=:NEW.ad_client_id AND treetype='OO';
+	      WHILE (v_org_id is not null and v_org_id <> '')
+	      LOOP
+		SELECT parent_id INTO v_org_id	FROM ad_treenode WHERE node_id = v_org_id AND ad_tree_id = vTree;
+		IF v_org_id is not null THEN
+		   select coalesce(max(value),'') into v_DepartmentValue from c_salesregion where isdefault ='Y' and ad_org_id=v_org_id;
+		END IF;
+		EXIT WHEN v_DepartmentValue is not null;
+	      End LOOP ;
+   /*if(v_DepartmentValue='') then
+	Raise Exception '%','@Efin_No_Defaultdept@';--OBTG:-20000--
+  end if;*/
+ --common Organization
+  select coalesce(max(value),'') into v_OrgValue from ad_org where ad_org_id=:NEW.ad_org_id;
+  --common Project 
+  v_org_id :=:NEW.ad_org_id;
+ SELECT ad_tree_id  INTO vTree  FROM ad_tree WHERE ad_client_id=:NEW.ad_client_id AND treetype='OO';
+	      WHILE (v_org_id is not null and v_org_id <> '')
+	      LOOP
+		SELECT parent_id INTO v_org_id FROM ad_treenode	WHERE node_id = v_org_id AND ad_tree_id = vTree;
+		IF v_org_id is not null THEN
+		select coalesce(max(value),'') into v_ProjectValue from c_project where em_efin_isdefault ='Y' and ad_org_id=v_org_id;
+		END IF;
+		EXIT WHEN v_ProjectValue is not null;
+	      End LOOP ;
+  /*if(v_ProjectValue='') then 
+	Raise Exception '%','@Efin_No_Defaultproj@';--OBTG:-20000--
+  end if;*/
+ --common functional classification 
+
+ v_org_id :=:NEW.ad_org_id;
+ SELECT ad_tree_id  INTO vTree  FROM ad_tree WHERE ad_client_id=:NEW.ad_client_id AND treetype='OO';
+	      WHILE (v_org_id is not null and v_org_id <> '')
+	      LOOP
+		SELECT parent_id INTO v_org_id	FROM ad_treenode WHERE node_id = v_org_id AND ad_tree_id = vTree;
+		IF v_org_id is not null THEN
+		 select coalesce(max(value),'') into v_ActivityValue from c_activity where em_efin_isdefault ='Y' and ad_org_id=v_org_id;
+		END IF;
+		EXIT WHEN v_ActivityValue is not null;
+	      End LOOP ;
+  /*if(v_ActivityValue='') then 
+	Raise Exception '%','@Efin_No_Defaultfunclass@';--OBTG:-20000--
+  end if;*/
+ --common user2
+
+ v_org_id :=:NEW.ad_org_id;
+ SELECT ad_tree_id  INTO vTree  FROM ad_tree WHERE ad_client_id=:NEW.ad_client_id AND treetype='OO';
+	      WHILE (v_org_id is not null and v_org_id <> '')
+	      LOOP
+		SELECT parent_id INTO v_org_id	FROM ad_treenode WHERE node_id = v_org_id AND ad_tree_id = vTree;
+		IF v_org_id is not null THEN
+		 select coalesce(max(value),'') into v_UserOneValue from user1 where em_efin_isdefault='Y' and ad_org_id=v_org_id;
+		END IF;
+		EXIT WHEN v_UserOneValue is not null;
+	      End LOOP ;
+  /*if(v_UserOneValue='') then 
+	Raise Exception '%','@Efin_No_Defaultfuture1@';--OBTG:-20000--
+  end if;*/
+ --common user2
+ v_org_id :=:NEW.ad_org_id;
+ SELECT ad_tree_id  INTO vTree FROM ad_tree WHERE ad_client_id=:NEW.ad_client_id	AND treetype='OO';
+	      WHILE (v_org_id is not null and v_org_id <> '')
+	      LOOP
+		SELECT parent_id INTO v_org_id	FROM ad_treenode WHERE node_id = v_org_id AND ad_tree_id = vTree;
+		IF v_org_id is not null THEN
+		select coalesce(max(value),'') into v_UserTwoValue from user2 where em_efin_isdefault='Y' and ad_org_id=v_org_id;
+		END IF;
+		EXIT WHEN v_UserTwoValue is not null;
+	      End LOOP ;
+  /*if(v_UserTwoValue='') then 
+	Raise Exception '%','@Efin_No_Defaultfuture2@';--OBTG:-20000--
+  end if;*/
+
+    --set unique code for PaymentIn_Intransit
+  if((:NEW.fin_in_intransit_acct is not null) and (:NEW.em_efin_in_intransit_unique is null) ) then
+  select em_efin_uniquecode into v_efin_uniquecode from c_validcombination where c_validcombination_id=:NEW.fin_in_intransit_acct;
+  if(v_efin_uniquecode='' or v_efin_uniquecode is null) then
+	select max(ele.value) into v_accountcode from c_validcombination valcom
+	join c_elementvalue ele on valcom.account_id=ele.c_elementvalue_id
+	where valcom.c_validcombination_id=:NEW.fin_in_intransit_acct;
+	v_uniqueCode := v_OrgValue ||'-' ||v_DepartmentValue|| '-' || v_accountcode || '-' ||v_BudgetTypeValue || '-' ||v_ProjectValue ||'-'||v_ActivityValue||'-'||v_UserOneValue ||'-' ||v_UserTwoValue;
+	update c_validcombination set em_efin_uniquecode=v_uniqueCode where c_validcombination_id=:NEW.fin_in_intransit_acct;
+	:NEW.em_efin_in_intransit_unique :=:NEW.fin_in_intransit_acct;
+  else
+	:NEW.em_efin_in_intransit_unique :=:NEW.fin_in_intransit_acct;
+  end if;
+  end if;
+  
+  --set unique code for Deposit Account
+ if((:NEW.fin_deposit_acct is not null) and (:NEW.em_efin_deposit_unique is null) ) then
+   select em_efin_uniquecode into v_efin_uniquecode from c_validcombination where c_validcombination_id=:NEW.fin_deposit_acct;
+  if(v_efin_uniquecode='' or v_efin_uniquecode is null) then
+	select max(ele.value) into v_accountcode from c_validcombination valcom
+	join c_elementvalue ele on valcom.account_id=ele.c_elementvalue_id
+	where valcom.c_validcombination_id=:NEW.fin_deposit_acct;
+	v_uniqueCode := v_OrgValue ||'-' ||v_DepartmentValue|| '-' || v_accountcode || '-' ||v_BudgetTypeValue || '-' ||v_ProjectValue ||'-'||v_ActivityValue||'-'||v_UserOneValue ||'-' ||v_UserTwoValue;
+	update c_validcombination set em_efin_uniquecode=v_uniqueCode where c_validcombination_id=:NEW.fin_deposit_acct;
+	:NEW.em_efin_deposit_unique :=:NEW.fin_deposit_acct;
+   else
+	:NEW.em_efin_deposit_unique :=:NEW.fin_deposit_acct;
+   end if;
+ end if;
+ 
+    --set unique code for ClearAccount
+  if((:NEW.FIN_IN_CLEAR_ACCT is not null) and (:NEW.em_efin_in_clear_unique is null) ) then
+     select em_efin_uniquecode into v_efin_uniquecode from c_validcombination where c_validcombination_id=:NEW.FIN_IN_CLEAR_ACCT;
+  if(v_efin_uniquecode='' or v_efin_uniquecode is null) then
+	select max(ele.value) into v_accountcode from c_validcombination valcom
+	join c_elementvalue ele on valcom.account_id=ele.c_elementvalue_id
+	where valcom.c_validcombination_id=:NEW.FIN_IN_CLEAR_ACCT;
+	v_uniqueCode := v_OrgValue ||'-' ||v_DepartmentValue|| '-' || v_accountcode || '-' ||v_BudgetTypeValue || '-' ||v_ProjectValue ||'-'||v_ActivityValue||'-'||v_UserOneValue ||'-' ||v_UserTwoValue;
+	update c_validcombination set em_efin_uniquecode=v_uniqueCode where c_validcombination_id=:NEW.FIN_IN_CLEAR_ACCT;
+	:NEW.em_efin_in_clear_unique :=:NEW.FIN_IN_CLEAR_ACCT;
+   else
+	:NEW.em_efin_in_clear_unique :=:NEW.FIN_IN_CLEAR_ACCT;
+   end if;
+  end if;
+  
+    --set unique code for Payment Out_TransitAccount
+  if((:NEW.fin_out_intransit_acct is not null) and (:NEW.em_efin_out_intransit_unique is null) ) then
+       select em_efin_uniquecode into v_efin_uniquecode from c_validcombination where c_validcombination_id=:NEW.fin_out_intransit_acct;
+  if(v_efin_uniquecode='' or v_efin_uniquecode is null) then
+	select max(ele.value) into v_accountcode from c_validcombination valcom
+	join c_elementvalue ele on valcom.account_id=ele.c_elementvalue_id
+	where valcom.c_validcombination_id=:NEW.fin_out_intransit_acct;
+	v_uniqueCode := v_OrgValue ||'-' ||v_DepartmentValue|| '-' || v_accountcode || '-' ||v_BudgetTypeValue || '-' ||v_ProjectValue ||'-'||v_ActivityValue||'-'||v_UserOneValue ||'-' ||v_UserTwoValue;
+	update c_validcombination set em_efin_uniquecode=v_uniqueCode where c_validcombination_id=:NEW.fin_out_intransit_acct;
+	:NEW.em_efin_out_intransit_unique :=:NEW.fin_out_intransit_acct;
+   else
+	:NEW.em_efin_out_intransit_unique :=:NEW.fin_out_intransit_acct;
+   end if;
+  end if;
+      --set unique code for Withdraw Account
+  if((:NEW.fin_withdrawal_acct is not null) and (:NEW.em_efin_withdrawal_unique is null) ) then
+         select em_efin_uniquecode into v_efin_uniquecode from c_validcombination where c_validcombination_id=:NEW.fin_withdrawal_acct;
+  if(v_efin_uniquecode='' or v_efin_uniquecode is null) then
+	select max(ele.value) into v_accountcode from c_validcombination valcom
+	join c_elementvalue ele on valcom.account_id=ele.c_elementvalue_id
+	where valcom.c_validcombination_id=:NEW.fin_withdrawal_acct;
+	v_uniqueCode := v_OrgValue ||'-' ||v_DepartmentValue|| '-' || v_accountcode || '-' ||v_BudgetTypeValue || '-' ||v_ProjectValue ||'-'||v_ActivityValue||'-'||v_UserOneValue ||'-' ||v_UserTwoValue;
+	update c_validcombination set em_efin_uniquecode=v_uniqueCode where c_validcombination_id=:NEW.fin_withdrawal_acct;
+	:NEW.em_efin_withdrawal_unique :=:NEW.fin_withdrawal_acct;
+   else
+	:NEW.em_efin_withdrawal_unique :=:NEW.fin_withdrawal_acct;
+   end if;
+  end if;
+  
+       --set unique code for out Clear Account
+  if((:NEW.fin_out_clear_acct is not null) and (:NEW.em_efin_out_clear_unique is null) ) then
+           select em_efin_uniquecode into v_efin_uniquecode from c_validcombination where c_validcombination_id=:NEW.fin_out_clear_acct;
+  if(v_efin_uniquecode='' or v_efin_uniquecode is null) then
+	select max(ele.value) into v_accountcode from c_validcombination valcom
+	join c_elementvalue ele on valcom.account_id=ele.c_elementvalue_id
+	where valcom.c_validcombination_id=:NEW.fin_out_clear_acct;
+	v_uniqueCode := v_OrgValue ||'-' ||v_DepartmentValue|| '-' || v_accountcode || '-' ||v_BudgetTypeValue || '-' ||v_ProjectValue ||'-'||v_ActivityValue||'-'||v_UserOneValue ||'-' ||v_UserTwoValue;
+	update c_validcombination set em_efin_uniquecode=v_uniqueCode where c_validcombination_id=:NEW.fin_out_clear_acct;
+	:NEW.em_efin_out_clear_unique :=:NEW.fin_out_clear_acct;
+   else
+	:NEW.em_efin_out_clear_unique :=:NEW.fin_out_clear_acct;
+   end if;
+  end if;
+  
+END IF;
+
+    
+END EFIN_FIN_FINANCIAL_ACCT_TRG
+]]></body>
+    </trigger>
+  </database>

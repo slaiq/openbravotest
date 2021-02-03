@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_ADDPROPOSALLINE">
+    <trigger name="ESCM_ADDPROPOSALLINE" table="ESCM_PROPOSALMGMT" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[cur_bidlines record;
+cur_poposallines record;
+cur_regulationdoc record;
+v_lineNo NUMBER:= 0;
+v_currentdate DATE without time zone;
+v_count NUMBER:= 0;
+v_regulation_count NUMBER:=0;
+v_totalamount NUMBER;
+v_calculatedamount NUMBER;
+v_bgstatus VARCHAR(3);
+cur_bg RECORD;
+v_bidtype VARCHAR(60);
+v_bidparentid VARCHAR(32);
+v_proposalparentid VARCHAR(32);
+v_bidmgmt_id VARCHAR(32);
+v_encum_id VARCHAR(32);
+v_deptId VARCHAR(32);
+v_agencyOrg VARCHAR(32);
+v_enummtd VARCHAR(5);
+v_proposalstatus VARCHAR(60);
+BEGIN
+   
+	--inserting/updating Operation
+	IF INSERTING OR  UPDATING THEN       
+        select count(escm_proposalmgmt_line_id) into v_count 
+        from escm_proposalmgmt_line where escm_proposalmgmt_id = :new.escm_proposalmgmt_id;
+
+        select count(escm_proposal_regulation) into v_regulation_count 
+        from escm_proposal_regulation where escm_proposalmgmt_id = :new.escm_proposalmgmt_id; 
+
+        if (INSERTING or (UPDATING 
+            and :old.escm_bidmgmt_id is null and v_count = 0)) then	   
+            if (:new.escm_bidmgmt_id is not null and :new.escm_baseproposal_id is null) then
+                select agencyorg into v_agencyOrg 
+                from escm_bidsourceref where escm_bidmgmt_line_id = (select escm_bidmgmt_line_id 
+                    from escm_bidmgmt_line  where escm_bidmgmt_id = :new.escm_bidmgmt_id limit 1);
+                update escm_proposalmgmt set agencyorg =v_agencyOrg where escm_proposalmgmt_id=:new.escm_proposalmgmt_id;
+
+                --Copy bid lines into proposal lines
+                FOR cur_bidlines in (select line,m_product_id,description,c_uom_id,movementqty,issummarylevel,
+                                     m_product_category_id,escm_bidmgmt_line_id,c_validcombination_id,uniquecodename,em_efin_budgmanencumline_id
+                                     from escm_bidmgmt_line  where   escm_bidmgmt_id = :new.escm_bidmgmt_id)
+                LOOP
+                    insert into escm_proposalmgmt_line (escm_proposalmgmt_line_id,ad_client_id,ad_org_id,isactive,createdby,updatedby,
+                    line,escm_proposalmgmt_id,m_product_id,description,c_uom_id,movementqty, issummarylevel, m_product_category_id, escm_bidmgmt_line_id,em_efin_c_validcombination_id,em_efin_uniquecodename,em_efin_budgmanencumline_id,isprocess)
+                    values(get_uuid(),:new.ad_client_id,:new.ad_org_id,'Y',:new.createdby,:new.updatedby,cur_bidlines.line,:new.escm_proposalmgmt_id,
+                    cur_bidlines.m_product_id,cur_bidlines.description,cur_bidlines.c_uom_id,cur_bidlines.movementqty,
+                    cur_bidlines.issummarylevel, cur_bidlines.m_product_category_id, cur_bidlines.escm_bidmgmt_line_id,cur_bidlines.c_validcombination_id,cur_bidlines.uniquecodename,cur_bidlines.em_efin_budgmanencumline_id,'Y');
+
+                END LOOP;
+
+                --Update Parent Id
+                FOR cur_poposallines in (select pln.escm_bidmgmt_line_id,bln.parentline_id from escm_proposalmgmt_line pln 
+                                         join escm_bidmgmt_line bln on pln.escm_bidmgmt_line_id = bln.escm_bidmgmt_line_id
+                                         where escm_proposalmgmt_id = :new.escm_proposalmgmt_id and bln.parentline_id is not null)
+                LOOP
+                    --select parentline_id into v_bidparentid from escm_bidmgmt_line where escm_bidmgmt_line_id= cur_poposallines.escm_bidmgmt_line_id;
+                    select escm_proposalmgmt_line_id into v_proposalparentid from escm_proposalmgmt_line 
+                    where escm_proposalmgmt_id = :new.escm_proposalmgmt_id and escm_bidmgmt_line_id = cur_poposallines.parentline_id;
+
+                    update escm_proposalmgmt_line set parentline_id = v_proposalparentid 
+                    where escm_proposalmgmt_id = :new.escm_proposalmgmt_id and escm_bidmgmt_line_id = cur_poposallines.escm_bidmgmt_line_id;
+                END LOOP;
+            end if;
+
+            if(v_regulation_count =0 and (:new.bidtype = 'DR' or :new.escm_bidmgmt_id is null)) 
+            then
+                        for cur_regulationdoc in (select escm_deflookups_typeln_id from escm_deflookups_typeln ln join escm_deflookups_type hd on hd.escm_deflookups_type_id = ln.escm_deflookups_type_id and hd.reference='RD' and hd.isactive='Y' and hd.ad_client_id=:new.ad_client_id order by line asc)
+                        loop
+                        v_lineNo := v_lineNo + 10;
+                    insert into escm_proposal_regulation(escm_proposal_regulation_id,ad_client_id,ad_org_id,isactive,createdby,updatedby,line,name,expirydate,escm_proposalmgmt_id)
+                    values(get_uuid(),:new.ad_client_id,:new.ad_org_id,'Y',:new.createdby,:new.updatedby,v_lineNo,cur_regulationdoc.escm_deflookups_typeln_id,now(),:new.escm_proposalmgmt_id);
+                        end loop;
+            end if;		
+        END IF;	 		
+    END IF;
+
+        -- update the document amount whenevert proposal total amount change
+	IF(UPDATING ) THEN
+	 --when proposal type changes to tender or limited remove the  regulation details
+	    select count(escm_proposal_regulation) into v_regulation_count 
+	    from escm_proposal_regulation where escm_proposalmgmt_id = :new.escm_proposalmgmt_id; 
+		
+		select count(escm_proposalmgmt_line_id) into v_count 
+	    from escm_proposalmgmt_line where escm_proposalmgmt_id = :new.escm_proposalmgmt_id;
+		
+	if(v_regulation_count > 0 and (:new.bidtype != 'DR' or :new.proposaltype !='DR'))
+			then
+		delete from escm_proposal_regulation  where escm_proposalmgmt_id = :new.escm_proposalmgmt_id;  
+	end if;
+    if(v_count > 0 and  :new.escm_bidmgmt_id is null  and  :new.proposaltype='DR' and ( (:new.proposaltype != :old.proposaltype) 
+	  or (coalesce(:new.escm_bidmgmt_id,'') != coalesce(:old.escm_bidmgmt_id,'') ))) 
+	then
+	delete from escm_proposalmgmt_ln_ver where escm_proposalmgmt_line_id in (
+	select escm_proposalmgmt_line_id from escm_proposalmgmt_line where escm_proposalmgmt_id = :new.escm_proposalmgmt_id );
+	delete from escm_proposalmgmt_line  where escm_proposalmgmt_id = :new.escm_proposalmgmt_id;  
+	end if;
+		
+		-- getting bid type for that proposal
+		select bidtype into v_bidtype from escm_bidmgmt  where  escm_bidmgmt_id = ( select escm_bidmgmt_id from escm_proposalmgmt where escm_proposalmgmt_id= :new.escm_proposalmgmt_id);
+		
+		IF(:new.totalamount <> :old.totalamount and (v_bidtype is not null and v_bidtype='DR')) THEN
+			v_totalamount:=:new.totalamount;
+
+			--update the document amount in bank guarantee
+			update escm_bgworkbench set document_amount = v_totalamount			
+			where escm_bgworkbench_id=( select escm_bgworkbench_id from escm_bgworkbench   where escm_proposalmgmt_id  =:new.escm_proposalmgmt_id);
+		END IF;
+	-- update the encumbrance in proposal header
+	select efin_budget_manencum_id into v_encum_id from escm_bidmgmt where   escm_bidmgmt_id =:new.escm_bidmgmt_id;
+	select encum.encum_method into v_enummtd from efin_budget_manencum encum
+    join escm_bidmgmt bid on bid.efin_budget_manencum_id=encum.efin_budget_manencum_id
+    where bid.escm_bidmgmt_id=:new.escm_bidmgmt_id;
+    
+    select pm.proposalstatus into v_proposalstatus from escm_proposalmgmt pm
+		where pm.proposalno = (select min(prop.proposalno)
+           from escm_proposalmgmt prop
+           where prop.escm_bidmgmt_id = :new.escm_bidmgmt_id
+          group by prop.escm_bidmgmt_id);
+          
+	IF(:new.escm_bidmgmt_id is not null and (v_encum_id  is not  null and :new.em_efin_encumbrance_id is null
+	 or (:new.em_efin_encumbrance_id <> :old.em_efin_encumbrance_id)) and v_enummtd='M' and v_proposalstatus!='PAWD') THEN
+		update escm_proposalmgmt set em_efin_encumbrance_id= v_encum_id, em_efin_encum_method='M' where  escm_proposalmgmt_id = :new.escm_proposalmgmt_id;
+	END IF;
+	END IF;
+	END ESCM_ADDPROPOSALLINE
+]]></body>
+    </trigger>
+  </database>

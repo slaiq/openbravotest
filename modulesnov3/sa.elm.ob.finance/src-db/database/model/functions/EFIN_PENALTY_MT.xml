@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_PENALTY_MT">
+    <function name="EFIN_PENALTY_MT" type="NULL">
+      <parameter name="pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): Poongodi 24.11.17
+************************************************************************/
+v_client_id VARCHAR2(32);
+v_user_id VARCHAR2(32);
+v_ResultStr VARCHAR2(2000):='';
+v_Message VARCHAR2(2000):='';
+v_reflistsearchkey VARCHAR2(60);
+v_formula VARCHAR2(60);
+
+TYPE RECORD IS REF CURSOR;
+Cur_List RECORD;
+
+BEGIN
+ 
+--get client id and user id
+SELECT  i.ad_client_id,i.AD_User_ID into v_client_id,v_user_id
+      FROM AD_PInstance i 
+      WHERE i.AD_PInstance_ID=PInstance_ID ;
+--get deductiontype which is not present already in penalty type window
+      FOR Cur_List IN
+      (select value from ad_ref_list 
+       where ad_reference_id ='0C3CDB5DB6CF4BA1A1F7BD8CE8EA6A1B' and isactive='Y'
+        and value not in(select deductiontype from efin_penalty_types where ad_client_id=v_client_id)
+      )
+     
+      LOOP
+      
+      v_reflistsearchkey:=Cur_List.value;
+                   
+
+        
+               -- Insert records in Penalty Type window
+             INSERT INTO efin_penalty_types( efin_penalty_types_id, ad_client_id, ad_org_id, isactive,
+            createdby, updatedby, deductiontype, maintain_enable)
+ 
+		VALUES (get_uuid(), v_client_id, 0, 'Y', 
+                       v_user_id, v_user_id, v_reflistsearchkey,'N');
+          
+        END LOOP;
+      
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 1, v_Message) ;
+   EXCEPTION
+  WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 0, v_ResultStr) ;
+  RETURN;
+END EFIN_PENALTY_MT
+]]></body>
+    </function>
+  </database>

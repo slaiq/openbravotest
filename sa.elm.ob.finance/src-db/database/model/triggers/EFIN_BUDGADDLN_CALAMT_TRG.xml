@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_BUDGADDLN_CALAMT_TRG">
+    <trigger name="EFIN_BUDGADDLN_CALAMT_TRG" table="EFIN_BUDGETADDLINES" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[
+v_totalamt NUMBER;
+v_budgetadd_id VARCHAR(60);
+v_status VARCHAR(60);
+v_dbAmount NUMBER;
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	-- Delete Operation
+	IF DELETING THEN
+		v_budgetadd_id = :old.efin_budgetadd_id;
+	END IF;
+
+	-- Insert Operation
+	IF INSERTING THEN
+		v_budgetadd_id = :new.efin_budgetadd_id;
+	END IF;
+
+	-- Update Operation
+	IF UPDATING THEN
+		v_budgetadd_id = :new.efin_budgetadd_id;
+	END IF;
+	
+	-- Insert/Update Operation
+	IF INSERTING  OR DELETING THEN
+	
+	select status into v_status from efin_budgetadd  where efin_budgetadd_id=v_budgetadd_id;
+		IF(v_status='IA' OR v_status='APP' OR v_status='PD' ) THEN
+			RAISE_APPLICATION_ERROR(-20501,'@EFIN_BudgPre_CannotDelete@');
+		END IF;
+		
+	END IF;
+	IF  INSERTING  OR  UPDATING OR DELETING  THEN
+	
+	select totalbudgetvalue into v_dbAmount from efin_budgetadd  where efin_budgetadd.efin_budgetadd_id= v_budgetadd_id;
+
+	select SUM(amount) into v_totalamt from efin_budgetaddlines 
+		 where efin_budgetadd_id  = v_budgetadd_id group by efin_budgetadd_id;
+	
+	 if(v_totalamt is not null) then
+        	if(v_totalamt <> v_dbAmount) then
+		update efin_budgetadd set totalbudgetvalue = v_totalamt where efin_budgetadd_id= v_budgetadd_id;
+		 END IF;
+	else
+	update efin_budgetadd set totalbudgetvalue = 0 where efin_budgetadd_id= v_budgetadd_id;
+	END IF;	 
+	END IF;
+	END EFIN_BUDGADDLN_CALAMT_TRG
+]]></body>
+    </trigger>
+  </database>

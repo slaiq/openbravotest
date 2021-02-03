@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_C_INVOICEPP_V">
+    <view name="EFIN_C_INVOICEPP_V"><![CDATA[SELECT (hd.documentno || '-') || hd.em_efin_pre_remainingamount AS name, hd.c_invoice_id AS efin_c_invoicepp_v_id, hd.created, hd.createdby, hd.updated, hd.updatedby, hd.ad_client_id, hd.ad_org_id, hd.isactive, hd.em_efin_pre_remainingamount, hd.documentno, hd.c_bpartner_id FROM c_invoice hd JOIN c_doctype dt ON dt.c_doctype_id = hd.c_doctypetarget_id WHERE hd.docstatus = 'CO' AND dt.em_efin_isprepayinv = 'Y']]></view>
+  </database>

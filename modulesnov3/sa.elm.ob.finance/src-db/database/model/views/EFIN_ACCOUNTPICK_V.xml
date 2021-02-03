@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_ACCOUNTPICK_V">
+    <view name="EFIN_ACCOUNTPICK_V"><![CDATA[SELECT (((val.value || '-') || val.name) || '-') || list.name AS name, val.c_elementvalue_id AS efin_accountpick_v_id, val.created, val.createdby, val.updated, val.updatedby, val.ad_client_id, val.ad_org_id, val.isactive, val.em_efin_allow_budgeting AS allowbudget FROM c_elementvalue val JOIN ad_ref_list list ON val.accounttype = list.value AND list.ad_reference_id = '117']]></view>
+  </database>

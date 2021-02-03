@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_BUDENQ_UPDATEACTPROCESS">
+    <function name="EFIN_BUDENQ_UPDATEACTPROCESS" type="NULL">
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): Poongodi 02-01-2018
+************************************************************************/
+v_client_id VARCHAR2(32);
+v_user_id VARCHAR2(32);
+v_ResultStr VARCHAR2(2000):='';
+v_message VARCHAR(2000):='';--OBTG:VARCHAR2--
+v_controlunit VARCHAR2(32):='';
+v_uniquecode VARCHAR2(32);
+v_parentid VARCHAR2(32);
+v_amount NUMBER;
+v_deptfund character(1);
+v_isvirtual character(1);
+
+v_isuniquecodepresent  NUMBER;
+v_parentacctcomId VARCHAR2(32);
+v_budgetInqId VARCHAR2(32);
+v_salesregion_id VARCHAR2(32);
+v_uniquecodename VARCHAR2(200);
+v_elementvalue_id VARCHAR2(32);
+v_project_id VARCHAR2(32);
+v_campaign_id VARCHAR2(32);
+v_bpartner_id VARCHAR2(32);
+v_activity_id VARCHAR2(32);
+v_user1_id VARCHAR2(32);
+v_user2_id VARCHAR2(32);
+v_org_id VARCHAR2(32);
+v_uniquecode_no VARCHAR2(200);
+
+v_budget_int_id VARCHAR2(32);
+
+TYPE RECORD IS REF CURSOR;
+Cur_ChildList RECORD;
+Cur_ParentList RECORD;
+Cur_List RECORD;
+BEGIN
+ 
+--get client id 
+
+      --Disable all trigger using in budget enq line
+	ALTER TABLE efin_budgetinquiry DISABLE TRIGGER efin_budgetinquiry_trg;
+	ALTER TABLE public.efin_budgetinquiry DISABLE TRIGGER efin_budgetinquiryneg_trg;
+	ALTER TABLE public.efin_budgetinquiry DISABLE TRIGGER efin_updatebudinq_actualtrg;
+    -- update spentamt=0 if departmentfunds='N' and isvirtual account='Y' in budget enquiry
+    update efin_budgetinquiry set Spent_Amt = 0 where isvirtual='Y'; 
+    
+    
+    -- check uniquecode is present , if not present then insert it
+	for Cur_ChildList in (select c_validcombination_id,efin_budgetint_id from efin_budinqinvactual_v
+	where  efin_budgetint_id is not null  group by 
+			c_validcombination_id,efin_budgetint_id)
+	loop
+         v_isuniquecodepresent:=0;
+         v_uniquecode:=Cur_ChildList.c_validcombination_id ;
+         v_budget_int_id:=Cur_ChildList.efin_budgetint_id;
+         
+         select em_efin_isdeptfund, ad_org_id, ad_client_id, em_efin_uniquecode, em_efin_uniquecodename,c_salesregion_id,
+                account_id,c_project_id,c_campaign_id,c_bpartner_id,c_activity_id,user1_id,user2_id
+           into v_deptfund,v_org_id,v_client_id,v_uniquecode_no,v_uniquecodename,v_salesregion_id,
+                v_elementvalue_id,v_project_id,v_campaign_id,v_bpartner_id,v_activity_id,v_user1_id,v_user2_id   
+                from c_validcombination where c_validcombination_id =v_uniquecode;
+         select count(efin_budgetinquiry_id)  into v_isuniquecodepresent from  efin_budgetinquiry  where c_validcombination_id = v_uniquecode and efin_budgetint_id = Cur_ChildList.efin_budgetint_id ; 
+         if(v_isuniquecodepresent = 0) then
+           if(v_deptfund ='N') then
+             select efin_getparentAcctcom(v_uniquecode,v_client_id) into v_parentacctcomId from dual;
+              if(v_parentacctcomId is not null ) then
+              select  efin_budgetinquiry_id into v_budgetInqId from efin_budgetinquiry where  efin_budgetint_id  = v_budget_int_id and 
+               c_validcombination_id = v_parentacctcomId;
+                if(v_budgetInqId is not null ) then
+                  INSERT INTO public.efin_budgetinquiry(
+                     efin_budgetinquiry_id, ad_client_id, ad_org_id, isactive, created, 
+                     createdby, updated, updatedby, org_amt, obinc_amt, 
+                     obdec_amt, rev_amount, revinc_amt, revdec_amt, disinc_amt, disdec_amt, 
+                     current_budget, encumbrance, spent_amt, funds_available, description, uniquecode, 
+                     uniquecodename, c_validcombination_id, c_salesregion_id, c_elementvalue_id, 
+                     c_project_id, c_campaign_id, c_bpartner_id, c_activity_id, user1_id, user2_id, 
+                     efin_budgetint_id, parent_id, depinc_amt, depdec_amt, isvirtual)
+                        VALUES (get_uuid(), v_client_id, v_org_id, 'Y', now(),
+                                '100' , now() ,'100', 0, 0,
+                                0, 0, 0, 0, 0, 0,
+                                0, 0, 0, 0, '', v_uniquecode_no,
+                                v_uniquecodename, v_uniquecode, v_salesregion_id, v_elementvalue_id,
+                                v_project_id, v_campaign_id, v_bpartner_id, v_activity_id, v_user1_id, v_user2_id,
+                                v_budget_int_id, v_budgetInqId, 0, 0,'Y');
+                    end if;
+                   end if;        
+                end if;
+             end if;   
+           end loop ;     
+    
+	-- Department level update
+	for Cur_ChildList in (select sum(invamount),c_validcombination_id,efin_budgetint_id from efin_budinqinvactual_v
+	where  efin_budgetint_id is not null  group by 
+			c_validcombination_id,efin_budgetint_id)
+	loop
+	v_amount = Cur_ChildList.sum;
+    v_isvirtual:='N';
+        v_uniquecode = Cur_ChildList.c_validcombination_id;
+       select em_efin_isdeptfund into v_deptfund from c_validcombination where c_validcombination_id = v_uniquecode;
+       if(v_deptfund = 'Y') then
+          update efin_budgetinquiry set Spent_Amt = v_amount where c_validcombination_id = v_uniquecode and efin_budgetint_id = Cur_ChildList.efin_budgetint_id ; 
+       end if;
+       if(v_deptfund = 'N') then
+          select isvirtual into v_isvirtual from efin_budgetinquiry where c_validcombination_id = v_uniquecode and efin_budgetint_id = Cur_ChildList.efin_budgetint_id ;
+         if(v_isvirtual='Y') then
+          update efin_budgetinquiry set Spent_Amt = v_amount where c_validcombination_id = v_uniquecode and efin_budgetint_id = Cur_ChildList.efin_budgetint_id ; 
+          end if;
+        end if;
+      end loop ;
+
+       -- 999 level update
+        for Cur_ParentList in ( select coalesce((sum(vi.invamount)),0) as sum ,inq.efin_budgetinquiry_id   from  efin_budinqinvactual_v vi 
+				left join efin_budgetinquiry inq   on vi.efin_budgetint_id = inq.efin_budgetint_id
+				and  inq.c_validcombination_id  = (select efin_getparentacctcom(vi.c_validcombination_id ,vi.ad_client_id) )
+				where inq.efin_budgetinquiry_id  is not null and  inq.efin_budgetint_id is not null
+				GROUP BY inq.efin_budgetinquiry_id 
+				)
+	loop 
+		update efin_budgetinquiry set Spent_Amt = Cur_ParentList.sum where efin_budgetinquiry.efin_budgetinquiry_id = Cur_ParentList.efin_budgetinquiry_id;
+    
+	end loop;
+
+	--990 level
+	   for Cur_List in (select coalesce((sum(vi.invamount)),0)  as sum ,inq.efin_budgetinquiry_id from efin_budinqinvactual_v vi 
+			left join efin_budgetinquiry inq   on vi.efin_budgetint_id = inq.efin_budgetint_id
+			and  inq.efin_budgetinquiry_id  =( select parent_id from efin_budgetinquiry en where en.c_validcombination_id = (
+			select efin_getparentacctcom(vi.c_validcombination_id,vi.ad_client_id))
+                                               and  en.efin_budgetint_id=vi.efin_budgetint_id)
+                                               where inq.efin_budgetinquiry_id  is not null and  inq.efin_budgetint_id is not null
+			GROUP BY inq.efin_budgetinquiry_id )
+	loop
+	update efin_budgetinquiry set Spent_Amt = Cur_List.sum where efin_budgetinquiry_id = Cur_List.efin_budgetinquiry_id;
+	end loop;
+	
+   --Enable all trigger using in budget enq line
+	ALTER TABLE efin_budgetinquiry ENABLE TRIGGER efin_budgetinquiry_trg;
+	ALTER TABLE public.efin_budgetinquiry ENABLE TRIGGER efin_budgetinquiryneg_trg;
+	ALTER TABLE public.efin_budgetinquiry ENABLE TRIGGER efin_updatebudinq_actualtrg;
+     
+ 
+  RETURN;
+END EFIN_BUDENQ_UPDATEACTPROCESS
+]]></body>
+    </function>
+  </database>

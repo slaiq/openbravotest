@@ -1,0 +1,2 @@
+onClickCheckBox=function(d){var b=document.getElementById(d);var a=document.getElementById(d+"Input");var c=b.getAttribute("disabled");if(c!="true"){if(a.value=="Y"){a.value="N";b.className=b.className.replace("dojoHtmlCheckboxOn","dojoHtmlCheckboxOff");}else{a.value="Y";b.className=b.className.replace("dojoHtmlCheckboxOff","dojoHtmlCheckboxOn");
+}}};

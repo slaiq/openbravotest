@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_FORWARDACCESSROLE_DEL">
+    <function name="EUT_FORWARDACCESSROLE_DEL" type="NULL">
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_forwardrmi_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): Priyanka Ranjan 30-10-2018
+************************************************************************/
+  v_count NUMBER;
+  v_forRmi VARCHAR2(60); 
+  v_windowType VARCHAR(60);  
+ v_recroleid VARCHAR2(32); 
+ v_nextforwardrmiid VARCHAR2(32); 
+ v_currentfromuserId VARCHAR2(32); 
+ v_currentfromroleId VARCHAR2(32); 
+ v_nextfromuserId VARCHAR2(32); 
+ v_nextfromroleId VARCHAR2(32); 
+BEGIN
+
+    /* get type of forward/rmi */
+    select forward_rmi,rec_role_id, docruleid,ad_user_id,ad_role_id into v_forRmi,v_recroleid,v_windowType,v_currentfromuserId,v_currentfromroleId from eut_forward_reqmoreinfo where eut_forward_reqmoreinfo_id = p_forwardrmi_id;
+    
+     select  eut_forward_reqmoreinfo_id,ad_user_id,ad_role_id  into v_nextforwardrmiid,v_nextfromuserId,v_nextfromroleId from eut_forward_reqmoreinfo 
+     where rec_role_id=v_recroleid and docruleid=v_windowType and status='CO' 
+      and eut_forward_reqmoreinfo_id<>p_forwardrmi_id  and forward_rmi=v_forRmi
+     order by created desc limit 1;
+     
+    /*  delete special privileges checkbox  */
+    delete from eut_delegate_role_check where eut_forward_reqmoreinfo_id=p_forwardrmi_id;
+    /*  delete or update Window Access  */
+    IF(v_forRmi ='RMI') THEN
+    select count(ad_window_access_id) into v_count from ad_window_access where 
+    em_eut_reqmoreinfo_id = p_forwardrmi_id and em_eut_forward_reqmoreinfo_id is not null;
+   IF (v_count>0)
+   THEN
+     Update ad_window_access set em_eut_reqmoreinfo_id=null where em_eut_reqmoreinfo_id = p_forwardrmi_id; 
+     ELSE 
+     
+     IF(v_nextforwardrmiid is not null ) THEN
+     Update ad_window_access set em_eut_reqmoreinfo_id=v_nextforwardrmiid where em_eut_reqmoreinfo_id = p_forwardrmi_id; 
+     ELSE
+      delete from ad_window_access where em_eut_reqmoreinfo_id=p_forwardrmi_id;
+     END  IF;
+      
+   END IF;
+   END IF;
+   IF(v_forRmi ='F') THEN
+    select count(ad_window_access_id) into v_count from ad_window_access where 
+    em_eut_forward_reqmoreinfo_id = p_forwardrmi_id and em_eut_reqmoreinfo_id is not null;
+   IF (v_count>0)
+   THEN
+     Update ad_window_access set em_eut_forward_reqmoreinfo_id=null where em_eut_forward_reqmoreinfo_id = p_forwardrmi_id; 
+     ELSE 
+     
+      IF(v_nextforwardrmiid is not null ) THEN
+     Update ad_window_access set em_eut_forward_reqmoreinfo_id=v_nextforwardrmiid where em_eut_forward_reqmoreinfo_id = p_forwardrmi_id; 
+     ELSE
+      delete from ad_window_access where em_eut_forward_reqmoreinfo_id=p_forwardrmi_id;
+     END  IF;
+     
+   END IF;
+   END IF;
+	/* delete or update Report and Process Access  */	    
+      IF(v_forRmi = 'RMI') THEN
+    select count(AD_Process_Access_id) into v_count from AD_Process_Access where 
+    em_eut_reqmoreinfo_id = p_forwardrmi_id and em_eut_forward_reqmoreinfo_id is not null;
+   IF (v_count>0)
+   THEN
+     Update AD_Process_Access set em_eut_reqmoreinfo_id=null where em_eut_reqmoreinfo_id = p_forwardrmi_id; 
+     ELSE 
+     
+       IF(v_nextforwardrmiid is not null ) THEN
+       Update AD_Process_Access set em_eut_reqmoreinfo_id=v_nextforwardrmiid where em_eut_reqmoreinfo_id = p_forwardrmi_id; 
+        ELSE
+      delete from AD_Process_Access where em_eut_reqmoreinfo_id=p_forwardrmi_id;
+      END  IF;
+      
+   END IF;
+   END IF;
+   IF(v_forRmi ='F') THEN
+    select count(AD_Process_Access_id) into v_count from AD_Process_Access where 
+    em_eut_forward_reqmoreinfo_id = p_forwardrmi_id and em_eut_reqmoreinfo_id is not null;
+   IF (v_count>0)
+   THEN
+     Update AD_Process_Access set em_eut_forward_reqmoreinfo_id=null where em_eut_forward_reqmoreinfo_id = p_forwardrmi_id; 
+     ELSE 
+       IF(v_nextforwardrmiid is not null ) THEN
+       Update AD_Process_Access set em_eut_forward_reqmoreinfo_id=v_nextforwardrmiid where em_eut_forward_reqmoreinfo_id = p_forwardrmi_id; 
+        ELSE
+      delete from AD_Process_Access where em_eut_forward_reqmoreinfo_id=p_forwardrmi_id;
+      END  IF;
+   END IF;
+   END IF;
+
+    /*  delete Form Access  */
+    IF(v_nextforwardrmiid is not null ) THEN
+    	Update AD_Form_Access set em_eut_forward_reqmoreinfo_id=v_nextforwardrmiid where em_eut_forward_reqmoreinfo_id = p_forwardrmi_id; 
+    ELSE
+    	delete from AD_Form_Access where em_eut_forward_reqmoreinfo_id=p_forwardrmi_id;
+    END  IF;
+    
+    /*  delete Process Definition Access  */
+    IF(v_nextforwardrmiid is not null ) THEN
+    	Update OBUIAPP_Process_Access set em_eut_forward_reqmoreinfo_id=v_nextforwardrmiid where em_eut_forward_reqmoreinfo_id = p_forwardrmi_id; 
+    ELSE
+    	delete from OBUIAPP_Process_Access where em_eut_forward_reqmoreinfo_id=p_forwardrmi_id;
+    END  IF;
+    
+    /*  delete List Access  */
+    IF(v_nextforwardrmiid is not null ) THEN
+     	Update EUT_List_Access set eut_forward_reqmoreinfo_id=v_nextforwardrmiid where eut_forward_reqmoreinfo_id = p_forwardrmi_id; 
+    ELSE
+    	delete from EUT_List_Access where eut_forward_reqmoreinfo_id=p_forwardrmi_id;
+    END  IF;
+    
+    /*  delete Preference  */ 
+ 
+    IF(v_nextforwardrmiid is not null and v_currentfromuserId=v_nextfromuserId and v_currentfromroleId=v_nextfromroleId ) THEN
+    	Update ad_Preference set em_eut_forward_reqmoreinfo_id=v_nextforwardrmiid where em_eut_forward_reqmoreinfo_id = p_forwardrmi_id; 
+    ELSE
+    	delete from ad_Preference where em_eut_forward_reqmoreinfo_id=p_forwardrmi_id;
+    END  IF;
+END EUT_FORWARDACCESSROLE_DEL
+]]></body>
+    </function>
+  </database>

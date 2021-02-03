@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_OPENENVCOMM">
+    <trigger name="ESCM_OPENENVCOMM" table="ESCM_OPENENVCOMMITEE" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[cur_jobs RECORD;
+v_lineNo NUMBER:= 0;
+v_count NUMBER:=0;
+v_proposalno character varying(60);
+v_bidmgmt_id  character varying(60);
+v_openenv_id character varying(60);
+v_bgworkbenchId VARCHAR2(32);
+v_seqId VARCHAR2(32);
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+IF  (INSERTING OR   UPDATING ) then 
+		v_bidmgmt_id = :new.escm_bidmgmt_id;
+		v_openenv_id = :NEW.Escm_Openenvcommitee_ID;
+        select count(escm_proposal_attr_id) into v_count from escm_proposal_attr  where escm_openenvcommitee_id=:NEW.Escm_Openenvcommitee_ID;
+
+IF  (INSERTING OR   (UPDATING AND v_count=0 AND :new.deletelines<>'Y')) THEN
+	for cur_jobs in (select escm_proposalmgmt_id,supplier,branchname,c_currency_id from escm_proposalmgmt 
+			where escm_bidmgmt_id=v_bidmgmt_id and proposalstatus='SUB')
+        loop
+        v_lineNo := v_lineNo + 10;
+             select get_uuid() into v_seqId from dual;
+             
+             INSERT INTO escm_proposal_attr(
+            escm_proposal_attr_id, ad_client_id, ad_org_id, isactive, created, 
+            createdby, updated, updatedby, line, escm_proposalmgmt_id, escm_openenvcommitee_id,suppliername,branchname,c_currency_id,gross_price,netprice,negotiated_price
+            )
+	VALUES (v_seqId,:NEW.ad_client_id,:NEW.ad_org_id, :NEW.isactive, :NEW.created, 
+            :NEW.createdby, :NEW.updated, :NEW.updatedby,v_lineNo ,cur_jobs.escm_proposalmgmt_id ,:NEW.escm_openenvcommitee_id,cur_jobs.supplier,
+            cur_jobs.branchname,cur_jobs.c_currency_id,1,1,0
+	    );
+
+		-- update the attribute id in bank guarantee  details
+	   select escm_bgworkbench_id into v_bgworkbenchId from escm_bgworkbench   where  escm_proposalmgmt_id=cur_jobs.escm_proposalmgmt_id;
+	   update escm_bgworkbench   set escm_proposal_attr_id =v_seqId where escm_bgworkbench_id=v_bgworkbenchId;
+	   v_count:=1;
+	END LOOP;	
+    -- update the Open Envelop Event 
+		IF v_count >0 THEN
+			update escm_openenvcommitee set deletelines= 'Y' where escm_openenvcommitee_id=:new.escm_openenvcommitee_id;
+		END IF;
+	END IF;
+	END IF;
+	END ESCM_OPENENVCOMM
+]]></body>
+    </trigger>
+  </database>

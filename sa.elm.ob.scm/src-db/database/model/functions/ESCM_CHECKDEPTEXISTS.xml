@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION ESCM_CHECKDEPTEXISTS">
+    <function name="ESCM_CHECKDEPTEXISTS" type="CHAR">
+      <parameter name="p_userid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_clientid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* Contributor(s):  Gokul.B_____________________.
+************************************************************************/
+  v_Level CHAR(1):='N';
+  --v_treeID VARCHAR(32) ; --OBTG:varchar2--
+  v_Org VARCHAR(32) ;
+  --v_Node   VARCHAR(32) ;
+  Cur_orgList Record;
+BEGIN
+
+	select org.ad_org_id into v_Org  from ad_user usr
+	join c_bpartner bp ON bp.c_bpartner_id = usr.c_bpartner_id
+	join ad_org org ON org.value = bp.em_ehcm_department_code
+	where ad_user_id = p_userid;
+  
+	select 'Y' INTO v_Level from m_requisition where em_escm_department_id IN
+    (select replace(unnest(string_to_array(eut_getchildorglist(p_clientid ,v_Org),',')) ,'''',''));
+  
+  	if(v_Level='Y')then
+  		return 'Y';
+	else
+    	return 'N';
+    end if;
+  	RETURN v_Level;
+END ESCM_CHECKDEPTEXISTS
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_GETCALENDAR">
+    <function name="EUT_GETCALENDAR" type="VARCHAR">
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[p VARCHAR2(32767);
+vp VARCHAR2(32);
+vTree VARCHAR2(32);
+v_calendar_id VARCHAR2(32);
+
+vOrgList VARCHAR(32767);
+BEGIN
+
+    SELECT ad_tree_id  INTO vTree FROM ad_tree WHERE ad_client_id = p_client_id AND treetype = 'OO';
+
+    vp := p_org_id;
+    WHILE (vp is not null and vp <> '')
+    LOOP
+    SELECT parent_id INTO vp FROM ad_treenode WHERE node_id = vp AND ad_tree_id = vTree;
+	IF vp is not null THEN
+		select c_calendar_id into v_calendar_id from ad_org where ad_org_id = vp;
+		if(v_calendar_id is not null) then
+		return  v_calendar_id;
+		end if;
+	END IF;
+    End LOOP ;
+    RETURN  vOrgList;
+END EUT_GETCALENDAR
+]]></body>
+    </function>
+  </database>

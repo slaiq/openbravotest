@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Daily_Status_Invoice" pageWidth="595" pageHeight="862" whenNoDataType="NoDataSection" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="10" bottomMargin="0" uuid="19eac589-ae33-401f-96dc-50975b7b603f">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="LocalHostDB"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="Invoice_Date" class="java.lang.String"/>
+	<parameter name="AUX_Inv_date" class="java.lang.String">
+		<defaultValueExpression><![CDATA[($P{Invoice_Date}==null || $P{Invoice_Date}.equals( "" )) ?  "  and 1=1   " : "    and trunc(inv.approved_date)  <=   trunc(eut_convertto_gregorian( '"+$P{Invoice_Date}+"'  ))      "]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_DESIGN" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select
+	em_efin_main_classification,
+	case when em_efin_classification_ar is null then 'أخرى' else em_efin_classification_ar end em_efin_classification_ar,
+	--em_efin_classification_ar,
+	--em_efin_classification,
+ round( sum( completed_invoices )) completed_inv_amt,
+	round( sum( Inprogress_invoices )) Inprogress_inv_amt,
+	sum( wt_appr_invoices ) wt_appr_inv_amt,
+	sum( draft_invoices ) draft_inv_amt,
+	sum( completed_invoices_cnt ) completed_invoices_cnt,
+	sum( Inprogress_invoices_cnt ) Inprogress_invoices_cnt,
+	sum( draft_invoices_cnt ) draft_invoices_cnt,
+	sum( wt_appr_invoices_cnt ) wt_appr_invoices_cnt,
+	case
+		when $P{Invoice_Date} is not null then To_char(
+			eut_convertto_gregorian($P{Invoice_Date}),
+			'DD/MM/YYYY'
+		)
+		else To_char(
+			now(),
+			'DD/MM/YYYY'
+		)
+	end till_date
+from
+	(
+		select
+			e.em_efin_main_classification,
+			e.em_efin_classification_ar,
+			--	e.em_efin_classification,
+ case
+				when inv.docstatus = 'CO' then sum( inv.linenetamt )
+				else 0
+			end completed_invoices,
+			case
+				when inv.docstatus in(
+					'EFIN_WFA',
+					'DR'
+				) then sum( inv.linenetamt )
+				else 0
+			end inprogress_invoices,
+			case
+				when inv.docstatus in('DR') then sum( inv.linenetamt )
+				else 0
+			end draft_invoices,
+			case
+				when inv.docstatus in('EFIN_WFA') then sum( inv.linenetamt )
+				else 0
+			end wt_appr_invoices,
+			case
+				when inv.docstatus = 'CO' then count( distinct inv.documentno )
+				else 0
+			end completed_invoices_cnt,
+			case
+				when inv.docstatus in(
+					'EFIN_WFA',
+					'DR'
+				) then count( distinct inv.documentno )
+				else 0
+			end Inprogress_invoices_cnt,
+			case
+				when inv.docstatus in('DR') then count( distinct inv.documentno )
+				else 0
+			end draft_invoices_cnt,
+			case
+				when inv.docstatus in('EFIN_WFA') then count( distinct inv.documentno )
+				else 0
+			end wt_appr_invoices_cnt
+		from
+			c_elementvalue e --	c_invoice inv,
+ --	c_invoiceline invl,		
+		left join(
+				select
+					invl.em_efin_c_elementvalue_id,
+					inv.docstatus,
+					--inv.c_invoice_id,
+(
+						invl.linenetamt*(
+							case
+								when inv.c_currency_id = '317' then 1
+								else coalesce(
+									(
+										select
+											multiplyrate
+										from
+											c_conversion_rate
+										where
+											c_currency_id = inv.c_currency_id
+									),
+									1
+								)
+							end
+						)
+					) linenetamt,
+					inv.dateinvoiced,
+					inv.documentno,
+					hist.created approved_date
+				from					
+					c_invoiceline invl,
+					c_invoice inv
+				join (select  distinct  c_invoice_id,trunc(created) created,seqno from efin_purchasein_app_hist a) hist on inv.c_invoice_id = hist.c_invoice_id
+				join (select c_invoice_id,max( seqno ) seqno	from efin_purchasein_app_hist h	group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno	
+				where
+					inv.c_invoice_id = invl.c_invoice_id 
+					and  case when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2017' and '30-Dec-2018' then inv.em_efin_budgetint_id='E47BE2F718014C938C10A5F6A6E8AEE9' 
+							  when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2018' and '30-Dec-2019' then inv.em_efin_budgetint_id='D8D5FA6B54E345B0B0331BC5764BDFAC'
+                              when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2019' and '30-Dec-2020' then inv.em_efin_budgetint_id='B5AEC8DEB07A416CA85EE9BAF0934C45' 
+                              when  $P{Invoice_Date} is null or $P{Invoice_Date} ='' then  inv.em_efin_budgetint_id='B5AEC8DEB07A416CA85EE9BAF0934C45' 						  
+					else 		 inv.em_efin_budgetint_id='123' 	
+					end 
+					and inv.docstatus in(
+						'CO',
+						'EFIN_WFA',
+						'DR'
+					)
+			union all select
+					fa.account_id em_efin_c_elementvalue_id,
+					gl.docstatus,
+					abs( gll.AmtSourceDr - gll.AmtSourceCr ) linenetamt,
+					gl.datedoc dateinvoiced,
+					gl.documentno,
+					trunc(appr_hist.approved_date)  approved_date
+				from
+					GL_Journal gl,
+					GL_JournalLine gll,
+					fact_acct fa,
+					(select max((appr.Approveddate)) approved_date,appr.gl_journal_id from EUT_JOURNAL_APPROVAL appr group by appr.gl_journal_id) appr_hist
+				where
+					gl.gl_journal_id = gll.gl_journal_id
+					and gl.gl_journal_id = appr_hist.gl_journal_id
+					and gl.documentno = fa.em_efin_documentno
+					and fa.account_id=gll.em_efin_account
+					and fa.em_efin_acctseq is not null
+					and gl.em_efin_adj_invoice = 'N'
+					and  case when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2017' and '30-Dec-2018' then gl.em_efin_budgetint_id='E47BE2F718014C938C10A5F6A6E8AEE9' 
+					          when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2018' and '30-Dec-2019' then gl.em_efin_budgetint_id='D8D5FA6B54E345B0B0331BC5764BDFAC' 
+							  when  trunc(eut_convertto_gregorian($P{Invoice_Date})) between '31-Dec-2019' and '30-Dec-2020' then gl.em_efin_budgetint_id='B5AEC8DEB07A416CA85EE9BAF0934C45' 
+							  when  $P{Invoice_Date} is null or $P{Invoice_Date} ='' then  gl.em_efin_budgetint_id='B5AEC8DEB07A416CA85EE9BAF0934C45' 
+						 else 	 gl.em_efin_budgetint_id='123'
+							end 
+			) inv on
+			e.c_elementvalue_id = inv.em_efin_c_elementvalue_id
+		where 1=1
+		and  e.accounttype ='E'
+		 and e.isactive ='Y'
+		 and e.elementlevel ='S'
+		 and (e.value  like '21%' 
+				or e.value  like '22%'
+				or  e.value  like '23%'
+				or  e.value  like '24%'
+				or e.value  like  '25%'
+				or  e.value  like '26%'
+				or  e.value  like '27%'
+				or  e.value  like '28%'
+				or e.value  like  '30%' 
+				or e.value  like  '36%'
+				or e.value  like  '37%'  
+				or e.value  like '4%')
+			--	inv.c_invoice_id = invl.c_invoice_id
+ --	and invl.em_efin_c_elementvalue_id = e.c_elementvalue_id
+ --e.em_efin_main_classification is not null
+		--	and e.em_efin_classification_ar is not null 
+			$P!{AUX_Inv_date}
+		group by
+			e.em_efin_main_classification,
+			e.em_efin_classification_ar,
+			inv.docstatus
+	) main
+group by
+	em_efin_main_classification,
+	em_efin_classification_ar
+order by
+	em_efin_classification_ar]]>
+	</queryString>
+	<field name="em_efin_main_classification" class="java.lang.String"/>
+	<field name="em_efin_classification_ar" class="java.lang.String"/>
+	<field name="completed_inv_amt" class="java.math.BigDecimal"/>
+	<field name="Inprogress_inv_amt" class="java.math.BigDecimal"/>
+	<field name="draft_inv_amt" class="java.math.BigDecimal"/>
+	<field name="wt_appr_inv_amt" class="java.math.BigDecimal"/>
+	<field name="completed_invoices_cnt" class="java.lang.Integer"/>
+	<field name="Inprogress_invoices_cnt" class="java.lang.Integer"/>
+	<field name="draft_invoices_cnt" class="java.lang.Integer"/>
+	<field name="wt_appr_invoices_cnt" class="java.lang.Integer"/>
+	<field name="till_date" class="java.lang.String"/>
+	<sortField name="completed_inv_amt" order="Descending"/>
+	<variable name="Completed_inv_amt_summ" class="java.math.BigDecimal" resetType="Group" resetGroup="Main_Classifcation" calculation="Sum">
+		<variableExpression><![CDATA[$F{completed_inv_amt}]]></variableExpression>
+	</variable>
+	<variable name="InProg_Inv_summ" class="java.math.BigDecimal" resetType="Group" resetGroup="Main_Classifcation" calculation="Sum">
+		<variableExpression><![CDATA[$F{Inprogress_inv_amt}]]></variableExpression>
+	</variable>
+	<variable name="Completed_inv_cnt" class="java.lang.Integer" resetType="Group" resetGroup="Main_Classifcation" calculation="Sum">
+		<variableExpression><![CDATA[$F{completed_invoices_cnt}]]></variableExpression>
+	</variable>
+	<variable name="InProg_Inv_Cnt" class="java.lang.Integer" resetType="Group" resetGroup="Main_Classifcation" calculation="Sum">
+		<variableExpression><![CDATA[$F{Inprogress_invoices_cnt}]]></variableExpression>
+	</variable>
+	<variable name="total_comp_inv" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{completed_inv_amt}]]></variableExpression>
+	</variable>
+	<variable name="total_dr_inv" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{draft_inv_amt}]]></variableExpression>
+	</variable>
+	<variable name="total_wt_appr_inv" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{wt_appr_inv_amt}]]></variableExpression>
+	</variable>
+	<group name="Main_Classifcation">
+		<groupExpression><![CDATA[$F{em_efin_main_classification}]]></groupExpression>
+		<groupHeader>
+			<band/>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="116" splitType="Prevent">
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="56" width="553" height="20" backcolor="#F7924F" uuid="3cbb325e-9be3-4611-ad4d-57a4d2c03b8d"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{till_date}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="228" y="0" width="104" height="58" uuid="3f197390-d0bd-4fb8-b957-f07bf463059e"/>
+				<imageExpression><![CDATA[org.openbravo.erpCommon.utility.Utility.showImageLogo("yourcompanylegal","")]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="76" width="232" height="40" backcolor="#56B4FC" uuid="120f2069-1b94-49d3-be3f-a911c7b830e4">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[نوع الحساب]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="232" y="96" width="40" height="20" backcolor="#56B4FC" uuid="f4d705f1-a8f7-42d9-a46c-65bd2c07ee6f">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[العدد]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="232" y="76" width="160" height="20" backcolor="#56B4FC" uuid="19c97761-3eea-4492-a4cc-5a39ab2d90e8">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[معتمدة]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="272" y="96" width="120" height="20" backcolor="#56B4FC" uuid="978f30ac-692f-4c9c-a31b-55b5380ab9e0">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[اجمالي المبالغ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="392" y="76" width="161" height="20" backcolor="#56B4FC" uuid="26581cb2-fd77-4adf-8b21-b23da46b6f4e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[تحت الإجراء]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="392" y="96" width="40" height="20" backcolor="#56B4FC" uuid="ba968d78-9c86-4420-b2f1-0255309e0566">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[العدد]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="432" y="96" width="121" height="20" backcolor="#56B4FC" uuid="ec41f31c-baba-4e6f-b51c-50e8a25686bb">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[اجمالي المبالغ]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Prevent">
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="-1" width="232" height="20" forecolor="#000000" uuid="112226a4-dfab-4aa4-9ad6-a066e7bbf6a2"/>
+				<box leftPadding="0" rightPadding="0">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{em_efin_classification_ar}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="232" y="-1" width="40" height="20" forecolor="#000000" uuid="bc2c1ba1-85e4-4704-8887-386d4c222a49"/>
+				<box leftPadding="0" rightPadding="0">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{completed_invoices_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="272" y="-1" width="120" height="20" forecolor="#000000" uuid="522bba51-e829-4210-8502-885f1b129822"/>
+				<box leftPadding="0" rightPadding="0">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{completed_inv_amt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="392" y="-1" width="40" height="20" forecolor="#000000" uuid="eb6898ba-4d29-408e-8d0a-3a0b9a6ac5a4"/>
+				<box leftPadding="0" rightPadding="0">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Inprogress_invoices_cnt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="432" y="-1" width="121" height="20" forecolor="#000000" uuid="700c7e4f-4954-487d-840a-2dcac0ba7756"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Inprogress_inv_amt}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="115">
+			<subreport>
+				<reportElement x="-20" y="94" width="590" height="20" uuid="48518e0c-2822-4b59-b3ac-9ad3c566d3ae"/>
+				<subreportParameter name="Invoice_Date">
+					<subreportParameterExpression><![CDATA[$P{Invoice_Date}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="AUX_Inv_date">
+					<subreportParameterExpression><![CDATA[$P{AUX_Inv_date}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="BASE_DESIGN">
+					<subreportParameterExpression><![CDATA[$P{BASE_DESIGN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/finance/ad_reports/Invoice_Daily_Status/Invoice_Daily_Status_2.jrxml")]]></subreportExpression>
+			</subreport>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="13" width="360" height="20" backcolor="#56B4FC" uuid="75a2f935-fb7b-41c4-8748-f77f419d0047">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[خلاصة اوامر الصرف]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="360" y="13" width="193" height="20" backcolor="#56B4FC" uuid="de4b8de0-045d-4bde-a714-fdcc7e9ed5c5">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[خلاصة المبالغ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="33" width="360" height="20" forecolor="#FF0000" backcolor="#96E3B5" uuid="98f22ffb-270f-4682-b330-9612ca835a11">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[إجمالي اوامر الصرف المعتمده]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="53" width="360" height="20" forecolor="#FF0000" backcolor="#96E3B5" uuid="291d3d69-f1cf-4888-830a-df3301d25cf5">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[إجمالي اوامر الصرف في انتظار الموافقة ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="73" width="360" height="20" forecolor="#FF0000" backcolor="#96E3B5" uuid="899121b0-70e8-4567-9c23-d20ee5bed2c8">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[إجمالي اوامر الصرف حالتها مسودة]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" mode="Opaque" x="360" y="33" width="193" height="20" forecolor="#FF0000" backcolor="#96E3B5" uuid="8adc480a-26ba-4eee-9415-275a6145d11d"/>
+				<box leftPadding="0" rightPadding="0">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_comp_inv}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" mode="Opaque" x="360" y="53" width="193" height="20" forecolor="#FF0000" backcolor="#96E3B5" uuid="c86008e9-2b8c-48aa-b7b3-3a3d1d6cf641"/>
+				<box leftPadding="0" rightPadding="0">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_wt_appr_inv}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" mode="Opaque" x="360" y="73" width="193" height="20" forecolor="#FF0000" backcolor="#96E3B5" uuid="073a2cb6-52ef-4b4b-a8fe-2358f9881351"/>
+				<box leftPadding="0" rightPadding="0">
+					<pen lineWidth="0.5" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_dr_inv}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+	<noData>
+		<band height="30">
+			<staticText>
+				<reportElement mode="Opaque" x="195" y="0" width="160" height="30" backcolor="#56B4FC" uuid="776d795c-61b8-474d-84c6-63ba1f159bed">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[No Data Found]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

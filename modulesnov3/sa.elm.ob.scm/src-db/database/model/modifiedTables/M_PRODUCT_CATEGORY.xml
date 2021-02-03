@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE M_PRODUCT_CATEGORY">
+    <table name="M_PRODUCT_CATEGORY" primaryKey="M_PRODUCT_CATEGORY_KEY">
+      <column name="EM_ESCM_PRODUCT_CATEGORY" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_ESCM_CUSATTRIBUTESET_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_ESCM_ITPRODUCT" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="M_ATTRIBUTESET" name="EM_ESCM_PRDCATCUSTATT">
+        <reference local="EM_ESCM_CUSATTRIBUTESET_ID" foreign="M_ATTRIBUTESET_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="M_PRODUCT_CATEGORY" name="EM_ESCM_PRDCATMASCAT">
+        <reference local="EM_ESCM_PRODUCT_CATEGORY" foreign="M_PRODUCT_CATEGORY_ID"/>
+      </foreign-key>
+      <check name="EM_ESCM_SUMMARYCHECK"><![CDATA[ISDEFAULT = 'Y' AND ISSUMMARY = 'N' OR ISDEFAULT = 'N' AND ISSUMMARY = 'Y' OR ISDEFAULT = 'N' AND ISSUMMARY = 'N']]></check>
+    </table>
+  </database>

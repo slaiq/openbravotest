@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="C970088ED61C412CA6662A9AAB877A81" identifier="Site Material Issue Request Forward">
+    <id>C970088ED61C412CA6662A9AAB877A81</id>
+    <active>true</active>
+    <name>Site Material Issue Request Forward</name>
+    <tab id="4D11B5907F654B50B48212A7141F9C0D" entity-name="ADTab" identifier="Site Material Issue Request - Site Material Issue Request"/>
+    <filterClause>((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null))  </filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>SMIRF</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

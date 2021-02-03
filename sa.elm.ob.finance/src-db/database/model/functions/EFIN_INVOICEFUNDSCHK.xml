@@ -1,0 +1,224 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_INVOICEFUNDSCHK">
+    <function name="EFIN_INVOICEFUNDSCHK" type="NULL">
+      <parameter name="p_instance" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[p_result NUMBER;
+p_message VARCHAR(2000);
+p_record_id VARCHAR(60);
+p_docAction VARCHAR(60);
+p_user VARCHAR(60);
+p_role VARCHAR(60);
+v_accttype char(1);
+v_fundsavailable NUMBER;
+v_totalAmt NUMBER;
+Cur_Params RECORD;
+Cur1 RECORD;
+Cur2 RECORD;
+v_ResultStr VARCHAR(2000):='';
+v_Message VARCHAR(2000):='';
+v_Client_ID VARCHAR(32);
+v_Org_ID VARCHAR(32);
+v_Role_ID VARCHAR(32);
+v_Result NUMBER:=1;
+v_ManencumAmt NUMBER;
+v_record_id VARCHAR(32);
+v_user_id VARCHAR(32);
+v_status VARCHAR(2000):='';
+v_encumID VARCHAR(32);
+v_ChkException BOOLEAN:=FALSE;
+v_uniqueCode VARCHAR(2000) :='';
+v_count NUMBER;
+v_EncumType CHAR(1);
+v_value VARCHAR(60);
+v_msg VARCHAR(60);
+v_remainingamt NUMBER;
+v_role_flag  NUMBER;
+v_doctypeId VARCHAR(32);
+v_grossamt VARCHAR(32);
+v_grandtotal VARCHAR(32);
+v_linenetamt NUMBER;
+v_funds NUMBER;
+v_amt NUMBER;
+v_issotrx char(1);
+v_RemAmt NUMBER;
+Cur_Invoiceline RECORD;
+
+BEGIN
+IF (p_instance IS NOT NULL) THEN
+     DBMS_OUTPUT.PUT_LINE('Updating PInstance - Processing ' || p_instance) ;
+    v_ResultStr:='PInstanceNotFound';
+    AD_UPDATE_PINSTANCE(p_instance, NULL, 'Y', NULL, NULL) ;
+  END IF;
+BEGIN
+  FOR Cur_Params IN (SELECT * FROM ad_ep_instance_para WHERE ad_ep_instance_id = p_instance) 
+	LOOP
+
+	    IF (cur_params.parametername LIKE 'DocAction') THEN
+	      p_docaction := Cur_Params.p_string;
+	    ELSIF (cur_params.parametername LIKE 'Record_ID') THEN
+	      p_record_id := cur_params.p_string;
+	    ELSIF (cur_params.parametername LIKE 'User') THEN
+	      p_user := cur_params.p_string;
+	    ELSIF (cur_params.parametername LIKE 'Message') THEN
+	      p_message := cur_params.p_text;
+	    ELSIF (cur_params.parametername LIKE 'Result') THEN
+	      p_result := cur_params.p_NUMERIC;
+	    END IF;
+
+	END LOOP;
+	 -- Reading the invoice
+  v_ResultStr:='ReadingInvoice';
+
+SELECT count(efin_budget_encum_id) into v_count from efin_budget_encum encum where encum.c_invoice_id=p_record_id;
+  if(v_count=0) then
+ 
+  SELECT ad_client_id, ad_org_id,grandtotal,em_efin_ad_role_id,docaction,em_efin_manualencumbrance_id,em_efin_encumtype ,c_doctypetarget_id,issotrx
+   INTO v_Client_ID, v_Org_ID,v_totalAmt,v_Role_ID,p_docAction,v_encumID,v_EncumType,v_doctypeId,v_issotrx  FROM c_invoice  WHERE c_invoice_id=p_record_id;
+  v_grossamt:=v_totalAmt;
+  --Condition for checking line amount is lesser than selected prepayment in order to receive
+ IF(v_issotrx='Y') THEN
+	IF(p_docAction='CO') THEN
+		FOR Cur_Invoiceline in (select * from c_invoiceline  where c_invoice_id  = p_record_id and em_efin_receipt_type ='pp')
+		Loop
+		IF(Cur_Invoiceline.c_invoiceline_id is not null) then
+			select em_efin_pre_remainingamount into v_RemAmt from c_invoice where c_invoice_id = Cur_Invoiceline.em_efin_prepayment; 
+			if(v_RemAmt < Cur_Invoiceline.linenetamt) then
+				Raise Exception '%','@Efin_amt_ls_invoice@'; --OBTG:-20000--
+			end if;
+		End if;
+		end loop;
+	END IF;
+  End if;
+ FOR Cur1  IN (select * from c_invoice inv
+	left join c_invoiceline ln on ln.c_invoice_id= inv.c_invoice_id where inv.c_invoice_id =p_record_id )
+       LOOP 
+       IF(cur1.docaction='CO')THEN     
+	IF(cur1.em_efin_c_elementvalue_id is not null) THEN
+	select accounttype into v_accttype from c_elementvalue where c_elementvalue_id = cur1.em_efin_c_elementvalue_id;
+	IF(v_accttype='E') THEN
+	IF(v_EncumType='A') THEN
+	select funds_available into  v_fundsavailable from efin_budgetlines where efin_budgetlines_id=cur1.em_efin_budgetlines_id;
+	IF(v_fundsavailable < cur1.linenetamt) THEN
+	IF(v_uniqueCode <>'') THEN
+	v_uniqueCode :=v_uniqueCode||','||cur1.em_efin_uniquecode;
+	else
+	v_uniqueCode :=cur1.em_efin_uniquecode;
+	END IF;
+	v_value='EFIN_Invoice_Funds';
+	v_ChkException=True;
+	END IF;
+	/*ELSE IF (v_EncumType='M') THEN
+	select remaining_amount into  v_remainingamt from efin_budget_manencumlines   where  efin_budget_manencumlines_id=cur1.em_efin_budgmanuencumln_id;
+
+	IF(v_remainingamt < cur1.linenetamt ) THEN 
+	IF(v_uniqueCode <>'') THEN
+	v_uniqueCode :=v_uniqueCode||','||cur1.em_efin_uniquecode;
+	else
+	v_uniqueCode :=cur1.em_efin_uniquecode;
+	END IF;
+	v_value='EFIN_PurInv_ManEncumRemAmt';
+	v_ChkException=True;
+	END IF;
+	END IF;*/
+	END IF;
+	END IF;
+	END IF;
+	END IF;
+	END LOOP; 
+
+	IF( v_ChkException) THEN
+
+		select replace(msgtext,'%',v_uniqueCode) into v_status from ad_message where value=v_value;
+		RAISE_APPLICATION_ERROR(-20000, v_status);
+
+	END IF;
+	
+	IF(p_docAction='CO')THEN
+	 
+	IF(v_encumID is not null ) THEN
+	select amount into v_ManencumAmt from efin_budget_manencum where efin_budget_manencum_id = v_encumID;
+	IF(v_ManencumAmt <  v_totalAmt) THEN
+	 --RAISE_APPLICATION_ERROR(-20000, '@Efin_PI_GrsAmtExMEAmt@');
+	END IF;	
+	END IF;
+	END IF;
+	END IF;
+
+	
+	IF(p_docAction='CO')THEN
+	 
+		--PERFORM EFIN_CINVOICE_GETNEXTROLE(v_Client_ID, v_Org_ID,v_Role_ID,p_user,'EUT_101',v_totalAmt,p_record_id) ;
+	select count(c_invoiceline_id), string_agg(li.em_efin_uniquecode, ',') into v_count,v_uniqueCode
+        from c_invoice inv join 
+	c_invoiceline li on inv.c_invoice_id = li.c_invoice_id
+	join efin_budgetlines np on np.efin_budgetlines_id = li.em_efin_budgetlines_id 
+	 where inv.em_efin_encumtype = 'N' and inv.c_invoice_id=p_record_id;
+	if(v_count>0)THEN
+	v_msg='EM_Efin_Budgetuniquecode';
+	select replace(msgtext,'@',v_uniqueCode) into v_status from ad_message where value=v_msg;
+		RAISE_APPLICATION_ERROR(-20000, v_status);
+	
+	END IF;
+		
+	
+	END IF;
+	
+	
+	
+	
+  v_ResultStr := 'Completing Invoice';
+  IF(p_docAction='CO')THEN
+  
+select grandtotal into v_grandtotal from c_invoice where c_invoice_id = p_record_id and issotrx = 'Y';  	
+	if(v_grandtotal = '0.00') then
+	v_msg='Efin_Grossamount';
+	RAISE_APPLICATION_ERROR(-20000, '@Efin_Grossamount@');
+	end if;
+	
+	
+	 FOR Cur1  IN (select sum(linenetamt) as linenetamt,ln.em_efin_funds_available as funds,ln.em_efin_budgetlines_id,ln.em_efin_c_elementvalue_id from c_invoice inv
+	left join c_invoiceline ln on ln.c_invoice_id= inv.c_invoice_id where inv.c_invoice_id =p_record_id and issotrx = 'Y'
+	group by ln.em_efin_funds_available,ln.em_efin_budgetlines_id,ln.em_efin_c_elementvalue_id )
+	loop
+	if(Cur1.em_efin_budgetlines_id <>'') then
+	if (Cur1.linenetamt < 0) then
+	v_linenetamt = abs(Cur1.linenetamt);
+	if(v_linenetamt > Cur1.funds) then
+	FOR Cur2  IN ( select em_efin_uniquecode from c_invoiceline where em_efin_c_elementvalue_id = Cur1.em_efin_c_elementvalue_id and c_invoice_id = p_record_id)	
+	loop
+
+	IF(v_uniqueCode <>'') THEN
+
+	v_uniqueCode :=v_uniqueCode||','||Cur2.em_efin_uniquecode;
+	else
+	v_uniqueCode :=Cur2.em_efin_uniquecode;
+	end if;
+
+	v_ChkException=True;
+	end loop;
+	IF( v_ChkException) THEN
+		select replace(msgtext,'%',v_uniqueCode) into v_status from ad_message where value='EFIN_Invoice_Funds';
+		RAISE_APPLICATION_ERROR(-20000, v_status);
+
+	END IF;
+	
+	end if;
+	end if;
+	end if;
+	end loop;
+	end if;
+   --<<END_PROCESSING>>
+  --  Update AD_PInstance
+  DBMS_OUTPUT.PUT_LINE('Updating PInstance - Finished ' || v_Message) ;
+  IF (p_instance IS NOT NULL) THEN
+ AD_UPDATE_PINSTANCE(p_instance, p_user, 'N', v_Result, v_Message) ;
+    END IF;
+
+  RETURN;
+  END; --BODY
+END EFIN_INVOICEFUNDSCHK
+]]></body>
+    </function>
+  </database>

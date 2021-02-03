@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_PAYMENTSEQUENCE_V">
+    <view name="EFIN_PAYMENTSEQUENCE_V"><![CDATA[SELECT pay.efin_payment_sequences_id AS efin_paymentsequence_v_id, pay.ad_client_id, pay.ad_org_id, pay.isactive, pay.created, pay.createdby, pay.updated, pay.updatedby, pay.name, finaccount.fin_financial_account_id, pay.fin_paymentmethod_id FROM efin_payment_sequences pay JOIN efin_bank bank ON bank.efin_bank_id = pay.efin_bank_id JOIN efin_account account ON account.efin_account_id = pay.efin_account_id JOIN fin_paymentmethod paymentmethod ON paymentmethod.fin_paymentmethod_id = pay.fin_paymentmethod_id JOIN fin_financial_account finaccount ON finaccount.em_efin_bank_id = bank.efin_bank_id AND finaccount.em_efin_account_id = account.efin_account_id]]></view>
+  </database>

@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_RDV_BUDGHOLDRELEASE_V">
+    <view name="EFIN_RDV_BUDGHOLDRELEASE_V"><![CDATA[SELECT rel.efin_rdv_hold_action_id AS efin_rdv_budgholdrelease_v_id, rel.ad_client_id, rel.ad_org_id, rel.isactive, rel.created, rel.createdby, rel.updated, rel.updatedby, hld.efin_rdv_budgholdline_id, abs(rel.rdv_hold_amount) AS hold_amount, rel.efin_rdvtxnline_id, txn.txn_version, to_date(to_char(rel.created, 'YYYY-MM-DD'), 'YYYY-MM-DD') AS release_created FROM efin_rdv_hold_action hld JOIN efin_rdv_hold_action rel ON rel.rdv_hold_rel_id = hld.efin_rdv_hold_action_id JOIN efin_rdvtxnline txnln ON txnln.efin_rdvtxnline_id = rel.efin_rdvtxnline_id JOIN efin_rdvtxn txn ON txn.efin_rdvtxn_id = txnln.efin_rdvtxn_id WHERE hld.efin_rdv_budgholdline_id IS NOT NULL]]></view>
+  </database>

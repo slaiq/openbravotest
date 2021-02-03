@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_CERTIFICATE">
+    <trigger name="ESCM_CERTIFICATE" table="ESCM_CERTIFICATES" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[/*************************************************************************
+    * All Rights Reserved.
+    * Contributor(s): sathishkumar.
+************************************************************************/
+ v_count NUMBER;
+
+BEGIN
+
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+
+ IF INSERTING  or  UPDATING  THEN
+
+    if(:new.iscreatedfromtabadul is not null and :new.iscreatedfromtabadul ='N') then
+
+     select count(escm_certificates_id) into v_count from escm_certificates where certificatenumber =  :new.certificatenumber ; 
+
+     if(v_count >0) THEN
+
+     raise exception '%', '@ESCM_DUPLICATE_CERTIFICATES@';
+
+     end if;
+
+   end if;
+ 
+  
+END IF;
+
+    
+END ESCM_CERTIFICATE
+]]></body>
+    </trigger>
+  </database>

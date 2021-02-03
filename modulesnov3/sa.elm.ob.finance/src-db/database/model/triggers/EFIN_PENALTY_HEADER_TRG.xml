@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_PENALTY_HEADER_TRG">
+    <trigger name="EFIN_PENALTY_HEADER_TRG" table="EFIN_PENALTY_HEADER" fires="before" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_penaltyamt_diff NUMBER;
+v_efin_rdv_id CHARACTER VARYING(32);
+v_txn_version NUMBER;
+
+BEGIN
+v_penaltyamt_diff :=0;
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+IF INSERTING THEN
+		select txn_version, efin_rdv_id INTO v_txn_version, v_efin_rdv_id from efin_rdvtxn txn 
+			where txn.efin_rdvtxn_id = :new.efin_rdvtxn_id;
+        update efin_penalty_header set existing_penalty = existing_penalty + :new.penalty_amount,
+        	updated_penalty_amt = updated_penalty_amt + :new.penalty_amount
+            where efin_rdvtxnline_id in (select efin_rdvtxnline_id from efin_rdvtxnline where 
+                         item_desc in ( select  item_desc from efin_rdvtxnline
+                                                    where efin_rdvtxnline_id=:new.efin_rdvtxnline_id)
+                          and efin_rdvtxn_id in ( select efin_rdvtxn_id from efin_rdvtxn txn 
+                        where txn_version > v_txn_version and efin_rdv_id = v_efin_rdv_id ) );
+
+END IF;
+
+IF UPDATING THEN
+	IF ( :new.penalty_amount <> :old.penalty_amount ) THEN
+    	v_penaltyamt_diff := :new.penalty_amount - :old.penalty_amount;
+		select txn_version, efin_rdv_id INTO v_txn_version, v_efin_rdv_id from efin_rdvtxn txn 
+			where txn.efin_rdvtxn_id = :new.efin_rdvtxn_id;
+		update efin_penalty_header set existing_penalty = existing_penalty + v_penaltyamt_diff,
+        	updated_penalty_amt = updated_penalty_amt + v_penaltyamt_diff
+            where efin_rdvtxnline_id in (select efin_rdvtxnline_id from efin_rdvtxnline where 
+                         item_desc in ( select  item_desc from efin_rdvtxnline
+                                                    where efin_rdvtxnline_id=:new.efin_rdvtxnline_id)
+                          and efin_rdvtxn_id in ( select efin_rdvtxn_id from efin_rdvtxn txn 
+                        where txn_version > v_txn_version and efin_rdv_id = v_efin_rdv_id ) ); 
+    END IF;
+END IF;
+
+IF DELETING THEN
+		select txn_version, efin_rdv_id INTO v_txn_version, v_efin_rdv_id from efin_rdvtxn txn 
+			where txn.efin_rdvtxn_id = :old.efin_rdvtxn_id;
+        update efin_penalty_header set existing_penalty = existing_penalty - :old.penalty_amount,
+        	updated_penalty_amt = updated_penalty_amt - :old.penalty_amount
+            where efin_rdvtxnline_id in (select efin_rdvtxnline_id from efin_rdvtxnline where 
+                         item_desc in ( select  item_desc from efin_rdvtxnline
+                                                    where efin_rdvtxnline_id=:old.efin_rdvtxnline_id)
+                          and efin_rdvtxn_id in ( select efin_rdvtxn_id from efin_rdvtxn txn 
+                        where txn_version > v_txn_version and efin_rdv_id = v_efin_rdv_id ) );
+END IF;
+
+END EFIN_PENALTY_HEADER_TRG
+]]></body>
+    </trigger>
+  </database>

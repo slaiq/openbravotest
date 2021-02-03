@@ -1,0 +1,2410 @@
+<?xml version="1.0"?>
+  <vector>
+    <versionInfo version="3.0.28838"/>
+    <columnSizeChange tablename="AD_ALERTRULE" columnname="FILTERCLAUSE" newSize="6000" oldSize="2000"/>
+    <columnRequiredChange tableName="AD_COLUMN" columnName="AD_TABLE_ID">
+      <required>false</required>
+    </columnRequiredChange>
+    <columnSizeChange tablename="AD_USER" columnname="NAME" newSize="250" oldSize="60"/>
+    <columnSizeChange tablename="AD_USER" columnname="FIRSTNAME" newSize="250" oldSize="60"/>
+    <columnSizeChange tablename="C_BPARTNER" columnname="VALUE" newSize="250" oldSize="40"/>
+    <columnSizeChange tablename="C_BPARTNER" columnname="NAME" newSize="250" oldSize="60"/>
+    <columnSizeChange tablename="C_LOCATION" columnname="ADDRESS1" newSize="250" oldSize="60"/>
+    <columnSizeChange tablename="C_SALESREGION" columnname="NAME" newSize="80" oldSize="60"/>
+    <columnSizeChange tablename="M_ATTRIBUTEINSTANCE" columnname="VALUE" newSize="250" oldSize="40"/>
+    <columnRequiredChange tableName="M_INOUT" columnName="M_WAREHOUSE_ID">
+      <required>false</required>
+    </columnRequiredChange>
+    <columnSizeChange tablename="M_INOUT" columnname="POREFERENCE" newSize="50" oldSize="20"/>
+    <columnSizeChange tablename="M_REQUISITIONLINE" columnname="DESCRIPTION" newSize="2000" oldSize="255"/>
+    <columnRequiredChange tableName="M_REQUISITIONLINE" columnName="NEEDBYDATE">
+      <required>false</required>
+    </columnRequiredChange>
+    <columnDataChange tablename="OBUISEL_SELECTOR" columnname="FILTER_EXPRESSION" pkRow="4C8BC3E8E56441F4B8C98C684A0C9212">
+      <oldValue><![CDATA["( (\'"+OB.getWindowId()+"\' in (\'800051\', \'800052\', \'800096\') and e.product.production = true and e.stocked = false) or (\'"+OB.getWindowId()+"\' in (\'170\') and e.product.stocked = true) or (\'"+OB.getWindowId()+"\' in (\'800092\') and e.product.purchase = true) or \'"+OB.getWindowId()+"\' not in (\'800051\', \'800052\', \'800096\',\'170\',\'800092\'))"]]></oldValue>
+      <newValue><![CDATA["( (\'"+OB.getWindowId()+"\' in (\'800051\', \'800052\', \'800096\') and e.product.production = true and e.stocked = false)   or (\'"+OB.getWindowId()+"\' in (\'170\') and e.product.stocked = true) or (\'"+OB.getWindowId()+"\' in ('800092') and  ((((select r.escmWarehouseRole from ADRole r  where r.id = @#AD_Role_ID@ and r.client.id =@#AD_Client_ID@  and r.escmWarehouseRole is not null ) = false)  and ( e.product.stocked = false and e.product.purchase=true)) or (((select r.escmWarehouseRole from ADRole r  where r.id = @#AD_Role_ID@ and r.client.id =  @#AD_Client_ID@ and r.escmWarehouseRole is not null ) = true)  and ( e.active=true)))) or \'"+OB.getWindowId()+"\'  not in (\'800051\', \'800052\', \'800096\',\'170\',\'800092\'))"]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="OBUISEL_SELECTOR" columnname="FILTER_EXPRESSION" pkRow="F42A1DD1B941461EB3B9AD07A534D91E">
+      <oldValue><![CDATA["( (" + OB.isSalesTransaction() + " = true and w.id in (select ow.warehouse.id from OrganizationWarehouse ow where ow.warehouse.id = w.id and ow.organization.id = \'" + OB.getParameters().get('inpadOrgId') + "\' )) or ((" + OB.isSalesTransaction() + " = false or \'"+OB.getWindowId()+"\' in (\'123271B9AD60469BAE8A924841456B63\'))))"]]></oldValue>
+      <newValue><![CDATA[ "( (" + OB.isSalesTransaction() + " = true and w.id in (select ow.warehouse.id from OrganizationWarehouse ow   where ow.warehouse.id = w.id and ow.organization.id = \'" + OB.getParameters().get('inpadOrgId') + "\' ) and \'"+OB.getWindowId()+"\' not in (\'E397822E8DAB4FCDACC84F5C27455F8C\', \'26209E1C023B4879BF58993F9BF9AAC9\' ) )   or ((" + OB.isSalesTransaction() + " = false or \'"+OB.getWindowId()+"\' in (\'123271B9AD60469BAE8A924841456B63\')))  or \'"+OB.getWindowId()+"\' in (\'E397822E8DAB4FCDACC84F5C27455F8C\', \'26209E1C023B4879BF58993F9BF9AAC9\'))" ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="DESCRIPTION" pkRow="800030">
+      <oldValue/>
+      <newValue><![CDATA[Displays the Location of the Taxs]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="800030">
+      <oldValue><![CDATA[This fieldindicates that this location is a fiscal address. Fiscal addresses are shown in all documents.]]></oldValue>
+      <newValue><![CDATA[This field indicates that this location is a fiscal address. Fiscal addresses are shown in all documents.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="DESCRIPTION" pkRow="800484">
+      <oldValue/>
+      <newValue><![CDATA[It checks whether the Employee is an operator]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="800484">
+      <oldValue/>
+      <newValue><![CDATA[It checks whether the Employee is an operator]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="DESCRIPTION" pkRow="022F861A893ED5B4E050007F01001865">
+      <oldValue/>
+      <newValue><![CDATA[This amount indicates to match certain amount ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="022F861A893ED5B4E050007F01001865">
+      <oldValue/>
+      <newValue><![CDATA[This amount indicates to match certain amount ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="DESCRIPTION" pkRow="115B1D3B9B574098A7DD469A5A9FD28A">
+      <oldValue/>
+      <newValue><![CDATA[This is used to match the Cost adjustment]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="115B1D3B9B574098A7DD469A5A9FD28A">
+      <oldValue/>
+      <newValue><![CDATA[This is used to match the Cost adjustment]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="680E69F4E5C8492BA0897166B5C54926">
+      <oldValue/>
+      <newValue><![CDATA[This flag indicates whether product is linked.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="6C0C6F7437984998BB5ABA0CA84383F1">
+      <oldValue/>
+      <newValue><![CDATA[Rules to establish service price.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="DESCRIPTION" pkRow="6D64D89A976E47AFBEAA8634530CC0C3">
+      <oldValue/>
+      <newValue><![CDATA[It sets new Currency]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="6D64D89A976E47AFBEAA8634530CC0C3">
+      <oldValue/>
+      <newValue><![CDATA[It sets new Currency]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="DESCRIPTION" pkRow="8189F57B424989CBE040007F01003EE0">
+      <oldValue/>
+      <newValue><![CDATA[A note about the current record.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="8189F57B424989CBE040007F01003EE0">
+      <oldValue/>
+      <newValue><![CDATA[Using this field you can add notes for the current transaction.]]></newValue>
+    </columnDataChange>    
+    <columnDataChange tablename="AD_ELEMENT" columnname="DESCRIPTION" pkRow="828EE0AE80315FA1E040007F010067C7">
+      <oldValue/>
+      <newValue><![CDATA[It shows the Payment Method]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="828EE0AE80315FA1E040007F010067C7">
+      <oldValue/>
+      <newValue><![CDATA[It shows the Payment Method]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="8B4BBFAD2D65432BAFE284E519ED7583">
+      <oldValue/>
+      <newValue><![CDATA[Indicates the quantity of product needed to process one time the sequence.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="DESCRIPTION" pkRow="94C41428B83F0680E040007F01001805">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox determines whether the role has organisation administration for the particular organisation]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="94C41428B83F0680E040007F01001805">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox determines whether the role has organisation administration for the particular organisation]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="DESCRIPTION" pkRow="94C41428B8480680E040007F01001805">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox determines that the current user is the role administrator]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="94C41428B8480680E040007F01001805">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox determines that the current user is the role administrator]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="975356E9483345BFAE6666A8904AB0D3">
+      <oldValue><![CDATA[Displays Certificate Name]]></oldValue>
+      <newValue><![CDATA[Displays Certificate Name
+]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="B6A12581B7AF40C79B78E8F147729702">
+      <oldValue/>
+      <newValue><![CDATA[Cost amount.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="DFE350A1830B4F7FE040007F010031A1">
+      <oldValue/>
+      <newValue><![CDATA[This field indicates Update Characteristics]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="EFCED7A4B2BA4FADBBFABF91D145CF45">
+      <oldValue/>
+      <newValue><![CDATA[Indicates the quantity of product needed to process one time the sequence.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_ELEMENT" columnname="HELP" pkRow="F8E28470867840E3BA7CDDEDCF4EEAB9">
+      <oldValue/>
+      <newValue><![CDATA[Adjustment amount]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="NAME" pkRow="204">
+      <oldValue><![CDATA[Goods Receipt]]></oldValue>
+      <newValue><![CDATA[PO Receipt]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="ISACTIVE" pkRow="205">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MENU" columnname="NAME" pkRow="800216">
+      <oldValue><![CDATA[Requisition]]></oldValue>
+      <newValue><![CDATA[Purchase Requisition]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_PROCESS_PARA" columnname="COLUMNNAME" pkRow="734A69A8A5B34ED7819C1AFBEA714F05">
+      <oldValue><![CDATA[notes]]></oldValue>
+      <newValue><![CDATA[Notes]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_PROCESS_PARA" columnname="COLUMNNAME" pkRow="8C81164D7D414AE3BC558216731400F4">
+      <oldValue><![CDATA[notes]]></oldValue>
+      <newValue><![CDATA[Notes]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TABLE_TREE" columnname="ISORDERED" pkRow="3BDFC108CBD4450595ACBA2FA1C2A1DC">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_REF_LIST" columnname="ISACTIVE" pkRow="315">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_MODEL_OBJECT" columnname="CLASSNAME" pkRow="1004400018">
+      <oldValue><![CDATA[org.openbravo.erpReports.RptM_Requisition]]></oldValue>
+      <newValue><![CDATA[sa.elm.ob.scm.ad_process.printreport.RptM_Requisition]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="FIELDLENGTH" pkRow="213">
+      <oldValue><![CDATA[60]]></oldValue>
+      <newValue><![CDATA[250]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="FIELDLENGTH" pkRow="817">
+      <oldValue><![CDATA[60]]></oldValue>
+      <newValue><![CDATA[250]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_VAL_RULE_ID" pkRow="1247">
+      <oldValue/>
+      <newValue><![CDATA[06DA366D665D471D81E3FD83A4481D71]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISUPDATEABLE" pkRow="1247">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_VAL_RULE_ID" pkRow="1404">
+      <oldValue/>
+      <newValue><![CDATA[583F70764B234A6BB4FB875C103564A2]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_ID" pkRow="1411">
+      <oldValue><![CDATA[10]]></oldValue>
+      <newValue><![CDATA[14]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DEFAULTVALUE" pkRow="1443">
+      <oldValue/>
+      <newValue><![CDATA[صنف بديل]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISSESSIONATTR" pkRow="1761">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISSESSIONATTR" pkRow="1762">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_VAL_RULE_ID" pkRow="1770">
+      <oldValue/>
+      <newValue><![CDATA[583F70764B234A6BB4FB875C103564A2]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISUPDATEABLE" pkRow="1770">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DESCRIPTION" pkRow="1776">
+      <oldValue><![CDATA[A non-unique identifier for a record/document often used as a search tool.]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="1776">
+      <oldValue><![CDATA[A more descriptive identifier (that does need to be unique) of a record/document that is used as a default search option along with the search key (that is unique and mostly shorter). It is up to 60 characters in length.]]></oldValue>
+      <newValue><![CDATA[Name]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISUPDATEABLE" pkRow="1776">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="SEQNO" pkRow="1776">
+      <oldValue><![CDATA[1]]></oldValue>
+      <newValue><![CDATA[20]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_ELEMENT_ID" pkRow="1776">
+      <oldValue><![CDATA[469]]></oldValue>
+      <newValue><![CDATA[0B3A1C88BBA544E9B6B60CC00F577029]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_ID" pkRow="1783">
+      <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[18]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_VALUE_ID" pkRow="1783">
+      <oldValue><![CDATA[800060]]></oldValue>
+      <newValue><![CDATA[C6EFA602A8264990B72CEBBADC51305E]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_VAL_RULE_ID" pkRow="1783">
+      <oldValue/>
+      <newValue><![CDATA[124CF363FC29414FB1DF1E4969DBFA77]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="FIELDLENGTH" pkRow="1831">
+      <oldValue><![CDATA[60]]></oldValue>
+      <newValue><![CDATA[80]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISMANDATORY" pkRow="2011">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISIDENTIFIER" pkRow="2011">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_ID" pkRow="2012">
+      <oldValue><![CDATA[19]]></oldValue>
+      <newValue><![CDATA[95E2A8B50A254B2AAE6774B8C2F28120]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_VALUE_ID" pkRow="2012">
+      <oldValue/>
+      <newValue><![CDATA[49B2D276984F467D9B2FFEF0C45891C6]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISUPDATEABLE" pkRow="2012">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISSESSIONATTR" pkRow="2012">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="2012">
+      <oldValue/>
+      <newValue><![CDATA[0FD34FBE84AF4926AE329DF397CFCE62]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="2163">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' | ((@EM_Escm_Appstatus@ ='ESCM_RA' | @EM_Escm_Appstatus@ ='ESCM_REJ'  )& @EM_Escm_Old_Order@) | @em_escm_req_more_info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISSESSIONATTR" pkRow="2166">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="2181">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' | @EM_Escm_Appstatus@='ESCM_AP' | @EM_Escm_Appstatus@='ESCM_IP' |  @EM_Escm_Appstatus@='ESCM_CA' 
+| (@ESCM_Order_NextRole@!'Y' & @EM_Escm_Appstatus@!'DR' & @ESCM_Order_LogUser@='N' & @ESCM_SCMAdmin@!'Y' ) | @em_escm_req_more_info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_VAL_RULE_ID" pkRow="2191">
+      <oldValue/>
+      <newValue><![CDATA[17B00BCF640C4C7B879FDBA5C425B0C7]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISUPDATEABLE" pkRow="2191">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="2191">
+      <oldValue/>
+      <newValue><![CDATA[@EM_Escm_Appstatus@='ESCM_AP' | @EM_Escm_Appstatus@='ESCM_IP'| @EM_Escm_Appstatus@='ESCM_CA']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="2204">
+      <oldValue><![CDATA[142]]></oldValue>
+      <newValue><![CDATA[187082751AFD48A7AE22398AB974F238]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="2214">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' | @ProposalCount@ > 0]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_ID" pkRow="2221">
+      <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[95E2A8B50A254B2AAE6774B8C2F28120]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_VALUE_ID" pkRow="2221">
+      <oldValue><![CDATA[800060]]></oldValue>
+      <newValue><![CDATA[8756027C6EAC4DDE862F2E3417DB40B4]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISMANDATORY" pkRow="2221">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="2221">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' | @ProposalCount@ > 0 | 
+(@Escm_Line_Attribute@='Y' & @EM_Escm_Ismanual@='N') | 
+(@EM_Escm_Appstatus@!'DR' & @EM_Escm_Appstatus@!'ESCM_REJ' & @EM_Escm_Appstatus@ !'ESCM_RA') | 
+(@IsNotFromPO@='Y') |
+(@ESCM_Order_NextRole@!'Y' & @EM_Escm_Appstatus@!'DR' & @ESCM_Order_LogUser@='N' & @ESCM_SCMAdmin@!'Y')]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="2221">
+      <oldValue><![CDATA[143]]></oldValue>
+      <newValue><![CDATA[34103A0944064D32AF0857329875E1D1]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISUPDATEABLE" pkRow="2222">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="2222">
+      <oldValue/>
+      <newValue><![CDATA[  @EM_Escm_Appstatus@='ESCM_AP' | @EM_Escm_Appstatus@='ESCM_CA' | @M_Product_ID@ | @EM_Escm_Issummarylevel@='Y' | ( @ESCM_PO_LogUser@='N' & @EM_Escm_Appstatus@='DR' & @CreatedBy@!'100' ) | @EM_Escm_Proposalmgmt_ID@ | @EM_Efin_M_Requisitionline_ID@ | @em_escm_req_more_info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="FIELDLENGTH" pkRow="2224">
+      <oldValue><![CDATA[10]]></oldValue>
+      <newValue><![CDATA[30]]></newValue>
+    </columnDataChange>
+<columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="2224">
+      <oldValue><![CDATA[@Processed@='Y' | (@IsSOTrx@='Y' & @ISLINKEDTOPRODUCT@='Y' & @PRODUCTTYPE@='S')]]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' | (@IsSOTrx@='Y' & @ISLINKEDTOPRODUCT@='Y' & @PRODUCTTYPE@='S') |
+@EM_Escm_Appstatus@='ESCM_AP' | @EM_Escm_Appstatus@='ESCM_IP' | @EM_Escm_Appstatus@='ESCM_CA' | @ProposalCount@ > 0 |
+(@Escm_Line_Attribute@='Y' & @EM_Escm_Addproposal@='Y') | 
+(@ESCM_Order_NextRole@!'Y' & @EM_Escm_Appstatus@!'DR' & @ESCM_Order_LogUser@='N' & @ESCM_SCMAdmin@!'Y') |
+@EM_Escm_Issummarylevel@='Y'|(@EM_Escm_Ordertype@='PUR_REL'&@EM_Escm_Receivetype@='AMT')]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="VALUEMIN" pkRow="2224">
+      <oldValue/>
+      <newValue><![CDATA[0]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="2224">
+      <oldValue><![CDATA[138]]></oldValue>
+      <newValue><![CDATA[401F5BC44BE3434BBE365405D750FBD0]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_ID" pkRow="2232">
+      <oldValue><![CDATA[800008]]></oldValue>
+      <newValue><![CDATA[12]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="2232">
+      <oldValue><![CDATA[@Processed@='Y' | @GROSSPRICE@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' | @GROSSPRICE@='Y' | @EM_Escm_Appstatus@='ESCM_AP' |
+ @EM_Escm_Appstatus@='ESCM_IP'| @EM_Escm_Appstatus@='ESCM_CA' | (@ProposalCount@ > 0 & @Escm_Old_Order_Count@ =0)
+ |(@Escm_Line_Attribute@='Y' & @EM_Escm_Addproposal@='Y' & @Escm_Old_Order_Count@ = 0) 
+| (@ESCM_Order_NextRole@!'Y' & @EM_Escm_Appstatus@!'DR' & @ESCM_Order_LogUser@='N' & @ESCM_SCMAdmin@!'Y') | @EM_Escm_Issummarylevel@='Y'|(@EM_Escm_Ordertype@='PUR_REL'&@EM_Escm_Receivetype@='QTY') | @EM_Escm_Initial_Unitprice@>0]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="VALUEMIN" pkRow="2232">
+      <oldValue/>
+      <newValue><![CDATA[0]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="2232">
+      <oldValue><![CDATA[138]]></oldValue>
+      <newValue><![CDATA[401F5BC44BE3434BBE365405D750FBD0]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_ID" pkRow="2762">
+      <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[95E2A8B50A254B2AAE6774B8C2F28120]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_VALUE_ID" pkRow="2762">
+      <oldValue><![CDATA[800057]]></oldValue>
+      <newValue><![CDATA[E84BC4F0484042DEBDF437C531C4A08A]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_VAL_RULE_ID" pkRow="2762">
+      <oldValue/>
+      <newValue><![CDATA[231A18E22C494369AA89D057D8AFA2F5]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="2762">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@ESCM_Order_Header@='Y' | @Processed@='Y' | @EM_Escm_Appstatus@='ESCM_AP' | @EM_Escm_Appstatus@='ESCM_IP'| @EM_Escm_Appstatus@='ESCM_CA' | (@ESCM_Order_NextRole@!'Y' & @EM_Escm_Appstatus@!'DR' & @ESCM_Order_LogUser@='N') |((@EM_Escm_Appstatus@ ='ESCM_RA' | @EM_Escm_Appstatus@ ='ESCM_REJ'  )& @EM_Escm_Old_Order@) | @em_escm_req_more_info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="2764">
+      <oldValue><![CDATA[@Posted@='Y']]></oldValue>
+      <newValue><![CDATA[(@Posted@='Y')  | (@EM_Escm_Ordertype@='PUR_AG' & @EM_Escm_Appstatus@='ESCM_AP') | (@EM_Escm_Proposalmgmt_ID@!null & @EM_Escm_Ordertype@='PUR_AG') | @EM_Escm_Appstatus@='ESCM_AP' | @EM_Escm_Appstatus@='ESCM_IP' | @EM_Escm_Appstatus@='ESCM_CA' ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_VAL_RULE_ID" pkRow="2895">
+      <oldValue/>
+      <newValue><![CDATA[583F70764B234A6BB4FB875C103564A2]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="FIELDLENGTH" pkRow="2901">
+      <oldValue><![CDATA[40]]></oldValue>
+      <newValue><![CDATA[250]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="FIELDLENGTH" pkRow="2902">
+      <oldValue><![CDATA[60]]></oldValue>
+      <newValue><![CDATA[250]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_VALUE_ID" pkRow="2959">
+      <oldValue><![CDATA[21]]></oldValue>
+      <newValue><![CDATA[EF4AA6B0400E491AA7A0605C0DF5FECC]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISIDENTIFIER" pkRow="3017">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="SEQNO" pkRow="3017">
+      <oldValue/>
+      <newValue><![CDATA[30]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="3024">
+      <oldValue/>
+      <newValue><![CDATA[1DCBB2F57AD9486189CFD8FD08A7D193]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3400">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' |@EM_Escm_Appstatus@='ESCM_AP' | @EM_Escm_Appstatus@='ESCM_IP'| @EM_Escm_Appstatus@='ESCM_CA' | (@ESCM_Order_NextRole@!'Y' & @EM_Escm_Appstatus@!'DR' & @ESCM_Order_LogUser@='N' & @ESCM_SCMAdmin@!'Y') | ((@EM_Escm_Appstatus@ ='ESCM_RA' | @EM_Escm_Appstatus@ ='ESCM_REJ'  )& @EM_Escm_Old_Order@) | @em_escm_req_more_info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3515">
+      <oldValue/>
+      <newValue><![CDATA[@EM_Escm_Docstatus@!'DR']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISUPDATEABLE" pkRow="3517">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3517">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' | @EM_Escm_Docstatus@!'DR' | @em_escm_req_more_info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISIDENTIFIER" pkRow="3517">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISSESSIONATTR" pkRow="3517">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="3517">
+      <oldValue><![CDATA[30F26E853A7241C394D67F910A87F3EF]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_VAL_RULE_ID" pkRow="3523">
+      <oldValue/>
+      <newValue><![CDATA[583F70764B234A6BB4FB875C103564A2]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3523">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' | @EM_Escm_Docstatus@!'DR' | @em_escm_req_more_info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="3523">
+      <oldValue><![CDATA[4AB185365A514877A227785855B795E3]]></oldValue>
+      <newValue><![CDATA[7A361A138320419AB33816A96A0EA925]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3539">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y'   | ((@EM_Escm_Docstatus@='DR' | @EM_Escm_Docstatus@='CO'| @EM_Escm_DocStatus@='ESCM_IP') & (@EM_ESCM_Receivingtype@='IRT' | @EM_ESCM_Receivingtype@='INR' | @EM_ESCM_Receivingtype@='LD'))]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DEFAULTVALUE" pkRow="3540">
+      <oldValue><![CDATA[0]]></oldValue>
+      <newValue><![CDATA[1]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3540">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' | ((@EM_Escm_Docstatus@='DR' | @EM_Escm_Docstatus@='CO' | @EM_Escm_DocStatus@='ESCM_IP') & (@EM_ESCM_Receivingtype@='IRT' | @EM_ESCM_Receivingtype@='INR' | @EM_ESCM_Receivingtype@='LD'))]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="VALUEMIN" pkRow="3540">
+      <oldValue/>
+      <newValue><![CDATA[0.01]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3541">
+      <oldValue/>
+      <newValue><![CDATA[ ((@EM_Escm_Docstatus@='DR' | @EM_Escm_Docstatus@='CO' | @EM_Escm_DocStatus@='ESCM_IP')
+& (@EM_ESCM_Receivingtype@='IRT' | @EM_ESCM_Receivingtype@='INR'|@EM_ESCM_Receivingtype@='LD'))]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_VAL_RULE_ID" pkRow="3544">
+      <oldValue/>
+      <newValue><![CDATA[583F70764B234A6BB4FB875C103564A2]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="3544">
+      <oldValue/>
+      <newValue><![CDATA[DB47CD66E40344F4A7F694DB479A5DDC]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3545">
+      <oldValue/>
+      <newValue><![CDATA[@EM_Escm_Status@='CO']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3551">
+      <oldValue/>
+      <newValue><![CDATA[@EM_Escm_Status@ = 'CO']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3552">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' | @EM_Escm_Status@ = 'CO' | @Escm_inventory_have_line@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_VALUE_ID" pkRow="3565">
+      <oldValue><![CDATA[F784938E74564BCABF9517EB80DB15F5]]></oldValue>
+      <newValue><![CDATA[40F266A857164334B8591F06BD98FFD9]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISUPDATEABLE" pkRow="3565">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="3565">
+      <oldValue><![CDATA[126]]></oldValue>
+      <newValue><![CDATA[7C3AEF32EED3411A8426F97C1D001762]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="VALUEMAX" pkRow="3566">
+      <oldValue/>
+      <newValue><![CDATA[999999.99]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3567">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' | @EM_Escm_Status@ = 'CO']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="VALUEMAX" pkRow="3567">
+      <oldValue/>
+      <newValue><![CDATA[999999.99]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3568">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' | @EM_Escm_Status@ = 'CO']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_VAL_RULE_ID" pkRow="3660">
+      <oldValue/>
+      <newValue><![CDATA[583F70764B234A6BB4FB875C103564A2]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3723">
+      <oldValue><![CDATA[@Iseditlinenetamt@='N'|@GROSSPRICE@='Y']]></oldValue>
+      <newValue><![CDATA[@Iseditlinenetamt@='N'|@GROSSPRICE@='Y' | @EM_Escm_Issummarylevel@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="VALUEMIN" pkRow="3723">
+      <oldValue/>
+      <newValue><![CDATA[0]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="3723">
+      <oldValue><![CDATA[138]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3791">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' | @EM_Escm_Docstatus@!'DR']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISUPDATEABLE" pkRow="3792">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3792">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' | @EM_Escm_Docstatus@!'DR' |@escm_linecount@ > 0]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISSESSIONATTR" pkRow="3792">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="3792">
+      <oldValue><![CDATA[104]]></oldValue>
+      <newValue><![CDATA[7A361A138320419AB33816A96A0EA925]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3794">
+      <oldValue><![CDATA[@Posted@='Y']]></oldValue>
+      <newValue><![CDATA[@Posted@='Y' | @EM_Escm_Docstatus@!'DR']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_VALUE_ID" pkRow="3795">
+      <oldValue><![CDATA[800057]]></oldValue>
+      <newValue><![CDATA[D0CA06B3D22640908F9F07EEEA992121]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISUPDATEABLE" pkRow="3795">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3795">
+      <oldValue><![CDATA[@Processed@='Y' | @HAS_M_INOUTLINES@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y' | @HAS_M_INOUTLINES@='Y' | @EM_Escm_Docstatus@!'DR' | (@C_Order_ID@!null & @C_Order_ID@!'')]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISIDENTIFIER" pkRow="3795">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_ID" pkRow="3798">
+      <oldValue><![CDATA[95E2A8B50A254B2AAE6774B8C2F28120]]></oldValue>
+      <newValue><![CDATA[19]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_VALUE_ID" pkRow="3798">
+      <oldValue><![CDATA[263693E51C7847BF90C897ADB830E2BB]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_VAL_RULE_ID" pkRow="3798">
+      <oldValue/>
+      <newValue><![CDATA[BE341FC21DF145CFA778B69BEBDA6D36]]></newValue>
+    </columnDataChange>
+     <columnDataChange tablename="AD_COLUMN" columnname="ISMANDATORY" pkRow="3798">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3798">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@EM_Escm_Docstatus@='CO']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="FIELDLENGTH" pkRow="3799">
+      <oldValue><![CDATA[20]]></oldValue>
+      <newValue><![CDATA[50]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISMANDATORY" pkRow="3799">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISUPDATEABLE" pkRow="3799">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3799">
+      <oldValue/>
+      <newValue><![CDATA[@EM_Escm_Docstatus@!'DR'  | @ESCM_DocType_PO@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISIDENTIFIER" pkRow="3799">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="3799">
+      <oldValue/>
+      <newValue><![CDATA[7A361A138320419AB33816A96A0EA925]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_ID" pkRow="3809">
+      <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[18]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_VALUE_ID" pkRow="3809">
+      <oldValue><![CDATA[800062]]></oldValue>
+      <newValue><![CDATA[EFA843472E3D4410A54EE68B16A74E1A]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_VAL_RULE_ID" pkRow="3809">
+      <oldValue/>
+      <newValue><![CDATA[BFD03527A04A459F821F89E9760B33F7]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISUPDATEABLE" pkRow="3809">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3809">
+      <oldValue/>
+      <newValue><![CDATA[@EM_Escm_Docstatus@!'DR' | @escm_linecount@ > 0]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISSESSIONATTR" pkRow="3809">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="3809">
+      <oldValue/>
+      <newValue><![CDATA[7A361A138320419AB33816A96A0EA925]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="3810">
+      <oldValue><![CDATA[@Processed@='Y']]></oldValue>
+      <newValue><![CDATA[@Processed@='Y'   | ((@EM_Escm_Docstatus@='DR' | @EM_Escm_Docstatus@='CO' | @EM_Escm_DocStatus@='ESCM_IP') & (@EM_ESCM_Receivingtype@='IRT' | @EM_ESCM_Receivingtype@='INR' | @EM_ESCM_Receivingtype@='LD'))]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_VAL_RULE_ID" pkRow="3815">
+      <oldValue/>
+      <newValue><![CDATA[B01F4CB0A6AE4B7C8388752D981095EB]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISUPDATEABLE" pkRow="3815">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="FIELDLENGTH" pkRow="3841">
+      <oldValue><![CDATA[10]]></oldValue>
+      <newValue><![CDATA[15]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="FIELDLENGTH" pkRow="8501">
+      <oldValue><![CDATA[40]]></oldValue>
+      <newValue><![CDATA[250]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="FIELDLENGTH" pkRow="800170">
+      <oldValue><![CDATA[60]]></oldValue>
+      <newValue><![CDATA[250]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DESCRIPTION" pkRow="801031">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox will exclude tax for the payment term]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="801031">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox will exclude tax for the payment term]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="803531">
+      <oldValue><![CDATA[@DocStatus@='CO'|@DocStatus@='CL']]></oldValue>
+      <newValue><![CDATA[@DocStatus@='CO'|@DocStatus@='CL'|@EM_Escm_Doc_Status@='ESCM_AP' |@EM_Escm_Doc_Status@='ESCM_IP'  | (@#ESCM_LineManager@!'Y' & @EM_Escm_Doc_Status@!'DR') | @em_escm_req_more_info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="803537">
+      <oldValue/>
+      <newValue><![CDATA[@EM_Escm_Doc_Status@='ESCM_AP'  | @EM_Escm_Doc_Status@='ESCM_CA' | (((@ESCM_Requisition_NextRole@!'Y' | @#ESCM_LineManager@!'Y' ) & @EM_Escm_Doc_Status@='ESCM_IP')  | (@ESCM_PurReq_LogUser@='N' & @EM_Escm_Doc_Status@='DR')) | @EM_Escm_Doc_Status@='ESCM_REJ' | @EM_Escm_Req_More_Info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISIDENTIFIER" pkRow="803537">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="SEQNO" pkRow="803537">
+      <oldValue><![CDATA[90]]></oldValue>
+      <newValue><![CDATA[130]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="SEQNO" pkRow="803538">
+      <oldValue><![CDATA[100]]></oldValue>
+      <newValue><![CDATA[90]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISIDENTIFIER" pkRow="803541">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="SEQNO" pkRow="803541">
+      <oldValue><![CDATA[130]]></oldValue>
+      <newValue><![CDATA[237]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_ID" pkRow="803552">
+      <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[95E2A8B50A254B2AAE6774B8C2F28120]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_VALUE_ID" pkRow="803552">
+      <oldValue><![CDATA[800011]]></oldValue>
+      <newValue><![CDATA[8756027C6EAC4DDE862F2E3417DB40B4]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="803552">
+      <oldValue><![CDATA[@DocStatus@='CO'|@DocStatus@='CL']]></oldValue>
+      <newValue><![CDATA[@DocStatus@='CL' | @EM_Escm_Doc_Status@='ESCM_AP' 
+ | (((@ESCM_Requisition_NextRole@!'Y' |  @#ESCM_LineManager@!'Y' | @#ESCM_Inventory_Control@!'Y') 
+   & @EM_Escm_Doc_Status@='ESCM_IP') 
+  | (@ESCM_SCMAdmin@!'Y' & @ESCM_PurReq_LogUser@='N' & @EM_Escm_Doc_Status@='DR'))
+   | @EM_Escm_Doc_Status@='ESCM_REJ' | @DocStatus@='ESCM_CA' | @EM_Escm_Issummary@='Y' | @em_escm_req_more_info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="803552">
+      <oldValue><![CDATA[800013]]></oldValue>
+      <newValue><![CDATA[2C0E184556FD4530B6A55FBEE7C57CC3]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="803553">
+      <oldValue><![CDATA[@DocStatus@='CO'|@DocStatus@='CL']]></oldValue>
+      <newValue><![CDATA[( @DocStatus@='CL' | @EM_Escm_Doc_Status@='ESCM_AP'  | 
+ (((@ESCM_Requisition_NextRole@!'Y' | (@#ESCM_LineManager@!'Y' & @#ESCM_Inventory_Control@!'Y'))
+ & @EM_Escm_Doc_Status@='ESCM_IP') 
+  | (@ESCM_SCMAdmin@!'Y' & @ESCM_PurReq_LogUser@='N' & @EM_Escm_Doc_Status@='DR')) | @EM_Escm_Doc_Status@='ESCM_REJ'  |@DocStatus@='ESCM_CA' | @EM_Escm_Issummary@='Y') & (@ESCM_LineManager@='N' | @EM_Escm_Doc_Status@='ESCM_AP'  ) | @em_escm_req_more_info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="VALUEMIN" pkRow="803553">
+      <oldValue><![CDATA[1]]></oldValue>
+      <newValue><![CDATA[0]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="803553">
+      <oldValue><![CDATA[1004400000]]></oldValue>
+      <newValue><![CDATA[2C0E184556FD4530B6A55FBEE7C57CC3]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DEFAULTVALUE" pkRow="803558">
+      <oldValue/>
+      <newValue><![CDATA[0]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="FIELDLENGTH" pkRow="803821">
+      <oldValue><![CDATA[2000]]></oldValue>
+      ﻿<newValue><![CDATA[6000]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="1004400001">
+      <oldValue><![CDATA[@DocStatus@='CO'|@DocStatus@='CL']]></oldValue>
+      <newValue><![CDATA[@DocStatus@='CO'|@DocStatus@='CL' | @EM_Escm_Doc_Status@='ESCM_AP' |@M_Product_ID@ 
+ | (((@ESCM_Requisition_NextRole@!'Y' | @#ESCM_LineManager@!'Y' | @#ESCM_Inventory_Control@!'Y' ) & @EM_Escm_Doc_Status@='ESCM_IP')
+  | (@ESCM_SCMAdmin@!'Y' & @ESCM_PurReq_LogUser@='N' & @EM_Escm_Doc_Status@='DR'))|@DocStatus@='ESCM_CA' | @EM_Escm_Issummary@='Y' | @em_escm_req_more_info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="FIELDLENGTH" pkRow="1004400021">
+      <oldValue><![CDATA[255]]></oldValue>
+      <newValue><![CDATA[2000]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="1004400021">
+      <oldValue/>
+      <newValue><![CDATA[(@EM_Escm_Doc_Status@='ESCM_AP' 
+   |(((@ESCM_Requisition_NextRole@!'Y' | @#ESCM_LineManager@!'Y' | @#ESCM_Inventory_Control@!'Y' ) & @EM_Escm_Doc_Status@='ESCM_IP') 
+    | (@ESCM_SCMAdmin@!'Y' & @ESCM_PurReq_LogUser@='N' & @EM_Escm_Doc_Status@='DR')) | @EM_Escm_Doc_Status@='ESCM_CA' | @Escm_ItemDesc_Read@='Y') & (@ESCM_LineManager@='N'| @EM_Escm_Doc_Status@='ESCM_AP'  ) | @em_escm_req_more_info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="1004400024">
+      <oldValue/>
+      <newValue><![CDATA[(((@ESCM_Requisition_NextRole@!'Y' | @#ESCM_LineManager@!'Y' ) & @EM_Escm_Doc_Status@='ESCM_IP')  | (@ESCM_SCMAdmin@!'Y' & @ESCM_PurReq_LogUser@='N' & @EM_Escm_Doc_Status@='DR')) | @EM_Escm_Doc_Status@='ESCM_REJ' |@DocStatus@='ESCM_CA' | @em_escm_req_more_info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DEFAULTVALUE" pkRow="1004400025">
+      <oldValue/>
+      <newValue><![CDATA[@SQL=select eut_convert_to_hijri(to_char(now()+1,'YYYY-MM-DD')) as DefaultValue]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISMANDATORY" pkRow="1004400025">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="1004400025">
+      <oldValue><![CDATA[@DocStatus@='CO'|@DocStatus@='CL']]></oldValue>
+      <newValue><![CDATA[ (@DocStatus@='CO'|@DocStatus@='CL' | @EM_Escm_Doc_Status@='ESCM_AP' 
+   |   (((@ESCM_Requisition_NextRole@!'Y' |( @#ESCM_LineManager@!'Y' & @#ESCM_BudgetControl@!'Y' & @#ESCM_Inventory_Control@!'Y') )
+   & @EM_Escm_Doc_Status@='ESCM_IP')  | (@ESCM_SCMAdmin@!'Y' & @ESCM_PurReq_LogUser@='N' & @EM_Escm_Doc_Status@='DR')) 
+   | @EM_Escm_Doc_Status@='ESCM_REJ' |@DocStatus@='ESCM_CA') & (@ESCM_LineManager@='N' | @EM_Escm_Doc_Status@='ESCM_AP'  ) | @em_escm_req_more_info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="ISIDENTIFIER" pkRow="1004400025">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="1004400025">
+      <oldValue/>
+      <newValue><![CDATA[889FDBA2CAC941A696AB45D1740544CA]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DEFAULTVALUE" pkRow="1004400031">
+      <oldValue/>
+      <newValue><![CDATA[0]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="READONLYLOGIC" pkRow="1004400031">
+      <oldValue><![CDATA[@DocStatus@='CO'|@DocStatus@='CL']]></oldValue>
+      <newValue><![CDATA[(@DocStatus@='CO'|@DocStatus@='CL' | @EM_Escm_Doc_Status@='ESCM_AP' |  (((@ESCM_Requisition_NextRole@!'Y' | @#ESCM_LineManager@!'Y' ) & @EM_Escm_Doc_Status@='ESCM_IP')  | (@ESCM_SCMAdmin@!'Y' & @ESCM_PurReq_LogUser@='N' & @EM_Escm_Doc_Status@='DR')) | @EM_Escm_Doc_Status@='ESCM_REJ'
+|@DocStatus@='ESCM_CA' | @EM_Escm_Issummary@='Y')  & (@ESCM_LineManager@='N'| @EM_Escm_Doc_Status@='ESCM_AP' ) | @em_escm_req_more_info@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_CALLOUT_ID" pkRow="1004400031">
+      <oldValue><![CDATA[1004400000]]></oldValue>
+      <newValue><![CDATA[2C0E184556FD4530B6A55FBEE7C57CC3]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DESCRIPTION" pkRow="00568254CB6B8733E050007F01000513">
+      <oldValue/>
+      <newValue><![CDATA[A monetary total.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="00568254CB6B8733E050007F01000513">
+      <oldValue/>
+      <newValue><![CDATA[The Amount indicates the amount for this document line.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DESCRIPTION" pkRow="022DBF593E062373E050007F01000844">
+      <oldValue/>
+      <newValue><![CDATA[This amount indicates to match certain amount ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="022DBF593E062373E050007F01000844">
+      <oldValue/>
+      <newValue><![CDATA[This amount indicates to match certain amount ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DESCRIPTION" pkRow="023AA8E75FBE4274E050007F01005DB0">
+      <oldValue/>
+      <newValue><![CDATA[This is used to match the Cost adjustment]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="023AA8E75FBE4274E050007F01005DB0">
+      <oldValue/>
+      <newValue><![CDATA[This is used to match the Cost adjustment]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="0985D02FC21740678D30D0B1E6B2EE1A">
+      <oldValue/>
+      <newValue><![CDATA[Rules to establish service price.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="0BB2DC8FE20842089DA5809ED1AE82FE">
+      <oldValue/>
+      <newValue><![CDATA[Rules to establish service price.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="1C8AED7760D64750A1BA17EA17C1ED77">
+      <oldValue/>
+      <newValue><![CDATA[Indicates the quantity of product needed to process one time the sequence.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DEFAULTVALUE" pkRow="1FEFAB2F6215496FA9026D5FF7706F6F">
+      <oldValue><![CDATA[@#Date@]]></oldValue>
+      <newValue><![CDATA[@SQL=select eut_convert_to_hijri(to_char(now(),'YYYY-MM-DD')) as DefaultValue]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="30BCE4EE335E4EB6BD2CD237605ABC72">
+      <oldValue/>
+      <newValue><![CDATA[Cost amount.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="481DD00275E04E569EC34D3E634249A3">
+      <oldValue/>
+      <newValue><![CDATA[This flag indicates whether product is linked.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DEFAULTVALUE" pkRow="573D452F04DA243FE040007F01012792">
+      <oldValue><![CDATA[@#Date@]]></oldValue>
+      <newValue><![CDATA[@SQL=select eut_convert_to_hijri(to_char(now(),'YYYY-MM-DD')) as DefaultValue]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_ID" pkRow="58494889CFB214F2E040007F0100577D">
+      <oldValue><![CDATA[29]]></oldValue>
+      <newValue><![CDATA[800008]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="VALUEMIN" pkRow="58494889CFB214F2E040007F0100577D">
+      <oldValue/>
+      <newValue><![CDATA[0]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="VALUEMAX" pkRow="58494889CFB214F2E040007F0100577D">
+      <oldValue/>
+      <newValue><![CDATA[999999]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="AD_REFERENCE_ID" pkRow="58494889CFB314F2E040007F0100577D">
+      <oldValue><![CDATA[29]]></oldValue>
+      <newValue><![CDATA[800008]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="VALUEMIN" pkRow="58494889CFB314F2E040007F0100577D">
+      <oldValue/>
+      <newValue><![CDATA[0]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="VALUEMAX" pkRow="58494889CFB314F2E040007F0100577D">
+      <oldValue/>
+      <newValue><![CDATA[999999]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="5E548901D4294F59BE5DCC24516E09E4">
+      <oldValue/>
+      <newValue><![CDATA[Rules to establish service price.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DESCRIPTION" pkRow="94C42B00FB2F9A4AE040007F010044C1">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox determines whether the role has organisation administration for the particular organisation]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="94C42B00FB2F9A4AE040007F010044C1">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox determines whether the role has organisation administration for the particular organisation]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DESCRIPTION" pkRow="94C42B00FB359A4AE040007F010044C1">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox determines that the current user is the role administrator]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="94C42B00FB359A4AE040007F010044C1">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox determines that the current user is the role administrator]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="A3F83656D5F945F8A1B99058F39DE1E3">
+      <oldValue/>
+      <newValue><![CDATA[Indicates the quantity of product needed to process one time the sequence.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="B2FF2F7B67D94668A6451B282FE67726">
+      <oldValue/>
+      <newValue><![CDATA[Adjustment amount]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="C850E75FC2C640B59B4FEC12423F4251">
+      <oldValue/>
+      <newValue><![CDATA[This field indicates Update Characteristics]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="DESCRIPTION" pkRow="8189F49FFEAC6E56E040007F01003E83">
+      <oldValue/>
+      <newValue><![CDATA[A note about the current record.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_COLUMN" columnname="HELP" pkRow="8189F49FFEAC6E56E040007F01003E83">
+      <oldValue/>
+      <newValue><![CDATA[Using this field you can add notes for the current transaction.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="OBUISEL_SELECTOR_FIELD" columnname="SHOWINGRID" pkRow="A7E22F3DDE334ABD8A09CBBC52CBB9DA">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="OBUISEL_SELECTOR_FIELD" columnname="SHOWINPICKLIST" pkRow="A7E22F3DDE334ABD8A09CBBC52CBB9DA">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="119">
+      <oldValue><![CDATA[e.client.id = @#ad_client_id@]]></oldValue>
+      <newValue><![CDATA[e.client.id = @#ad_client_id@ and e.eutDocumenttype is null]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="180">
+      <oldValue/>
+      <newValue><![CDATA[(e.id in (select pdt.id from Product pdt where pdt.productCategory IN ( select pc.id from escm_usergrp_role rl join rl.escmUsergroups as hdr
+                                                                   join hdr.escmUsergrpProcatList as cat join cat.productCategory as pc
+                                                                   where rl.role.id = @#AD_Role_ID@)))
+or (( select count(pc.id) from escm_usergrp_role rl join rl.escmUsergroups as hdr                              
+                                           join hdr.escmUsergrpProcatList as cat join cat.productCategory as pc where rl.role.id = @#AD_Role_ID@ )=0)]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="181">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="DISPLAYLOGIC" pkRow="181">
+      <oldValue/>
+      <newValue><![CDATA[@Escm_Aux_Stock_Type@='CUS'  & @IsPurchased@='N' & @IsStocked@='N' & @IsStocked@='N']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="183">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="210">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="TABLEVEL" pkRow="215">
+      <oldValue><![CDATA[2]]></oldValue>
+      <newValue><![CDATA[1]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="SEQNO" pkRow="235">
+      <oldValue><![CDATA[120]]></oldValue>
+      <newValue><![CDATA[160]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="255">
+      <oldValue/>
+      <newValue><![CDATA[e.escmIsphysicalinventory='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLORDERBYCLAUSE" pkRow="255">
+      <oldValue/>
+      <newValue><![CDATA[creationDate desc]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLORDERBYCLAUSE" pkRow="263">
+      <oldValue/>
+      <newValue><![CDATA[creationDate desc]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="289">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="296">
+      <oldValue><![CDATA[e.movementType IN ('V-', 'V+') and e.logistic = 'N' and e.documentType.return=false]]></oldValue>
+      <newValue><![CDATA[(e.movementType IN ('V-', 'V+') and e.logistic = 'N' and e.documentType.return=false 
+and e.escmReceivingtype in (select ref.searchKey from EUT_ListAccess lsacc
+join lsacc.listReference as ref 
+where lsacc.window.id='184' and lsacc.role.id=@AD_Role_Id@ and lsacc.active=true
+))
+and (( e.salesOrder is not null  
+and 
+e.salesOrder.id in ( 
+
+select e.id from  Order e where 
+
+((e.escmContactType is not null 
+and ( ((select count(userContact.id) from Eut_User_Lookup_Access where userContact.id=@#AD_User_ID@)>0 and
+e.escmContactType in ( select  usrlook.lookupValues.id from Eut_User_Lookup_Access usrlook
+where usrlook.userContact.id =@#AD_User_ID@  and usrlook.active=true)) or 
+((select count(userContact.id) from Eut_User_Lookup_Access where userContact.id=@#AD_User_ID@)=0 and
+e.escmContactType in ( select  look.escmDeflookupsTypeln.id from Eut_Lookup_Access look
+where look.role.id =@#AD_ROLE_ID@   and look.active=true)))) or(e.escmContactType is  null )
+)
+
+and(
+ ((e.escmCCity is not null
+and ((((select count(userContact.id) from EUT_User_Regandcity_Access where userContact.id=@#AD_User_ID@)>0)
+and ((e.escmCCity.id in ( select  usracc.city.id from EUT_User_Regandcity_Access usracc
+where usracc.userContact.id =@#AD_User_ID@  and  usracc.city is not null ))
+     or (e.escmCCity.id in (select  id from City where region.id in  ( select usrcacc.region.id from EUT_User_Regandcity_Access usrcacc
+where usrcacc.userContact.id =@#AD_User_ID@  and  usrcacc.city is null ) ))))
+or
+(((select count(userContact.id) from EUT_User_Regandcity_Access where userContact.id=@#AD_User_ID@)=0)
+and ((e.escmCCity.id in ( select  cityacc.eUTCCity.id from eut_regandcity_access cityacc
+where cityacc.role.id =@#AD_ROLE_ID@  and  cityacc.eUTCCity is not null ))
+     or (e.escmCCity.id in (select  id from City where region.id in  ( select cityacc.eUTCRegion.id from eut_regandcity_access cityacc
+where cityacc.role.id =@#AD_ROLE_ID@  and  cityacc.eUTCCity is null ) )))))
+)or(e.escmCCity is  null )))))      
+or  (e.salesOrder is null ))]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLORDERBYCLAUSE" pkRow="296">
+      <oldValue/>
+      <newValue><![CDATA[creationDate desc]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="297">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="NAME" pkRow="297">
+      <oldValue><![CDATA[Lines]]></oldValue>
+      <newValue><![CDATA[Final Receipt]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="UIPATTERN" pkRow="297">
+      <oldValue><![CDATA[STD]]></oldValue>
+      <newValue><![CDATA[RO]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="461">
+      <oldValue/>
+      <newValue><![CDATA[createdBy !='0']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="800057">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="NAME" pkRow="800249">
+      <oldValue><![CDATA[Requisition]]></oldValue>
+      <newValue><![CDATA[Purchase Requisition]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLWHERECLAUSE" pkRow="800249">
+      <oldValue><![CDATA[e.userContact.id=@user@]]></oldValue>
+      <newValue><![CDATA[(((@#AD_Role_ID@=(select e.id from ADRole e where e.id =@#AD_Role_ID@ and e.escmIsprocurement ='Y') 
+or e.id in (select coalesce(a.id,'') as id from ProcurementRequisition a
+join a.eutNextRole r
+join r.eutNextRoleLineList l
+where l.role.id = @#AD_Role_ID@ and a.escmDocStatus <>'DR' and ((l.userContact is not null and 
+l.userContact.id =@AD_USER_ID@ ) or (l.userContact is null ))) 
+or (e.id in (select b.requisition.id from ESCM_PurchaseReq_App_Hist b
+where b.updatedBy.id=@AD_User_ID@ and b.role.id=@#AD_Role_ID@ )) 
+or (e.id in  (select e.id from ProcurementRequisition e join e.escmDepartment dep 
+where e.escmDepartment = dep.id and dep.searchKey = 
+(select bp.ehcmDepartmentCode from ADUser e join e.businessPartner bp 
+ where bp.ehcmDepartmentCode is not null and e.id=@#AD_User_ID@)
+and 
+ (1=(select 1 from ADRole as e where e.id=@#AD_Role_ID@ and
+((e.eutReg.id is not null and e.eutReg.id <> 
+(select agencyHqOrg.id from efin_budget_ctrl_param where client.id=@#AD_Client_ID@)
+or e.eutReg.id is null )))))and (escm_checkDeptExists(@#AD_User_ID@,@#AD_Client_ID@)='Y')) 
+or (e.createdBy.id=@AD_User_ID@
+and e.escmAdRole.id=@#AD_Role_ID@   and (1=(select 1 from ADRole as e where e.id=@#AD_Role_ID@ and
+((e.eutReg.id is not null and e.eutReg =
+(select agencyHqOrg.id from efin_budget_ctrl_param where client.id=@#AD_Client_ID@)
+or e.eutReg.id is null ))))) 
+or e.id in (
+
+select req.id from ProcurementRequisition req
+join req.eutNextRole rl2
+join rl2.eutNextRoleLineList li2
+where li2.role.id in (select li.role.id from ProcurementRequisition re 
+join re.eutNextRole rl
+join rl.eutNextRoleLineList li ) and 1=(
+select 1 from Eut_Docapp_Delegate dl 
+join dl.eutDocappDelegatelnList dll
+where dll.userContact.id=@#AD_User_ID@ 
+and dll.role.id = @#AD_ROLE_ID@ 
+and (dll.documentType='EUT_118' or dll.documentType ='EUT_111')
+and now() between dl.fromDate and dl.date and dl.role.id in (
+select li.role.id from ProcurementRequisition re 
+join re.eutNextRole rl
+join rl.eutNextRoleLineList li ))
+)
+)
+and e.id in (  
+select e.id from  ProcurementRequisition e where ((e.escmContactType is not null 
+and ( ((select count(userContact.id) from Eut_User_Lookup_Access where userContact.id=@#AD_User_ID@)>0 and
+e.escmContactType in ( select  usrlook.lookupValues.id from Eut_User_Lookup_Access usrlook
+where usrlook.userContact.id =@#AD_User_ID@  and usrlook.active=true)) or 
+((select count(userContact.id) from Eut_User_Lookup_Access where userContact.id=@#AD_User_ID@)=0 and
+e.escmContactType in ( select  look.escmDeflookupsTypeln.id from Eut_Lookup_Access look
+where look.role.id =@#AD_ROLE_ID@   and look.active=true)))) or(e.escmContactType is  null )
+)))
+or @ESCM_SCMAdmin@='Y')]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLORDERBYCLAUSE" pkRow="800249">
+      <oldValue/>
+      <newValue><![CDATA[creationDate desc]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="SHOWPARENTBUTTONS" pkRow="800251">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="AD_TABLE_TREE_ID" pkRow="800251">
+      <oldValue/>
+      <newValue><![CDATA[3BDFC108CBD4450595ACBA2FA1C2A1DC]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISREADONLYTREE" pkRow="800251">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="HQLORDERBYCLAUSE" pkRow="1004400001">
+      <oldValue/>
+      <newValue><![CDATA[creationDate desc]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="0F76B56EB2874C729ABE1665D5853E9D">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="SEQNO" pkRow="20DD1153AC7448B19B844B25CF38F54C">
+      <oldValue><![CDATA[160]]></oldValue>
+      <newValue><![CDATA[120]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="681796AC383440BA8212EC80431E89E9">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="710F849A838B4AC6B2AE7E47237F7F8F">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="SEQNO" pkRow="769BB4BF6B0B4C39AD28E9A00D260F33">
+      <oldValue><![CDATA[130]]></oldValue>
+      <newValue><![CDATA[30]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TAB" columnname="ISACTIVE" pkRow="B67386FF3EA94579BA9BA22353B5B897">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="354">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="1017">
+      <oldValue><![CDATA[190]]></oldValue>
+      <newValue><![CDATA[210]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="1017">
+      <oldValue><![CDATA[130]]></oldValue>
+      <newValue><![CDATA[210]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="1018">
+      <oldValue><![CDATA[Name]]></oldValue>
+      <newValue><![CDATA[Item Description]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="1018">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="1019">
+      <oldValue><![CDATA[100]]></oldValue>
+      <newValue><![CDATA[190]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1019">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="STARTNEWLINE" pkRow="1019">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="1026">
+      <oldValue><![CDATA[120]]></oldValue>
+      <newValue><![CDATA[170]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="STARTNEWLINE" pkRow="803814">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="1026">
+      <oldValue><![CDATA[100]]></oldValue>
+      <newValue><![CDATA[130]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="1027">
+      <oldValue><![CDATA[80]]></oldValue>
+      <newValue><![CDATA[150]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="STARTNEWLINE" pkRow="1027">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="1028">
+      <oldValue><![CDATA[90]]></oldValue>
+      <newValue><![CDATA[160]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1032">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="1033">
+      <oldValue><![CDATA[Search Key]]></oldValue>
+      <newValue><![CDATA[Code]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="1033">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISREADONLY" pkRow="1033">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1041">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1041">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="1155">
+      <oldValue><![CDATA[Name]]></oldValue>
+      <newValue><![CDATA[Code]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="1155">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="1155">
+      <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[20]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1316">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLOGIC" pkRow="1316">
+      <oldValue><![CDATA[@isgeneric@='N']]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="1316">
+      <oldValue><![CDATA[210]]></oldValue>
+      <newValue><![CDATA[40]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="2118">
+      <oldValue><![CDATA[Search Key]]></oldValue>
+      <newValue><![CDATA[Name]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="2118">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="2118">
+      <oldValue><![CDATA[20]]></oldValue>
+      <newValue><![CDATA[30]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="2164">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLOGIC" pkRow="2751">
+      <oldValue/>
+      <newValue><![CDATA[@EM_Escm_Initialreceipt_ID@='']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="2760">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="2760">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="3305">
+      <oldValue><![CDATA[Goods Shipment/Receipt Line]]></oldValue>
+      <newValue><![CDATA[Transaction]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3314">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3314">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="3478">
+      <oldValue><![CDATA[Description]]></oldValue>
+      <newValue><![CDATA[Comments]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="3478">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="3478">
+      <oldValue><![CDATA[110]]></oldValue>
+      <newValue><![CDATA[130]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3478">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="3478">
+      <oldValue/>
+      <newValue><![CDATA[120]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="STARTNEWLINE" pkRow="3478">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="3481">
+      <oldValue><![CDATA[Movement Date]]></oldValue>
+      <newValue><![CDATA[Transaction Date]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="3481">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="3481">
+      <oldValue><![CDATA[70]]></oldValue>
+      <newValue><![CDATA[40]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="3481">
+      <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[40]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="3486">
+      <oldValue><![CDATA[Business Partner]]></oldValue>
+      <newValue><![CDATA[Supplier Name]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="3486">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="3486">
+      <oldValue><![CDATA[50]]></oldValue>
+      <newValue><![CDATA[45]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="3486">
+      <oldValue><![CDATA[40]]></oldValue>
+      <newValue><![CDATA[50]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3487">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="3487">
+      <oldValue><![CDATA[60]]></oldValue>
+      <newValue><![CDATA[65]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3487">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="3489">
+      <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[50]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3489">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="3489">
+      <oldValue/>
+      <newValue><![CDATA[60]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLOGIC" pkRow="3490">
+      <oldValue/>
+      <newValue><![CDATA[@ESCM_DocType_PO@='Y']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISREADONLY" pkRow="3490">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="3490">
+      <oldValue><![CDATA[90]]></oldValue>
+      <newValue><![CDATA[92]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="3493">
+      <oldValue><![CDATA[Accounting Date]]></oldValue>
+      <newValue><![CDATA[Document Date]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="3493">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="3493">
+      <oldValue><![CDATA[80]]></oldValue>
+      <newValue><![CDATA[70]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3493">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="3493">
+      <oldValue/>
+      <newValue><![CDATA[80]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="3496">
+      <oldValue><![CDATA[Document No.]]></oldValue>
+      <newValue><![CDATA[Spec.No]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="3496">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISREADONLY" pkRow="3496">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLOGIC" pkRow="3501">
+      <oldValue/>
+      <newValue><![CDATA[@EM_Escm_Receivingtype@!'PROJ']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="3501">
+      <oldValue><![CDATA[40]]></oldValue>
+      <newValue><![CDATA[90]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="3501">
+      <oldValue><![CDATA[60]]></oldValue>
+      <newValue><![CDATA[90]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="3502">
+      <oldValue><![CDATA[Order Reference]]></oldValue>
+      <newValue><![CDATA[Document Number]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="3502">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLENGTH" pkRow="3502">
+      <oldValue><![CDATA[20]]></oldValue>
+      <newValue><![CDATA[50]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="3502">
+      <oldValue><![CDATA[100]]></oldValue>
+      <newValue><![CDATA[60]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="3502">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="3502">
+      <oldValue/>
+      <newValue><![CDATA[70]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISSHOWNINSTATUSBAR" pkRow="3505">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3506">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLOGIC" pkRow="3506">
+      <oldValue><![CDATA[@DocStatus@!'CL'&@DocStatus@!'VO']]></oldValue>
+      <newValue><![CDATA[@DocStatus@!'CL'&@DocStatus@!'VO' & @EM_ESCM_DocStatus@='ESCM_DER']]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3509">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="3516">
+      <oldValue><![CDATA[Movement Quantity]]></oldValue>
+      <newValue><![CDATA[Quantity]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="3516">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3521">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3743">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="4248">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="4249">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="5146">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISACTIVE" pkRow="5747">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="5747">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISREADONLY" pkRow="5747">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="5747">
+      <oldValue/>
+      <newValue><![CDATA[27]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="5751">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="5888">
+      <oldValue><![CDATA[110]]></oldValue>
+      <newValue><![CDATA[120]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="5888">
+      <oldValue><![CDATA[60]]></oldValue>
+      <newValue><![CDATA[70]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="6343">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="6343">
+      <oldValue><![CDATA[160]]></oldValue>
+      <newValue><![CDATA[80]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="6344">
+      <oldValue><![CDATA[180]]></oldValue>
+      <newValue><![CDATA[90]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="6347">
+      <oldValue><![CDATA[100]]></oldValue>
+      <newValue><![CDATA[90]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="6349">
+      <oldValue><![CDATA[90]]></oldValue>
+      <newValue><![CDATA[75]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="6354">
+      <oldValue><![CDATA[110]]></oldValue>
+      <newValue><![CDATA[80]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="STARTNEWLINE" pkRow="6354">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="6404">
+      <oldValue><![CDATA[80]]></oldValue>
+      <newValue><![CDATA[100]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="6529">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="6529">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="6536">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="6536">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="7800">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="7801">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="7804">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="8241">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="8241">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLENGTH" pkRow="800181">
+      <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[250]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="800724">
+      <oldValue><![CDATA[40]]></oldValue>
+      <newValue><![CDATA[200]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="801030">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="801030">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="801031">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="801031">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="802534">
+      <oldValue/>
+      <newValue><![CDATA[It checks whether the Employee is an operator]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="803754">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="803812">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="803812">
+      <oldValue/>
+      <newValue><![CDATA[10]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="803814">
+      <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[105]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="803814">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="803814">
+      <oldValue/>
+      <newValue><![CDATA[170]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="803815">
+      <oldValue><![CDATA[Document No.]]></oldValue>
+      <newValue><![CDATA[Number]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="803815">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="803815">
+      <oldValue><![CDATA[10]]></oldValue>
+      <newValue><![CDATA[20]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="803816">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="803816">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="803817">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="803817">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="803818">
+      <oldValue><![CDATA[70]]></oldValue>
+      <newValue><![CDATA[60]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="803818">
+      <oldValue><![CDATA[50]]></oldValue>
+      <newValue><![CDATA[60]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="803838">
+      <oldValue><![CDATA[Product]]></oldValue>
+      <newValue><![CDATA[Item]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="803838">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLOGIC" pkRow="803838">
+      <oldValue/>
+      <newValue><![CDATA[(@EM_Escm_Prodcate@='' & @M_Product_ID@='') | (@EM_Escm_Prodcate@!'' & @M_Product_ID@!'')]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="803838">
+      <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[20]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="803838">
+      <oldValue><![CDATA[40]]></oldValue>
+      <newValue><![CDATA[20]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="803839">
+      <oldValue><![CDATA[80]]></oldValue>
+      <newValue><![CDATA[50]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="803842">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="803844">
+      <oldValue><![CDATA[Line Net Amount]]></oldValue>
+      <newValue><![CDATA[Line Total]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="803844">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLOGIC" pkRow="803844">
+      <oldValue><![CDATA[@GROSSPRICE@='N']]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="803844">
+      <oldValue><![CDATA[105]]></oldValue>
+      <newValue><![CDATA[70]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="803844">
+      <oldValue><![CDATA[110]]></oldValue>
+      <newValue><![CDATA[80]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1004400001">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1004400001">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="1004400002">
+      <oldValue><![CDATA[60]]></oldValue>
+      <newValue><![CDATA[40]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="1004400002">
+      <oldValue><![CDATA[90]]></oldValue>
+      <newValue><![CDATA[40]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1004400003">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1004400004">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1004400005">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="1004400005">
+      <oldValue><![CDATA[40]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1004400005">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1004400006">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISSHOWNINSTATUSBAR" pkRow="1004400006">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="1004400020">
+      <oldValue><![CDATA[120]]></oldValue>
+      <newValue><![CDATA[30]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1004400020">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="1004400020">
+      <oldValue/>
+      <newValue><![CDATA[30]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1004400026">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="1004400028">
+      <oldValue><![CDATA[Requester]]></oldValue>
+      <newValue><![CDATA[Preparer]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="1004400028">
+      <oldValue/>
+      <newValue><![CDATA[The user who creates the document.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="1004400028">
+      <oldValue><![CDATA[50]]></oldValue>
+      <newValue><![CDATA[30]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1004400029">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1004400077">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1004400077">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1004400079">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="1004400080">
+      <oldValue><![CDATA[Net Unit Price]]></oldValue>
+      <newValue><![CDATA[Unit Price]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="1004400080">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DISPLAYLOGIC" pkRow="1004400080">
+      <oldValue><![CDATA[@GROSSPRICE@='N']]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="1004400080">
+      <oldValue><![CDATA[100]]></oldValue>
+      <newValue><![CDATA[60]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="1004400080">
+      <oldValue><![CDATA[100]]></oldValue>
+      <newValue><![CDATA[60]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1004400085">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1004400085">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1004400086">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1004400086">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1004400087">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1004400087">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1004400088">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1004400088">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1004400089">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISSHOWNINSTATUSBAR" pkRow="1004400089">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1004400096">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISSHOWNINSTATUSBAR" pkRow="1004400096">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="1004400102">
+      <oldValue><![CDATA[20]]></oldValue>
+      <newValue><![CDATA[55]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="1004400102">
+      <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[70]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DESCRIPTION" pkRow="0056819E516C679FE050007F01000569">
+      <oldValue/>
+      <newValue><![CDATA[A monetary total.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="0056819E516C679FE050007F01000569">
+      <oldValue/>
+      <newValue><![CDATA[The Amount indicates the amount for this document line.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DESCRIPTION" pkRow="00568254CC088733E050007F01000513">
+      <oldValue/>
+      <newValue><![CDATA[A monetary total.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="00568254CC088733E050007F01000513">
+      <oldValue/>
+      <newValue><![CDATA[The Amount indicates the amount for this document line.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DESCRIPTION" pkRow="022DB9FBFB7F3B3FE050007F01000850">
+      <oldValue/>
+      <newValue><![CDATA[This amount indicates to match certain amount ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="022DB9FBFB7F3B3FE050007F01000850">
+      <oldValue/>
+      <newValue><![CDATA[This amount indicates to match certain amount ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DESCRIPTION" pkRow="023A9D09DFBF4316E050007F01005DAC">
+      <oldValue/>
+      <newValue><![CDATA[This is used to match the Cost adjustment]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="023A9D09DFBF4316E050007F01005DAC">
+      <oldValue/>
+      <newValue><![CDATA[This is used to match the Cost adjustment]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DESCRIPTION" pkRow="023AA8E75FDC4274E050007F01005DB0">
+      <oldValue/>
+      <newValue><![CDATA[This amount indicates to match certain amount ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="023AA8E75FDC4274E050007F01005DB0">
+      <oldValue/>
+      <newValue><![CDATA[This amount indicates to match certain amount ]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DESCRIPTION" pkRow="023AA8E75FDE4274E050007F01005DB0">
+      <oldValue/>
+      <newValue><![CDATA[This is used to match the Cost adjustment]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="023AA8E75FDE4274E050007F01005DB0">
+      <oldValue/>
+      <newValue><![CDATA[This is used to match the Cost adjustment]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="119FCD6CC06F43E6BE4DA88BC1368A4D">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="140C51E741014A5991CB0F5835A655B9">
+      <oldValue/>
+      <newValue><![CDATA[Adjustment amount]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1548F21EFA4F4D5B923AB0E3235BED59">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="16DC7E5993AA43B99564E76409C87BA9">
+      <oldValue><![CDATA[Project]]></oldValue>
+      <newValue><![CDATA[Sub account]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="16DC7E5993AA43B99564E76409C87BA9">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISREADONLY" pkRow="16DC7E5993AA43B99564E76409C87BA9">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="19B714B016CB4BAA86D9487B323FE199">
+      <oldValue/>
+      <newValue><![CDATA[Rules to establish service price.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1C117B65015B48E5A1A63649FAFA097A">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1D25469C9C2341D3B284032C1D37D9AA">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="1E9B451D448DECDDE050007F010057FB">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="1E9B451D448DECDDE050007F010057FB">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="21683D0F303D4C80BC8B3EA18A15CD5E">
+      <oldValue/>
+      <newValue><![CDATA[Cost amount.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="2999A4E0F8294157A874789D70AA1F46">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DESCRIPTION" pkRow="358F47180BF641848743E9F818FD26FD">
+      <oldValue/>
+      <newValue><![CDATA[It sets new Currency]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="358F47180BF641848743E9F818FD26FD">
+      <oldValue/>
+      <newValue><![CDATA[It sets new Currency]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="3DE09F050A624C9D9E5477D0A94491A1">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="403DB658F6C74735A7F433F66CCE9825">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="41AD871370F04BA7AE780F013DEE70DF">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DESCRIPTION" pkRow="426F7A1722C6452D81C780A47384C348">
+      <oldValue><![CDATA[A non-unique identifier for a record/document often used as a search tool.]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="426F7A1722C6452D81C780A47384C348">
+      <oldValue><![CDATA[A more descriptive identifier (that does need to be unique) of a record/document that is used as a default search option along with the search key (that is unique and mostly shorter). It is up to 60 characters in length.]]></oldValue>
+      <newValue><![CDATA[Name]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISACTIVE" pkRow="4CC02191F2344B6CA3EC2A9CD328F83C">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="4CC02191F2344B6CA3EC2A9CD328F83C">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="4CC02191F2344B6CA3EC2A9CD328F83C">
+      <oldValue><![CDATA[910]]></oldValue>
+      <newValue><![CDATA[75]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="4CC02191F2344B6CA3EC2A9CD328F83C">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="4CC02191F2344B6CA3EC2A9CD328F83C">
+      <oldValue><![CDATA[0]]></oldValue>
+      <newValue><![CDATA[60]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="5784D8B1539D4438BB51F2A525B4662B">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="59304B91F72646D1972CB38B75C87D08">
+      <oldValue/>
+      <newValue><![CDATA[It shows the Payment Method]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="5AAB80CFEA744FBF8BED5F1E018BBB15">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="7A007009BDAE4E8290430EEC81CB434C">
+      <oldValue/>
+      <newValue><![CDATA[This flag indicates whether product is linked.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="7C3C6AE4742F435D8A5CCF0E5BC71AB6">
+      <oldValue><![CDATA[2nd Dimension]]></oldValue>
+      <newValue><![CDATA[Future2]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISCENTRALLYMAINTAINED" pkRow="7C3C6AE4742F435D8A5CCF0E5BC71AB6">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISREADONLY" pkRow="7C3C6AE4742F435D8A5CCF0E5BC71AB6">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="7E36B60C210A30F0E040007F01016399">
+      <oldValue><![CDATA[170]]></oldValue>
+      <newValue><![CDATA[100]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="81086BCCFFA8450B8D3E86128EDCE6FD">
+      <oldValue/>
+      <newValue><![CDATA[Rules to establish service price.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="NAME" pkRow="81CB931C5A934516A32F0601F6D503D7">
+      <oldValue><![CDATA[Location Code]]></oldValue>
+      <newValue><![CDATA[City Code]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DESCRIPTION" pkRow="82683CB3CF8B18FDE040007F0100573E">
+      <oldValue/>
+      <newValue><![CDATA[A note about the current record.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="82683CB3CF8B18FDE040007F0100573E">
+      <oldValue/>
+      <newValue><![CDATA[Using this field you can add notes for the current transaction.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="82D9824297DB415CA8BF3243AB14EAF7">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="921EFC904DE34843B12D25A65B87274C">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="938460E8002D4E12BF577D62F003F5A2">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DESCRIPTION" pkRow="94C41428B8460680E040007F01001805">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox determines whether the role has organisation administration for the particular organisation]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="94C41428B8460680E040007F01001805">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox determines whether the role has organisation administration for the particular organisation]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DESCRIPTION" pkRow="94C42B00FB369A4AE040007F010044C1">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox determines that the current user is the role administrator]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="94C42B00FB369A4AE040007F010044C1">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox determines that the current user is the role administrator]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DESCRIPTION" pkRow="94C42B00FB389A4AE040007F010044C1">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox determines that the current user is the role administrator]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="94C42B00FB389A4AE040007F010044C1">
+      <oldValue/>
+      <newValue><![CDATA[This checkbox determines that the current user is the role administrator]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="9692D614473D43848E449FED6786A7D0">
+      <oldValue/>
+      <newValue><![CDATA[This field indicates Update Characteristics]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="9C0E1F2D25394B3C9DCE159E06C0576E">
+      <oldValue/>
+      <newValue><![CDATA[Rules to establish service price.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="A2F9D04C36A64FC293128875629FEAF9">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="A2F9D04C36A64FC293128875629FEAF9">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="A8B3846911B14B00B400538A039C3527">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="A9F3ED563D2C4D31A38DBB3D5E8991F7">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="B53CFF6A2A6C4125B20353C1FFB43381">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="B53CFF6A2A6C4125B20353C1FFB43381">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="CE99784299A01670E040007F010023C1">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="CE99784299A01670E040007F010023C1">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="D6C6D80ADF8E6441E040007F01000171">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="D6C6D80ADF8E6441E040007F01000171">
+      <oldValue><![CDATA[215]]></oldValue>
+      <newValue><![CDATA[130]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="D6C6D80ADF8E6441E040007F01000171">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="D6DAE72466B920D3E040007F01003941">
+      <oldValue><![CDATA[90]]></oldValue>
+      <newValue><![CDATA[30]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="D71921761B37AFB9E040007F01001265">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="D71921761B37AFB9E040007F01001265">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="D71921761B38AFB9E040007F01001265">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="D71921761B38AFB9E040007F01001265">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="D7AEA610F9DB6CA4E040007F0100048A">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="D7AEA610F9DB6CA4E040007F0100048A">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="D8331030A5484B888A53D071054CDF2A">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="D9E9D213D42EB578E040007F010015CC">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="D9E9D213D42EB578E040007F010015CC">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="DA25E4835891E0B5E040007F01001FA0">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="DA64BC057C44893CE040007F010046BF">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="DA64BC057C44893CE040007F010046BF">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="DFE35093F77C8609E040007F01003195">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="E084A90237DEECEDE040007F0100697D">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="E084A90237DEECEDE040007F0100697D">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="E189C6868046E770E040007F01004C0E">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="E5765C077BED4FAF994FE3435E8D41ED">
+      <oldValue/>
+      <newValue><![CDATA[Indicates the quantity of product needed to process one time the sequence.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="E631BD24883BDB56E040007F01002672">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="E631BD24883BDB56E040007F01002672">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISACTIVE" pkRow="E70E9B8EE4C0448D895CFDA5195BFEF5">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="E70E9B8EE4C0448D895CFDA5195BFEF5">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SEQNO" pkRow="E70E9B8EE4C0448D895CFDA5195BFEF5">
+      <oldValue><![CDATA[900]]></oldValue>
+      <newValue><![CDATA[110]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="E70E9B8EE4C0448D895CFDA5195BFEF5">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="GRID_SEQNO" pkRow="E70E9B8EE4C0448D895CFDA5195BFEF5">
+      <oldValue><![CDATA[0]]></oldValue>
+      <newValue><![CDATA[65]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISREADONLY" pkRow="EA0181ADB9264D298540C3514253DD4B">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="EB6FEFEBB26940939C0033A28858A7D6">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="F97894476AC64D62BD9791721FCAC88B">
+      <oldValue/>
+      <newValue><![CDATA[Indicates the quantity of product needed to process one time the sequence.]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="DESCRIPTION" pkRow="F9FF9C36FBF34A198A5ABBEA722C640F">
+      <oldValue><![CDATA[A non-unique identifier for a record/document often used as a search tool.]]></oldValue>
+      <newValue/>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="HELP" pkRow="F9FF9C36FBF34A198A5ABBEA722C640F">
+      <oldValue><![CDATA[A more descriptive identifier (that does need to be unique) of a record/document that is used as a default search option along with the search key (that is unique and mostly shorter). It is up to 60 characters in length.]]></oldValue>
+      <newValue><![CDATA[Name]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="ISDISPLAYED" pkRow="FD339410474C47CEBEC6D4071EF8FB4A">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_FIELD" columnname="SHOWINRELATION" pkRow="FD339410474C47CEBEC6D4071EF8FB4A">
+      <oldValue><![CDATA[Y]]></oldValue>
+      <newValue><![CDATA[N]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TABLE" columnname="AD_WINDOW_ID" pkRow="186">
+      <oldValue/>
+      <newValue><![CDATA[122]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TABLE" columnname="PO_WINDOW_ID" pkRow="259">
+      <oldValue><![CDATA[181]]></oldValue>
+      <newValue><![CDATA[2ADDCB0DD2BF4F6DB13B21BBCCC3038C]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TABLE" columnname="ISTREE" pkRow="260">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TABLE" columnname="ISTREE" pkRow="800214">
+      <oldValue><![CDATA[N]]></oldValue>
+      <newValue><![CDATA[Y]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="PARENT_ID" pkRow="52118BF1A23D4D84E040007F01005FEC">
+      <oldValue><![CDATA[800242]]></oldValue>
+      <newValue><![CDATA[800244]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A23D4D84E040007F01005FEC">
+      <oldValue><![CDATA[50]]></oldValue>
+      <newValue><![CDATA[10]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_VAL_RULE" columnname="CODE" pkRow="158">
+      <oldValue><![CDATA[AD_Role.AD_Client_ID=@#AD_Client_ID@]]></oldValue>
+      <newValue><![CDATA[AD_Role.AD_Client_ID=@#AD_Client_ID@ and AD_Role.em_eut_documenttype is null]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_VAL_RULE" columnname="CODE" pkRow="49DC1D6F086945AB82F84C66F5F13F16">
+      <oldValue><![CDATA[AD_ORG_ID <> '0']]></oldValue>
+      <newValue><![CDATA[AD_ORG_ID <> '0' and em_ehcm_orgtyp in ( select ehcm_org_type_id from ehcm_org_type where value='ORG')]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_VAL_RULE" columnname="CODE" pkRow="5BEA56148DC74215A63927481BDC0B63">
+      <oldValue><![CDATA[C_TAX.VALIDFROM<=COALESCE(@DateInvoiced@,@DateOrdered@) AND (C_TAX.SOPOTYPE =(CASE WHEN @IsSOTrx@ = 'Y' THEN 'S' ELSE 'P' END) OR C_TAX.SOPOTYPE = 'B') AND C_TAX.AD_CLIENT_ID=@AD_CLIENT_ID@ AND C_TAX.C_TAX_ID=(CASE WHEN @IsSOTrx@ = 'Y' AND EXISTS(SELECT 1 FROM AD_ORGINFO WHERE ISTAXUNDEDUCTABLE='Y' AND AD_ORG_ID=@AD_ORG_ID@) THEN (SELECT C_TAX_ID FROM AD_ORGINFO WHERE ISTAXUNDEDUCTABLE='Y' AND AD_ORG_ID=@AD_ORG_ID@) ELSE C_TAX.C_TAX_ID END)]]></oldValue>
+      <newValue><![CDATA[C_TAX.VALIDFROM<=coalesce(
+eut_convertto_gregorian(@DateInvoiced@),
+eut_convertto_gregorian(@DateOrdered@))  AND (C_TAX.SOPOTYPE =(CASE WHEN @IsSOTrx@ = 'Y' THEN 'S' ELSE 'P' END) OR C_TAX.SOPOTYPE = 'B') AND C_TAX.AD_CLIENT_ID=@AD_CLIENT_ID@ AND C_TAX.C_TAX_ID=(CASE WHEN @IsSOTrx@ = 'Y' AND EXISTS(SELECT 1 FROM AD_ORGINFO WHERE ISTAXUNDEDUCTABLE='Y' AND AD_ORG_ID=@AD_ORG_ID@) THEN (SELECT C_TAX_ID FROM AD_ORGINFO WHERE ISTAXUNDEDUCTABLE='Y' AND AD_ORG_ID=@AD_ORG_ID@) ELSE C_TAX.C_TAX_ID END)]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_WINDOW" columnname="NAME" pkRow="184">
+      <oldValue><![CDATA[Goods Receipt]]></oldValue>
+      <newValue><![CDATA[PO Receipt]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_WINDOW" columnname="NAME" pkRow="800092">
+      <oldValue><![CDATA[Requisition]]></oldValue>
+      <newValue><![CDATA[Purchase Requisition]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="336590D9E14D4C269480543BA8A31321">
+     <oldValue><![CDATA[140]]></oldValue>
+      <newValue><![CDATA[230]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="3AE141430FCF4E31B2B1220892CC9344">
+      <oldValue><![CDATA[90]]></oldValue>
+     <newValue><![CDATA[190]]></newValue>
+   </columnDataChange>
+   <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A22A4D84E040007F01005FEC">
+     <oldValue><![CDATA[30]]></oldValue>
+      <newValue><![CDATA[120]]></newValue>
+    </columnDataChange>
+   <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A22C4D84E040007F01005FEC">
+     <oldValue><![CDATA[40]]></oldValue>
+      <newValue><![CDATA[130]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2504D84E040007F01005FEC">
+      <oldValue><![CDATA[50]]></oldValue>
+      <newValue><![CDATA[140]]></newValue>
+    </columnDataChange>
+   <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2B64D84E040007F01005FEC">
+     <oldValue><![CDATA[110]]></oldValue>
+      <newValue><![CDATA[210]]></newValue>
+    </columnDataChange>
+   <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2D64D84E040007F01005FEC">
+     <oldValue><![CDATA[60]]></oldValue>
+     <newValue><![CDATA[160]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2D74D84E040007F01005FEC">
+     <oldValue><![CDATA[70]]></oldValue>
+     <newValue><![CDATA[170]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A2F34D84E040007F01005FEC">
+      <oldValue><![CDATA[80]]></oldValue>
+      <newValue><![CDATA[180]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="52118BF1A5D24D84E040007F01005FEC">
+     <oldValue><![CDATA[90]]></oldValue>
+     <newValue><![CDATA[200]]></newValue>
+    </columnDataChange>
+    <columnDataChange tablename="AD_TREENODE" columnname="SEQNO" pkRow="CAAE0973314D6706E040007F01003FCE">
+      <oldValue><![CDATA[130]]></oldValue>
+      <newValue><![CDATA[220]]></newValue>
+     </columnDataChange>
+  </vector>

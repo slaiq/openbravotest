@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="22821B15DB794539A94B51865EF03D61" identifier="Alert For Pee User">
+    <id>22821B15DB794539A94B51865EF03D61</id>
+    <active>true</active>
+    <creationDate transient="true">2020-06-06T11:36:35.363Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-07-01T18:45:53.539Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Alert For Pee User</name>
+    <tab id="7185D00B421A4F62B403E085F00176D6" entity-name="ADTab" identifier="Technical Evaluation Event - Technical Evaluation Event"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+   And ((ad_role_id is not null  and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>PEEUser</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+  <ADAlertRule id="87EAE40E97E84B6B8F7752E2D28B7E2A" identifier="Alert For Contract User">
+    <id>87EAE40E97E84B6B8F7752E2D28B7E2A</id>
+    <active>true</active>
+    <creationDate transient="true">2020-06-06T11:36:35.361Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-07-01T18:45:53.539Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Alert For Contract User</name>
+    <tab id="62248BBBCF644C18A75B92AD8E50238C" entity-name="ADTab" identifier="Header - Purchase Order and Contracts Summary"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+   And ((ad_role_id is not null  and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>CU</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+  <ADAlertRule id="A319FBBB1DA749C3BBF49EEB6AC66DB5" identifier="Alert For Tee User">
+    <id>A319FBBB1DA749C3BBF49EEB6AC66DB5</id>
+    <active>true</active>
+    <creationDate transient="true">2020-06-06T11:36:35.360Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-07-01T18:45:53.539Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Alert For Tee User</name>
+    <tab id="8095B818800446D795B8ADFEDE104733" entity-name="ADTab" identifier="Header - Open Envelope Event"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+   And ((ad_role_id is not null  and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>TEEUser</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+  <ADAlertRule id="E90B2E3F73B1412D9B0C3D50F74850AB" identifier="Alert For OEE User">
+    <id>E90B2E3F73B1412D9B0C3D50F74850AB</id>
+    <active>true</active>
+    <creationDate transient="true">2020-06-06T11:36:35.359Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2020-07-01T18:45:53.539Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>Alert For OEE User</name>
+    <tab id="754D4F75D3F54A3EBBC69496D27B9C3B" entity-name="ADTab" identifier="Bid dates - Bid Management"/>
+    <filterClause>(((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) 
+   And ((ad_role_id is not null  and ad_role_id=@#AD_ROLE_ID@) or (ad_role_id is null)))</filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>OED</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

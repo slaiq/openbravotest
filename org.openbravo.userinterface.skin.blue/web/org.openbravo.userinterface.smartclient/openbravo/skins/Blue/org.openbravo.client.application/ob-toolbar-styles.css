@@ -1,0 +1,213 @@
+/*
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html
+ * Software distributed under the License  is  distributed  on  an 'AS IS'
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2011-2014 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+*/
+
+/* @font-face {
+    font-family: elmFont;
+    src: url(./fonts/font.ttf);
+} */
+
+
+
+* u {
+text-decoration: none;
+}
+
+/* OBToolbar */
+
+.OBToolbar {
+  /*background: url(./images/toolbar/toolbar-bg.png) repeat-x left top #244d9d;*/
+  background-color:#0f97a6;
+  background-image:none;
+}
+
+/* OBToolbarIconButton */
+
+.OBToolbarIconButton {
+  border-color: #0f97a6 !important;
+}
+
+.OBToolbarIconButtonDisabledProgress {
+  border-color: #476eba;
+}
+
+.OBToolbarIconButtonFocused,
+.OBToolbarIconButtonFocusedOver,
+.OBToolbarIconButtonFocusedDown,
+.OBToolbarIconButtonSelectedFocused,
+.OBToolbarIconButtonSelectedFocusedOver,
+.OBToolbarIconButtonSelectedFocusedDown {
+  border-color: #dcb53e !important;
+}
+
+.OBToolbarIconButtonOver,
+.OBToolbarIconButtonFocusedOver,
+.OBToolbarIconButtonSelectedOver,
+.OBToolbarIconButtonSelectedFocusedOver {
+  background-color: #0f97a6;
+ }
+
+.OBToolbarIconButtonOver,
+.OBToolbarIconButtonSelectedOver {
+  border-color: #0f97a6 !important;
+}
+
+.OBToolbarIconButtonSelected,
+.OBToolbarIconButtonSelectedFocused,
+.OBToolbarIconButtonDown,
+.OBToolbarIconButtonFocusedDown,
+.OBToolbarIconButtonSelectedDown,
+.OBToolbarIconButtonSelectedFocusedDown {
+  background-color: #0f97a6;
+}
+
+.OBToolbarIconButtonSelected,
+.OBToolbarIconButtonDown,
+.OBToolbarIconButtonSelectedDown {
+  border-color: #567cc6 !important;
+}
+
+.OBToolbarIconButtonDisabled,
+.OBToolbarIconButtonSelectedDisabled {
+  border-color: #6e96e2;
+}
+
+.OBToolbarIconButton_icon_saveProgress {
+  background-image: url(./images/toolbar/iconButton-progress.gif);  /* Generated @ http://www.ajaxload.info/ */ /* Indicator type: 'Snake' - Background color: #476eba - Transparent background - Foreground color: #FFFFFF */
+}
+
+.OBToolbarIconButton_icon_attachProgress {
+  background-image: url(./images/toolbar/iconButton-progress.gif);  /* Generated @ http://www.ajaxload.info/ */ /* Indicator type: 'Snake' - Background color: #476eba - Transparent background - Foreground color: #FFFFFF */
+}
+
+.OBToolbarIconButton_icon_attachExistsProgress {
+  background-image: url(./images/toolbar/iconButton-progress.gif);  /* Generated @ http://www.ajaxload.info/ */ /* Indicator type: 'Snake' - Background color: #476eba - Transparent background - Foreground color: #FFFFFF */
+}
+
+
+/* OBToolbarTextButton */
+
+.OBToolbarTextButton,
+.OBToolbarTextButtonOver,
+.OBToolbarTextButtonDown,
+.OBToolbarTextButtonFocused,
+.OBToolbarTextButtonFocusedOver,
+.OBToolbarTextButtonFocusedDown,
+.OBToolbarTextButtonSelected,
+.OBToolbarTextButtonSelectedOver,
+.OBToolbarTextButtonSelectedDown,
+.OBToolbarTextButtonSelectedFocused,
+.OBToolbarTextButtonSelectedFocusedOver,
+.OBToolbarTextButtonSelectedFocusedDown,
+.OBToolbarTextButtonDisabled,
+.OBToolbarTextButtonSelectedDisabled,
+
+.OBToolbarTextButtonParent,
+.OBToolbarTextButtonParentOver,
+.OBToolbarTextButtonParentDown,
+.OBToolbarTextButtonParentFocused,
+.OBToolbarTextButtonParentFocusedOver,
+.OBToolbarTextButtonParentFocusedDown,
+.OBToolbarTextButtonParentSelected,
+.OBToolbarTextButtonParentSelectedOver,
+.OBToolbarTextButtonParentSelectedDown,
+.OBToolbarTextButtonParentSelectedFocused,
+.OBToolbarTextButtonParentSelectedFocusedOver,
+.OBToolbarTextButtonParentSelectedFocusedDown,
+.OBToolbarTextButtonParentDisabled,
+.OBToolbarTextButtonParentSelectedDisabled {
+  /*background-image: url(./images/toolbar/textButton-bg-normal.png);*/
+	background-color: #eb7f00;
+    background-image: none;
+    border: none;
+    color: #fff;
+     font-family: elmFont;
+
+}
+
+.OBToolbarTextButton,
+.OBToolbarTextButtonOver,
+.OBToolbarTextButtonDown,
+.OBToolbarTextButtonSelected,
+.OBToolbarTextButtonSelectedOver,
+.OBToolbarTextButtonSelectedDown {
+  border-color: #efefef;
+}
+
+.OBToolbarTextButtonParent,
+.OBToolbarTextButtonParentOver,
+.OBToolbarTextButtonParentDown,
+.OBToolbarTextButtonParentSelected,
+.OBToolbarTextButtonParentSelectedOver,
+.OBToolbarTextButtonParentSelectedDown {
+  border-color: #446bbd;
+}
+
+.OBToolbarTextButtonFocused,
+.OBToolbarTextButtonFocusedOver,
+.OBToolbarTextButtonFocusedDown,
+.OBToolbarTextButtonSelectedFocused,
+.OBToolbarTextButtonSelectedFocusedOver,
+.OBToolbarTextButtonSelectedFocusedDown,
+
+.OBToolbarTextButtonParentFocused,
+.OBToolbarTextButtonParentFocusedOver,
+.OBToolbarTextButtonParentFocusedDown,
+.OBToolbarTextButtonParentSelectedFocused,
+.OBToolbarTextButtonParentSelectedFocusedOver,
+.OBToolbarTextButtonParentSelectedFocusedDown {
+  border-color: #dcb53e;
+}
+
+.OBToolbarTextButtonOver,
+.OBToolbarTextButtonSelectedOver,
+.OBToolbarTextButtonFocusedOver,
+.OBToolbarTextButtonSelectedFocusedOver,
+
+.OBToolbarTextButtonParentOver,
+.OBToolbarTextButtonParentSelectedOver,
+.OBToolbarTextButtonParentFocusedOver,
+.OBToolbarTextButtonParentSelectedFocusedOver {
+  /*background-image: url(./images/toolbar/textButton-bg-hover.png);*/
+    background-color: #eb7f00;
+    background-image: none;  
+}
+
+.OBToolbarTextButtonSelected,
+.OBToolbarTextButtonSelectedFocused,
+.OBToolbarTextButtonDown,
+.OBToolbarTextButtonFocusedDown,
+.OBToolbarTextButtonSelectedDown,
+.OBToolbarTextButtonSelectedFocusedDown,
+
+.OBToolbarTextButtonParentSelected,
+.OBToolbarTextButtonParentSelectedFocused,
+.OBToolbarTextButtonParentDown,
+.OBToolbarTextButtonParentFocusedDown,
+.OBToolbarTextButtonParentSelectedDown,
+.OBToolbarTextButtonParentSelectedFocusedDown {
+  /*background-image: url(./images/toolbar/textButton-bg-down.png);
+  background-position: left bottom;*/
+    background-color: #eb7f00;
+    background-image: none;    
+}
+
+/* * {
+ font-size: 100%;
+ font-family: elmFont;
+} */

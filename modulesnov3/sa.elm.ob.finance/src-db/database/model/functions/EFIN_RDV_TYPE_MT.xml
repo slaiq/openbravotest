@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_RDV_TYPE_MT">
+    <function name="EFIN_RDV_TYPE_MT" type="NULL">
+      <parameter name="pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): Poongodi 24.11.17
+************************************************************************/
+v_client_id VARCHAR2(32);
+v_user_id VARCHAR2(32);
+v_ResultStr VARCHAR2(2000):='';
+v_Message VARCHAR2(2000):='';
+v_reflistsearchkey VARCHAR2(60);
+v_formula VARCHAR2(60);
+
+TYPE RECORD IS REF CURSOR;
+Cur_List RECORD;
+
+BEGIN
+ 
+--get client id and user id
+SELECT  i.ad_client_id,i.AD_User_ID into v_client_id,v_user_id
+      FROM AD_PInstance i 
+      WHERE i.AD_PInstance_ID=PInstance_ID ;
+--get transactiontype which is not present already in RDV Type MT
+      FOR Cur_List IN
+    (select value from ad_ref_list 
+       where ad_reference_id ='0195BC5062DB49C681EDBCF337EF129E' and isactive='Y'
+        and value not in(select transactiontype from efin_rdv_types where ad_client_id=v_client_id)
+      )
+     
+     
+      LOOP
+      
+      v_reflistsearchkey:=Cur_List.value;
+		-- Insert records in RDV type MT window
+            INSERT INTO efin_rdv_types(
+            efin_rdv_types_id, ad_client_id, ad_org_id, isactive, 
+            createdby, updatedby, transactiontype, maintain_enable_txntype, 
+            maintain_enable_penalty, maintain_enable_advadj)
+   
+		VALUES (get_uuid(), v_client_id, 0, 'Y', 
+                       v_user_id, v_user_id, v_reflistsearchkey,'N','N','N');
+          
+        END LOOP;
+      
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 1, v_Message) ;
+   EXCEPTION
+  WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 0, v_ResultStr) ;
+  RETURN;
+END EFIN_RDV_TYPE_MT
+]]></body>
+    </function>
+  </database>

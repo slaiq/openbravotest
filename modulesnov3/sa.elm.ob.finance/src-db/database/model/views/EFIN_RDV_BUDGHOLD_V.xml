@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_RDV_BUDGHOLD_V">
+    <view name="EFIN_RDV_BUDGHOLD_V"><![CDATA[SELECT DISTINCT acc.c_validcombination_id AS efin_rdv_budghold_v_id, acc.ad_client_id, acc.ad_org_id, acc.isactive, acc.created, acc.createdby, acc.updated, acc.updatedby, acc.account_id, acc.c_campaign_id, 'Y'::character AS bud_revision, acc.c_validcombination_id FROM efin_rdv_budghold hd JOIN efin_rdv_budgholdline ln ON ln.efin_rdv_budghold_id = hd.efin_rdv_budghold_id JOIN c_validcombination acc ON acc.c_validcombination_id = ln.c_validcombination_id WHERE hd.status = 'APP' AND ln.remaining_amount > 0]]></view>
+  </database>

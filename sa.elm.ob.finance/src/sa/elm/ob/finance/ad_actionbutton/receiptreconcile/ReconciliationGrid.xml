@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ *************************************************************************
+ * All Rights Reserved.
+ * Contributor(s):  Gopalakrishnan
+ *************************************************************************
+-->
+<REPORT>
+  <template file="ReconciliationGrid.srpt"/> 
+    
+  <PARAMETER id="param2" name="param2" default="2"/>
+    
+  <structure name="structure">
+    <FIELD id="fieldRownum1">rownum</FIELD>
+    <FIELD id="fieldSelectedTransactionId" attribute="value">markSelectedId</FIELD>
+    <FUNCTION id="row_xx" name="MODULE" arg1="fieldRownum1" arg2="param2" format="integerEdition" attribute="class" replace="yy"/>
+    <FIELD id="row_xx" attribute="id" replace="xx">transactionId</FIELD>
+    
+    <FIELD id="fieldTransactionDate">transactionDate</FIELD>
+    <FIELD id="fieldBusinessPartner">businessPartnerTrunc</FIELD>
+    <FIELD id="fieldBusinessPartner" attribute="title" replace="zz">businessPartner</FIELD>
+    <FIELD id="fieldPaymentDocument">paymentDocument</FIELD>
+    <!-- <FIELD id="fieldBankName">BankName</FIELD>
+    <FIELD id="fieldChequeNo">ChequeNo</FIELD>
+    <FIELD id="fieldChequeStatus">ChequeStatus</FIELD>
+    <FIELD id="fieldChequeDate">ChequeDate</FIELD> -->
+    <FIELD id="fieldDescription">descriptionTrunc</FIELD>
+    <FIELD id="fieldDescription" attribute="title" replace="zz">description</FIELD>
+    <FIELD id="fieldPaymentAmount" format="euroEdition">paymentAmount</FIELD>
+    <FIELD id="fieldDepositAmount" format="euroEdition">depositAmount</FIELD>
+    
+    <FIELD id="inpPA_xx" attribute="value" format="euroEdition">paymentAmount</FIELD>
+    <FIELD id="inpDA_xx" attribute="value" format="euroEdition">depositAmount</FIELD>
+    <FIELD id="inpIR_xx" attribute="value" >isReceipt</FIELD>
+    
+    
+    <FIELD id="inpPA_xx" attribute="id" replace="xx">transactionId</FIELD>
+    <FIELD id="inpDA_xx" attribute="id" replace="xx">transactionId</FIELD>
+    <FIELD id="inpBN_xx" attribute="id" replace="xx">transactionId</FIELD>
+    <FIELD id="inpCN_xx" attribute="id" replace="xx" >transactionId</FIELD>
+    <FIELD id="inpCS_xx" attribute="id" replace="xx" >transactionId</FIELD>
+    <FIELD id="inpCD_xx" attribute="id" replace="xx" >transactionId</FIELD>
+    <FIELD id="inpIR_xx" attribute="id" replace="xx" >transactionId</FIELD>
+    
+    
+    <FIELD id="fieldTransactionId_xx" boolean="checked" withId="fieldSelectedTransactionId">transactionId</FIELD>
+    <FIELD id="fieldTransactionId_xx" attribute="value">transactionId</FIELD>
+    <FIELD id="fieldTransactionId_xx" attribute="id">transactionId</FIELD>
+    <FIELD id="fieldTransactionId_xx" attribute="onclick" replace="xx">transactionId</FIELD>
+    
+    <SECTION id="sectionLinesDetail"/>
+  </structure>
+  
+</REPORT>

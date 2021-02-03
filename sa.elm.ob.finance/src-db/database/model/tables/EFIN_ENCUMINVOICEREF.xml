@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+  <database name="TABLE EFIN_ENCUMINVOICEREF">
+    <table name="EFIN_ENCUMINVOICEREF" primaryKey="EFIN_ENCUMINVREF_PK">
+      <column name="AD_CLIENT_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="AD_ORG_ID" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="ISACTIVE" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[Y]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="CREATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATED" primaryKey="false" required="true" type="TIMESTAMP" size="7" autoIncrement="false">
+        <default><![CDATA[SYSDATE]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="UPDATEDBY" primaryKey="false" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EFIN_ENCUMINVOICEREF_ID" primaryKey="true" required="true" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EFIN_BUDGET_ENCUMINVOICE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EFIN_BUDGET_ENCUMMANEXPE_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="INVAMOUNT" primaryKey="false" required="true" type="DECIMAL" autoIncrement="false">
+        <default><![CDATA[0]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="MANEXPAMOUNT" primaryKey="false" required="true" type="DECIMAL" autoIncrement="false">
+        <default><![CDATA[0]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EFIN_BUDGET_ENCUM_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EFIN_BUDGET_ACTUAL_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="ACTUALAMT" primaryKey="false" required="false" type="DECIMAL" autoIncrement="false">
+        <default><![CDATA[0]]></default>
+        <onCreateDefault/>
+      </column>
+      <column name="EFIN_BUDGET_MANENCUMLINES_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="EFIN_BUDGET_ACTUAL" name="EFIN_ENCUMINVREF_ACT">
+        <reference local="EFIN_BUDGET_ACTUAL_ID" foreign="EFIN_BUDGET_ACTUAL_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_CLIENT" name="EFIN_ENCUMINVREF_CLI">
+        <reference local="AD_CLIENT_ID" foreign="AD_CLIENT_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_BUDGET_ENCUM" name="EFIN_ENCUMINVREF_ENCINV">
+        <reference local="EFIN_BUDGET_ENCUMINVOICE_ID" foreign="EFIN_BUDGET_ENCUM_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_BUDGET_ENCUM" name="EFIN_ENCUMINVREF_ENCMANEX">
+        <reference local="EFIN_BUDGET_ENCUMMANEXPE_ID" foreign="EFIN_BUDGET_ENCUM_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_BUDGET_ENCUM" name="EFIN_ENCUMINVREF_ENCUM">
+        <reference local="EFIN_BUDGET_ENCUM_ID" foreign="EFIN_BUDGET_ENCUM_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="EFIN_BUDGET_MANENCUMLINES" name="EFIN_ENCUMINVREF_MANLIN">
+        <reference local="EFIN_BUDGET_MANENCUMLINES_ID" foreign="EFIN_BUDGET_MANENCUMLINES_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="AD_ORG" name="EFIN_ENCUMINVREF_ORG">
+        <reference local="AD_ORG_ID" foreign="AD_ORG_ID"/>
+      </foreign-key>
+    </table>
+  </database>

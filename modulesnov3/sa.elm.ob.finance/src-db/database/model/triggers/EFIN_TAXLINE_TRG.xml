@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_TAXLINE_TRG">
+    <trigger name="EFIN_TAXLINE_TRG" table="C_INVOICELINE" fires="before" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_status VARCHAR(60);
+v_invoice_id VARCHAR2(32); 
+v_includesTax CHAR(1);
+v_isTax CHAR(1);
+v_sourceLine_id VARCHAR2(32);
+v_recalculate CHAR(1);
+ v_isrdv CHAR(1);
+v_txnid VARCHAR2(32);
+BEGIN
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF DELETING THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+    
+	 
+	IF  DELETING THEN
+		v_invoice_id = :old.c_invoice_id;
+		v_isTax = :old.em_efin_istax ;
+		v_sourceLine_id = :old.em_efin_c_invoiceline_id;
+		IF v_isTax = 'Y'  THEN
+			
+			select t.istaxincluded into v_includesTax from c_invoice c
+			join efin_tax_method  t on c.em_efin_tax_method_id = t.efin_tax_method_id where c_invoice_id=v_invoice_id;
+        
+			IF v_includesTax ='Y' THEN 
+				select case when (linenetamt+taxamt+coalesce(em_efin_deduction_taxamt,0) ) = taxbaseamt then 'Y' else 'N' end into v_recalculate
+				from c_invoiceline 
+				where c_invoiceline_id  = v_sourceLine_id ;
+
+				IF (v_recalculate ='Y' or :old.em_efin_recalculate_tax ='Y') THEN
+	
+					update c_invoiceline  set linenetamt = taxbaseamt,em_efin_amtinvoiced=taxbaseamt,taxbaseamt=0, taxamt=0 ,em_efin_deduction_taxamt = 0,em_efin_recalculate_tax='N', em_efin_calculate_tax='N'
+					where c_invoiceline_id  = v_sourceLine_id ;
+				ELSE 
+					update c_invoiceline  set taxbaseamt=0,  taxamt=0 ,em_efin_deduction_taxamt = 0,em_efin_recalculate_tax='N', em_efin_calculate_tax='N'
+					where c_invoiceline_id  = v_sourceLine_id ;
+				END IF;
+							
+			ELSE
+				update c_invoiceline  set taxamt=0 ,taxbaseamt=0,em_efin_deduction_taxamt = 0,em_efin_recalculate_tax='N', em_efin_calculate_tax='N'
+				where c_invoiceline_id  = v_sourceLine_id ;
+
+			END IF;
+			update c_invoice set em_efin_tax_amount  = em_efin_tax_amount -:old.linenetamt where c_invoice_id = v_invoice_id; 
+		END IF;
+	 	
+	END IF;   
+   
+END EFIN_TAXLINE_TRG
+]]></body>
+    </trigger>
+  </database>

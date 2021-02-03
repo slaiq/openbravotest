@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_PAYOUT_TEMPUPDATE_TRG">
+    <trigger name="EFIN_PAYOUT_TEMPUPDATE_TRG" table="FIN_PAYMENT" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[BEGIN
+
+	IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	IF UPDATING THEN
+    	if :new.em_efin_mofbankname <> :old.em_efin_mofbankname then
+			update fin_payment set em_efin_mofbankname_tmp = :new.em_efin_mofbankname where fin_payment_id = :new.fin_payment_id;
+        end if;
+       if ((:new.em_efin_mofchequeno <> :old.em_efin_mofchequeno) or (:new.em_efin_mofchequeno is null and :old.em_efin_mofchequeno is not null) or (:old.em_efin_mofchequeno is null and :new.em_efin_mofchequeno is not null) ) then
+        		update fin_payment set em_efin_mofchequeno_tmp = :new.em_efin_mofchequeno where fin_payment_id = :new.fin_payment_id;
+        end if;
+        if ((:new.em_efin_mofchequedate <> :old.em_efin_mofchequedate) or (:new.em_efin_mofchequedate is null and :old.em_efin_mofchequedate is not null) or (:old.em_efin_mofchequedate is null and :new.em_efin_mofchequedate is not null) ) then
+                update fin_payment set em_efin_mofchequedate_tmp = :new.em_efin_mofchequedate where fin_payment_id = :new.fin_payment_id;
+        end if;
+        if ((:new.em_efin_banksentdate <> :old.em_efin_banksentdate) or (:new.em_efin_banksentdate is null and :old.em_efin_banksentdate is not null) or (:old.em_efin_banksentdate is null and :new.em_efin_banksentdate is not null) ) then
+                update fin_payment set em_efin_banksentdate_tmp = :new.em_efin_banksentdate where fin_payment_id = :new.fin_payment_id;
+        end if;
+        if ((:new.em_efin_receive_cheque_date <> :old.em_efin_receive_cheque_date) or (:new.em_efin_receive_cheque_date is null and :old.em_efin_receive_cheque_date is not null) or (:old.em_efin_receive_cheque_date is null and :new.em_efin_receive_cheque_date is not null) ) then
+                update fin_payment set em_efin_rec_cheque_date_tmp = :new.em_efin_receive_cheque_date where fin_payment_id = :new.fin_payment_id;
+        end if;
+    END IF;
+
+	END EFIN_PAYOUT_TEMPUPDATE_TRG
+]]></body>
+    </trigger>
+  </database>

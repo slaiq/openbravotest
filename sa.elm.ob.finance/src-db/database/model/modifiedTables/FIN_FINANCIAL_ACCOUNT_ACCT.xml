@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE FIN_FINANCIAL_ACCOUNT_ACCT">
+    <table name="FIN_FINANCIAL_ACCOUNT_ACCT" primaryKey="FIN_FINANCIAL_ACCOUNT_ACCT_KEY">
+      <column name="EM_EFIN_IN_INTRANSIT_UNIQUE" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_IN_CLEAR_UNIQUE" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_DEPOSIT_UNIQUE" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_OUT_INTRANSIT_UNIQUE" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_WITHDRAWAL_UNIQUE" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <column name="EM_EFIN_OUT_CLEAR_UNIQUE" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="C_VALIDCOMBINATION" name="EM_EFIN_CLEAR_UNIQUE_KEY">
+        <reference local="EM_EFIN_IN_CLEAR_UNIQUE" foreign="C_VALIDCOMBINATION_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_VALIDCOMBINATION" name="EM_EFIN_DEPOSIT_UQ_KEY">
+        <reference local="EM_EFIN_DEPOSIT_UNIQUE" foreign="C_VALIDCOMBINATION_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_VALIDCOMBINATION" name="EM_EFIN_INTRANSIT_UQ_KEY">
+        <reference local="EM_EFIN_IN_INTRANSIT_UNIQUE" foreign="C_VALIDCOMBINATION_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_VALIDCOMBINATION" name="EM_EFIN_OUT_CLEAR_UQ_KEY">
+        <reference local="EM_EFIN_OUT_CLEAR_UNIQUE" foreign="C_VALIDCOMBINATION_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_VALIDCOMBINATION" name="EM_EFIN_OUT_INTRANSIT_UQ_KEY">
+        <reference local="EM_EFIN_OUT_INTRANSIT_UNIQUE" foreign="C_VALIDCOMBINATION_ID"/>
+      </foreign-key>
+      <foreign-key foreignTable="C_VALIDCOMBINATION" name="EM_EFIN_WITHDRAWAL_UQ_KEY">
+        <reference local="EM_EFIN_WITHDRAWAL_UNIQUE" foreign="C_VALIDCOMBINATION_ID"/>
+      </foreign-key>
+    </table>
+  </database>

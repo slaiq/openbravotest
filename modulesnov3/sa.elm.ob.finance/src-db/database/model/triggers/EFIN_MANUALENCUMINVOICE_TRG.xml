@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_MANUALENCUMINVOICE_TRG">
+    <trigger name="EFIN_MANUALENCUMINVOICE_TRG" table="EFIN_MANUALENCUMINVOICE" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Trigger to update the used amount,remaining amount in manual encumbrance invoice line 
+while insert a record in Efin_ManualEncumnvoice table
+* Contributor(s):  Divya.
+************************************************************************/
+v_remamount NUMBER; --OBTG:VARCHAR2--
+v_encamount VARCHAR2(60);
+v_Message VARCHAR2(2000):='';
+v_comb_id character varying(32);
+v_budinit_id character varying(32);
+v_manencumlines_id character varying(32);
+v_PPI_document VARCHAR2(60);
+v_rdv_doc VARCHAR2(60);
+v_po_doc VARCHAR2(60);
+v_enc_doc VARCHAR2(60);
+v_invenc_id character varying(32);
+v_enc_id character varying(32);
+v_amt NUMBER; --OBTG:VARCHAR2--
+v_encType VARCHAR2(60);
+v_encMethod VARCHAR2(60);
+v_autoormanual VARCHAR2(60);
+v_docstatus VARCHAR2(60);
+v_docstatus_cancel  VARCHAR2(60);
+v_clientId character varying(32);
+v_prec NUMBER; --OBTG:VARCHAR2--
+
+BEGIN
+v_amt :=  0;
+v_docstatus_cancel:='CO';
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+    IF TG_OP='INSERT' OR TG_OP='UPDATE' THEN
+    v_clientId:=:new.ad_client_id;
+    ELSE
+    v_clientId:=:old.ad_client_id;
+    END IF;
+
+ 	 	-- To get Standarrd Precision from Currency by using Current Client ID
+ 	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+ 	in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+
+
+	IF TG_OP='INSERT' OR TG_OP='UPDATE' THEN
+            v_manencumlines_id:= new .efin_budget_manencumlines_id;
+            ELSE
+           v_manencumlines_id:= :old.efin_budget_manencumlines_id;
+            END IF;
+	
+        select encum.efin_budgetint_id,ln.c_validcombination_id,encum.encum_method into v_budinit_id,
+		v_comb_id,v_encMethod from efin_budget_manencumlines ln 
+             join efin_budget_manencum encum on encum.efin_budget_manencum_id= ln.efin_budget_manencum_id
+             where   ln.efin_budget_manencumlines_id= v_manencumlines_id;
+             
+	-- Insert Operation
+	IF INSERTING THEN
+	select coalesce(em_efin_isprepayinv,'N'),coalesce(em_efin_isrdvinv,'N'),coalesce(em_efin_ispomatch,'N') into  v_PPI_document,v_rdv_doc,v_po_doc from c_invoice inv join c_doctype doc on doc.c_doctype_id  = inv.c_doctypetarget_id
+	where c_invoice_id = :new.c_invoice_id ;
+	
+    select em_efin_invoicetype_txt,em_efin_manualencumbrance_id into v_enc_doc,v_enc_id from c_invoice where c_invoice_id = :new.c_invoice_id;
+    
+    select ln.efin_budget_manencum_id into v_invenc_id from efin_manualencuminvoice inv join efin_budget_manencumlines ln on ln.efin_budget_manencumlines_id = :new.efin_budget_manencumlines_id;
+    
+	select enc.encum_type into v_encType from c_invoice inv
+	join efin_budget_manencum enc on enc.efin_budget_manencum_id = inv.em_efin_manualencumbrance_id
+	where inv.c_invoice_id = :new.c_invoice_id;
+	
+	--check remaining amount
+	--select remaining_amount into v_remamount from efin_budget_manencumlines where efin_budget_manencumlines_id =new.efin_budget_manencumlines_id;
+	--v_amt := v_remamount::numeric - :new.invamount;
+	
+	---if(v_amt < 0::numeric) then
+	-- RAISE_APPLICATION_ERROR(-20000, '@EFIN_PurInv_ManEncumRemAmt@');
+	-- v_Message:= '@ERROR=' ||'@EFIN_PurInv_ManEncumRemAmt@' ;
+	-- PERFORM AD_UPDATE_PINSTANCE(get_uuid(), NULL, 'N', 0, v_Message) ;
+	 
+	--else
+	if( :new.issplit = 'N' ) then 
+		if (  v_PPI_document='Y' ) then
+			update efin_budget_manencumlines  set remaining_amount=Round((remaining_amount-:new.invamount),v_prec),
+			 app_amt=Round((app_amt +:new.invamount),v_prec) 
+			where efin_budget_manencumlines_id =:new.efin_budget_manencumlines_id;
+		else if (v_rdv_doc = 'Y' and v_encType != 'AEE') then
+			update efin_budget_manencumlines  set app_amt=Round((app_amt -:new.invamount),v_prec),
+			used_amount=Round((used_amount+:new.invamount),v_prec)  
+			where efin_budget_manencumlines_id = :new.efin_budget_manencumlines_id;
+        else if (v_po_doc = 'Y' and v_encType != 'AEE' and v_enc_id = v_invenc_id) then
+        	update efin_budget_manencumlines set used_amount=Round((used_amount+:new.invamount),v_prec),
+        	app_amt=Round((app_amt - :new.invamount),v_prec)  where efin_budget_manencumlines_id = :new.efin_budget_manencumlines_id;
+		else
+			update efin_budget_manencumlines  set remaining_amount=Round((remaining_amount-:new.invamount),v_prec),
+			 used_amount=Round((used_amount+:new.invamount),v_prec)
+			where efin_budget_manencumlines_id =:new.efin_budget_manencumlines_id;
+		end if;
+        end if;
+	end if;
+		
+	--	end if;
+		
+	end if;
+   	END IF;	
+	
+    IF UPDATING  THEN  
+    -- This case is not applicable for Prepayment application posting
+        select docstatus into v_docstatus_cancel from c_invoice where c_invoice_id = :old.c_invoice_id;
+      if(:new.ispaid <> :old.ispaid and v_docstatus_cancel <> 'EFIN_CA') then
+    EFIN_UPDATEBUDGETINQ_ACTUAL(v_comb_id, :new.invamount,v_budinit_id) ;
+    end if;
+    END IF;
+    
+    IF DELETING THEN
+	select coalesce(em_efin_isprepayinv,'N'),coalesce(em_efin_isrdvinv,'N'),coalesce(em_efin_ispomatch,'N') ,em_efin_encumtype, docstatus into  v_PPI_document,v_rdv_doc,v_po_doc, v_autoormanual, v_docstatus from c_invoice inv join c_doctype doc on doc.c_doctype_id  = inv.c_doctypetarget_id
+	where c_invoice_id = :old.c_invoice_id ;
+	
+	select enc.encum_type into v_encType from c_invoice inv
+	join efin_budget_manencum enc on enc.efin_budget_manencum_id = inv.em_efin_manualencumbrance_id
+	where inv.c_invoice_id = :old.c_invoice_id;
+    
+    select em_efin_invoicetype_txt,em_efin_manualencumbrance_id into v_enc_doc,v_enc_id from c_invoice where c_invoice_id = :old.c_invoice_id;
+    
+    select ln.efin_budget_manencum_id into v_invenc_id from efin_manualencuminvoice inv join efin_budget_manencumlines ln on ln.efin_budget_manencumlines_id = :old.efin_budget_manencumlines_id;
+    
+    select c_invoice.em_efin_invoicetype_txt into v_enc_doc from c_invoice where c_invoice_id = :old.c_invoice_id;
+
+	if(v_rdv_doc = 'Y' and v_encType != 'AEE') then
+		update efin_budget_manencumlines  set used_amount=Round((used_amount-:old.invamount),v_prec),
+		app_amt=Round((app_amt +:old.invamount),v_prec)
+		where efin_budget_manencumlines_id =:old.efin_budget_manencumlines_id;
+	elsif  (  v_PPI_document='Y' ) then
+		update efin_budget_manencumlines  set remaining_amount=Round((remaining_amount+:old.invamount),v_prec),
+		 app_amt=Round((app_amt - :old.invamount))
+		where efin_budget_manencumlines_id =:old.efin_budget_manencumlines_id;
+    else if (v_po_doc = 'Y' and v_encType != 'AEE' and v_enc_id = v_invenc_id) then
+        	update efin_budget_manencumlines set used_amount=Round((used_amount-:old.invamount),v_prec),
+        	app_amt=Round((app_amt + :old.invamount),v_prec) where efin_budget_manencumlines_id = :old.efin_budget_manencumlines_id;
+	else
+		update efin_budget_manencumlines  set remaining_amount=Round((remaining_amount+:old.invamount),v_prec),
+		 used_amount=Round((used_amount-:old.invamount),v_prec)
+		where efin_budget_manencumlines_id =:old.efin_budget_manencumlines_id;
+	end if;	
+    end if;
+    if(:old.ispaid='Y') then 		
+    EFIN_UPDATEBUDGETINQ_ACTUAL(v_comb_id, (:old.invamount*-1),v_budinit_id) ;
+    end if;
+   
+    
+        -- this block is for invoice from RDV with Direct type
+    if(:old.ispaid='N' and v_rdv_doc = 'Y' and v_encType = 'AEE') Then
+    EFIN_UPDATEBUDGETINQ_ACTUAL(v_comb_id, :old.invamount,v_budinit_id) ;
+    END IF;
+	
+    END IF;
+	
+	END EFIN_MANUALENCUMINVOICE_TRG
+]]></body>
+    </trigger>
+  </database>

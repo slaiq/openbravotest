@@ -1,0 +1,196 @@
+/*
+ *************************************************************************
+ * The contents of this file are subject to the Openbravo  Public  License
+ * Version  1.1  (the  "License"),  being  the  Mozilla  Public  License
+ * Version 1.1  with a permitted attribution clause; you may not  use this
+ * file except in compliance with the License. You  may  obtain  a copy of
+ * the License at http://www.openbravo.com/legal/license.html 
+ * Software distributed under the License  is  distributed  on  an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific  language  governing  rights  and  limitations
+ * under the License.
+ * The Original Code is Openbravo ERP.
+ * The Initial Developer of the Original Code is Openbravo SLU
+ * All portions are Copyright (C) 2011 Openbravo SLU
+ * All Rights Reserved.
+ * Contributor(s):  ______________________________________.
+ ************************************************************************
+ */ 
+ 
+/* Widget */
+/* @font-face {
+    font-family: elmFont;
+    src: url(./fonts/font.ttf);
+}
+ */
+
+ .OBWidgetBody {
+     background-color: #fff !important;
+ }
+/* Header icons */
+
+.OBWidgetIconMinimize,
+.OBWidgetIconMinimizeOver,
+.OBWidgetIconMinimizeDown,
+.OBWidgetIconMinimizeDisabled {
+  border-color: #f6f6f6;
+}
+
+.OBWidgetIconMaximize,
+.OBWidgetIconMaximizeOver,
+.OBWidgetIconMaximizeDown,
+.OBWidgetIconMaximizeDisabled {
+      border-color: #f6f6f6;
+}
+
+.OBWidgetIconRestore,
+.OBWidgetIconRestoreOver,
+.OBWidgetIconRestoreDown,
+.OBWidgetIconRestoreDisabled {
+  border-color: #f6f6f6;
+}
+
+.OBWidgetIconClose,
+.OBWidgetIconCloseOver,
+.OBWidgetIconCloseDown,
+.OBWidgetIconCloseDisabled {
+  border-color: #f6f6f6;
+}
+
+
+/* Widget Menu */
+
+.OBWidgetMenu {
+  border-color: #f6f6f6;
+}
+
+.OBWidgetMenuTable {
+    background: #808080;
+    border-color: #808080;
+}
+
+.OBWidgetMenuCellTitleFieldDisabled hr {
+  border-color: #ababab;
+}
+
+.OBWidgetMenuCellIconFieldDisabled hr {
+  border-color: #ababab;
+}
+
+.OBWidgetMenuCellDisabled,
+.OBWidgetMenuCellIconFieldDisabled,
+.OBWidgetMenuCellTitleFieldDisabled {
+  color: #ababab;
+}
+
+.OBWidgetMenuButton img,
+.OBWidgetMenuButtonOver img,
+.OBWidgetMenuButtonDown img,
+.OBWidgetMenuButtonDisabled img,
+.OBWidgetMenuButtonFocused img,
+.OBWidgetMenuButtonFocusedOver img {
+  background: transparent;
+}
+
+.OBWidgetHeader {
+	background-color: #F6F6F6;
+}
+
+
+/*
+ *************************************************************************
+ * Font override
+ ************************************************************************
+ */ 
+
+
+/* .OBWidgetHeader,
+.OBWidgetBody,
+.OBWidgetHeaderText,
+.OBWidgetIconMinimize,
+.OBWidgetIconMinimizeOver,
+.OBWidgetIconMinimizeDown,
+.OBWidgetIconMinimizeDisabled,
+.OBWidgetIconMaximize,
+.OBWidgetIconMaximizeOver,
+.OBWidgetIconMaximizeDown,
+.OBWidgetIconMaximizeDisabled,
+.OBWidgetIconRestore,
+.OBWidgetIconRestoreOver,
+.OBWidgetIconRestoreDown,
+.OBWidgetIconRestoreDisabled,
+.OBWidgetIconClose,
+.OBWidgetIconCloseOver,
+.OBWidgetIconCloseDown,
+.OBWidgetIconCloseDisabled,
+.OBWidgetMenu,
+.OBWidgetMenuTable,
+.xOBWidgetMenuTable td,
+.OBWidgetMenuTable img,
+.OBWidgetMenuBody,
+.OBWidgetMenuCell,
+.OBWidgetMenuCellSelected,
+.OBWidgetMenuCellOver,
+.OBWidgetMenuCellDisabled,
+.OBWidgetMenuCellSelectedOver,
+.OBWidgetMenuCellTitleField,
+.OBWidgetMenuCellTitleFieldDisabled,
+.OBWidgetMenuCellTitleFieldDark,
+.OBWidgetMenuCellTitleFieldSelectedDark,
+.OBWidgetMenuCellTitleFieldOver,
+.OBWidgetMenuCellTitleFieldOverDark,
+.OBWidgetMenuCellTitleFieldSelectedOver,
+.OBWidgetMenuCellTitleFieldSelectedOverDark,
+.OBWidgetMenuCellTitleFieldOver,
+.OBWidgetMenuCellOver,
+.OBWidgetMenuCellSelectedOver,
+.OBWidgetMenuCellTitleFieldOver,
+.OBWidgetMenuCellTitleFieldOverDark,
+.OBWidgetMenuCellTitleFieldSelectedOver,
+.OBWidgetMenuCellTitleFieldSelectedOverDark,
+.OBWidgetMenuCellIconFieldOver,
+.OBWidgetMenuCellIconFieldSelectedOver,
+.OBWidgetMenuCellIconFieldOverDark,
+.OBWidgetMenuCellIconFieldSelectedOver,
+.OBWidgetMenuCellIconFieldSelectedOverDark,
+.OBWidgetMenuCellIconField,
+.OBWidgetMenuCellIconFieldDark,
+.OBWidgetMenuCellIconFieldOver, 
+.OBWidgetMenuCellIconFieldOverDark, 
+.OBWidgetMenuCellIconFieldSelected, 
+.OBWidgetMenuCellIconFieldSelectedDark, 
+.OBWidgetMenuCellIconFieldSelectedOver, 
+.OBWidgetMenuCellIconFieldSelectedOverDark, 
+.OBWidgetMenuCellIconFieldDisabled,
+.OBWidgetMenuCellTitleFieldDisabled hr,
+.OBWidgetMenuCellIconFieldDisabled hr,
+.OBWidgetMenuCellDisabled,
+.OBWidgetMenuCellIconFieldDisabled,
+.OBWidgetMenuCellTitleFieldDisabled,
+.OBWidgetMenuButton,
+.OBWidgetMenuButtonOver,
+.OBWidgetMenuButtonDown,
+.OBWidgetMenuButtonDisabled,
+.OBWidgetMenuButtonFocused,
+.OBWidgetMenuButtonFocusedOver,
+.OBWidgetMenuButton img,
+.OBWidgetMenuButtonOver img,
+.OBWidgetMenuButtonDown img,
+.OBWidgetMenuButtonDisabled img,
+.OBWidgetMenuButtonFocused img,
+.OBWidgetMenuButtonFocusedOver img,
+.OBWidgetCommunityBranding,
+.OBWidgetCommunityBrandingUnknown,
+.OBWidgetCommunityBrandingDevelopment,
+.OBWidgetCommunityBrandingEvaluation,
+.OBWidgetCommunityBrandingTesting,
+.OBWidgetCommunityBrandingProduction,
+.OBWidgetAboutLabels,
+.OBWidgetAboutFields {
+   font-family: elmFont;
+}
+
+* {
+ font-size: 100%;
+ font-family: elmFont;
+} */

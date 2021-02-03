@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_C_BPARTNER_DEFLOCATION">
+    <trigger name="ESCM_C_BPARTNER_DEFLOCATION" table="C_BPARTNER" fires="after" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[v_location_id varchar2(32);
+BEGIN
+	IF AD_isTriggerEnabled()='N' THEN RETURN;
+	END IF;
+		IF (INSERTING and :new.em_escm_imported = 'N') THEN
+		
+			v_location_id := get_uuid();
+			Insert into c_location (c_location_id,ad_client_id,ad_org_id,createdby,updatedby,address1,c_country_id)
+			values (v_location_id,:new.AD_Client_ID,:new.AD_Org_ID,:new.CreatedBy,:new.UpdatedBy,'Default Address','296');
+			
+			Insert into C_BPartner_Location (C_BPartner_Location_id,ad_client_id,ad_org_id,createdby,updatedby,name,c_bpartner_id,c_location_id)
+			values(get_uuid(),:new.AD_Client_ID,:new.AD_Org_ID,:new.CreatedBy,:new.UpdatedBy,'Default Address',:new.C_BPartner_ID,v_location_id);
+		END IF;
+	END ESCM_C_BPARTNER_DEFLOCATION
+]]></body>
+    </trigger>
+  </database>

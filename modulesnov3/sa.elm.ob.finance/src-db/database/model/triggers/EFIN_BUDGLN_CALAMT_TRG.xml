@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_BUDGLN_CALAMT_TRG">
+    <trigger name="EFIN_BUDGLN_CALAMT_TRG" table="EFIN_BUDGETLINES" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[
+v_totalamt NUMBER;
+v_revamount NUMBER;
+v_curbudget NUMBER;
+v_budget_id VARCHAR(60);
+v_budgetline_id VARCHAR(32);
+v_status VARCHAR(60);
+v_fundsbudget VARCHAR(32);
+v_costbudget VARCHAR(32);
+v_year VARCHAR(32);
+v_validcombination VARCHAR(32);
+v_budinit VARCHAR(32);
+
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	-- Delete Operation
+	IF DELETING THEN
+		v_budget_id = :old.efin_budget_id;
+		v_budgetline_id = :old.efin_budgetlines_id;
+	END IF;
+
+	-- Insert Operation
+	IF INSERTING THEN
+		v_budget_id = :new.efin_budget_id;
+		v_budgetline_id = :new.efin_budgetlines_id;
+	END IF;
+
+	-- Update Operation
+	IF UPDATING THEN
+		v_budget_id = :new.efin_budget_id;
+		v_budgetline_id = :new.efin_budgetlines_id;
+	END IF;
+	
+	-- Insert/Update Operation
+	IF INSERTING  OR DELETING THEN
+	IF((INSERTING and :new.efin_budgetadd_id is null and :new.isdistribution='N') OR DELETING ) THEN
+	select status into v_status from efin_budget  where efin_budget_id=v_budget_id;
+		IF(v_status='INAPP' OR v_status='APP' OR v_status='Processed' ) THEN
+			RAISE_APPLICATION_ERROR(-20501,'@EFIN_Budg_CannotDelete@');
+		END IF;
+		
+	END IF;
+	END IF;
+	
+	--update total budget in header.
+	IF  INSERTING  OR  UPDATING OR DELETING  THEN
+		select SUM(amount) into v_totalamt from efin_budgetlines 
+		 where efin_budget_id  = v_budget_id group by efin_budget_id;
+	update efin_budget set totalbudgetvalue = v_totalamt where efin_budget_id= v_budget_id;
+	END IF;
+
+	--update costcurrent budget in budget line.
+	IF  INSERTING THEN
+		select c_campaign_id into v_fundsbudget from c_campaign where ad_client_id = :new.ad_client_id and em_efin_budgettype = 'F' limit 1;
+		
+		IF (:new.c_campaign_id = v_fundsbudget and :new.isadjustment='N' and :new.isdistribution='N') THEN
+			select c_campaign_id into v_costbudget from c_campaign where ad_client_id = :new.ad_client_id and em_efin_budgettype = 'C' limit 1;
+			select efin_budgetint_id into v_budinit from efin_budget where efin_budget_id = :new.efin_budget_id;
+								
+			select c_validcombination_id into v_validcombination 
+			from c_validcombination where c_campaign_id = v_costbudget and ad_org_id = :new.ad_org_id and c_salesregion_id = :new.c_salesregion_id and c_bpartner_id = :new.c_bpartner_id and
+			c_project_id = :new.c_project_id and account_id = :new.c_elementvalue_id and c_activity_id = :new.c_activity_id and user1_id = :new.user1_id and user2_id = :new.user2_id and ad_client_id = :new.ad_client_id;
+
+			select current_budget into v_curbudget from efin_budgetinquiry where efin_budgetint_id = v_budinit and c_validcombination_id  = v_validcombination and ad_client_id = :new.ad_client_id;
+
+			update efin_budgetlines set costcurrentbudget = coalesce(v_curbudget,0) where efin_budgetlines_id = :new.efin_budgetlines_id;
+		END IF;
+	END IF;
+	
+	END EFIN_BUDGLN_CALAMT_TRG
+]]></body>
+    </trigger>
+  </database>

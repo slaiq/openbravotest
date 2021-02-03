@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="xxTanfeed_Notes" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="fa6baa0c-017a-4d3d-96c5-2a259e8111ec">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<parameter name="Efin_Rdv_ID" class="java.lang.String"/>
+	<parameter name="Version_no" class="java.lang.Integer"/>
+	<parameter name="BASE_DESIGN" class="java.lang.String"/>
+	<parameter name="p_legacy_contract_no" class="java.lang.String"/>
+	<parameter name="p_bp_id" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select
+	distinct rdvtxn.certificate_no,
+	string_agg(
+		notes.note,
+		' - '
+	) note
+from
+	obuiapp_note notes,
+	efin_rdvtxn rdvtxn
+where
+	notes.record_id = rdvtxn.efin_rdvtxn_id --and rdvtxn.efin_rdvtxn_id = '6CB0F69F4F9B4970AB4C3E23D6DD22DA'
+	and rdvtxn.efin_rdv_id = $P{Efin_Rdv_ID} 
+	and cast(rdvtxn.txn_version as numeric) =  $P{Version_no} 
+group by
+	1,
+	notes.record_id
+union select
+	distinct rdvtxn.certificate_no,
+	string_agg(
+		notes.note,
+		' - '
+	) note
+from
+	obuiapp_note notes,
+	efin_rdvtxn rdvtxn
+where
+	notes.record_id = rdvtxn.efin_rdvtxn_id --and rdvtxn.efin_rdvtxn_id = '6CB0F69F4F9B4970AB4C3E23D6DD22DA'
+	and rdvtxn.efin_rdv_id = $P{Efin_Rdv_ID} 
+	and cast(rdvtxn.txn_version as numeric) <  $P{Version_no} 
+group by
+	1,
+	notes.record_id
+		union
+	select
+		contract_no certificate_no ,
+		remark_contract
+	from
+		escm_tanfed_contracts_legacy_3
+	where
+		contract_no =  $P{p_legacy_contract_no}
+union
+select
+	distinct bp1.value,
+	string_agg(
+		notes1.note,
+		' - '
+	) note
+from
+	obuiapp_note notes1,
+	c_bpartner bp1
+where
+	notes1.record_id = bp1.c_bpartner_id
+	and bp1.c_bpartner_id =  $P{p_bp_id} 
+group by
+	1,
+	notes1.record_id		]]>
+	</queryString>
+	<field name="certificate_no" class="java.lang.String"/>
+	<field name="note" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="480" y="0" width="74" height="20" uuid="dc17b2be-6f19-423d-874e-3f5e9c381c67">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="25ccb174-9f68-4202-8501-0c58b616865b"/>
+				</reportElement>
+				<box leftPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10"/>
+				</textElement>
+				<text><![CDATA[رقم المستخلص]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="-13" y="0" width="493" height="20" uuid="05fbeff9-8577-46e1-8aa5-26620032850c">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="25ccb174-9f68-4202-8501-0c58b616865b"/>
+				</reportElement>
+				<box leftPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10"/>
+				</textElement>
+				<text><![CDATA[الملاحظات]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="-13" y="0" width="493" height="20" uuid="c0b0fd4d-9b34-47f4-a066-ba486d57f7ac">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c290df59-dd88-4587-83ec-7b321f616b82"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10" isBold="false"/>
+					<paragraph lineSpacingSize="1.0" leftIndent="0" rightIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{note})]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="480" y="0" width="74" height="20" uuid="7d071bff-50a8-4839-9d50-e8f2ced059c4">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="c290df59-dd88-4587-83ec-7b321f616b82"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{certificate_no})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

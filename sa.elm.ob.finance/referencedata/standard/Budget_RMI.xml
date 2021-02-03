@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="84BB35F4ECC04F10A4F13116FB778A1E" identifier="Budget RMI">
+    <id>84BB35F4ECC04F10A4F13116FB778A1E</id>
+    <active>true</active>
+    <name>Budget RMI</name>
+    <tab id="D1F0FD0F4B3D4CA7AA9BFB81BB819C62" entity-name="ADTab" identifier="Budget - Budget"/>
+    <filterClause>((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) </filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype>BUDR</efinProcesstype>
+    <eSCMProcessType xsi:nil="true"/>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

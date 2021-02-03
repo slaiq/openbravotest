@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_GETFUNDSAVAILABLE">
+    <function name="EFIN_GETFUNDSAVAILABLE" type="NUMERIC">
+      <parameter name="p_combination_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_budgetinitid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_deptfund character(1);
+v_budgetInqId  character varying(32);
+v_client_id character varying(32);
+v_parentacctcomId character varying(32);
+v_fundsAva NUMBER;
+
+BEGIN
+v_fundsAva :=0;
+   select em_efin_isdeptfund,ad_client_id  into v_deptfund,v_client_id from c_validcombination  where  c_validcombination_id  = p_combination_id;
+
+    if(v_deptfund='Y') then
+        select  efin_budgetinquiry_id into v_budgetInqId from efin_budgetinquiry where  efin_budgetint_id  = p_budgetInitId and 
+	c_validcombination_id = p_combination_id;
+	if(v_budgetInqId is not null) then
+		select funds_available into v_fundsAva from efin_budgetinquiry where efin_budgetinquiry_id= v_budgetInqId; 
+	end if;	
+    else
+	select efin_getparentAcctcom(p_combination_id,v_client_id) into v_parentacctcomId from dual;
+
+	if(v_parentacctcomId is not null ) then
+		select  efin_budgetinquiry_id into v_budgetInqId from efin_budgetinquiry where  efin_budgetint_id  = p_budgetInitId and 
+		c_validcombination_id = v_parentacctcomId;
+
+		if(v_budgetInqId is not null) then
+			select funds_available into v_fundsAva from efin_budgetinquiry where efin_budgetinquiry_id= v_budgetInqId;
+		end if;
+	end if; 
+    end if;
+
+return v_fundsAva;
+END EFIN_GETFUNDSAVAILABLE
+]]></body>
+    </function>
+  </database>

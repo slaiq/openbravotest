@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_UPDATE_SUPPLIER">
+    <trigger name="ESCM_UPDATE_SUPPLIER" table="C_BPARTNER" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_bplocation VARCHAR2(32); 
+v_location VARCHAR2(32) ;
+v_crn VARCHAR2(32) ;
+v_phone VARCHAR2(15) ;
+v_fax VARCHAR2(15) ;
+v_name VARCHAR2(60) ;
+cur_salesvoucher RECORD;
+BEGIN
+	IF AD_isTriggerEnabled()='N' THEN RETURN;
+	END IF;
+	IF ((INSERTING and :new.isvendor = 'Y' and :new.em_efin_identityname = 'CRN' and :new.em_efin_nationalidnumber is not null) or 
+		(UPDATING and ((:new.isvendor <> :old.isvendor and :new.isvendor = 'Y') or (:new.em_efin_nationalidnumber <> :old.em_efin_nationalidnumber and :new.isvendor = 'Y' and :new.em_efin_identityname = 'CRN')))
+	) THEN
+			select bp.name,bp.em_efin_nationalidnumber,loc.c_bpartner_location_id ,loc.c_location_id,loc.phone,loc.fax  into v_name,v_crn,v_bplocation,v_location,v_phone,v_fax
+			from c_bpartner bp 
+			join c_bpartner_location loc on bp.c_bpartner_id = loc.c_bpartner_id 
+			where bp.c_bpartner_id = :new.c_bpartner_id and bp.isvendor='Y' and bp.em_efin_identityname = 'CRN' limit 1;
+			FOR cur_salesvoucher in (select escm_salesvoucher_id from escm_salesvoucher where docstatus='CO' and commercialregistoryno=v_crn and suppliernumber is null)
+			LOOP
+				update escm_salesvoucher set suppliernumber = :new.c_bpartner_id, branchname = v_bplocation, suppliername=v_name, c_location_id = v_location, supplier_phone = v_phone, fax = v_fax where escm_salesvoucher_id = cur_salesvoucher.escm_salesvoucher_id;
+			END LOOP;
+	END IF;
+
+		END ESCM_UPDATE_SUPPLIER
+]]></body>
+    </trigger>
+  </database>

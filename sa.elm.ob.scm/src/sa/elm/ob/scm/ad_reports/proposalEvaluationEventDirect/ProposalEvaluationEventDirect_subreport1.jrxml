@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.0.final using JasperReports Library version 6.5.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1_subreport1" pageWidth="572" pageHeight="802" columnWidth="572" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="6c6151e4-984f-4cf5-8fb2-fbf60e755276">
+	<property name="ireport.zoom" value="1.3310000000000062"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="dataset1" uuid="ae7850b8-fab8-4f52-ac94-d1458c8097c7"/>
+	<subDataset name="Table Dataset 1" uuid="8f83494f-821f-420b-b425-a163cd3b18cb"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/opt/elm/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="type" class="java.lang.String"/>
+	<parameter name="BASE_DESIGN" class="java.lang.String"/>
+	<parameter name="inpEventId" class="java.lang.String"/>
+	<parameter name="committeeId" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select 
+(select ecm.emp_name from escm_committee_members ecm left join escm_proposalevl_event epe on ecm.escm_committee_id = epe.escm_committee_id 
+left join escm_deflookups_typeln edt on edt.escm_deflookups_typeln_id = ecm.membertype
+WHERE epe.escm_proposalevl_event_id = $P{inpEventId} and edt.value = 'P') as president,
+(select ecm.ehcm_position_id from escm_committee_members ecm left join escm_proposalevl_event epe on ecm.escm_committee_id = epe.escm_committee_id 
+left join escm_deflookups_typeln edt on edt.escm_deflookups_typeln_id = ecm.membertype
+WHERE epe.escm_proposalevl_event_id = $P{inpEventId}and edt.value = 'P') as position_name,
+(select ecm.emp_name from escm_committee_members ecm left join escm_proposalevl_event epe on ecm.escm_committee_id = epe.escm_committee_id 
+left join escm_deflookups_typeln edt on edt.escm_deflookups_typeln_id = ecm.membertype
+WHERE epe.escm_proposalevl_event_id = $P{inpEventId} and edt.value = 'FIN_DR') as fin,
+(select ecm.emp_name from escm_committee_members ecm left join escm_proposalevl_event epe on ecm.escm_committee_id = epe.escm_committee_id 
+left join escm_deflookups_typeln edt on edt.escm_deflookups_typeln_id = ecm.membertype
+WHERE epe.escm_proposalevl_event_id = $P{inpEventId} and edt.value = 'BUY_DR') as buy,
+(select edt.name from escm_committee_members ecm left join escm_proposalevl_event epe on ecm.escm_committee_id = epe.escm_committee_id 
+left join escm_deflookups_typeln edt on edt.escm_deflookups_typeln_id = ecm.membertype
+WHERE epe.escm_proposalevl_event_id = $P{inpEventId} and edt.value = 'P') as president_position,
+(select edt.name from escm_committee_members ecm left join escm_proposalevl_event epe on ecm.escm_committee_id = epe.escm_committee_id 
+left join escm_deflookups_typeln edt on edt.escm_deflookups_typeln_id = ecm.membertype
+WHERE epe.escm_proposalevl_event_id = $P{inpEventId} and edt.value = 'FIN_DR') as fin_position,
+(select edt.name from escm_committee_members ecm left join escm_proposalevl_event epe on ecm.escm_committee_id = epe.escm_committee_id 
+left join escm_deflookups_typeln edt on edt.escm_deflookups_typeln_id = ecm.membertype
+WHERE epe.escm_proposalevl_event_id = $P{inpEventId} and edt.value = 'BUY_DR') as buy_position]]>
+	</queryString>
+	<field name="president" class="java.lang.String"/>
+	<field name="president_position" class="java.lang.String"/>
+	<field name="fin" class="java.lang.String"/>
+	<field name="fin_position" class="java.lang.String"/>
+	<field name="buy" class="java.lang.String"/>
+	<field name="buy_position" class="java.lang.String"/>
+	<field name="position_name" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="155" splitType="Immediate">
+			<textField>
+				<reportElement x="370" y="10" width="180" height="30" uuid="5c965a92-3013-4acd-aebe-dd73cb86e4a1"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="18" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{fin_position}==null?"":$F{fin_position})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="20" y="10" width="180" height="30" uuid="1cc22fc5-592c-4a7f-92c2-93049e22324a"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="18" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{buy_position}==null?"":$F{buy_position})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="370" y="40" width="180" height="30" uuid="023d01bd-e53b-4899-95b6-beec45ca9c77"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="18"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{fin}==null?"":$F{fin})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="20" y="40" width="180" height="30" uuid="07cbb36f-2a9b-4256-a583-43d60ab0c1fb"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="18"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{buy}==null?"":$F{buy})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="190" y="125" width="180" height="30" uuid="89b6c5b1-7f00-4825-9aa3-4e9a2ffe76df"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="18"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{president}==null?"":$F{president})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="190" y="63" width="180" height="30" uuid="65366290-dacf-4f32-a5b3-86bb1fb6ae17"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="18" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{president_position}==null?"":$F{president_position})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="190" y="94" width="180" height="30" uuid="42c6cf6e-e5a2-4e3a-ac4a-647bec1922ab"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="18" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{position_name}==null?"":$F{position_name})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_BUDGHOLD_LINE_INSERT">
+    <trigger name="EFIN_BUDGHOLD_LINE_INSERT" table="EFIN_RDV_BUDGHOLD" fires="after" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[v_encum_id VARCHAR(32);--OBTG:VARCHAR2--
+v_efin_hold_type VARCHAR(32);--OBTG:VARCHAR2--
+v_lineNo NUMBER;
+v_cost_amt NUMBER;
+v_rem_amt NUMBER;
+cur_rdvLine record;
+BEGIN
+
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF DELETING THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+    
+	IF INSERTING THEN
+    	v_lineNo :=0;
+        v_cost_amt :=0;
+        v_rem_amt :=0;
+    	select em_efin_budget_manencum_id into v_encum_id from c_order where c_order_id = :new.c_order_id;
+        
+        --get 90 hold type
+        select efin_rdv_hold_types_id into v_efin_hold_type from efin_rdv_hold_types where deductiontype in (
+		select eut_deflookups_typeln_id from eut_deflookups_typeln where eut_deflookups_type_id in (
+        select eut_deflookups_type_id from eut_deflookups_type where value='HOLD_TYPE' and ad_client_id=:new.ad_client_id) and value='90') limit 1;
+        
+        if v_efin_hold_type is null then
+        	    RAISE_APPLICATION_ERROR(-20000, '@Efin_HoldType_90_NotAvailable@');
+        end if;
+        
+		FOR cur_rdvLine in (select c_validcombination_id,sum(netmatch_amt) as netmatchamt  from efin_rdvtxnline where efin_rdvtxn_id = :new.efin_rdvtxn_id  and issummary = 'N' and netmatch_amt > 0 group by c_validcombination_id)
+		loop
+			--insert lines
+			v_lineNo := v_lineNo + 10;
+            --get encum amount 
+            select System_Updated_Amt,Revamount into v_cost_amt,v_rem_amt from efin_budget_manencumlines where efin_budget_manencum_id = v_encum_id and c_validcombination_id=cur_rdvLine.c_validcombination_id;
+            
+            INSERT INTO public.efin_rdv_budgholdline(
+                efin_rdv_budgholdline_id,line, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby, efin_rdv_budghold_id, c_validcombination_id, 
+                encum_cost_amount, encum_remaining_amount, efin_rdv_hold_types_id, hold_amount, release_amount, remaining_amount, description, efin_budget_transfertrxline_id)
+            VALUES (get_uuid(),v_lineNo, :new.ad_client_id, :new.ad_org_id, 'Y', :new.created, :new.createdby,:new.created, :new.updatedby, :new.efin_rdv_budghold_id, cur_rdvLine.c_validcombination_id,
+                    v_cost_amt, v_rem_amt, v_efin_hold_type, cur_rdvLine.netmatchamt, 0, 0, '', null);
+
+        end loop;
+	END IF;
+	
+
+   
+END EFIN_BUDGHOLD_LINE_INSERT
+]]></body>
+    </trigger>
+  </database>

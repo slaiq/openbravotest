@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_GETEMPLOYEE_PARENTORG">
+    <function name="EUT_GETEMPLOYEE_PARENTORG" type="VARCHAR">
+      <parameter name="p_org_code" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2001-2008 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************/
+--p VARCHAR(32767); --OBTG:VARCHAR2--
+vp VARCHAR2(32);
+vTree VARCHAR2(32);
+v_parentOrg VARCHAR2(32);
+v_parent VARCHAR2(32);
+v_orgId  VARCHAR2(32);
+ 
+BEGIN
+
+    SELECT ad_tree_id  INTO vTree  
+    FROM ad_tree 
+    WHERE ad_client_id=p_client_id
+    AND treetype='OO';
+
+    select node_id into v_parentOrg  from ad_treenode where ad_tree_id  = vTree and parent_id   ='0';
+    select  node_id into v_parentOrg from ad_treenode where ad_tree_id  = vTree and parent_id  in ( select node_id   from ad_treenode where ad_tree_id  = vTree and parent_id   ='0');
+
+    
+    select ad_org_id  into v_orgId from ad_org where value =p_org_code and   ad_client_id = p_client_id;
+    v_parent:= v_orgId;
+    LOOP 
+    EXIT WHEN v_parentOrg = v_orgId; 
+	select parent_id   into vp from ad_treenode where node_id = v_orgId;
+	--RAISE NOTICE '%',' Parent ORG ' ||  vp;
+	v_parent:= v_orgId;
+	v_orgId:= vp;
+    END LOOP;
+    return v_parent;
+END EUT_GETEMPLOYEE_PARENTORG
+]]></body>
+    </function>
+  </database>

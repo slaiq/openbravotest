@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="58C950601E8A463F8C8DC71554FFFD6A" identifier="BG Expires in 30 days">
+    <id>58C950601E8A463F8C8DC71554FFFD6A</id>
+    <active>true</active>
+    <creationDate transient="true">2017-08-08T15:50:19.911Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2017-08-08T15:50:44.353Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>BG Expires in 30 days</name>
+    <tab id="6732339A97874A85BF73542C2B5AFF88" entity-name="ADTab" identifier="Bank Gurantee Workbench - Bank Guarantee workbench"/>
+    <filterClause xsi:nil="true"/>
+    <sql>SELECT escm_bankguarantee_detail_id AS referencekey_id,
+ ad_column_identifier('escm_bankguarantee_detail', escm_bankguarantee_detail_id, 'en_US') AS record_id,
+ 0 AS ad_role_id,
+ NULL AS ad_user_id, 
+ bankbgno||'-'||bankname||'-'||bid ||' will expire within '||(select expirydate - curdate)||' days' AS description,
+ 'Y' AS isActive, 
+ ad_org_id, 
+ ad_client_id, 
+ now() AS created, 
+ 0 AS createdBy, 
+ now() AS updated,
+ 0 AS updatedBy
+ FROM (select internalno, bankguaranteetype, escm_bankguarantee_detail_id, bgdtl.ad_org_id, bgdtl.ad_client_id,
+ bankbgno, bnk.bankname, bidmg.bidno||'-'||bidmg.bidname as bid,  
+cast(coalesce((select max(ext.reqexpiry_date) from escm_bg_extension ext
+where ext.escm_bankguarantee_detail_id = bgdtl.escm_bankguarantee_detail_id), expirydateh) as date) as expirydate,
+cast(now() as date) as curdate, cast(now() as date) + integer '30' as alertdate
+from escm_bankguarantee_detail bgdtl 
+left join efin_bank bnk on bnk.efin_bank_id = bgdtl.bankname
+left join escm_bidmgmt bidmg on bidmg.escm_bidmgmt_id=bgdtl.escm_bidmgmt_id
+where bankguaranteetype in ('IBG', 'FBG') and bgstatus not in ('REL', 'CON', 'EXP')) chkalrt
+where (select expirydate - curdate)=30 and expirydate&gt;=curdate
+order by bankbgno </sql>
+    <type>D</type>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="FBF230E2ED164B199D26B4CDAE5EFF65" identifier="BG Expires in 15 days">
+    <id>FBF230E2ED164B199D26B4CDAE5EFF65</id>
+    <active>true</active>
+    <creationDate transient="true">2017-08-08T15:51:57.206Z</creationDate>
+    <createdBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <updated transient="true">2017-08-08T15:51:57.206Z</updated>
+    <updatedBy transient="true" id="100" entity-name="ADUser" identifier="Openbravo"/>
+    <name>BG Expires in 15 days</name>
+    <tab id="6732339A97874A85BF73542C2B5AFF88" entity-name="ADTab" identifier="Bank Gurantee Workbench - Bank Guarantee workbench"/>
+    <filterClause xsi:nil="true"/>
+    <sql>SELECT escm_bankguarantee_detail_id AS referencekey_id,
+ ad_column_identifier('escm_bankguarantee_detail', escm_bankguarantee_detail_id, 'en_US') AS record_id,
+ 0 AS ad_role_id,
+ NULL AS ad_user_id, 
+ bankbgno||'-'||bankname||'-'||bid ||' will expire within '||(select expirydate - curdate)||' days' AS description,
+ 'Y' AS isActive, 
+ ad_org_id, 
+ ad_client_id, 
+ now() AS created, 
+ 0 AS createdBy, 
+ now() AS updated,
+ 0 AS updatedBy
+ FROM (select internalno, bankguaranteetype, escm_bankguarantee_detail_id, bgdtl.ad_org_id, bgdtl.ad_client_id,
+ bankbgno, bnk.bankname, bidmg.bidno||'-'||bidmg.bidname as bid,  
+cast(coalesce((select max(ext.reqexpiry_date) from escm_bg_extension ext
+where ext.escm_bankguarantee_detail_id = bgdtl.escm_bankguarantee_detail_id), expirydateh) as date) as expirydate,
+cast(now() as date) as curdate, cast(now() as date) + integer '30' as alertdate
+from escm_bankguarantee_detail bgdtl 
+left join efin_bank bnk on bnk.efin_bank_id = bgdtl.bankname
+left join escm_bidmgmt bidmg on bidmg.escm_bidmgmt_id=bgdtl.escm_bidmgmt_id
+where bankguaranteetype in ('IBG', 'FBG') and bgstatus not in ('REL', 'CON', 'EXP')) chkalrt
+where (select expirydate - curdate)=15 and expirydate&gt;=curdate
+order by bankbgno </sql>
+    <type>D</type>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+</ob:Openbravo>

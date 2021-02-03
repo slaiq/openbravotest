@@ -1,0 +1,246 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_PROPOSALLNE_PARENT">
+    <trigger name="ESCM_PROPOSALLNE_PARENT" table="ESCM_PROPOSALMGMT_LINE" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_parentId VARCHAR2(32);
+v_proposalId VARCHAR2(32);
+v_SumOfChildPrice NUMBER;
+v_SumOfTechPrice NUMBER;
+v_SumOfLinePrice NUMBER; 
+v_SumOfLineTax NUMBER;
+v_SumOfChildteeTax NUMBER;
+v_SumOfChildpeeTax NUMBER;
+v_SumOfChildTax NUMBER;
+v_NoOfChilds NUMBER;
+v_ParentIsManual CHAR(1);
+v_ChildIsManual CHAR(1);
+v_uomId  VARCHAR2(32);
+v_sumOfTechQtymultTechunitpr NUMBER;
+v_discountForParent NUMBER;
+v_discountAmtForParent NUMBER;
+v_sumOfMovqtymultgruntpr NUMBER; 
+v_sumOfMovqtymultnegot NUMBER;
+v_SumOfPEELnTotal NUMBER;
+v_sumOfPeeQtymultNegunitpr NUMBER;
+v_peeDiscountAmtForParent NUMBER;
+v_peeDiscountForParent NUMBER;
+v_proposaltype VARCHAR2(32);
+v_peeid VARCHAR2(32);
+v_negotunitprice NUMBER;
+v_movementqty NUMBER;
+v_techunitprice NUMBER;
+v_techqty NUMBER;
+v_sumofunittax NUMBER;
+v_sumofnet_unitprice NUMBER;
+v_sumofrounddiff_tax NUMBER;
+v_sumoftee_init_unitprice NUMBER;
+v_sumoftee_unitPricedis NUMBER;
+v_sumoftee_unittax NUMBER;
+v_sumoftee_net_unitprice NUMBER;
+v_sumofpee_init_unitprice NUMBER;
+v_sumofpee_unitPricedis NUMBER;
+v_sumofpee_unittax NUMBER;
+v_sumofpee_net_unitprice NUMBER;
+v_process CHAR(1);
+
+BEGIN
+
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF DELETING THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+
+    IF  INSERTING THEN
+		V_ProposalId:=:new.escm_proposalmgmt_id;
+    ELSE IF UPDATING THEN
+		V_ProposalId:=:old.escm_proposalmgmt_id;
+     ELSE IF DELETING THEN
+		V_ProposalId:=:old.escm_proposalmgmt_id;
+    END IF;
+    END IF;
+    END IF;
+
+  IF  UPDATING OR DELETING  THEN
+
+	  IF (:OLD.parentline_id IS NOT NULL) THEN
+		  IF (DELETING OR (coalesce(:NEW.parentline_id, '')<>coalesce(:OLD.parentline_id, ''))) THEN
+  			--Check the old parent is parent for any other childs
+  			select count(escm_proposalmgmt_line_id) into v_NoOfChilds from escm_proposalmgmt_line where parentline_id = :OLD.parentline_id;
+  			select ismanual into v_ParentIsManual from escm_proposalmgmt_line where escm_proposalmgmt_line_id = :OLD.parentline_id;
+  			select ismanual into v_ChildIsManual from escm_proposalmgmt_line where escm_proposalmgmt_line_id = :OLD.escm_proposalmgmt_line_id;
+		    IF (v_NoOfChilds > 0) THEN
+  				--Update new sum of child amount in all parents
+  				v_parentId:= :OLD.parentline_id;
+                
+                select sum(line_total), sum(tech_line_total),sum(line_taxamt) ,sum(tee_line_taxamt),sum(pee_line_taxamt)
+                ,sum(tee_init_unitprice*Tech_Line_Qty),sum(pee_init_unitprice*PEE_Qty)
+                into v_SumOfChildPrice,v_SumOfTechPrice,v_SumOfChildTax,v_SumOfChildteeTax,v_SumOfChildpeeTax,
+                v_sumoftee_init_unitprice,v_sumofpee_init_unitprice
+                from escm_proposalmgmt_line where parentline_id = v_parentId 
+                and COALESCE((status),'') <> 'CL';
+                
+            
+             select proposaltype into v_proposaltype from escm_proposalmgmt hd where escm_proposalmgmt_id = V_ProposalId;
+            
+            IF(v_proposaltype = 'DR')THEN
+                select sum(pee_line_total),sum(pee_qty * pee_negot_unit_price),(sum(pee_qty * pee_negot_unit_price)-sum(pee_line_total))/*,(((sum(pee_qty * pee_negot_unit_price)- sum(pee_line_total))/sum(pee_qty * pee_negot_unit_price))*100)*/ into v_SumOfPEELnTotal,v_sumOfPeeQtymultNegunitpr,v_peeDiscountAmtForParent,v_peeDiscountForParent from escm_proposalmgmt_line where parentline_id = v_parentId 
+                and (:old.peestatus is null or :old.peestatus !='CL');
+            ELSE
+                select sum(pee_line_total),sum(pee_qty * pee_negot_unit_price),(sum(tech_line_total)-sum(pee_line_total))/*,(((sum(tech_line_total)- sum(pee_line_total))/sum(tech_line_total))*100)*/ into v_SumOfPEELnTotal,v_sumOfPeeQtymultNegunitpr,v_peeDiscountAmtForParent,v_peeDiscountForParent from escm_proposalmgmt_line where parentline_id = v_parentId 
+                and (:old.peestatus is null or :old.peestatus !='CL');
+            END IF;
+            
+			IF  (UPDATING)THEN
+                IF(:new.line_total)<>(:old.line_total)THEN
+                    update escm_proposalmgmt_line set gross_unit_price = v_SumOfChildPrice, netprice = v_SumOfChildPrice,
+                          negot_unit_price = v_SumOfChildPrice, line_total = v_SumOfChildPrice where escm_proposalmgmt_line_id = v_parentId;
+                END IF;
+
+                IF(:new.tech_line_total)<>(:old.tech_line_total)THEN
+                          update escm_proposalmgmt_line set tech_line_total = v_SumOfTechPrice, tech_unit_price = v_SumOfTechPrice /*, tech_discount=v_discountForParent,tech_discountamt=v_discountAmtForParent*/
+                          where escm_proposalmgmt_line_id = v_parentId;
+                END IF;
+                IF(:new.pee_line_total)<>(:old.pee_line_total)THEN
+                   update escm_proposalmgmt_line set pee_line_total = v_SumOfPEELnTotal, pee_negot_unit_price = v_SumOfPEELnTotal/*, pee_tech_discount=v_peeDiscountForParent,pee_tech_discountamt=v_peeDiscountAmtForParent*/
+                          where escm_proposalmgmt_line_id = v_parentId;
+                END IF;
+                IF(:new.line_taxamt)<>(:old.line_taxamt)THEN
+                   update escm_proposalmgmt_line set line_taxamt = v_SumOfChildTax
+                  where escm_proposalmgmt_line_id = v_parentId;
+                END IF;
+                 IF(:new.tee_line_taxamt)<>(:old.tee_line_taxamt)THEN
+                   update escm_proposalmgmt_line set tee_line_taxamt = v_SumOfChildteeTax
+                  where escm_proposalmgmt_line_id = v_parentId;
+                END IF;
+               
+                 IF(:new.pee_line_taxamt)<>(:old.pee_line_taxamt)THEN
+                   update escm_proposalmgmt_line set pee_line_taxamt = v_SumOfChildpeeTax
+                  where escm_proposalmgmt_line_id = v_parentId;
+                END IF;
+                
+                IF(:new.tee_init_unitprice <> :old.tee_init_unitprice or :new.Tech_Line_Qty <> :old.Tech_Line_Qty) THEN
+                	update escm_proposalmgmt_line set tee_init_unitprice=v_sumoftee_init_unitprice where escm_proposalmgmt_line_id = v_parentId;
+                END IF;
+                IF(:new.pee_init_unitprice <> :old.pee_init_unitprice or :new.PEE_Qty <> :old.PEE_Qty) THEN
+                	update escm_proposalmgmt_line set pee_init_unitprice=v_sumofpee_init_unitprice where escm_proposalmgmt_line_id = v_parentId;
+                END IF;
+                
+			ELSE
+            		update escm_proposalmgmt_line set gross_unit_price = v_SumOfChildPrice, netprice = v_SumOfChildPrice,
+                          negot_unit_price = v_SumOfChildPrice, line_total = v_SumOfChildPrice
+                          ,tech_line_total = v_SumOfTechPrice, tech_unit_price = v_SumOfTechPrice
+                          ,pee_line_total = v_SumOfPEELnTotal, pee_negot_unit_price = v_SumOfPEELnTotal
+                          ,line_taxamt = v_SumOfChildTax,tee_line_taxamt = v_SumOfChildteeTax,
+                          pee_line_taxamt = v_SumOfChildpeeTax,tee_init_unitprice=v_sumoftee_init_unitprice
+                          ,pee_init_unitprice=v_sumofpee_init_unitprice
+                          where escm_proposalmgmt_line_id = v_parentId;
+           END IF;      
+		ELSE
+		        IF(UPDATING and v_ParentIsManual ='N' and v_ChildIsManual='N') THEN
+		                 RAISE_APPLICATION_ERROR(-20501,'@ESCM_BidMgmLine_CannotReorder@');
+                ELSIF(DELETING and  v_ParentIsManual ='N') THEN
+               	     delete from escm_proposalsource_ref  where escm_proposalmgmt_line_id  = :OLD.parentline_id;
+		                delete from escm_proposalmgmt_line where escm_proposalmgmt_line_id = :OLD.parentline_id;
+		        ELSE		 
+      				 --Update summary level to 'N', if it is no more parent for any child
+      				update escm_proposalmgmt_line set issummarylevel= 'N', gross_unit_price = 0, netprice = 0,
+      				negot_unit_price = 0, line_total = 0 ,tech_unit_price=0 ,tech_line_total=0,line_taxamt=0,tee_line_taxamt=0,pee_line_taxamt=0 where escm_proposalmgmt_line_id = :OLD.parentline_id;
+      		  END IF;
+			 			                   		
+		    END IF;		      
+	    END IF;
+    END IF;						
+  END IF;
+
+  IF  INSERTING OR  UPDATING THEN
+  
+	  IF (:NEW.parentline_id IS NOT NULL ) THEN	
+         --Update summary level and quantity for parent
+      		select c_uom_id into v_uomId from c_uom where x12de355  ilike 'EA' and ad_client_id in ('0', :NEW.ad_client_id);
+            IF( (INSERTING  and :new.isprocess='N') or (UPDATING and :new.isprocess='N' and  :old.isprocess=:new.isprocess))THEN
+            --Update sum of child amount in all parents
+           --  update escm_proposalmgmt_line set issummarylevel= 'Y', movementqty= 1,tech_base_qty=1,tech_line_qty=1, --c_uom_id=v_uomId,em_efin_c_validcombination_id=null,em_efin_uniquecodename='' where escm_proposalmgmt_line_id = NEW.parentline_id;
+      		 
+           v_parentId:= :NEW.parentline_id;
+            
+            select COALESCE(sum(line_total),0),COALESCE(sum(tech_line_total),0) ,COALESCE(sum(line_taxamt),0) ,
+            COALESCE(sum(tee_line_taxamt),0), COALESCE(sum(pee_line_taxamt),0) 
+            , COALESCE(sum(tee_init_unitprice*Tech_Line_Qty),0),COALESCE(sum(pee_init_unitprice*PEE_Qty) ,0)
+            into v_SumOfChildPrice,v_SumOfTechPrice,v_SumOfChildTax,v_SumOfChildteeTax,v_SumOfChildpeeTax
+            ,v_sumoftee_init_unitprice,v_sumofpee_init_unitprice
+            from escm_proposalmgmt_line 
+            where parentline_id = v_parentId  and COALESCE((status),'') <> 'CL';
+
+              --get Proposal Type
+              select proposaltype into v_proposaltype from escm_proposalmgmt hd 
+              where hd.escm_proposalmgmt_id  = :new.escm_proposalmgmt_id;
+              
+              IF(v_proposaltype = 'DR')THEN
+                select COALESCE(sum(pee_line_total),0),COALESCE(sum(pee_qty * pee_negot_unit_price),0),COALESCE((sum(pee_qty * pee_negot_unit_price)-sum(pee_line_total)),0)
+                /*,(((sum(pee_qty * pee_negot_unit_price)- sum(pee_line_total))/sum(pee_qty * pee_negot_unit_price))*100)*/
+                into v_SumOfPEELnTotal,v_sumOfPeeQtymultNegunitpr,v_peeDiscountAmtForParent,v_peeDiscountForParent from escm_proposalmgmt_line where parentline_id = v_parentId
+                and (:new.peestatus is null or :new.peestatus !='CL');
+              ELSE
+                select COALESCE(sum(pee_line_total),0),COALESCE(sum(pee_qty * pee_negot_unit_price),0),
+                COALESCE((sum(tech_line_total)-sum(pee_line_total)),0)
+                /*,(((sum(tech_line_total)- sum(pee_line_total))/sum(tech_line_total))*100)*/ 
+                into v_SumOfPEELnTotal,v_sumOfPeeQtymultNegunitpr,v_peeDiscountAmtForParent,
+                v_peeDiscountForParent from escm_proposalmgmt_line where parentline_id = v_parentId
+                and (:new.peestatus is null or :new.peestatus !='CL');
+              END IF;
+              
+                  select attr.escm_proposalevl_event_id into v_peeid from escm_proposalmgmt hd 
+                join escm_proposal_attr attr on  attr.escm_proposalmgmt_id=hd.escm_proposalmgmt_id
+                where hd.escm_proposalmgmt_id = :new.escm_proposalmgmt_id;
+                
+                 update escm_proposalmgmt_line set gross_unit_price = v_SumOfChildPrice, netprice = v_SumOfChildPrice,
+                          negot_unit_price = v_SumOfChildPrice, line_total = v_SumOfChildPrice,Discount=0,Discountmount=0,
+                           Proposal_Discount=0,Proposal_Discount_Amount=0,
+                          tech_line_total = v_SumOfTechPrice, tech_unit_price = v_SumOfTechPrice
+                          ,pee_line_total = v_SumOfPEELnTotal, pee_negot_unit_price = v_SumOfPEELnTotal,
+                          line_taxamt = v_SumOfChildTax,tee_line_taxamt = v_SumOfChildteeTax,
+                          pee_line_taxamt = v_SumOfChildpeeTax
+                          ,tee_init_unitprice=v_sumoftee_init_unitprice ,
+                          pee_init_unitprice=v_sumofpee_init_unitprice
+                          ,issummarylevel= 'Y', movementqty= 1,tech_base_qty=1,tech_line_qty=1, c_uom_id=v_uomId,
+                          em_efin_c_validcombination_id=null,em_efin_uniquecodename='' 
+                          where escm_proposalmgmt_line_id = v_parentId;
+                          
+            /* IF UPDATING THEN
+
+                  -- --Update in Proposal Management - line
+                   IF((:new.line_total)<>(:old.line_total))THEN
+
+                       update escm_proposalmgmt_line set gross_unit_price = v_SumOfChildPrice, netprice = v_SumOfChildPrice,
+      				         negot_unit_price = v_SumOfChildPrice, line_total = v_SumOfChildPrice,Discount=0,Discountmount=0,
+                             Proposal_Discount=0,Proposal_Discount_Amount=0 where escm_proposalmgmt_line_id = v_parentId;
+                       END IF;
+                    --Update in TEE - line
+                   IF((:new.tech_line_total)<>(:old.tech_line_total))THEN
+      				          update escm_proposalmgmt_line set tech_line_total = v_SumOfTechPrice, tech_unit_price = v_SumOfTechPrice/*, tech_discount=v_discountForParent,tech_discountamt=v_discountAmtForParent*/
+      				          where escm_proposalmgmt_line_id = v_parentId;
+                   END IF;
+                     --Update in PEE - line
+                     
+                   IF(((:new.pee_line_total)<>(:old.pee_line_total) or (coalesce(:new.peestatus,'') <> coalesce(:old.peestatus,''))) and v_peeid is not null)THEN
+                     update escm_proposalmgmt_line set pee_line_total = v_SumOfPEELnTotal,
+                     pee_negot_unit_price = v_SumOfPEELnTotal/*, pee_tech_discount=v_peeDiscountForParent,pee_tech_discountamt=v_peeDiscountAmtForParent*/
+      			          where escm_proposalmgmt_line_id = v_parentId;
+                   END IF;
+                   
+      		    END IF;*/
+                END IF;
+	    END IF;	
+    END IF;
+    
+
+    --Update header total amount
+    select coalesce(sum(line_total),0) into v_SumOfLinePrice from escm_proposalmgmt_line where escm_proposalmgmt_id = v_proposalId and issummarylevel='N' and (status !='CL'or status is null) ;
+    update escm_proposalmgmt set totalamount = v_SumOfLinePrice where escm_proposalmgmt_id = v_proposalId;
+
+    END ESCM_PROPOSALLNE_PARENT
+]]></body>
+    </trigger>
+  </database>

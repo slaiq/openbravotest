@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_COPY_BUDGET_DETAILS">
+    <function name="EFIN_COPY_BUDGET_DETAILS" type="NULL">
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s):Gopalakrishnan
+************************************************************************/
+	
+	cur_budget RECORD;
+	cur_bud_lines RECORD;
+	year_v character varying(32);
+	budget_def_v character varying(32);
+	from_period_v character varying(32);
+	to_period_v character varying(32);
+	trans_period_name_v character varying(32);
+	new_budget_lines_id character varying(32);
+	new_budget_id character varying(32);
+	bud_enq_v_id character varying(32);
+	current_budget_v NUMBER;
+	  BEGIN
+	  
+	  
+select c_year_id into year_v from c_year where c_year_id='9EF3BC3B76C44188AAD2584C83F9B4C6';
+--c_year_id in (
+--select c_year_id from c_period where now() between startdate and enddate )
+
+select efin_budgetint_id into budget_def_v from efin_budgetint where c_year_id='9EF3BC3B76C44188AAD2584C83F9B4C6';
+--c_year_id=year_v
+
+select c_period_id into from_period_v from c_period where startdate= (select min(startdate) 
+from c_period where c_year_id='9EF3BC3B76C44188AAD2584C83F9B4C6' 
+--c_year_id=year_v
+);
+
+select c_period_id into to_period_v from c_period where enddate= (select max(enddate) 
+from c_period where c_year_id='9EF3BC3B76C44188AAD2584C83F9B4C6' 
+--c_year_id=year_v
+);
+
+select name into trans_period_name_v from c_period where now() between startdate and enddate;
+
+	  
+		FOR cur_budget  in ( 
+select * from efin_budget b 
+where b.c_campaign_id='8CFC8D85BC484DC7AFB75E3DA60FE30F'
+and b.c_year_id='AB25C7DE5F1842AD95E8CE09D92B72CD'
+and b.efin_budget_id='5061EA0C00E348428D4C4D41954F4ADB'
+
+		)
+		LOOP
+--budget loop start 
+--create budget 
+create table temp_budget as select * from efin_budget where efin_budget_id=cur_budget.efin_budget_id;
+
+new_budget_id=get_uuid();
+
+update temp_budget set c_year_id=year_v,efin_budgetint_id=budget_def_v,
+frmperiod=from_period_v,toperiod=to_period_v, transaction_period=trans_period_name_v,
+transaction_date=now(),efin_budget_id=new_budget_id,created=now(),updated=now(),
+budgetname=budgetname||'_'||trans_period_name_v,status='OP'
+where efin_budget_id=cur_budget.efin_budget_id;
+
+insert into efin_budget select * from temp_budget;
+
+delete from efin_budgetlines where efin_budget_id=new_budget_id; --delete default entry via trigger
+ 
+--lines loop
+  FOR cur_bud_lines IN( 
+	  
+select * from efin_budgetlines 
+where efin_budget_id=cur_budget.efin_budget_id
+	  
+  ) LOOP
+ 
+
+ new_budget_lines_id=get_uuid();
+  DBMS_OUTPUT.PUT_LINE('New Budget ID'||new_budget_id) ;
+ ---create budget line
+
+  DBMS_OUTPUT.PUT_LINE('count of existing line'|| (select count(*) from efin_budgetlines where efin_budget_id=new_budget_id));
+  --Create Budget Lines
+INSERT INTO public.efin_budgetlines(
+	efin_budgetlines_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, 
+	updatedby, efin_budget_id, uniquecode, amount, description, line,
+	c_salesregion_id, user1_id, user2_id, c_activity_id, c_elementvalue_id, 
+	c_campaign_id, current_budget, funds_available, encumbrance, amount_spent, 
+	increase_amt, decrease_amt, checking_staus, checking_staus_failure,
+	c_project_id, acc_bud_inquiry, efin_budgetadd_id, c_bpartner_id,
+	c_validcombination_id, uniquecodename, oba_increase, oba_decrease,
+	dis_increase, dis_decrease, isadjustment, costcurrentbudget, 
+	carryforward, carryforwardlink, isdistribution, 
+	rev_amount, dislinkorg, isdistribute, 
+	legacyhisbudgetvalue, legacyhisbudgetappliedamt)
+	values(
+	new_budget_lines_id, cur_bud_lines.ad_client_id, 
+		cur_bud_lines.ad_org_id, 'Y', now(), 
+		'100', now(), 
+	'100', new_budget_id, cur_bud_lines.uniquecode, cur_bud_lines.amount, cur_bud_lines.description, cur_bud_lines.line,
+	cur_bud_lines.c_salesregion_id, cur_bud_lines.user1_id, cur_bud_lines.user2_id, cur_bud_lines.c_activity_id, 
+		cur_bud_lines.c_elementvalue_id, 
+	cur_bud_lines.c_campaign_id, cur_bud_lines.current_budget, 
+		cur_bud_lines.funds_available, cur_bud_lines.encumbrance, cur_bud_lines.amount_spent, 
+	cur_bud_lines.increase_amt, cur_bud_lines.decrease_amt, cur_bud_lines.checking_staus, 
+		cur_bud_lines.checking_staus_failure,
+	cur_bud_lines.c_project_id, cur_bud_lines.acc_bud_inquiry, cur_bud_lines.efin_budgetadd_id, cur_bud_lines.c_bpartner_id,
+	cur_bud_lines.c_validcombination_id, cur_bud_lines.uniquecodename, cur_bud_lines.oba_increase, 
+		cur_bud_lines.oba_decrease,
+	cur_bud_lines.dis_increase, cur_bud_lines.dis_decrease, cur_bud_lines.isadjustment, 
+		cur_bud_lines.costcurrentbudget, 
+	cur_bud_lines.carryforward, cur_bud_lines.carryforwardlink, cur_bud_lines.isdistribution, 
+	cur_bud_lines.rev_amount, null, 'N', 
+	cur_bud_lines.legacyhisbudgetvalue, cur_bud_lines.legacyhisbudgetappliedamt);
+
+--create budget enquiry line 
+select current_budget into current_budget_v  from efin_budgetinquiry
+where efin_budgetlines_id=cur_bud_lines.efin_budgetlines_id;
+
+update efin_budgetlines set amount=current_budget_v where efin_budgetlines_id=new_budget_lines_id;
+
+bud_enq_v_id =get_uuid();
+
+INSERT INTO public.efin_budgetinquiry(
+	efin_budgetinquiry_id, ad_client_id, ad_org_id, isactive, created,
+	createdby, updated, updatedby, carryforward, org_amt, obinc_amt, 
+	obdec_amt, rev_amount, revinc_amt, revdec_amt, disinc_amt,
+	disdec_amt, current_budget, encumbrance, spent_amt, 
+	funds_available, description, uniquecode, uniquecodename, 
+	c_validcombination_id, c_salesregion_id, c_elementvalue_id, 
+	c_project_id, c_campaign_id, c_bpartner_id, c_activity_id,
+	user1_id, user2_id, carryforwardlink, efin_budgetint_id, 
+	efin_budgetlines_id, efin_budgetadjline_id, efin_fundsreqline_id, 
+	parent_id, isdistribute, isbudget, depinc_amt, depdec_amt, cost_funds_available, isvirtual)
+	SELECT bud_enq_v_id, ad_client_id, 
+ad_org_id, 'Y', now(), '100', now(), '100', 
+carryforward, org_amt, obinc_amt, obdec_amt,current_budget,
+0, 0, 0, 0, 
+current_budget, encumbrance, spent_amt,
+funds_available, description, uniquecode,
+uniquecodename, c_validcombination_id,
+c_salesregion_id, c_elementvalue_id, 
+c_project_id, c_campaign_id, c_bpartner_id, c_activity_id, user1_id, user2_id, carryforwardlink, 
+efin_budgetint_id, efin_budgetlines_id, efin_budgetadjline_id, efin_fundsreqline_id, parent_id,
+isdistribute, isbudget, depinc_amt, depdec_amt, cost_funds_available, isvirtual
+	FROM public.efin_budgetinquiry
+	where efin_budgetlines_id=cur_bud_lines.efin_budgetlines_id;
+	
+update efin_budgetinquiry set efin_budgetlines_id=new_budget_lines_id,efin_budgetint_id=budget_def_v
+where efin_budgetinquiry_id=bud_enq_v_id;
+
+
+ END LOOP;
+ update efin_budget set status='APP' where efin_budget_id=new_budget_id;
+ DROP TABLE temp_budget; --DROPPING TEMPORARY BUDGET TABLE 
+---line loop end
+		END LOOP;
+END EFIN_COPY_BUDGET_DETAILS
+]]></body>
+    </function>
+  </database>

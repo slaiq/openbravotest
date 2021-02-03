@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_ORGPARENTANDCHILD_V">
+    <view name="EFIN_ORGPARENTANDCHILD_V"><![CDATA[SELECT org.ad_org_id AS efin_orgparentandchild_v_id, org.ad_client_id, org.ad_org_id, org.isactive, org.created, org.createdby, org.updated, org.updatedby, eut_getparentorglist(org.ad_client_id, org.ad_org_id) AS parent, eut_getchildorglist(org.ad_client_id, org.ad_org_id) AS child, reg.em_efin_govcostcentre, reg.c_salesregion_id FROM ad_org org JOIN c_salesregion reg ON org.ad_org_id = reg.ad_org_id WHERE org.ad_org_id <> '0' AND (org.em_ehcm_orgtyp IN (SELECT ehcm_org_type.ehcm_org_type_id FROM ehcm_org_type WHERE ehcm_org_type.value = 'ORG'))]]></view>
+  </database>

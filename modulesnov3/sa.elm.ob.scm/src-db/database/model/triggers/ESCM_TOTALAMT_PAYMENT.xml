@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_TOTALAMT_PAYMENT">
+    <trigger name="ESCM_TOTALAMT_PAYMENT" table="ESCM_ORDERPAYMENTTERMS" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_totalprice NUMBER;
+v_line NUMBER;
+v_amount NUMBER;
+v_paymentterm_id VARCHAR2(60);
+v_order_id VARCHAR2(60);
+v_list NUMBER;
+Diff NUMBER;
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+IF INSERTING or UPDATING THEN
+		v_order_id = :NEW.c_order_id;
+                v_paymentterm_id = :NEW.escm_orderpaymentterms_id;
+	END IF;
+	--While insert update current record -> Total Payment as previous sequence no
+	IF  INSERTING  THEN
+	 select count(escm_orderpaymentterms.c_order_id) into v_list  from escm_orderpaymentterms 
+	 left join c_order on escm_orderpaymentterms.c_order_id = c_order.c_order_id
+          where c_order.c_order_id = v_order_id;
+         
+          if(v_list = 1)
+		then
+		select amount into v_totalprice from escm_orderpaymentterms where escm_orderpaymentterms_id = v_paymentterm_id;
+		update escm_orderpaymentterms set totalpayment =  v_totalprice where escm_orderpaymentterms_id = v_paymentterm_id;
+	   else
+		select totalpayment into v_totalprice  from escm_orderpaymentterms where line in (select max(line) from escm_orderpaymentterms where 
+		escm_orderpaymentterms_id not in  (v_paymentterm_id) and c_order_id = v_order_id)
+		and c_order_id = v_order_id;
+		select amount into v_amount from escm_orderpaymentterms where escm_orderpaymentterms_id = v_paymentterm_id;
+		update escm_orderpaymentterms set totalpayment =  (v_totalprice + v_amount) where escm_orderpaymentterms_id = v_paymentterm_id; 
+
+	 end  if; 
+	END IF;
+	--while update, find out the difference (NEW Value - Out Value) and sum it into current record and all sequence numbers greater.
+	IF  UPDATING THEN
+		IF (:new.amount <> :old.amount) THEN
+		Diff = :new.amount - :old.amount;
+		update escm_orderpaymentterms set totalpayment = totalpayment+ Diff where line >= :new.line and c_order_id = 
+		:new.c_order_id;
+		end if;
+	end if;
+		
+
+	END ESCM_TOTALAMT_PAYMENT
+]]></body>
+    </trigger>
+  </database>

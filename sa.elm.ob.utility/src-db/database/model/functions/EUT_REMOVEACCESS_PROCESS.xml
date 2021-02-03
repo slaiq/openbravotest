@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_REMOVEACCESS_PROCESS">
+    <function name="EUT_REMOVEACCESS_PROCESS" type="NULL">
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): poongodi on 28/11/2018
+************************************************************************/
+v_ResultStr VARCHAR2(2000):='';
+v_forRmi VARCHAR2(60); 
+v_windowType VARCHAR(60);  
+v_nextforwardrmiid VARCHAR2(32); 
+cur_record record;
+cur_processed record;
+v_status CHAR(1):= 'N';
+v_Rmi VARCHAR2(60); 
+v_nextrmiid VARCHAR2(32); 
+v_recuser_id VARCHAR2(32); 
+v_recrole_id VARCHAR2(32); 
+v_docruleid VARCHAR2(32); 
+v_rmiuser_id VARCHAR2(32); 
+v_rmirole_id VARCHAR2(32); 
+v_rmidocruleid VARCHAR2(32); 
+v_count VARCHAR(60);
+v_recordid VARCHAR2(32); 
+v_frecordid VARCHAR2(32); 
+v_sqldocrule  VARCHAR(2000);
+v_sqlQuery  VARCHAR(2000);
+cur_pre record;
+v_nextpreid VARCHAR2(32); 
+BEGIN
+	FOR cur_record in (select  eut_forward_reqmoreinfo_id, recuser_id , rec_role_id ,docruleid,forward_rmi,recordid,ad_user_id,ad_role_id from eut_forward_reqmoreinfo 
+					where ad_client_id=p_client_id and processed ='Y' and forward_rmi ='F' 
+					AND  created = (select max(maxfor.created) from eut_forward_reqmoreinfo maxfor  where 
+  					maxfor.recordid=eut_forward_reqmoreinfo.recordid
+					and maxfor.forward_rmi='F' and maxfor.recuser_id = eut_forward_reqmoreinfo.recuser_id
+       				and maxfor.rec_role_id = eut_forward_reqmoreinfo.rec_role_id 
+        			and maxfor.processed ='Y' and schedule ='N') and schedule ='N'  order by created desc)
+	LOOP
+
+                    v_recuser_id = cur_record.recuser_id;
+                    v_recrole_id =cur_record.rec_role_id;
+                    v_docruleid = cur_record.docruleid;
+                    v_frecordid = cur_record.recordid;
+                        IF(v_docruleid='PRL' or v_docruleid='PRD') THEN
+                        	v_sqldocrule:= ' and (docruleid = ''PRL'' or  docruleid=''PRD'')';
+                        elseif(v_docruleid='PROD' or v_docruleid='PROL') THEN
+                        	v_sqldocrule:= ' and (docruleid = ''PROD'' or  docruleid=''PROL'')';
+                        elseif(v_docruleid='MIR' or v_docruleid='MIRIT') THEN
+                        	v_sqldocrule:= ' and (docruleid = ''MIR'' or  docruleid=''MIRIT'')';
+                        elseif(v_docruleid='BCU' or v_docruleid='BCUORG') THEN
+                        	v_sqldocrule:= ' and (docruleid = ''BCU'' or  docruleid=''BCUORG'')';
+                        ELSE 
+                        	v_sqldocrule:= 'and docruleid ='''|| v_docruleid ||'''' ;
+                        END IF;
+
+                    v_sqlQuery:= 'select eut_forward_reqmoreinfo_id,forward_rmi  from eut_forward_reqmoreinfo 
+                    			 where recuser_id ='''||v_recuser_id||''' and rec_role_id = '''||
+                    				v_recrole_id ||'''
+                    			and processed =''N'' and forward_rmi =''F'' and status=''CO''' || v_sqldocrule ||
+                    			' order by created asc limit 1';
+
+                    EXECUTE IMMEDIATE  v_sqlQuery into   v_nextforwardrmiid,v_forRmi;   
+                        
+                        IF(v_nextforwardrmiid is not null) THEN 
+                            IF(v_forRmi ='F') THEN
+                                    Update ad_window_access set em_eut_forward_reqmoreinfo_id=v_nextforwardrmiid where em_eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id; 
+                                    Update AD_Process_Access set em_eut_forward_reqmoreinfo_id = v_nextforwardrmiid where em_eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id; 
+                                    Update AD_Form_Access set em_eut_forward_reqmoreinfo_id = v_nextforwardrmiid where em_eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id;
+                                    Update OBUIAPP_Process_Access set em_eut_forward_reqmoreinfo_id = v_nextforwardrmiid where em_eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id;
+                                    Update EUT_List_Access set eut_forward_reqmoreinfo_id=v_nextforwardrmiid where eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id; 
+                            END IF;
+                            
+                            
+                            v_sqlQuery:= 'select eut_forward_reqmoreinfo_id,forward_rmi  from eut_forward_reqmoreinfo 
+                            			where ad_user_id ='''||cur_record.ad_user_id||''' and ad_role_id = '''||
+                            			cur_record.ad_role_id ||'''
+                                        and recuser_id ='''||v_recuser_id||''' and rec_role_id = '''||
+                    					v_recrole_id ||'''
+                            			and processed =''N'' and forward_rmi =''F'' and status=''CO''' || v_sqldocrule ||
+                            			' order by created asc limit 1';
+							EXECUTE IMMEDIATE       v_sqlQuery into   v_nextpreid,v_forRmi; 
+                           
+                           IF(v_nextpreid is not null) THEN
+                                    Update ad_preference set em_eut_forward_reqmoreinfo_id =v_nextpreid where em_eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id; 
+                                    Update eut_delegate_role_check set eut_forward_reqmoreinfo_id = v_nextpreid where eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id; 
+                            ELSE
+                           			 delete from ad_preference  where em_eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id; 
+                                     delete from eut_delegate_role_check where eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id; 
+                            
+                            END if;
+                        ELSE
+                        
+                            update ad_window_access set em_eut_forward_reqmoreinfo_id = null where em_eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id and em_eut_reqmoreinfo_id is not null; 
+                            update AD_Process_Access set em_eut_forward_reqmoreinfo_id = null where em_eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id and em_eut_reqmoreinfo_id is not null; 
+
+                            delete from ad_window_access where em_eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id and em_eut_reqmoreinfo_id is null; 
+                            delete from AD_Process_Access where em_eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id and em_eut_reqmoreinfo_id is null;
+                            delete from AD_Form_Access where em_eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id;
+                            delete from OBUIAPP_Process_Access where em_eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id;
+                            delete from EUT_List_Access where eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id;
+
+                            FOR cur_pre in ( select eut_forward_reqmoreinfo_id 
+                                            from eut_forward_reqmoreinfo where recordid = cur_record.recordid and forward_rmi='F' 
+                                            and processed = 'Y' and schedule ='N')
+                            LOOP
+                                delete from ad_preference where em_eut_forward_reqmoreinfo_id = cur_pre.eut_forward_reqmoreinfo_id;
+                                delete from eut_delegate_role_check where eut_forward_reqmoreinfo_id =  cur_pre.eut_forward_reqmoreinfo_id;
+                                update  eut_forward_reqmoreinfo set schedule ='Y' where 
+                                eut_forward_reqmoreinfo_id = cur_pre.eut_forward_reqmoreinfo_id;
+                            END  LOOP;
+                        END IF;
+                    update  eut_forward_reqmoreinfo set schedule ='Y' where eut_forward_reqmoreinfo_id = cur_record.eut_forward_reqmoreinfo_id;
+	END LOOP;
+
+--RMI
+    FOR cur_processed in (select  eut_forward_reqmoreinfo_id, recuser_id , rec_role_id ,docruleid,forward_rmi,recordid from eut_forward_reqmoreinfo 
+    						where ad_client_id=p_client_id and processed ='Y' and forward_rmi ='RMI' 
+   							 AND  created = (select max(maxfor.created) from eut_forward_reqmoreinfo maxfor  where 
+   							 maxfor.recordid=eut_forward_reqmoreinfo.recordid and 
+   							 maxfor.recuser_id = eut_forward_reqmoreinfo.recuser_id
+    						and maxfor.rec_role_id = eut_forward_reqmoreinfo.rec_role_id 
+    						and maxfor.forward_rmi='RMI' 
+    						and maxfor.processed ='Y' and maxfor.schedule ='N' and maxfor.req_response ='REQ') and schedule ='N' and req_response ='REQ'
+    						order by recordid)
+
+	LOOP
+
+                    v_rmiuser_id = cur_processed.recuser_id;
+                    v_rmirole_id =cur_processed.rec_role_id;
+                    v_rmidocruleid = cur_processed.docruleid;
+                    v_recordid=cur_processed.recordid ;
+
+                    IF(v_rmidocruleid='PRL' or v_rmidocruleid='PRD') THEN
+                    	v_sqldocrule:= ' and (docruleid = ''PRL'' or  docruleid=''PRD'')';
+                    elseif(v_rmidocruleid='PROD' or v_rmidocruleid='PROL') THEN
+                   		 v_sqldocrule:= ' and (docruleid = ''PROD'' or  docruleid=''PROL'')';
+                    elseif(v_rmidocruleid='MIR' or v_rmidocruleid='MIRIT') THEN
+                    	v_sqldocrule:= ' and (docruleid = ''MIR'' or  docruleid=''MIRIT'')';
+                         elseif(v_rmidocruleid='BCU' or v_rmidocruleid='BCUORG') THEN
+                    	v_sqldocrule:= ' and (docruleid = ''BCU'' or  docruleid=''BCUORG'')';
+                    ELSE 
+                    	v_sqldocrule:= 'and docruleid ='''|| v_rmidocruleid ||'''' ;
+                    END IF;
+                    
+                    v_sqlQuery:= 'select eut_forward_reqmoreinfo_id,forward_rmi  from eut_forward_reqmoreinfo 
+                    			where recuser_id ='''||v_rmiuser_id||''' and rec_role_id = '''||
+                   				 v_rmirole_id ||'''
+                    			and processed =''N'' and forward_rmi =''RMI'' and status=''CO''' ||  v_sqldocrule ||
+                    			'order by created asc limit 1';
+
+                    EXECUTE IMMEDIATE    v_sqlQuery into   v_nextrmiid,v_Rmi;    
+                    IF(v_nextrmiid is not null) THEN 
+                        IF(v_Rmi ='RMI') THEN
+                        Update ad_window_access set em_eut_reqmoreinfo_id=v_nextrmiid where em_eut_reqmoreinfo_id = cur_processed.eut_forward_reqmoreinfo_id; 
+                        Update AD_Process_Access set em_eut_reqmoreinfo_id = v_nextrmiid where em_eut_reqmoreinfo_id = cur_processed.eut_forward_reqmoreinfo_id; 
+
+                        END  IF;
+                    ELSE
+                        update ad_window_access set em_eut_reqmoreinfo_id = null where  em_eut_reqmoreinfo_id = cur_processed.eut_forward_reqmoreinfo_id 
+                        and em_eut_forward_reqmoreinfo_id is not null;
+                        
+                        update AD_Process_Access set em_eut_reqmoreinfo_id = null where em_eut_reqmoreinfo_id = cur_processed.eut_forward_reqmoreinfo_id 
+                        and em_eut_forward_reqmoreinfo_id is not null;
+
+                        delete from ad_window_access where em_eut_reqmoreinfo_id = cur_processed.eut_forward_reqmoreinfo_id 
+                        and em_eut_forward_reqmoreinfo_id is null ;
+                        delete from AD_Process_Access where em_eut_reqmoreinfo_id = cur_processed.eut_forward_reqmoreinfo_id
+                        and em_eut_forward_reqmoreinfo_id is null;
+                    END IF;
+
+                    update eut_forward_reqmoreinfo set schedule ='Y' where eut_forward_reqmoreinfo_id =cur_processed.eut_forward_reqmoreinfo_id;
+	END LOOP;
+
+EXCEPTION
+WHEN OTHERS THEN
+v_ResultStr:= '@ERROR=' || SQLERRM;
+DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+ROLLBACK;
+
+RETURN;
+END EUT_REMOVEACCESS_PROCESS
+]]></body>
+    </function>
+  </database>

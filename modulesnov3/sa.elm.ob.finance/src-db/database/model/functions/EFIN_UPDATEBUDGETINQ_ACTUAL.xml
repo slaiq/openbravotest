@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_UPDATEBUDGETINQ_ACTUAL">
+    <function name="EFIN_UPDATEBUDGETINQ_ACTUAL" type="NULL">
+      <parameter name="p_combination_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_amount" type="NUMERIC" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_budgetinitid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_deptfund character(1);
+Cur_BudgetInqList RECORD;
+v_budgetInqId  character varying(32);
+v_parent_id  character varying(32);
+v_client_id character varying(32);
+v_costcenter character varying(32);
+v_parentacctcomId character varying(32);
+v_ResultStr VARCHAR2(2000):='';
+
+BEGIN
+   select em_efin_isdeptfund,ad_client_id  into v_deptfund,v_client_id from c_validcombination  where  c_validcombination_id  = p_combination_id;
+
+    if(v_deptfund='Y') then
+        select  efin_budgetinquiry_id,parent_id into v_budgetInqId, v_parent_id from efin_budgetinquiry where  efin_budgetint_id  = p_budgetInitId and 
+	c_validcombination_id = p_combination_id;
+      if(v_budgetInqId is not null) then
+
+       --- update efin_budgetinquiry set spent_amt =spent_amt +p_Amount   where efin_budgetinquiry_id= v_budgetInqId;
+         if(v_parent_id is not null ) then 
+		update efin_budgetinquiry set encumbrance= encumbrance-p_Amount  where efin_budgetinquiry_id= v_parent_id;
+		select parent_id into v_parent_id from efin_budgetinquiry where efin_budgetinquiry_id= v_parent_id;
+          end if;
+         if(v_parent_id is not null) then
+            update efin_budgetinquiry set encumbrance= encumbrance-p_Amount where efin_budgetinquiry_id= v_parent_id;
+         end if;
+     end if;	
+    else
+    select efin_getparentAcctcom(p_combination_id,v_client_id) into v_parentacctcomId from dual;
+
+    if(v_parentacctcomId is not null ) then
+      select  efin_budgetinquiry_id,parent_id into v_budgetInqId, v_parent_id from efin_budgetinquiry where  efin_budgetint_id  = p_budgetInitId and 
+       c_validcombination_id = v_parentacctcomId;
+
+         if(v_budgetInqId is not null) then
+        --update efin_budgetinquiry set encumbrance= encumbrance-p_Amount, spent_amt =spent_amt +p_Amount   where efin_budgetinquiry_id= v_budgetInqId;
+        if(v_parent_id is not null) then
+
+        update efin_budgetinquiry set encumbrance= encumbrance-p_Amount where efin_budgetinquiry_id= v_parent_id;
+	end if;
+          end if;
+    end if; 
+    end if;
+	 
+EXCEPTION
+WHEN OTHERS THEN
+		  
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+  RAISE;
+  RETURN;
+END EFIN_UPDATEBUDGETINQ_ACTUAL
+]]></body>
+    </function>
+  </database>

@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION ESCM_CREATECUSTODY">
+    <function name="ESCM_CREATECUSTODY" type="NULL">
+      <parameter name="pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): Gopalakrishnan
+************************************************************************/
+v_ResultStr VARCHAR2(2000):='';
+v_qtycount NUMBER;
+v_countFlag NUMBER;
+v_existingCount NUMBER;
+v_tagCount NUMBER;
+p_org_id VARCHAR2(32);
+v_custody_Id VARCHAR2(32);
+v_cus_trans_id VARCHAR2(32);
+v_client_id VARCHAR2(32);
+v_docno NUMBER; --OBTG:VARCHAR2--
+v_Message VARCHAR2(2000):='';
+
+TYPE RECORD IS REF CURSOR;
+Cur_Parameter RECORD;
+BEGIN 
+--get org param
+SELECT  p.P_String into p_org_id
+      FROM AD_PInstance i
+      LEFT JOIN AD_PInstance_Para p
+        ON i.AD_PInstance_ID=p.AD_PInstance_ID
+      WHERE i.AD_PInstance_ID=PInstance_ID
+      ORDER BY p.SeqNo limit 1;       
+      --get client id
+	select ad_client_id into v_client_id from ad_org where ad_org_id=p_org_id;
+	select max(to_number(documentno)) into v_docno  from escm_mrequest_custody where ad_org_id=p_org_id;
+-- get return warehosue product(s)
+    FOR Cur_Parameter IN
+      (select de.qtyonhand ,prd.m_product_id,prd.name as pname,prd.m_product_category_id from m_storage_detail de
+join m_locator loc on loc.m_locator_id=de.m_locator_id
+join m_warehouse wh on wh.m_warehouse_id=loc.m_warehouse_id
+join m_product prd on prd.m_product_id = de.m_product_id
+join (select escm_deflookups_typeln_id from escm_deflookups_type lt 
+join escm_deflookups_typeln ltl on ltl.escm_deflookups_type_id=lt.escm_deflookups_type_id      
+where lt.reference='PST' and ltl.value='CUS') cusref on cusref.escm_deflookups_typeln_id=prd.em_escm_stock_type
+where wh.em_escm_warehouse_type ='RTW' and de.qtyonhand > 0 and wh.ad_org_id =p_org_id 
+      )
+    LOOP
+    --get already existing tag count 
+    select count(m_product_id) into v_existingCount  
+    from escm_mrequest_custody where m_product_id=Cur_Parameter.m_product_id and status='RET' and ad_org_id=p_org_id ;    
+    v_tagCount=Cur_Parameter.qtyonhand-v_existingCount;
+   -- RAISE Cur_Parameter.pname || '--'||Cur_Parameter.qtyonhand|| '---'||v_existingCount ||'---'|| v_tagCount  ;
+    v_countFlag=0;
+    WHILE (v_tagCount > v_countFlag) 
+    LOOP
+    v_custody_Id =get_uuid();
+    v_cus_trans_id =get_uuid();
+    INSERT INTO escm_mrequest_custody(
+            escm_mrequest_custody_id, ad_client_id, ad_org_id, isactive, 
+             createdby,updatedby, documentno, description, 
+            qty, status, m_product_category_id,m_product_id)
+    VALUES (v_custody_Id, v_client_id, p_org_id, 'Y', 
+             '100','100', to_char(v_docno), Cur_Parameter.pname, 
+            1, 'RET', Cur_Parameter.m_product_category_id,Cur_Parameter.m_product_id);
+            
+    INSERT INTO escm_custody_transaction(
+            escm_custody_transaction_id, ad_client_id, ad_org_id, isactive, 
+            createdby, updatedby, escm_mrequest_custody_id, 
+            line,transactiontype, transactionreason, 
+            transaction_date,isprocessed,
+            line2)
+    VALUES (v_cus_trans_id, v_client_id, p_org_id, 'Y', 
+            '100','100',v_custody_Id,
+            10,'RE','Return Warehouse Stock Loaded',
+            now(), 'Y', 
+            10);
+    v_countFlag =v_countFlag+1;
+    v_docno =v_docno+1;
+ 
+    END LOOP;
+    END LOOP;
+  v_Message='Tag Creation Completed';
+  DBMS_OUTPUT.PUT_LINE('--<<Tag Creation finished>> ' || v_Message) ;
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 1, v_Message) ;
+    EXCEPTION
+WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 0, v_ResultStr) ;
+  RETURN;
+END ESCM_CREATECUSTODY
+]]></body>
+    </function>
+  </database>

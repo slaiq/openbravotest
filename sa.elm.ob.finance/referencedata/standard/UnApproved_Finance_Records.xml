@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="796628690B7B4D5C8CC5DCF0FF46E881" identifier="UnApproved Encumbrance">
+    <id>796628690B7B4D5C8CC5DCF0FF46E881</id>
+    <active>true</active>
+    <name>UnApproved Encumbrance</name>
+    <tab id="9CBD55F879EA4DCAA4E944C0B7DC03D4" entity-name="ADTab" identifier="Header - Encumbrance"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select efin_budget_manencum_id as referencekey_id,
+	documentno as record_id,
+	0 as ad_role_id,
+    null as ad_user_id,
+    documentno ||' is in In Progress with no next role' as description,
+    'Y' as isActive,
+    ad_org_id, 
+    ad_client_id, 
+    now() as created,  
+    0 as createdBy,  
+    now() as updated,
+    0 as updatedBy
+from efin_budget_manencum 
+where docstatus='WFA' and eut_next_role_id is null</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="7F2743BAC451469A9B3C2A2363488622" identifier="UnApproved Purchase Invoice">
+    <id>7F2743BAC451469A9B3C2A2363488622</id>
+    <active>true</active>
+    <name>UnApproved Purchase Invoice</name>
+    <tab id="290" entity-name="ADTab" identifier="Header - Purchase Invoice"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select c_invoice_id as referencekey_id,
+	documentno as record_id,
+	0 as ad_role_id,
+    null as ad_user_id,
+    documentno ||' is in In Progress with no next role' as description,
+    'Y' as isActive,
+    ad_org_id, 
+    ad_client_id, 
+    now() as created,  
+    0 as createdBy,  
+    now() as updated,
+    0 as updatedBy
+from c_invoice 
+where docstatus='EFIN_WFA' and em_eut_next_role_id is null</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="888CA62DE71040DE8B98DA7501946831" identifier="UnApproved G/L Journal">
+    <id>888CA62DE71040DE8B98DA7501946831</id>
+    <active>true</active>
+    <name>UnApproved G/L Journal</name>
+    <tab id="5A6F0ED7230C462BA4010653BA3F816A" entity-name="ADTab" identifier="Header - Simple G/L Journal"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select gl_journal_id as referencekey_id,
+ documentno as record_id,
+ 0 as ad_role_id,
+ null as ad_user_id,
+ documentno ||' is in In Progress with no next role' as description,
+ 'Y' as isActive,
+ ad_org_id, 
+ ad_client_id, 
+ now() as created, 
+ 0 as createdBy, 
+ now() as updated,
+ 0 as updatedBy
+from gl_journal 
+where docstatus='EFIN_WFA' and em_eut_next_role_id is null</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="AD0A807E4C954FAFAC3785A39FADD2D8" identifier="UnApproved Fund and Cost Adjustment">
+    <id>AD0A807E4C954FAFAC3785A39FADD2D8</id>
+    <active>true</active>
+    <name>UnApproved Fund and Cost Adjustment</name>
+    <tab id="A9D394A5BE374ADC815DABBAF3D6D591" entity-name="ADTab" identifier="Fund and Cost Adjustment - Fund and Cost Adjustment"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select efin_budgetadj_id as referencekey_id,
+	docno as record_id,
+	0 as ad_role_id,
+    null as ad_user_id,
+    docno ||' is in In Progress with no next role' as description,
+    'Y' as isActive,
+    ad_org_id, 
+    ad_client_id, 
+    now() as created,  
+    0 as createdBy,  
+    now() as updated,
+    0 as updatedBy
+from efin_budgetadj 
+where docstatus='EFIN_IP' and eut_next_role_id is null</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+</ob:Openbravo>

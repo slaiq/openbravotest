@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE AD_TABLE">
+    <table name="AD_TABLE" primaryKey="AD_TABLE_KEY">
+      <column name="EM_EUT_ISFULLYAUDITED" primaryKey="false" required="true" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault><![CDATA['N']]></onCreateDefault>
+      </column>
+      <column name="EM_EUT_ENABLENAVIGATIONLINK" primaryKey="false" required="false" type="CHAR" size="1" autoIncrement="false">
+        <default><![CDATA[N]]></default>
+        <onCreateDefault><![CDATA['N']]></onCreateDefault>
+      </column>
+      <column name="EM_EUT_TAB_ID" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <check name="EM_EUT_AUDIT_CHK"><![CDATA[ISFULLYAUDITED = 'N' OR UPPER(TABLENAME) <> 'EUT_AUDIT_TRAIL']]></check>
+      <check name="EM_EUT_ISFULLYAUDITED_CHK2"><![CDATA[EM_EUT_ISFULLYAUDITED = 'N' OR UPPER(TABLENAME) <> 'EUT_AUDIT_TRAIL']]></check>
+      <check name="EM_EUT_ISFULLYAUDITEDCHK"><![CDATA[EM_EUT_ISFULLYAUDITED IN ('Y', 'N')]]></check>
+    </table>
+  </database>

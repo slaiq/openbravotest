@@ -1,0 +1,167 @@
+../web/js/jquery/jquery.jqgrid.min.js (v4.3.3) in CMS Module
+1) Line 41
+Old-> <div class='ui-jqgrid ui-widget ui-widget-content ui-corner-all'></div>
+New-> <div class='ui-jqgrid ui-widget ui-widget-content'></div>
+2) Line 128
+Old-> .addClass("ui-state-default ui-jqgrid-pager ui-corner-bottom")
+New-> .addClass("ui-state-default ui-jqgrid-pager")
+3) Line 29
+Old-> rownumWidth:25,
+New-> rownumWidth:40,
+3) Line 29
+Old-> rowNum:20,
+New-> rowNum:100000,
+4) Line 87
+Old-> <select class='ui-pg-selbox'
+New-> <select class='Combo ui-pg-selbox'
+5)
+Old-> a(i).append("<input type='text' style='width:95%;padding:0px;' name='"+(g.index||g.name)+"' id='gs_"+g.name+"' value='"+p+"'/>")
+New-> a(i).append("<input type='text' class='dojoValidateValid' style='width:95%;background: none repeat scroll 0 0 white !important;height: 16px;padding: 0 0 0 2px;' name='"+(g.index||g.name)+"' id='gs_"+g.name+"' value='"+p+"'/>")
+6)
+Old-> <input class='ui-pg-input' type='text' size='2' maxlength='7' value='0' role='textbox'/>
+New-> <input class='ui-pg-input dojoValidateValid' type='text' size='2' maxlength='7' value='0' role='textbox' style='height: 18px; padding: 1px 0pt 1px 2px !important; font-size: 11px; background: none repeat scroll 0pt 0pt white !important;'/>
+7)
+Old-> a(q).addClass("editable");
+New-> a(q).addClass("editable ui-jqgrid-celledit");
+
+
+
+../web/js/jquery/jquery-ui-1.8.11.custom.css in CMS Module
+1) Line 62
+Old-> .ui-widget-content { border: 1px solid #aaaaaa; background: #ffffff url(images/ui-bg_glass_75_ffffff_1x400.png) 50% 50% repeat-x; color: #222222; }
+Old-> .ui-widget-content { border: 2px solid #FF9C30; background: #ffffff url(images/ui-bg_glass_75_ffffff_1x400.png) 50% 50% repeat-x; color: #222222; }
+2) Line 69
+Old-> .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default { border: 1px solid #d3d3d3; background: #e6e6e6 url(images/ui-bg_glass_75_e6e6e6_1x400.png) 50% 50% repeat-x; font-weight: normal; color: #555555; }
+New-> .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default { border: none !important;border-bottom: 1px solid #A7ABB4 !important;border-right: 1px solid #A7ABB4 !important;background : url('../../images/backgroundHeader.png') repeat-x scroll 50% 100% #ECEEE9; font-weight: bold; color: #000000; font-family:'lucida sans',sans-serif;font-size:11px; }
+3) Line 81
+Old-> .ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { border: 1px solid #999999; background: #dadada url(images/ui-bg_glass_75_dadada_1x400.png) 50% 50% repeat-x; font-weight: normal; color: #212121; }
+New-> .ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { background:none; background-color:#E1E1E1; border: 1px solid #CDD7BB; color: #000000; font-weight: normal; }
+4) Line 59
+Old-> .ui-widget { font-family: Verdana,Arial,sans-serif; font-size: 1.1em; }
+New-> .ui-widget { color:#000000; font-family:arial,sans-serif; font-size:12px; }
+5) Line 66
+Old-> .ui-widget-header { border: 1px solid #aaaaaa; background: #cccccc url(images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x; color: #222222; font-weight: bold; }
+New->  .ui-widget-header { background: url("../../images/backgroundHeader.png") repeat-x scroll 50% 100% #ECEEE9;border-color: #CDD7BB #BBBFB6 #A7ABB4;border-style: solid;border-width: 1px;color: #000000;font-family: 'lucida sans',sans-serif;font-size: 11px;font-weight: bold;}
+6)
+Old-> .ui-widget-overlay { background: #aaaaaa url(images/ui-bg_diagonals-thick_20_666666_40x40.png) 50% 50% repeat; opacity: .30;filter:Alpha(Opacity=30); }
+New-> .ui-widget-overlay { background: black; opacity: .50;filter:Alpha(Opacity=50); }
+7)
+Old-> .ui-datepicker .ui-datepicker-title select { font-size:1em; margin:1px 0; }
+New-> .ui-datepicker .ui-datepicker-title select { font-size:1em; margin:-1px 0; }
+8) Line 595
+/* New Added */
+.ui-widget-content th.ui-state-hover { background : url('../../images/backgroundHeaderFocus.png') repeat-x scroll 50% 50% #FFFFFF; color: #000000; font-weight: bold; font-size:11px; }
+td.ui-state-default { background:none !important; background-color:#CDD7BB !important; border-color:#A7ABB4 !important; }
+tr.ui-widget-content { border:1px solid #CDD7BB; }
+
+
+
+../web/js/jquery/ui.grid.css (v4.3.3) in CMS Module
+1) Line 13
+Old-> .ui-jqgrid .ui-pg-table td{font-weight:normal;vertical-align:middle;padding:1px;}
+New-> .ui-jqgrid .ui-pg-table td{font-weight:normal;vertical-align:middle;padding:2px;}
+2) Line 6
+Old-> .ui-jqgrid tr.ui-search-toolbar th{border-top-width:1px!important;border-top-color:inherit!important;border-top-style:ridge!important;}
+New-> .ui-jqgrid tr.ui-search-toolbar th{border-top-width:0px!important;border-top-color:inherit!important;border-top-style:ridge!important;}
+3)
+Old-> .ui-jqgrid .ui-pg-input{height:13px;font-size:.8em;margin:0;}
+New-> .ui-jqgrid .ui-pg-input{height:16px;font-size:.8em;margin:0;}
+4) 
+Old-> .ui-jqgrid .ui-pg-selbox{font-size:.8em;line-height:18px;display:block;height:18px;margin:0;}
+New-> .ui-jqgrid .ui-pg-selbox{font-size:.9em;line-height:18px;display:block;height:18px;margin:0;width:40px;}
+5)
+Old-> .ui-jqgrid .ui-paging-info{font-weight:normal;height:19px;margin-top:3px;margin-right:4px;}
+New-> .ui-jqgrid .ui-paging-info{font-weight:normal;height:19px;margin-top:3px;margin-right:4px;font-size: 11px;}
+6)
+Old-> .ui-jqgrid .ui-jqgrid-titlebar{padding:.3em .2em .2em .3em;position:relative;border-left:0 none;border-right:0 none;border-top:0 none;}
+New-> .ui-jqgrid .ui-jqgrid-titlebar{padding:2px 1px 1px;position:relative;border-left:0 none;border-right:0 none;border-top:0 none;}
+7)
+Old-> tr.ui-search-toolbar input{margin:1px 0 0 0;}
+New-> tr.ui-search-toolbar input{margin:3px 0 0 0;}
+8)
+Old-> .ui-jqgrid .ui-subgrid td.subgrid-data {border-top:  0px none !important;}
+New-> .ui-jqgrid .ui-subgrid td.subgrid-data {border: 0px !important;}
+9)
+Old -> .ui-jqgrid .ui-pg-button:hover { padding: 0px; }
+New -> .ui-jqgrid .ui-pg-button:hover { padding: 1px; }
+10)
+New->.ui-jqgrid-celledit{margin: 0 0 0 1%;height: 18px;background: white !important;padding: 0px 0px 1px 2px !important;border: 1px solid #CDD7BB;font-family: Verdana,Arial,sans-serif;font-size: 1em;color: #333;}
+	 .ui-jqgrid .ui-jqgrid-pager td.ui-state-disabled {padding: 1px;}
+
+
+
+../web/js/themes/base/jquery-ui.css in CMS Module
+
+Old-> .ui-button-text-only .ui-button-text{padding:.4em 1em;}
+New-> .ui-button-text-only .ui-button-text{padding:.4em 1em;font-size: 11.5px;}
+
+Old-> .ui-widget-header{border:1px solid #aaa;background:#ccc url(images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x;color:#222;font-weight:bold;}
+New-> .ui-widget-header{border:1px solid #aaa;background: url("../../../images/backgroundHeader1.png") repeat-x;color:#222;font-weight:bold;font-size:12px;}
+
+Old-> .ui-state-default,.ui-widget-content .ui-state-default{border:1px solid #d3d3d3;background:#e6e6e6 url(images/ui-bg_glass_75_e6e6e6_1x400.png) 50% 50% repeat-x;font-weight:normal;color:#555;}
+New-> .ui-state-default,.ui-widget-content .ui-state-default{border:1px solid #d3d3d3;background: url("../../../images/backgroundHeader.png") repeat-x scroll 0 100% transparent;background-size:100% 100%;-moz-background-size:100% 100%;font-weight:normal;color:#555;}
+
+Old-> .ui-state-hover,.ui-widget-content .ui-state-hover,.ui-state-focus,.ui-widget-content .ui-state-focus{border:1px solid #999;background:#dadada url(images/ui-bg_glass_75_dadada_1x400.png) 50% 50% repeat-x;font-weight:normal;color:#212121;}
+New-> .ui-state-hover,.ui-widget-content .ui-state-hover,.ui-state-focus,.ui-widget-content .ui-state-focus{border:1px solid #999;background: url("../../../images/backgroundHeader.png") repeat-x scroll 0 100% transparent;font-weight:normal;color:#212121;}
+
+Old-> .ui-tabs{padding:.2em;}
+New-> .ui-tabs{padding:.7em;}
+
+Old-> .ui-helper-reset { line-height: 1.3; }
+New-> .ui-helper-reset { line-height: 0.6; }
+
+Old-> .ui-tabs .ui-tabs-panel{display:block;border:0;background:none;}
+New-> .ui-tabs .ui-tabs-panel{display:block;background:none;margin-left:0.16em;border: 1px solid #AAAAAA !important;}
+
+Old-> .ui-dialog .ui-dialog-titlebar {padding: 0.5em 1em 0.3em;}
+New-> .ui-dialog .ui-dialog-titlebar {padding: 0.2em 1em 0.2em;}
+
+Old-> .ui-state-disabled,.ui-widget-content .ui-state-disabled{opacity:.35;filter:Alpha(Opacity=35);background-image:none;}
+New-> .ui-state-disabled,.ui-widget-content .ui-state-disabled{}
+
+Old-> .ui-widget-overlay{background:#aaa url(images/ui-bg_flat_0_aaaaaa_40x100.png) 50% 50% repeat-x;opacity:.3;filter:Alpha(Opacity=30);}
+New-> .ui-widget-overlay{background:black;opacity:.5;filter:Alpha(Opacity=50);}
+
+Old-> .ui-dialog .ui-dialog-buttonpane button{float:right;margin:.5em .4em .5em 0;cursor:pointer;/*padding:.2em .6em .3em .6em;*/line-height:1.4em;width:70px;overflow:visible;}
+New-> .ui-dialog .ui-dialog-buttonpane button{float:right;margin:.5em .4em .5em 0;cursor:pointer;/*padding:.2em .6em .3em .6em;*/line-height:1.4em;min-width:70px;overflow:visible;}
+
+
+../web/js/ui/jquery.ui.dialog.js in CMS Module
+
+Old -> uiDialogTitlebarClose = $('<a href="#"></a>')
+Old -> uiDialogTitlebarClose = $('<a href="javascript:void(0)"></a>')
+
+
+
+../web/js/ui/jquery.ui.datepicker.js in CMS Module
+
+Old -> '" href="#">' + printDate.getDate() + '</a>')) + '</td>';
+New -> '" href="javascript:void(0);">' + printDate.getDate() + '</a>')) + '</td>';
+
+Old -> '<select class="ui-datepicker-year"'
+New -> '<select class="ui-datepicker-year Combo" style="height: 18px;"'
+
+Old -> '<select class="ui-datepicker-month"'
+New -> '<select class="ui-datepicker-month Combo" style="height: 18px;"'
+
+
+New -> 
+Line 97 :
+	closeOnSelect: true,
+Line 909 :
+	var closeOnSelect = this._get(inst, 'closeOnSelect');
+	if(!closeOnSelect)
+		return false;
+	inst['onChangeMonthYearVar'] = 0;
+Line 1414 :
+	if(typeof inst['onChangeMonthYearVar'] != 'undefined' && inst['onChangeMonthYearVar']==0 && inst.currentMonth!=0)
+	{
+		inst['drawMonth'] = inst.currentMonth;
+		drawMonth = inst.currentMonth;
+	}
+	else if(typeof inst.input.children(":first").attr('class') == 'undefined')
+		inst['onChangeMonthYearVar'] = 0;
+Line 822 :
+	inst['onChangeMonthYearVar'] = 1;
+Line 855 :
+	inst['onChangeMonthYearVar'] = 1;

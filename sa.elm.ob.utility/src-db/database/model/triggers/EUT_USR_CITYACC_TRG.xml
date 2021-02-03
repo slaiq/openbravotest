@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EUT_USR_CITYACC_TRG">
+    <trigger name="EUT_USR_CITYACC_TRG" table="EUT_USER_REGANDCITY_ACCESS" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[  v_count NUMBER;
+BEGIN
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF; 
+IF(INSERTING OR UPDATING) THEN
+	select count(*) into v_count from eut_user_regandcity_access
+	where  ad_client_id=:NEW.ad_client_id and c_city_id=:NEW.c_city_id and 
+	c_region_id=:NEW.c_region_id and ad_user_id=:NEW.ad_user_id;
+
+	IF(v_count >0) THEN
+        RAISE_APPLICATION_ERROR(-20000, '@Escm_RegCity_Unique@');
+    END IF; 
+END IF;    
+
+END EUT_USR_CITYACC_TRG
+]]></body>
+    </trigger>
+  </database>

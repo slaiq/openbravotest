@@ -1,0 +1,602 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="593" leftMargin="1" rightMargin="1" topMargin="1" bottomMargin="1" uuid="83d2f4e0-6ad9-4139-bfa9-4c7be35a7d41">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Sample DB"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="DOCUMENT_ID" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select
+	sum( split_part( invl.linenetamt::text, '.', 1 )::numeric ) as linenetamt,
+	sum( split_part( invl.linenetamt::text, '.', 2 )::numeric ) as paise,
+	--right(sum(invl.linenetamt) :: text,2) paisa1,
+		right(
+	case when condoc.c_invoice_id is null then
+		trunc(
+			(
+				(
+					select
+						sum( a.linenetamt )* (Case when curr.iso_code = 'SAR'	then 1 else 
+						coalesce(
+							(
+								select
+									multiplyrate
+								from
+									c_conversion_rate
+								where
+									c_currency_id = curr.c_currency_id
+							),
+							1
+						) end )
+					from
+						c_invoiceline a
+					where
+						a.c_invoice_id = $P{DOCUMENT_ID}
+						and e.c_elementvalue_id = a.em_efin_c_elementvalue_id
+				)
+			),
+			2
+		)
+		else condoc.foreign_amount end
+		::text,
+		2
+	) paisa1,
+	case
+		when condoc.c_invoice_id is null then split_part(
+			(
+				select
+					c_currency_convert(
+						sum( invl.linenetamt ),
+						inv.c_currency_id,
+						(
+							select
+								efin_getcurrency(
+									inv.ad_org_id,
+									inv.ad_client_id,
+									'false'
+								)
+						),
+						inv.dateacct,
+						'S',
+						inv.ad_client_id
+					)
+			)::text,
+			'.',
+			1
+		)::numeric
+		else condoc.foreign_amount
+	end as conversionpaisetotal,
+	case
+		when condoc.c_invoice_id is null then split_part(
+			(
+				select
+					c_currency_convert(
+						sum( invl.linenetamt ),
+						inv.c_currency_id,
+						(
+							select
+								efin_getcurrency(
+									inv.ad_org_id,
+									inv.ad_client_id,
+									'false'
+								)
+						),
+						inv.dateacct,
+						'S',
+						inv.ad_client_id
+					)
+			)::text,
+			'.',
+			2
+		)::numeric
+		else 0
+	end as conversionpaise,
+	sum( invl.linenetamt ) * (Case when curr.iso_code = 'SAR'	then 1 else 
+	coalesce(
+							(
+								select
+									multiplyrate
+								from
+									c_conversion_rate
+								where
+									c_currency_id = curr.c_currency_id
+							),
+							1
+						) end) as  total,
+	e.name,
+	e.value,
+	--invl.description,
+	curr.iso_code,
+	coalesce(
+		cpro.value,
+		e.value
+	) as subaccount,
+	(
+		select
+			efin_getcurrency(
+				inv.ad_org_id,
+				inv.ad_client_id,
+				'true'
+			)
+	) as legcur,
+	case when  condoc.c_invoice_id is null then(
+			select
+					sum( a.linenetamt ) *
+				(Case when curr.iso_code = 'SAR'	then 1 else 
+				coalesce(
+				(
+					select
+						multiplyrate
+					from
+						c_conversion_rate
+					where
+						c_currency_id = curr.c_currency_id
+				),
+				1
+			)  end)
+				from
+					c_invoiceline a
+				where
+					a.c_invoice_id = $P{DOCUMENT_ID}
+				--	and a.c_invoiceline_id =invl.c_invoiceline_id
+					and e.c_elementvalue_id = a.em_efin_c_elementvalue_id
+				) 
+     else 	condoc.foreign_amount end	as totalWithDecimal,
+	att.cnt attache_cnt,
+	(
+		select
+			coalesce(
+				sum( binq.current_budget ),
+				0
+			) --	sum( binq.current_budget )
+		from
+			efin_budgetint bint,
+			efin_budgetinquiry binq,
+			c_salesregion salereg,
+			C_Campaign comp
+		where
+			1 = 1
+			and bint.efin_budgetint_id = binq.efin_budgetint_id
+			and binq.c_salesregion_id = salereg.c_salesregion_id
+			and binq.ad_client_id = salereg.ad_client_id
+			and binq.c_elementvalue_id = e.c_elementvalue_id
+			and binq.C_Campaign_ID = comp.C_Campaign_ID
+			and bint.efin_budgetint_id = inv.em_efin_budgetint_id
+			and comp.value = '02'
+			and salereg.value = '990'
+	) Current_budget,
+	(
+		select
+			coalesce(
+				sum( invl2.LineNetAmt ),
+				0
+			) -- sum( inv.grandtotal )
+		from
+			c_invoice inv2,
+			c_invoiceline invl2
+		where
+			inv2.c_invoice_id = invl2.c_invoice_id
+			and inv2.em_efin_budgetint_id = inv.em_efin_budgetint_id
+			and inv2.docstatus in ('CO','EFIN_WFA')
+			and invl2.EM_Efin_C_Elementvalue_ID = e.c_elementvalue_id
+	) inv_total_amt,
+	curr.description curr_desc
+from
+	c_invoiceline invl
+left join(
+		select
+			count(*) cnt,
+			ad_record_id
+		from
+			c_file
+		group by
+			ad_record_id
+	) att on
+	invl.c_invoiceline_id = att.ad_record_id
+left join c_elementvalue e on
+	e.c_elementvalue_id = invl.em_efin_c_elementvalue_id
+left join c_project cpro on
+	e.em_efin_project_id = cpro.c_project_id
+left join c_invoice inv on
+	inv.c_invoice_id = invl.c_invoice_id
+left join C_Conversion_Rate_Document condoc on
+	condoc.c_invoice_id = inv.c_invoice_id
+left join c_currency curr on
+	curr.c_currency_id = inv.c_currency_id
+where
+	invl.c_invoice_id = $P{DOCUMENT_ID}
+--	and e.accounttype in('E','A') --- commented by Alamir on 30/03/2020
+and ((e.accounttype in('R','L') and invl.linenetamt > 0 ) or ( e.accounttype in('E','A')))  ----- added by Alamir on 30/03/2020
+--	and case when e.accounttype ='R' and invl.linenetamt > 0 then 1=1 else e.accounttype in('E','A') end 
+	--and invl.linenetamt > 0
+group by
+	invl.c_invoice_id,
+	condoc.c_invoice_id,
+	inv.c_currency_id,
+	inv.ad_org_id,
+	inv.ad_client_id,
+	inv.dateacct,
+	e.name,
+	e.value,
+--	invl.description,
+	curr.iso_code,
+	legcur,
+	subaccount,
+	att.cnt,
+	e.c_elementvalue_id,
+	inv.em_efin_budgetint_id,
+	inv.dateinvoiced,
+	curr.description,
+	curr.c_currency_id,
+	condoc.foreign_amount
+--,	invl.c_invoiceline_id
+order by
+	inv.dateinvoiced desc]]>
+	</queryString>
+	<field name="linenetamt" class="java.math.BigDecimal"/>
+	<field name="paise" class="java.math.BigDecimal"/>
+	<field name="conversionpaisetotal" class="java.math.BigDecimal"/>
+	<field name="conversionpaise" class="java.math.BigDecimal"/>
+	<field name="total" class="java.math.BigDecimal"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="value" class="java.lang.String"/>
+	<field name="iso_code" class="java.lang.String"/>
+	<field name="legcur" class="java.lang.String"/>
+	<field name="subaccount" class="java.lang.String"/>
+	<field name="totalWithDecimal" class="java.math.BigDecimal"/>
+	<field name="attache_cnt" class="java.lang.String"/>
+	<field name="Current_budget" class="java.math.BigDecimal"/>
+	<field name="inv_total_amt" class="java.math.BigDecimal"/>
+	<field name="paisa1" class="java.lang.String"/>
+	<field name="curr_desc" class="java.lang.String"/>
+	<variable name="Total" class="java.math.BigDecimal" resetType="None" calculation="First">
+		<variableExpression><![CDATA[$F{totalWithDecimal}]]></variableExpression>
+	</variable>
+	<variable name="TotPaise" class="java.math.BigDecimal" resetType="Column" calculation="Sum">
+		<variableExpression><![CDATA[$F{paise}]]></variableExpression>
+		<initialValueExpression><![CDATA[]]></initialValueExpression>
+	</variable>
+	<variable name="FullTotal" class="java.math.BigDecimal" resetType="Column" calculation="Sum">
+		<variableExpression><![CDATA[$F{total}]]></variableExpression>
+	</variable>
+	<variable name="convertamt" class="java.math.BigDecimal" resetType="Column" calculation="Sum">
+		<variableExpression><![CDATA[$F{conversionpaisetotal}]]></variableExpression>
+	</variable>
+	<variable name="convertedpaise" class="java.math.BigDecimal" resetType="Column" calculation="Sum">
+		<variableExpression><![CDATA[$F{conversionpaise}]]></variableExpression>
+		<initialValueExpression><![CDATA[]]></initialValueExpression>
+	</variable>
+	<variable name="TotalWithDecimal" class="java.lang.String">
+		<variableExpression><![CDATA[$F{totalWithDecimal}]]></variableExpression>
+	</variable>
+	<variable name="FullTotalReal" class="java.lang.String">
+		<variableExpression><![CDATA[$V{FullTotal}.toString().split("\\.")[0]]]></variableExpression>
+	</variable>
+	<variable name="FullTotalDecimal" class="java.lang.String">
+		<variableExpression><![CDATA[$V{FullTotal}.toString().split("\\.")[1]]]></variableExpression>
+	</variable>
+	<variable name="RealTotal" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{totalWithDecimal}]]></variableExpression>
+	</variable>
+	<variable name="DecimalTotal" class="java.lang.String" resetType="Column">
+		<variableExpression><![CDATA[$F{totalWithDecimal}.toString().split("\\.")[1]]]></variableExpression>
+	</variable>
+	<variable name="V_PaisaTotal" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[new BigDecimal($F{paisa1})]]></variableExpression>
+	</variable>
+	<background>
+		<band height="1" splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="26">
+			<staticText>
+				<reportElement mode="Opaque" x="210" y="0" width="170" height="26" backcolor="#FFFFFF" uuid="f6790694-e840-4a36-b158-66a80a984e26"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[البـــيــــــــــــــــــان]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="505" y="0" width="86" height="13" backcolor="#FFFFFF" uuid="50ae537e-0d34-4ff8-a625-7aa8c3afc7bf"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[المبلـــغ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="380" y="0" width="125" height="13" backcolor="#FFFFFF" uuid="9bbbe774-93d1-4b98-b36d-656a8feecee0"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[التصنيــف]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="380" y="13" width="85" height="13" backcolor="#FFFFFF" uuid="603f336c-57aa-45a9-af66-1dad0cd34582"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ رقم البرنامج / المشروع]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="460" y="13" width="45" height="13" backcolor="#FFFFFF" uuid="5242b569-786d-4ff6-b1b9-4e3693765f2c"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[الإقتصادي]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="505" y="13" width="65" height="13" backcolor="#FFFFFF" uuid="2403bd45-de40-4fdf-87fc-73c934a10b0b"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ريـــال]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="" mode="Opaque" x="570" y="13" width="21" height="13" backcolor="#FFFFFF" uuid="0d939926-f185-489a-a9e7-c0d0ed2c01ab"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[هــ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="70" height="26" backcolor="#FFFFFF" uuid="b54d028d-c882-4dbf-838b-119f1f611980"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[الـمتبقـي]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="70" y="0" width="70" height="26" backcolor="#FFFFFF" uuid="9c48207b-c755-4144-bffc-d5296c66f20d"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[الـمنصرف]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="140" y="0" width="70" height="26" backcolor="#FFFFFF" uuid="27e61e80-fe5a-459c-9b25-0eef6f644047"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[الإعـتمـاد]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="13" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="210" y="0" width="170" height="13" backcolor="#FFFFFF" uuid="7934ba99-7f2d-40b7-b023-cf7687eab5df"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="460" y="0" width="45" height="13" backcolor="#FFFFFF" uuid="d56f953e-8a42-4728-9c50-82438da6ea06"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.25"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[null==$F{subaccount}?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{subaccount})]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="380" y="0" width="80" height="13" backcolor="#FFFFFF" uuid="6fe93d52-29c8-4e17-a218-a6bbb07100ea"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.25"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{value}.equals($F{subaccount})?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{value}.toString()))]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;(#,##0.###-)" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" mode="Opaque" x="505" y="0" width="65" height="13" backcolor="#FFFFFF" uuid="7eb08f17-940a-44a2-874a-c06848856926"/>
+				<box leftPadding="2" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(null==$F{conversionpaisetotal} ? sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator("0") :sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator($F{conversionpaisetotal}.abs().toString())).split("\\.")[0]]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement key="" positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="570" y="0" width="21" height="13" backcolor="#FFFFFF" uuid="9a7c1955-9d53-4574-8822-5347d8ecadf3"/>
+				<box leftPadding="2" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{paisa1})]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="70" height="13" backcolor="#FFFFFF" uuid="24406390-2704-42e9-b59a-162fc6ce69a4"/>
+				<box leftPadding="4" rightPadding="2">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.25"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator(($F{Current_budget}.subtract($F{inv_total_amt})).toString())]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="70" y="0" width="70" height="13" backcolor="#FFFFFF" uuid="9d3106d9-aa69-4f62-b9f7-4b786367542c"/>
+				<box leftPadding="4" rightPadding="2">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.25"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator($F{inv_total_amt}.toString())]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="140" y="0" width="70" height="13" backcolor="#FFFFFF" uuid="db124289-ece8-4a11-b2ce-300a2b034658"/>
+				<box leftPadding="4" rightPadding="2">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.25"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator($F{Current_budget}.toString())]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="30">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="0" y="0" width="441" height="30" backcolor="#FFFFFF" uuid="1732e88b-ebbe-4dc6-b72c-0f1348bed83c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[null==$V{FullTotal}?new BigDecimal(0):sa.elm.ob.utility.ad_reports.NumberToArabic.convertToArabic(new BigDecimal(($V{RealTotal}.toString().split("\\.")[0])),"SAR").replace(" فقط لا غير."," ").concat(sa.elm.ob.utility.ad_reports.NumberToArabic.convertToArabic(new BigDecimal(($V{RealTotal}.toString().split("\\.")[1])),"SAR").replace("ريال سعودي","هللة").replace("صفر"," فقط لا غير."))]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="656" y="0" width="125" height="0" backcolor="#D2F5B0" uuid="9e46102f-9b1c-4f8a-b9fb-3026a5a36d16"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Sans" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[الإقتصادي]]></text>
+			</staticText>
+			<textField pattern="#,##0.###">
+				<reportElement mode="Opaque" x="505" y="0" width="65" height="30" backcolor="#FFFFFF" uuid="ce06b14f-959c-4b41-9c92-0895e44768c0">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box leftPadding="2" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.25"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(null==$V{RealTotal} ? sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator("0") :sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator($V{RealTotal}.toString())).split("\\.")[0]]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="441" y="0" width="64" height="30" backcolor="#FFFFFF" uuid="7bf4aae3-a70b-424c-8f7a-9b896f375ee0">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[إجمالي القيمة  :]]></text>
+			</staticText>
+			<textField pattern="#,##0.###">
+				<reportElement key="" mode="Opaque" x="570" y="0" width="21" height="30" backcolor="#FFFFFF" uuid="29bed9d5-7fae-4fb6-b62c-192ce7c4bd6e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box leftPadding="2" rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.25"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="9" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(null==$V{RealTotal} ? sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator("0") :sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmountWithCommaSeparator($V{RealTotal}.toString())).split("\\.")[1]]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnFooter>
+</jasperReport>

@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_BUDGET_ENCUMLINES_TRG">
+    <trigger name="EFIN_BUDGET_ENCUMLINES_TRG" table="EFIN_BUDGET_MANENCUMLINES" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+    /*************************************************************************
+      * The contents of this file are subject to the Compiere Public
+      * License 1.1 ("License"); You may not use this file except in
+      * compliance with the License. You may obtain a copy of the License in
+      * the legal folder of your Openbravo installation.
+      * Software distributed under the License is distributed on an
+      * "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+      * implied. See the License for the specific language governing rights
+      * and limitations under the License.
+      * The Original Code is  Compiere  ERP &  Business Solution
+      * The Initial Developer of the Original Code is Jorg Janke and ComPiere, Inc.
+      * Portions created by Jorg Janke are Copyright (C)
+
+ 1999-2001 Jorg Janke,
+      * parts created by ComPiere are Copyright (C)
+
+ ComPiere, Inc.;
+      * All Rights Reserved.
+      * Contributor(s): Openbravo SLU
+      * Contributions are Copyright (C)
+
+ 2001-2015 Qualian, S.L.U.
+      *
+      * Specifically, this derivative work is based upon the following Compiere
+      * file and version.
+      *************************************************************************/
+
+      v_Count  NUMBER;
+      v_headerId   VARCHAR2(32);
+      v_EncumbranceMethod VARCHAR2(32);
+      v_inquiry_id    VARCHAR2(32);
+      v_budget_int_id VARCHAR2(32);
+
+
+      v_ParentAccComb_ID VARCHAR2(32);
+      v_BPartner_Location_ID VARCHAR2(32);
+      v_parent_id VARCHAR2(32);   
+      v_deptFund CHAR(2);
+      v_UniqueCode VARCHAR2(2000);
+      v_clientId VARCHAR2(32);
+      v_prec NUMBER;
+
+    BEGIN
+
+        IF AD_isTriggerEnabled()='N' THEN RETURN;
+        END IF;
+
+  IF TG_OP='INSERT' OR TG_OP='UPDATE' THEN
+    v_clientId:=:new.ad_client_id;
+    ELSE
+    v_clientId:=:old.ad_client_id;
+    END IF;
+    
+    -- To get Standarrd Precision from Currency by using Current Client ID
+    select stdPrecision INTO v_prec from c_currency where c_currency_id 
+    in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+    
+    IF (INSERTING) THEN
+
+      v_headerId := :new.efin_budget_manencum_id;
+      select encum_method,efin_budgetint_id into v_EncumbranceMethod,v_budget_int_id from efin_budget_manencum where efin_budget_manencum.efin_budget_manencum_id =v_headerId;
+      select em_efin_isdeptfund into v_deptFund from c_validcombination where c_validcombination_id = :new.c_validcombination_id;
+
+	
+
+      -- if encumbrance method is Auto and dept fund is 'N', then insert or update the non 990 and 999 dept in budget inquiry
+      IF(v_EncumbranceMethod='A' and v_deptFund='N') then 
+        select count(*),efin_budgetinquiry_id  into v_Count, v_inquiry_id from efin_budgetinquiry where c_validcombination_id = :new.c_validcombination_id and efin_budgetint_id = v_budget_int_id and ad_client_id = :new.ad_client_id group by efin_budgetinquiry_id;
+	
+            if(v_count >0) then
+             update efin_budgetinquiry set encumbrance=Round((encumbrance+:new.amount),v_prec) where efin_budgetinquiry_id = v_inquiry_id; 
+            else
+            
+             select em_efin_uniquecode into v_UniqueCode from c_validcombination where c_validcombination_id = :new.c_validcombination_id;
+            
+             select efin_getparentacctcom(:new.c_validcombination_id, :new.ad_client_id) into v_ParentAccComb_ID from dual;       
+             select efin_budgetinquiry_id into  v_parent_id from efin_budgetinquiry where c_validcombination_id = v_ParentAccComb_ID and efin_budgetint_id = v_budget_int_id and ad_client_id = :new.ad_client_id;
+          
+             INSERT INTO public.efin_budgetinquiry(
+             efin_budgetinquiry_id, ad_client_id, ad_org_id, isactive, created, 
+             createdby, updated, updatedby, org_amt, obinc_amt, 
+             obdec_amt, rev_amount, revinc_amt, revdec_amt, disinc_amt, disdec_amt, 
+             current_budget, encumbrance, spent_amt, funds_available, description, uniquecode, 
+             uniquecodename, c_validcombination_id, c_salesregion_id, c_elementvalue_id, 
+             c_project_id, c_campaign_id, c_bpartner_id, c_activity_id, user1_id, user2_id, 
+                 efin_budgetint_id, parent_id, depinc_amt, depdec_amt, isvirtual)
+            VALUES (get_uuid(), :new.ad_client_id, :new.ad_org_id, 'Y', now(),
+                    :new.createdby , now() ,:new.updatedby, 0, 0,
+                    0, 0, 0, 0, 0, 0,
+                    0, :new.amount, 0, 0, '', v_UniqueCode,
+                    :new.uniquecodename, :new.c_validcombination_id, :new.c_salesregion_id, :new.c_elementvalue_id,
+                    :new.c_project_id, :new.c_campaign_id, :new.c_bpartner_id, :new.c_activity_id, :new.user1_id, :new.user2_id,
+                    v_budget_int_id, v_parent_id, 0, 0,'Y');
+       END IF;
+     END IF;
+     END IF;
+
+     IF (UPDATING) THEN
+     IF(:new.amount<>:old.amount)then
+      v_headerId := :new.efin_budget_manencum_id;
+      select encum_method,efin_budgetint_id into v_EncumbranceMethod,v_budget_int_id from efin_budget_manencum where efin_budget_manencum.efin_budget_manencum_id =v_headerId;
+      select em_efin_isdeptfund into v_deptFund from c_validcombination where c_validcombination_id = :new.c_validcombination_id;
+
+
+
+      IF(v_EncumbranceMethod='A' and v_deptFund='N') then 
+        select count(*),efin_budgetinquiry_id  into v_Count, v_inquiry_id from efin_budgetinquiry where c_validcombination_id = :new.c_validcombination_id and efin_budgetint_id = v_budget_int_id and ad_client_id = :new.ad_client_id group by efin_budgetinquiry_id;
+     select encumbrance  into  v_Count  from  efin_budgetinquiry where efin_budgetinquiry_id = v_inquiry_id; 
+            if(v_count >0) then
+             update efin_budgetinquiry set encumbrance=Round((encumbrance+(:new.amount-:old.amount)),v_prec) where efin_budgetinquiry_id = v_inquiry_id; 
+     END IF;
+      END IF;
+     END IF;
+      END IF;
+
+     
+     
+            END EFIN_BUDGET_ENCUMLINES_TRG
+]]></body>
+    </trigger>
+  </database>

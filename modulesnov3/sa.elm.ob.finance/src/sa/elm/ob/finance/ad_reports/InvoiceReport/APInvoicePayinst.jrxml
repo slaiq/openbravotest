@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="APInvoicePayinst" pageWidth="480" pageHeight="802" columnWidth="480" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isIgnorePagination="true" uuid="9a4d012b-7d08-4f0e-8745-7d88f9742512">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="LocalHostDB"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="DOCUMENT_ID" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select
+	distinct coalesce(
+		(
+			select
+				case
+					when fin.name = 'أمر دفع' then coalesce(
+						ba.iban,
+						''
+					)
+					when fin.name = 'حواله' then coalesce(
+						ba.iban,
+						''
+					)
+					else ''
+				end
+			from
+				c_bp_bankaccount ba,
+				efin_bank b
+			where
+				b.efin_bank_id = ba.em_efin_bank_id
+				and ba.iban is not null
+				and ba.c_bpartner_id = bp.c_bpartner_id --		and ba.c_bp_bankaccount_id = inv.EM_Efin_Iban
+				and ba.isactive = 'Y' limit 1
+		),
+		(
+			select
+				case
+					when fin.name = 'أمر دفع' then coalesce(
+						ba.iban,
+						''
+					)
+					when fin.name = 'حواله' then coalesce(
+						ba.iban,
+						''
+					)
+					else ''
+				end
+			from
+				c_bp_bankaccount ba,
+				efin_bank b,
+				c_invoice ci,
+				c_order co
+			where
+				b.efin_bank_id = ba.em_efin_bank_id
+				and ba.iban is not null
+				and ba.c_bpartner_id = bp.c_bpartner_id
+				and ba.c_bp_bankaccount_id = co.EM_Escm_Iban
+				and ci.EM_Efin_C_Order_ID = co.c_order_id
+				and ci.c_invoice_id = inv.c_invoice_id
+				and ba.isactive = 'Y' limit 1
+		),
+		''
+	) as iban,
+	(
+		coalesce(
+			(
+				select
+					b.bankname
+				from
+					c_bp_bankaccount ba,
+					efin_bank b
+				where
+					b.efin_bank_id = ba.em_efin_bank_id
+					and ba.iban is not null
+					and ba.isactive = 'Y'
+					and ba.c_bpartner_id = bp.c_bpartner_id --and ba.c_bp_bankaccount_id = inv.EM_Efin_Iban 
+ limit 1
+			),
+			(
+				select
+					b.bankname
+				from
+					c_bp_bankaccount ba,
+					efin_bank b,
+					c_invoice ci,
+					c_order co
+				where
+					b.efin_bank_id = ba.em_efin_bank_id
+					and ba.iban is not null
+					and ba.isactive = 'Y' --and ba.c_bpartner_id = bp.c_bpartner_id
+					and ba.c_bp_bankaccount_id = co.EM_Escm_Iban
+					and ci.EM_Efin_C_Order_ID = co.c_order_id
+					and ci.c_invoice_id = inv.c_invoice_id limit 1
+			)
+		)
+	) as bankname,
+	fin.name as paymeth,
+	coalesce(
+		(
+			select
+				certificatenumber
+			from
+				escm_certificates cr,
+				escm_deflookups_typeln df
+			where
+				df.escm_deflookups_typeln_id = cr.certificatename
+				and df.name = 'شهادة السجل التجاري'
+				and cr.isactive = 'Y'
+				and cr.c_bpartner_id = bp.c_bpartner_id
+		),
+		bp.em_efin_nationalidnumber
+	) as certificatenumber,
+	(
+		select
+			case
+				when cr.certificatename is not null then 'رقم السجل التجاري'
+			end
+		from
+			escm_certificates cr,
+			escm_deflookups_typeln df
+		where
+			df.escm_deflookups_typeln_id = cr.certificatename
+			and df.name = 'شهادة السجل التجاري'
+			and cr.isactive = 'Y'
+			and cr.c_bpartner_id = bp.c_bpartner_id
+	) sak
+from
+	c_invoice inv
+join c_invoiceline invl on
+	inv.c_invoice_id = invl.c_invoice_id
+	and invl.c_bpartner_id is not null
+join FIN_Paymentmethod fin on
+	fin.FIN_Paymentmethod_ID = inv.FIN_Paymentmethod_ID
+join c_bpartner bp on
+	invl.c_bpartner_id = bp.c_bpartner_id
+where
+	inv.c_invoice_id = $P{DOCUMENT_ID}
+union select
+	distinct coalesce(
+		(
+			select
+				case
+					when fin.name = 'أمر دفع' then coalesce(
+						ba.iban,
+						''
+					)
+					when fin.name = 'حواله' then coalesce(
+						ba.iban,
+						''
+					)
+					else ''
+				end
+			from
+				c_bp_bankaccount ba
+			left join efin_bank b on
+				b.efin_bank_id = ba.em_efin_bank_id
+			where
+				1 = 1
+				and ba.iban is not null
+				and ba.c_bpartner_id = bp.c_bpartner_id
+				and(
+					ba.c_bp_bankaccount_id = inv.EM_Efin_Iban
+					or inv.EM_Efin_Iban is null
+				)
+				and ba.isactive = 'Y' limit 1 /* 		from
+				c_bp_bankaccount ba,
+				efin_bank b
+			where
+				b.efin_bank_id = ba.em_efin_bank_id
+				and ba.iban is not null
+				and ba.c_bpartner_id = bp.c_bpartner_id 
+				and ( ba.c_bp_bankaccount_id = inv.EM_Efin_Iban or inv.EM_Efin_Iban is null)
+				and ba.isactive = 'Y'
+       --   limit 1  */
+		),
+		''
+	) as iban,
+	(
+		coalesce(
+			(
+				select
+					b.bankname
+				from
+					c_bp_bankaccount ba,
+					efin_bank b
+				where
+					b.efin_bank_id = ba.em_efin_bank_id
+					and ba.iban is not null
+					and ba.isactive = 'Y'
+					and ba.c_bpartner_id = bp.c_bpartner_id
+					and(
+						ba.c_bp_bankaccount_id = inv.EM_Efin_Iban
+						or inv.EM_Efin_Iban is null
+					) limit 1 --limit 1
+			),
+			(
+				select
+					b.bankname
+				from
+					c_bp_bankaccount ba,
+					efin_bank b,
+					c_invoice ci,
+					c_order co
+				where
+					b.efin_bank_id = ba.em_efin_bank_id
+					and ba.iban is not null
+					and ba.isactive = 'Y' --and ba.c_bpartner_id = bp.c_bpartner_id
+					and ba.c_bp_bankaccount_id = co.EM_Escm_Iban
+					and ci.EM_Efin_C_Order_ID = co.c_order_id
+					and ci.c_invoice_id = inv.c_invoice_id limit 1
+			)
+		)
+	) as bankname,
+	fin.name as paymeth,
+	coalesce(
+		(
+			select
+				certificatenumber
+			from
+				escm_certificates cr,
+				escm_deflookups_typeln df
+			where
+				df.escm_deflookups_typeln_id = cr.certificatename
+				and df.name = 'شهادة السجل التجاري'
+				and cr.isactive = 'Y'
+				and cr.c_bpartner_id = bp.c_bpartner_id
+		),
+		bp.em_efin_nationalidnumber
+	) as certificatenumber, (
+		select
+			case
+				when cr.certificatename is not null then 'رقم السجل التجاري'
+			end
+		from
+			escm_certificates cr,
+			escm_deflookups_typeln df
+		where
+			df.escm_deflookups_typeln_id = cr.certificatename
+			and df.name = 'شهادة السجل التجاري'
+			and cr.isactive = 'Y'
+			and cr.c_bpartner_id = bp.c_bpartner_id limit 1
+	) sak
+from
+	c_invoice inv
+join c_invoiceline invl on
+	inv.c_invoice_id = invl.c_invoice_id
+	and invl.c_bpartner_id is null
+join FIN_Paymentmethod fin on
+	fin.FIN_Paymentmethod_ID = inv.FIN_Paymentmethod_ID
+join c_bpartner bp on
+	inv.c_bpartner_id = bp.c_bpartner_id
+where
+	inv.c_invoice_id = $P{DOCUMENT_ID}]]>
+	</queryString>
+	<field name="certificatenumber" class="java.lang.String"/>
+	<field name="iban" class="java.lang.String"/>
+	<field name="bankname" class="java.lang.String"/>
+	<field name="paymeth" class="java.lang.String"/>
+	<field name="sak" class="java.lang.String"/>
+	<columnHeader>
+		<band>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="13">
+			<printWhenExpression><![CDATA[!$F{iban}.toString().equals("")]]></printWhenExpression>
+			<textField isBlankWhenNull="true">
+				<reportElement x="66" y="0" width="50" height="13" uuid="0dee3304-32da-4072-b536-4b4d187ecfe3">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sak}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="285" y="0" width="100" height="13" uuid="7e6b2e1e-2285-4200-bc63-5525ea8424a9">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{iban}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="235" y="0" width="50" height="13" uuid="ee643ecd-97dc-4ecf-ad25-fa7fafc656db">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{paymeth}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="116" y="0" width="119" height="13" uuid="37336b76-2b35-4443-a94d-a14d88881e50">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bankname}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="26" y="0" width="40" height="13" uuid="931f3e78-f42a-4ba5-b3a6-8b6d0c09fbe1">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial Unicode MS" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount(($F{certificatenumber}==null?"":$F{certificatenumber})).toString()]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

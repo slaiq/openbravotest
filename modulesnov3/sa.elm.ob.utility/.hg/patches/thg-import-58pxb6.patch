@@ -1,0 +1,282 @@
+# HG changeset patch
+# User Gowtham <gowtham@qualiantech.com>
+# Date 1602248569 -10800
+#      Fri Oct 09 16:02:49 2020 +0300
+# Node ID c2ec1628306755bab69ffe52a4c23adbe8b2b211
+# Parent  d5842ded9b586a2ac792beae6bc316051539dec8
+DMS: Process scheduler,Prefernce for API Path.
+
+diff --git a/src-db/database/sourcedata/AD_MODEL_OBJECT.xml b/src-db/database/sourcedata/AD_MODEL_OBJECT.xml
+--- a/src-db/database/sourcedata/AD_MODEL_OBJECT.xml
++++ b/src-db/database/sourcedata/AD_MODEL_OBJECT.xml
+@@ -278,6 +278,18 @@
+ <!--BF5D01D9D8224172BC55067465C585F4-->  <OBJECT_TYPE><![CDATA[S]]></OBJECT_TYPE>
+ <!--BF5D01D9D8224172BC55067465C585F4--></AD_MODEL_OBJECT>
+ 
++<!--DE1A041A975D4AF7814924DA00C3819E--><AD_MODEL_OBJECT>
++<!--DE1A041A975D4AF7814924DA00C3819E-->  <AD_MODEL_OBJECT_ID><![CDATA[DE1A041A975D4AF7814924DA00C3819E]]></AD_MODEL_OBJECT_ID>
++<!--DE1A041A975D4AF7814924DA00C3819E-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--DE1A041A975D4AF7814924DA00C3819E-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--DE1A041A975D4AF7814924DA00C3819E-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--DE1A041A975D4AF7814924DA00C3819E-->  <ACTION><![CDATA[P]]></ACTION>
++<!--DE1A041A975D4AF7814924DA00C3819E-->  <CLASSNAME><![CDATA[sa.elm.ob.utility.dms.process.DmsDataDeletionProcess]]></CLASSNAME>
++<!--DE1A041A975D4AF7814924DA00C3819E-->  <ISDEFAULT><![CDATA[Y]]></ISDEFAULT>
++<!--DE1A041A975D4AF7814924DA00C3819E-->  <AD_PROCESS_ID><![CDATA[8FBFE68277B54DFCB2A6EC5BE25D0ECE]]></AD_PROCESS_ID>
++<!--DE1A041A975D4AF7814924DA00C3819E-->  <OBJECT_TYPE><![CDATA[S]]></OBJECT_TYPE>
++<!--DE1A041A975D4AF7814924DA00C3819E--></AD_MODEL_OBJECT>
++
+ <!--EE8515E6E9D74E79B30375B9D9754A0D--><AD_MODEL_OBJECT>
+ <!--EE8515E6E9D74E79B30375B9D9754A0D-->  <AD_MODEL_OBJECT_ID><![CDATA[EE8515E6E9D74E79B30375B9D9754A0D]]></AD_MODEL_OBJECT_ID>
+ <!--EE8515E6E9D74E79B30375B9D9754A0D-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff --git a/src-db/database/sourcedata/AD_PROCESS.xml b/src-db/database/sourcedata/AD_PROCESS.xml
+--- a/src-db/database/sourcedata/AD_PROCESS.xml
++++ b/src-db/database/sourcedata/AD_PROCESS.xml
+@@ -342,6 +342,29 @@
+ <!--8F2EE4842EBE4535AC7260069BE556E8-->  <ISKILLABLE><![CDATA[N]]></ISKILLABLE>
+ <!--8F2EE4842EBE4535AC7260069BE556E8--></AD_PROCESS>
+ 
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE--><AD_PROCESS>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <AD_PROCESS_ID><![CDATA[8FBFE68277B54DFCB2A6EC5BE25D0ECE]]></AD_PROCESS_ID>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <VALUE><![CDATA[EUT_DMS_Data_Deletion]]></VALUE>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <NAME><![CDATA[DMS Data Deletion]]></NAME>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <DESCRIPTION><![CDATA[Deleting data in DMS Server]]></DESCRIPTION>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <ACCESSLEVEL><![CDATA[3]]></ACCESSLEVEL>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <ISUSERSTARTABLE><![CDATA[N]]></ISUSERSTARTABLE>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <ISREPORT><![CDATA[N]]></ISREPORT>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <ISDIRECTPRINT><![CDATA[N]]></ISDIRECTPRINT>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <ISBACKGROUND><![CDATA[Y]]></ISBACKGROUND>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <ISJASPER><![CDATA[N]]></ISJASPER>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <ISEXTERNALSERVICE><![CDATA[N]]></ISEXTERNALSERVICE>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <AD_MODULE_ID><![CDATA[E610580A91734A8EB5A88BD4AC9E19FB]]></AD_MODULE_ID>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <UIPATTERN><![CDATA[S]]></UIPATTERN>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <ISADVANCEDFEATURE><![CDATA[N]]></ISADVANCEDFEATURE>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <PREVENTCONCURRENT><![CDATA[Y]]></PREVENTCONCURRENT>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <IS_EXPLICIT_ACCESS><![CDATA[N]]></IS_EXPLICIT_ACCESS>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE-->  <ISKILLABLE><![CDATA[N]]></ISKILLABLE>
++<!--8FBFE68277B54DFCB2A6EC5BE25D0ECE--></AD_PROCESS>
++
+ <!--9A585D7CACDA4B9FBCAF4B6BB45B7B90--><AD_PROCESS>
+ <!--9A585D7CACDA4B9FBCAF4B6BB45B7B90-->  <AD_PROCESS_ID><![CDATA[9A585D7CACDA4B9FBCAF4B6BB45B7B90]]></AD_PROCESS_ID>
+ <!--9A585D7CACDA4B9FBCAF4B6BB45B7B90-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff --git a/src-db/database/sourcedata/AD_REF_LIST.xml b/src-db/database/sourcedata/AD_REF_LIST.xml
+--- a/src-db/database/sourcedata/AD_REF_LIST.xml
++++ b/src-db/database/sourcedata/AD_REF_LIST.xml
+@@ -613,6 +613,17 @@
+ <!--9F389ECB06484EFB9C5CE950A2F7A96B-->  <AD_MODULE_ID><![CDATA[E610580A91734A8EB5A88BD4AC9E19FB]]></AD_MODULE_ID>
+ <!--9F389ECB06484EFB9C5CE950A2F7A96B--></AD_REF_LIST>
+ 
++<!--A117B53FDC59453D8E4CE5C48134ED15--><AD_REF_LIST>
++<!--A117B53FDC59453D8E4CE5C48134ED15-->  <AD_REF_LIST_ID><![CDATA[A117B53FDC59453D8E4CE5C48134ED15]]></AD_REF_LIST_ID>
++<!--A117B53FDC59453D8E4CE5C48134ED15-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--A117B53FDC59453D8E4CE5C48134ED15-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--A117B53FDC59453D8E4CE5C48134ED15-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--A117B53FDC59453D8E4CE5C48134ED15-->  <VALUE><![CDATA[EUT_Middleware_GetDocument]]></VALUE>
++<!--A117B53FDC59453D8E4CE5C48134ED15-->  <NAME><![CDATA[Middleware API Get Document]]></NAME>
++<!--A117B53FDC59453D8E4CE5C48134ED15-->  <AD_REFERENCE_ID><![CDATA[A26BA480E2014707B47257024C3CBFF7]]></AD_REFERENCE_ID>
++<!--A117B53FDC59453D8E4CE5C48134ED15-->  <AD_MODULE_ID><![CDATA[E610580A91734A8EB5A88BD4AC9E19FB]]></AD_MODULE_ID>
++<!--A117B53FDC59453D8E4CE5C48134ED15--></AD_REF_LIST>
++
+ <!--A3C59C2AFF2C46B98EFF6E6C036E8A6B--><AD_REF_LIST>
+ <!--A3C59C2AFF2C46B98EFF6E6C036E8A6B-->  <AD_REF_LIST_ID><![CDATA[A3C59C2AFF2C46B98EFF6E6C036E8A6B]]></AD_REF_LIST_ID>
+ <!--A3C59C2AFF2C46B98EFF6E6C036E8A6B-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+@@ -801,6 +812,17 @@
+ <!--C82D264B8F544C0C9CEE60F1F6A4250D-->  <AD_MODULE_ID><![CDATA[E610580A91734A8EB5A88BD4AC9E19FB]]></AD_MODULE_ID>
+ <!--C82D264B8F544C0C9CEE60F1F6A4250D--></AD_REF_LIST>
+ 
++<!--C835E33BF21B4B7FA69A924AF3C4401B--><AD_REF_LIST>
++<!--C835E33BF21B4B7FA69A924AF3C4401B-->  <AD_REF_LIST_ID><![CDATA[C835E33BF21B4B7FA69A924AF3C4401B]]></AD_REF_LIST_ID>
++<!--C835E33BF21B4B7FA69A924AF3C4401B-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
++<!--C835E33BF21B4B7FA69A924AF3C4401B-->  <AD_ORG_ID><![CDATA[0]]></AD_ORG_ID>
++<!--C835E33BF21B4B7FA69A924AF3C4401B-->  <ISACTIVE><![CDATA[Y]]></ISACTIVE>
++<!--C835E33BF21B4B7FA69A924AF3C4401B-->  <VALUE><![CDATA[EUT_Middleware_PostDocument]]></VALUE>
++<!--C835E33BF21B4B7FA69A924AF3C4401B-->  <NAME><![CDATA[Middleware API Post Document]]></NAME>
++<!--C835E33BF21B4B7FA69A924AF3C4401B-->  <AD_REFERENCE_ID><![CDATA[A26BA480E2014707B47257024C3CBFF7]]></AD_REFERENCE_ID>
++<!--C835E33BF21B4B7FA69A924AF3C4401B-->  <AD_MODULE_ID><![CDATA[E610580A91734A8EB5A88BD4AC9E19FB]]></AD_MODULE_ID>
++<!--C835E33BF21B4B7FA69A924AF3C4401B--></AD_REF_LIST>
++
+ <!--CAD1A8E66966496E9F53E7299069F54B--><AD_REF_LIST>
+ <!--CAD1A8E66966496E9F53E7299069F54B-->  <AD_REF_LIST_ID><![CDATA[CAD1A8E66966496E9F53E7299069F54B]]></AD_REF_LIST_ID>
+ <!--CAD1A8E66966496E9F53E7299069F54B-->  <AD_CLIENT_ID><![CDATA[0]]></AD_CLIENT_ID>
+diff --git a/src/sa/elm/ob/utility/dms/process/DmsDataDeletionProcess.java b/src/sa/elm/ob/utility/dms/process/DmsDataDeletionProcess.java
+--- a/src/sa/elm/ob/utility/dms/process/DmsDataDeletionProcess.java
++++ b/src/sa/elm/ob/utility/dms/process/DmsDataDeletionProcess.java
+@@ -42,6 +42,7 @@
+     Response response = null;
+     DeleteAttachmentRequest attachreq = null;
+     DeleteRecordRequest req = null;
++    boolean deleteAttachStatus = false;
+     try {
+       OBContext.setAdminMode();
+       logger.logln("DMS Data deletion Schedule Started.");
+@@ -53,43 +54,62 @@
+       IDMSLibrary dmsImpl = new DMSLibraryImpl();
+       ServiceAccount serviceAccount = GetServiceAccount.getServiceCredentials();
+       OBQuery<EutDmsintegrationDeletion> deletionList = OBDal.getInstance()
+-          .createQuery(EutDmsintegrationDeletion.class, "");
++          .createQuery(EutDmsintegrationDeletion.class, " as e order by e.recordpath desc");
+       List<EutDmsintegrationDeletion> deleteList = deletionList.list();
+ 
+       for (EutDmsintegrationDeletion deleteRecord : deleteList) {
+-        logger.logln("Record path:" + deleteRecord.getRecordpath());
+-        boolean deleteAttachStatus = true;
+-        GetRecordRequest recordReq = DMSUtility
+-            .getRecordRequest(profileURI.concat(deleteRecord.getRecordpath()));
+-        response = dmsImpl.getRecord(recordReq,
+-            GetServiceAccount.getProperty(DMSConstants.DMS_CLIENT_ID), serviceAccount);
+-
+-        // get Attachment List
+-        List<Document> docList = response.getResponseRoot().getValue().getDocuments().getValue()
+-            .getDocument();
+-        for (Document dmsDoc : docList) {
+-          logger.logln("attachment path:" + dmsDoc.getURI().toString());
++        deleteAttachStatus = true;
+ 
+-          // call delete attachment
+-          attachreq = DMSUtility.deleteAttachmentRequest(dmsDoc.getURI().toString());
++        // initially delete all the attachments
++        if (deleteRecord.getRecordpath() == null) {
++          logger.logln("Attachments only deletion");
++          logger.logln("Attachment path:" + deleteRecord.getAttachmentpath());
++
++          attachreq = DMSUtility.deleteAttachmentRequest(deleteRecord.getAttachmentpath());
+           response = dmsImpl.deleteAttachment(attachreq, clientId, serviceAccount);
+           if (response != null && !response.isHasError()) {
+-            continue;
+-          } else {
+-            deleteAttachStatus = false;
+-            break;
+-          }
+-        }
+-
+-        // call delete record after deletion of attachment
+-        if (deleteAttachStatus) {
+-          req = DMSUtility.deleteRecordRequest(profileURI.concat(deleteRecord.getRecordpath()));
+-          response = dmsImpl.deleteRecord(req,
+-              GetServiceAccount.getProperty(DMSConstants.DMS_CLIENT_ID), serviceAccount);
+-          if (response != null && !response.isHasError()) {
+             // delete record from deletion history table
+             deleteList.remove(deleteRecord);
+             OBDal.getInstance().remove(deleteRecord);
++            OBDal.getInstance().flush();
++          }
++        } else {
++          // delete the records if attachments linked delete attachment first.
++          logger.logln("Record path:" + deleteRecord.getRecordpath());
++
++          GetRecordRequest recordReq = DMSUtility
++              .getRecordRequest(profileURI.concat(deleteRecord.getRecordpath()));
++          response = dmsImpl.getRecord(recordReq,
++              GetServiceAccount.getProperty(DMSConstants.DMS_CLIENT_ID), serviceAccount);
++
++          // get Attachment List
++          List<Document> docList = response.getResponseRoot().getValue().getDocuments().getValue()
++              .getDocument();
++          for (Document dmsDoc : docList) {
++            logger.logln("attachment path:" + dmsDoc.getURI().toString());
++
++            // call delete attachment
++            attachreq = DMSUtility.deleteAttachmentRequest(dmsDoc.getURI().toString());
++            response = dmsImpl.deleteAttachment(attachreq, clientId, serviceAccount);
++            if (response != null && !response.isHasError()) {
++              continue;
++            } else {
++              deleteAttachStatus = false;
++              break;
++            }
++          }
++
++          // call delete record after deletion of attachment
++          if (deleteAttachStatus) {
++            req = DMSUtility.deleteRecordRequest(profileURI.concat(deleteRecord.getRecordpath()));
++            response = dmsImpl.deleteRecord(req,
++                GetServiceAccount.getProperty(DMSConstants.DMS_CLIENT_ID), serviceAccount);
++            if (response != null && !response.isHasError()) {
++              // delete record from deletion history table
++              deleteList.remove(deleteRecord);
++              OBDal.getInstance().remove(deleteRecord);
++              OBDal.getInstance().flush();
++            }
+           }
+         }
+       }
+diff --git a/web/sa.elm.ob.utility/js/digitalsignature.js b/web/sa.elm.ob.utility/js/digitalsignature.js
+--- a/web/sa.elm.ob.utility/js/digitalsignature.js
++++ b/web/sa.elm.ob.utility/js/digitalsignature.js
+@@ -40,7 +40,7 @@
+                                         "operation": "1",
+                                         "filein": {
+                                             "web": {
+-                                                "url": "https://stg-intmw.mot.gov.sa/PKI/api/DMS/GetDocument",
++                                                "url": OB.Properties.EUT_Middleware_GetDocument,
+                                                 "header": {
+                                                     "Authorization": "Basic YWRtaW46MTIz"
+                                                 },
+@@ -53,7 +53,7 @@
+                                         },
+                                         "fileout": {
+                                             "web": {
+-                                                "url": "https://stg-intmw.mot.gov.sa/PKI/api/DMS/PostDocument",
++                                                "url": OB.Properties.EUT_Middleware_PostDocument,
+                                                 "header": {
+                                                     "Authorization": "Basic YWRtaW46MTIz"
+                                                 },
+@@ -75,7 +75,7 @@
+                                         "operation": "1",
+                                         "filein": {
+                                             "web": {
+-                                                "url": "https://stg-intmw.mot.gov.sa/PKI/api/DMS/GetDocument",
++                                                "url": OB.Properties.EUT_Middleware_GetDocument,
+                                                 "header": {
+                                                     "Authorization": "Basic YWRtaW46MTIz"
+                                                 },
+@@ -88,7 +88,7 @@
+                                         },
+                                         "fileout": {
+                                             "web": {
+-                                                "url": "https://stg-intmw.mot.gov.sa/PKI/api/DMS/PostDocument",
++                                                "url": OB.Properties.EUT_Middleware_PostDocument,
+                                                 "header": {
+                                                     "Authorization": "Basic YWRtaW46MTIz"
+                                                 },
+diff --git a/web/sa.elm.ob.utility/js/eut-standard-view.js b/web/sa.elm.ob.utility/js/eut-standard-view.js
+--- a/web/sa.elm.ob.utility/js/eut-standard-view.js
++++ b/web/sa.elm.ob.utility/js/eut-standard-view.js
+@@ -2762,7 +2762,7 @@
+                         "operation": "1",
+                         "filein": {
+                             "web": {
+-                                "url": "https://stg-intmw.mot.gov.sa/PKI/api/DMS/GetDocument",
++                                "url": OB.Properties.EUT_Middleware_GetDocument,
+                                 "header": {
+                                     "Authorization": "Basic YWRtaW46MTIz"
+                                 },
+@@ -2775,7 +2775,7 @@
+                         },
+                         "fileout": {
+                             "web": {
+-                                "url": "https://stg-intmw.mot.gov.sa/PKI/api/DMS/PostDocument",
++                                "url": OB.Properties.EUT_Middleware_PostDocument,
+                                 "header": {
+                                     "Authorization": "Basic YWRtaW46MTIz"
+                                 },
+@@ -2799,7 +2799,7 @@
+                         "operation": "1",
+                         "filein": {
+                             "web": {
+-                                "url": "https://stg-intmw.mot.gov.sa/PKI/api/DMS/GetDocument",
++                                "url": OB.Properties.EUT_Middleware_GetDocument,
+                                 "header": {
+                                     "Authorization": "Basic YWRtaW46MTIz"
+                                 },
+@@ -2812,7 +2812,7 @@
+                         },
+                         "fileout": {
+                             "web": {
+-                                "url": "https://stg-intmw.mot.gov.sa/PKI/api/DMS/PostDocument",
++                                "url": OB.Properties.EUT_Middleware_PostDocument,
+                                 "header": {
+                                     "Authorization": "Basic YWRtaW46MTIz"
+                                 },

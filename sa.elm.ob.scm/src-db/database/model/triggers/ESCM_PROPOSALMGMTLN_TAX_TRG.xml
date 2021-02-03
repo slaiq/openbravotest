@@ -1,0 +1,197 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_PROPOSALMGMTLN_TAX_TRG">
+    <trigger name="ESCM_PROPOSALMGMTLN_TAX_TRG" table="ESCM_PROPOSALMGMT_LINE" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_taxdiff NUMBER;
+v_istaxincluded CHARACTER(1);
+v_istax CHARACTER(1);
+v_lineamount NUMBER;
+v_linetax NUMBER;
+v_linetotal NUMBER;
+v_negotiatedamt NUMBER;
+v_quantity NUMBER;
+v_netprice NUMBER;
+v_calculatetaxlines CHARACTER(1);
+v_prec NUMBER;
+v_clientId VARCHAR(32);
+v_unittax NUMBER;
+v_net_unitprice NUMBER;
+v_rounddiff_tax NUMBER;
+v_pee_rounddiff_tax NUMBER;
+v_tee_rounddiff_tax NUMBER;
+v_tee_unittax NUMBER;
+v_tee_net_unitprice NUMBER;
+v_tee_unitPricedis NUMBER;
+v_pee_unittax NUMBER;
+v_pee_net_unitprice NUMBER;
+v_pee_unitPricedis NUMBER;
+v_unitpricedis NUMBER;
+v_TaxTotal NUMBER;
+
+BEGIN
+    IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+  
+  -- change the line total while updating or inserting tax amount manually    
+    IF INSERTING or TG_OP='UPDATE' Then
+    -- To get current Client ID 
+     Select ad_client_id INTO v_clientId from escm_proposalmgmt_line 
+    where escm_proposalmgmt_line_id = :new.escm_proposalmgmt_line_id;
+    -- To get Standarrd Precision from Currency by using Current Client ID
+     select stdPrecision INTO v_prec from c_currency where c_currency_id 
+    in (select c_currency_id from ad_client where ad_client_id  = v_clientId);    
+    END IF;
+  
+    IF((TG_OP ='INSERT') OR ((TG_OP='UPDATE') AND ((:new.line_taxamt )<>(:old.line_taxamt)))) THEN
+
+         select p.istax, t.istaxincluded , p.calculate_taxlines  into v_istax,v_istaxincluded,v_calculatetaxlines from escm_proposalmgmt p 
+         join efin_tax_method t on p.efin_tax_method_id=t.efin_tax_method_id 
+         where p.escm_proposalmgmt_id=:new.escm_proposalmgmt_id; 
+         
+    IF((v_istax='Y') AND (:new.issummarylevel='N') AND (:new.Line_Taxamt is not null ) and v_calculatetaxlines='N' )THEN
+            
+            select Netprice, movementqty,Negot_Unit_Price,Line_Taxamt into 
+            v_netprice,v_quantity,v_negotiatedamt,v_linetax from escm_proposalmgmt_line 
+            where escm_proposalmgmt_line_id=:new.escm_proposalmgmt_line_id;
+            
+            IF(v_istaxincluded='Y') THEN
+                v_lineamount = v_quantity * v_negotiatedamt;
+            ELSE 
+                v_lineamount = v_quantity * v_netprice;
+            END IF;
+           
+            v_linetotal = ROUND(v_lineamount + v_linetax , v_prec);
+            
+            update escm_proposalmgmt_line set line_total=v_linetotal
+            where escm_proposalmgmt_line_id=:new.escm_proposalmgmt_line_id;
+         
+         END IF;   
+     END IF;    
+     
+        select p.istax, t.istaxincluded into v_istax,v_istaxincluded from escm_proposalmgmt p 
+         join efin_tax_method t on p.efin_tax_method_id=t.efin_tax_method_id 
+         where p.escm_proposalmgmt_id=:new.escm_proposalmgmt_id; 
+         
+     IF(TG_OP ='INSERT') THEN
+	 
+        if :new.issummarylevel='N' then
+            v_unittax := round(coalesce(:new.Line_Taxamt/:new.Movementqty,0),v_prec);
+            v_net_unitprice := coalesce(:new.Line_Total/:new.Movementqty,0);
+           -- v_unitpricedis := coalesce((:new.Line_Total-:new.Line_Taxamt)/:new.Movementqty,0);
+            v_unitpricedis := coalesce(:new.Gross_Unit_Price- (:new.Discountmount/:new.Movementqty));
+            if v_istaxincluded ='Y' then
+                v_TaxTotal := :new.negot_Unit_Price + v_unittax;
+                v_rounddiff_tax := coalesce(:new.Line_Total-((v_TaxTotal*:new.Movementqty)-:new.Discountmount),0);
+            else
+                v_rounddiff_tax := 0;
+            end if;
+            update escm_proposalmgmt_line set unittax=v_unittax,net_unitprice=v_net_unitprice,
+            rounddiff_tax=v_rounddiff_tax,unitpricedis=v_unitpricedis where escm_proposalmgmt_line_id = :new.escm_proposalmgmt_line_id;
+        end if;
+     END IF;
+     
+     IF(TG_OP ='UPDATE') THEN
+        --proposal line
+        if (:new.issummarylevel='N' and (:new.Discount <> :old.Discount or :new.Discountmount <> :old.Discountmount)) then
+            --v_unitpricedis := coalesce((:new.Line_Total-:new.Line_Taxamt)/:new.Movementqty,0);
+            v_unitpricedis := coalesce(:new.Gross_Unit_Price- (:new.Discountmount/:new.Movementqty));
+            update escm_proposalmgmt_line set unitpricedis=v_unitpricedis where escm_proposalmgmt_line_id = :new.escm_proposalmgmt_line_id;
+        end if;
+        if (:new.issummarylevel='N' and (:new.Line_Taxamt <> :old.Line_Taxamt or :new.Line_Total <> :old.Line_Total or ( :new.unittax <> :old.unittax and :new.Line_Taxamt=:old.Line_Taxamt) )) then
+            v_unittax := round(coalesce(:new.Line_Taxamt/:new.Movementqty,0),v_prec);
+            v_net_unitprice := coalesce(:new.Line_Total/:new.Movementqty,0);
+            if v_istaxincluded ='Y' then
+                v_TaxTotal := :new.negot_Unit_Price + v_unittax;
+                v_rounddiff_tax := coalesce(:new.Line_Total-((v_TaxTotal *:new.Movementqty)),0); 
+            else
+                v_rounddiff_tax := 0;
+            end if;
+            update escm_proposalmgmt_line set unittax=v_unittax,net_unitprice=v_net_unitprice,
+            rounddiff_tax=v_rounddiff_tax where escm_proposalmgmt_line_id = :new.escm_proposalmgmt_line_id;
+        end if;
+
+-- ######################### Rounddiff Tax Calculation Starts ##########################
+        --PEE Line
+        if (:new.issummarylevel='N' and :new.PEE_Qty > 0  and (:new.PEE_Line_Taxamt <> :old.PEE_Line_Taxamt or :new.PEE_Line_Total <> :old.PEE_Line_Total)) then
+            select patt.PEE_Istax, t.istaxincluded into v_istax,v_istaxincluded from escm_proposalmgmt p
+            join escm_proposal_attr patt on patt.escm_proposalmgmt_id = p.escm_proposalmgmt_id
+            join efin_tax_method t on patt.PEE_Efin_Tax_Method_ID=t.efin_tax_method_id 
+            where p.escm_proposalmgmt_id=:new.escm_proposalmgmt_id; 
+            
+            v_pee_unittax := coalesce(:new.PEE_Line_Taxamt/:new.PEE_Qty,0);
+            v_pee_net_unitprice := coalesce(:new.PEE_Line_Total/:new.PEE_Qty,0);
+            if v_istaxincluded ='Y' then
+                v_pee_rounddiff_tax := coalesce(((:new.PEE_Negot_Unit_Price*:new.PEE_Qty)+:new.PEE_Line_Taxamt) - 
+                    ((:new.PEE_Init_Unitprice*:new.PEE_Qty) - ((:new.PEE_Init_Unitprice*:new.PEE_Qty)*(coalesce(:new.PEE_Tech_Discount,0)/100))),0);
+            else
+                v_pee_rounddiff_tax := 0;
+            end if;
+            update escm_proposalmgmt_line set PEE_Unittax=v_pee_unittax,PEE_Net_Unitprice=v_pee_net_unitprice,
+            PEE_Rounddiff_Tax=v_pee_rounddiff_tax where escm_proposalmgmt_line_id = :new.escm_proposalmgmt_line_id;
+        end if;
+
+        --TEE Line
+        if (:new.issummarylevel='N' and :new.Tech_Line_Qty>0  and (:new.TEE_Line_Taxamt <> :old.TEE_Line_Taxamt or :new.Tech_Line_Total <> :old.Tech_Line_Total)) then
+           select patt.TEE_Istax, t.istaxincluded into v_istax,v_istaxincluded from escm_proposalmgmt p
+            join escm_proposal_attr patt on patt.escm_proposalmgmt_id = p.escm_proposalmgmt_id
+            join efin_tax_method t on patt.TEE_Efin_Tax_Method_ID=t.efin_tax_method_id 
+            where p.escm_proposalmgmt_id=:new.escm_proposalmgmt_id; 
+         
+            v_tee_unittax := coalesce(:new.TEE_Line_Taxamt/:new.Tech_Line_Qty,0);
+            v_tee_net_unitprice := coalesce(:new.Tech_Line_Total/:new.Tech_Line_Qty,0);
+            if v_istaxincluded ='Y' then
+                -- v_tee_rounddiff_tax := coalesce(((new.Tech_Unit_Price*new.Tech_Line_Qty)+new.TEE_Line_Taxamt) - 
+                  --  ((new.TEE_Init_Unitprice*new.Tech_Line_Qty) - ((:new.TEE_Init_Unitprice*:new.Tech_Line_Qty)*(coalesce(:new.Tech_Discount,0)/100))),0);
+   
+               v_tee_rounddiff_tax := coalesce(((:new.Tech_Unit_Price*:new.Tech_Line_Qty)+:new.TEE_Line_Taxamt) - 
+                    (round(:new.TEE_Net_Unitprice,v_prec)*:new.Tech_Line_Qty) ,0);
+					
+				--v_tee_rounddiff_tax:=coalesce((round(:new.TEE_Net_Unitprice,v_prec)*:new.Tech_Line_Qty)-((:new.Tech_Unit_Price*:new.Tech_Line_Qty)+:new.TEE_Line_Taxamt) ,0);
+						
+            else
+                v_tee_rounddiff_tax := 0;
+                v_tee_net_unitprice := :new.unitpricedis;
+            end if;
+                  -- raise exception'%','check'||v_tee_rounddiff_tax;
+			--RAISE NO_DATA_FOUND||(:new.TEE_Net_Unitprice);
+            update escm_proposalmgmt_line set TEE_Unittax=v_tee_unittax,TEE_Net_Unitprice=v_tee_net_unitprice,
+            TEE_Rounddiff_Tax=v_tee_rounddiff_tax where escm_proposalmgmt_line_id = :new.escm_proposalmgmt_line_id;
+        end if;
+ -- ######################### Rounddiff Tax Calculation Ends ##########################
+
+        --Tee line
+        if (:new.issummarylevel='N' and (:new.TEE_Line_Taxamt <> :old.TEE_Line_Taxamt or :new.Tech_Line_Total <> :old.Tech_Line_Total)) then
+          if(:new.Tech_Line_Qty <> 0)then
+                v_tee_unittax := coalesce(:new.TEE_Line_Taxamt/:new.Tech_Line_Qty,0);
+                v_tee_net_unitprice := coalesce(:new.Tech_Line_Total/:new.Tech_Line_Qty,0);
+                v_tee_unitPricedis := round(coalesce(((:new.TEE_Init_Unitprice)-((:new.TEE_Init_Unitprice)*(coalesce(:new.Tech_Discount,0)/100))),0),v_prec);
+             else    
+                v_tee_unittax := 0;
+                v_tee_net_unitprice := 0;
+                v_tee_unitPricedis :=0;
+             end if;
+              -- raise exception '%',v_tee_net_unitprice;
+             update escm_proposalmgmt_line set tee_unittax=v_tee_unittax,
+             tee_net_unitprice=v_tee_net_unitprice,
+             tee_unitPricedis=v_tee_unitPricedis where escm_proposalmgmt_line_id = :new.escm_proposalmgmt_line_id;
+        end if;
+        
+        --Pee Line
+        if (:new.issummarylevel='N' and (:new.PEE_Line_Taxamt <> :old.PEE_Line_Taxamt or :new.PEE_Line_Total <> :old.PEE_Line_Total)) then
+           if(:new.PEE_Qty <> 0)then
+                v_pee_unittax := coalesce(:new.PEE_Line_Taxamt/:new.PEE_Qty,0);
+                v_pee_net_unitprice := coalesce(:new.PEE_Line_Total/:new.PEE_Qty,0);
+                v_pee_unitPricedis := Round(coalesce(((:new.PEE_Init_Unitprice)-((:new.PEE_Init_Unitprice)*(coalesce(:new.PEE_Tech_Discount,0)/100))),0),v_prec);
+             else
+                v_pee_unittax := 0;
+                v_pee_net_unitprice := 0;
+                v_pee_unitPricedis :=0;
+             end if;
+             update escm_proposalmgmt_line set pee_unittax=v_pee_unittax, pee_net_unitprice=v_pee_net_unitprice,
+             pee_unitPricedis=v_pee_unitPricedis where escm_proposalmgmt_line_id = :new.escm_proposalmgmt_line_id;
+        end if;
+        
+     END IF;
+    
+END ESCM_PROPOSALMGMTLN_TAX_TRG
+]]></body>
+    </trigger>
+  </database>

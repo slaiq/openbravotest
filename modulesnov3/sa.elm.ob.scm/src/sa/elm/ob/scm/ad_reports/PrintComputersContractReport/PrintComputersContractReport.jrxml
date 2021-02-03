@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PrintComputersContractReport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="5354fafa-da13-46c2-845d-5f43beaf4355">
+	<property name="ireport.zoom" value="0.8264462809917354"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="284"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/opt/elm/WebContent/src-loc/design/sa/elm/ob/scm/ad_reports/PrintComputersContractReport/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_DESIGN" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpPOId" class="java.lang.String"/>
+	<parameter name="inpImageFlag" class="java.lang.String"/>
+	<parameter name="inpOrgId" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select eut_convert_to_hijri(to_char( po.em_escm_signaturedate,'YYYY-MM-DD')) as signaturedate,city.name as cityname,
+to_char(po.em_escm_signaturedate,'dd-MM-yyyy') as siggredate,po.em_escm_motcontperson as motcontperson,
+bpcert.certificatenumber as commercialregno,eut_convert_to_hijri(to_char( bpcert.registrydate,'YYYY-MM-DD')) as registrydate,
+bpcert.registrycity,bp.name as bpname,loc.address2 as postalpo,loc.postal as postalcode,emp.title as contposition,
+concat(emp.firstname,' ',emp.lastname) as contname,emp.EM_Escm_Authorization_Number as authno,eut_convert_to_hijri(to_char( emp.EM_Escm_Authorization_Date,'YYYY-MM-DD'))
+as authdate,po.em_escm_projectname as projname,eut_convert_to_hijri(to_char( po.em_escm_proposaldate,'YYYY-MM-DD')) as proposaldate,
+po.documentno as contractno,eut_convert_to_hijri(to_char( po.em_escm_contractstartdate,'YYYY-MM-DD')) as contractdate,
+po.em_escm_contractduration as duration,po.grandtotal as totalamt,po.em_escm_motcontposition as motconpostion,
+concat((SELECT EXTRACT(DOW FROM  po.em_escm_signaturedate::date)),'-',
+to_char((eut_cnvrttohjr_yyyymmdd(to_char(po.em_escm_signaturedate,'YYYY-MM-DD'))):: date,'DD/MM/YYYY'),' ','هـ','-',
+(po.em_escm_signaturedate)) as signatureday,cl.ad_client_id as clientid
+from c_order po
+left join ad_client cl on cl.ad_client_id = po.ad_client_id
+left join c_city city on city.c_city_id = po.em_escm_c_city_id
+left join c_bpartner bp on bp.c_bpartner_id=po.c_bpartner_id
+left join C_BPartner_Location bploc on po.C_BPartner_Location_id=bploc.C_BPartner_Location_id
+left join c_location loc on loc.c_location_id = bploc.c_location_id
+left join ad_user emp on emp.c_bpartner_id = bp.c_bpartner_id
+and emp.created = (select max(created) from ad_user where ad_user.c_bpartner_id=bp.c_bpartner_id)
+left join (select name, value, escm_deflookups_typeln_id, cert.c_bpartner_id, cert.certificatenumber,cert.registrydate,cert.registrycity
+from escm_deflookups_typeln lkln
+join escm_deflookups_type typ on lkln.escm_deflookups_type_id=typ.escm_deflookups_type_id
+right join escm_certificates cert on cert.certificatename=lkln.escm_deflookups_typeln_id
+where reference ='CN' and typ.isactive='Y' and (value ilike '%CRN%')) bpcert on bpcert.c_bpartner_id=bp.c_bpartner_id
+where po.c_order_id = $P{inpPOId}]]>
+	</queryString>
+	<field name="signaturedate" class="java.lang.String"/>
+	<field name="cityname" class="java.lang.String"/>
+	<field name="siggredate" class="java.lang.String"/>
+	<field name="motcontperson" class="java.lang.String"/>
+	<field name="commercialregno" class="java.math.BigDecimal"/>
+	<field name="registrydate" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:ONCREATEDEFAULT:SYSDATE--]]></fieldDescription>
+	</field>
+	<field name="registrycity" class="java.lang.String"/>
+	<field name="bpname" class="java.lang.String"/>
+	<field name="postalpo" class="java.lang.String"/>
+	<field name="postalcode" class="java.lang.String"/>
+	<field name="contposition" class="java.lang.String"/>
+	<field name="contname" class="java.lang.String"/>
+	<field name="authno" class="java.math.BigDecimal"/>
+	<field name="authdate" class="java.lang.String"/>
+	<field name="projname" class="java.lang.String"/>
+	<field name="proposaldate" class="java.lang.String"/>
+	<field name="contractno" class="java.lang.String"/>
+	<field name="contractdate" class="java.lang.String"/>
+	<field name="duration" class="java.math.BigDecimal"/>
+	<field name="totalamt" class="java.math.BigDecimal"/>
+	<field name="motconpostion" class="java.lang.String"/>
+	<field name="signatureday" class="java.lang.String"/>
+	<field name="clientid" class="java.lang.String"/>
+	<title>
+		<band height="610" splitType="Stretch">
+			<staticText>
+				<reportElement x="360" y="109" width="193" height="32" uuid="532e2dfd-5ce9-4a2d-b960-d707a0a04caf"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[الإدارة العامة لتقنية المعلومات]]></text>
+			</staticText>
+			<break>
+				<reportElement x="0" y="567" width="555" height="1" uuid="b7803b00-8a7d-448d-843a-dcde84d60a4b"/>
+			</break>
+			<staticText>
+				<reportElement x="230" y="435" width="70" height="48" uuid="4f99f5ab-416e-45af-a49f-4cc962b87f23"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="24" isBold="true"/>
+				</textElement>
+				<text><![CDATA[عقد]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="68" y="458" width="418" height="108" uuid="8853c7be-09bc-4424-a5e8-556a5c149829"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="24" isBold="true"/>
+				</textElement>
+				<text><![CDATA[توريد و تركيب أجهزة تطوير شبكة الحاسب الآلي بمركز البيانات بوزارة النقل]]></text>
+			</staticText>
+			<image>
+				<reportElement x="229" y="263" width="121" height="87" uuid="ac368421-87da-4f0e-bdaa-25721813c574">
+					<printWhenExpression><![CDATA[$P{inpImageFlag}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[org.openbravo.erpCommon.utility.Utility.showImageLogo("yourcompanylegal",$P{inpOrgId})]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<detail>
+		<band height="62" splitType="Stretch">
+			<subreport>
+				<reportElement x="0" y="2" width="555" height="55" uuid="222fbe9a-52a1-4a63-bc3d-051e2b1ee5ba"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="BASE_DESIGN">
+					<subreportParameterExpression><![CDATA[$P{BASE_DESIGN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpPOId">
+					<subreportParameterExpression><![CDATA[$P{inpPOId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/scm/ad_reports/PrintComputersContractReport/PrintComputersContractReport_subreport1.jrxml")]]></subreportExpression>
+			</subreport>
+			<break>
+				<reportElement x="0" y="56" width="555" height="1" isRemoveLineWhenBlank="true" uuid="83ec7f64-1537-46ad-9f58-f6493a7c5ed8"/>
+			</break>
+		</band>
+		<band height="49">
+			<break>
+				<reportElement x="0" y="43" width="555" height="1" isRemoveLineWhenBlank="true" uuid="34e48b51-4dbc-4d45-a735-eea11a46464a"/>
+			</break>
+			<subreport>
+				<reportElement x="0" y="0" width="555" height="44" uuid="a1ca26c6-65b5-4dbf-9bd1-77847094b1bd"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="BASE_DESIGN">
+					<subreportParameterExpression><![CDATA[$P{BASE_DESIGN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpPOId">
+					<subreportParameterExpression><![CDATA[$P{inpPOId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} +
+ "/sa/elm/ob/scm/ad_reports/PrintComputersContractReport/PrintComputersContractReport_subreport2.jrxml")]]></subreportExpression>
+			</subreport>
+		</band>
+		<band height="57">
+			<break>
+				<reportElement x="0" y="51" width="555" height="1" isRemoveLineWhenBlank="true" uuid="594987ca-e9eb-46e7-b0df-1f4a8795833c"/>
+			</break>
+			<subreport>
+				<reportElement x="0" y="0" width="555" height="52" uuid="1c350085-927d-448e-a3e8-adb2ac7ddb8f"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="BASE_DESIGN">
+					<subreportParameterExpression><![CDATA[$P{BASE_DESIGN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpPOId">
+					<subreportParameterExpression><![CDATA[$P{inpPOId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} +
+ "/sa/elm/ob/scm/ad_reports/PrintComputersContractReport/PrintComputersContractReport_subreport3.jrxml")]]></subreportExpression>
+			</subreport>
+		</band>
+		<band height="61">
+			<subreport>
+				<reportElement x="0" y="1" width="555" height="56" uuid="979ae388-fb94-499e-97ff-39ee9ca7ded3"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="BASE_DESIGN">
+					<subreportParameterExpression><![CDATA[$P{BASE_DESIGN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inpPOId">
+					<subreportParameterExpression><![CDATA[$P{inpPOId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} +
+ "/sa/elm/ob/scm/ad_reports/PrintComputersContractReport/PrintComputersContractReport_subreport4.jrxml")]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="32">
+			<textField>
+				<reportElement x="0" y="-3" width="357" height="32" uuid="6c10f58b-d5bc-406d-bc8f-1400698b4108"/>
+				<textElement>
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($V{PAGE_NUMBER}.toString())]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

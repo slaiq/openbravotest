@@ -1,0 +1,269 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_CREATEUNIQUECODE">
+    <function name="EFIN_CREATEUNIQUECODE" type="NULL">
+      <parameter name="pinstance_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): Sathish Kumar on 16-09-2017
+************************************************************************/
+v_bp_id VARCHAR2(32);
+v_org_id VARCHAR2(32);
+v_acctschema_id VARCHAR2(32);
+v_client_id VARCHAR2(32);
+v_user_id VARCHAR2(32);
+v_ResultStr VARCHAR2(2000):='';
+v_Message VARCHAR2(2000):='';
+v_fut1_id VARCHAR2(32);
+v_fut2_id VARCHAR2(32);
+v_act_id VARCHAR2(32);
+v_proj_id VARCHAR2(32);
+v_fut1_value VARCHAR2(2000):='';
+v_fut2_value VARCHAR2(2000):=''; 
+v_act_value VARCHAR2(2000):=''; 
+v_proj_value VARCHAR2(2000):=''; 
+v_bp_value VARCHAR2(2000):=''; 
+v_fut1_name VARCHAR2(2000):='';
+v_fut2_name VARCHAR2(2000):=''; 
+v_act_name VARCHAR2(2000):=''; 
+v_proj_name VARCHAR2(2000):=''; 
+v_bp_name VARCHAR2(2000):=''; 
+v_bcu_id VARCHAR2(32);
+v_deptfund CHAR(1);
+v_count NUMBER;
+v_param_accno VARCHAR2(32); 
+v_param_fromdate VARCHAR(32);
+v_param_listchkbox VARCHAR2(32); 
+
+TYPE RECORD IS REF CURSOR;
+Cur_Account RECORD;
+CUR_Combination RECORD;
+Cur_Parameter RECORD;
+
+BEGIN
+FOR Cur_Parameter IN
+      (SELECT 
+        p.ParameterName,
+        p.P_String,
+        p.P_Date,
+        i.ad_client_id,
+        i.AD_User_ID 
+      FROM AD_PInstance i
+      LEFT JOIN AD_PInstance_Para p
+        ON i.AD_PInstance_ID=p.AD_PInstance_ID
+      WHERE i.AD_PInstance_ID=PInstance_ID
+      ORDER BY p.SeqNo
+      )
+    LOOP
+       v_client_id:=Cur_Parameter.ad_client_id;
+       v_user_id:=Cur_Parameter.AD_User_ID;
+      IF(Cur_Parameter.ParameterName='Accountno') THEN
+        v_param_accno:=Cur_Parameter.P_String;
+        DBMS_OUTPUT.PUT_LINE('  Accountno=' || v_param_accno) ;
+      ELSIF(Cur_Parameter.ParameterName='FromDate') THEN
+        v_param_fromdate:=Cur_Parameter.P_Date;
+        DBMS_OUTPUT.PUT_LINE('  FromDate=' || v_param_fromdate) ;
+      ELSIF(Cur_Parameter.ParameterName='listallacc') THEN
+        v_param_listchkbox:=Cur_Parameter.P_String;
+        DBMS_OUTPUT.PUT_LINE('  listallacc=' || v_param_listchkbox) ;
+        
+      ELSE
+        DBMS_OUTPUT.PUT_LINE('*** Unknown Parameter=' || Cur_Parameter.ParameterName) ;
+      END IF;
+    END LOOP; --    Get Parameter
+	select c_project_id,value,name into v_proj_id,v_proj_value,v_proj_name from c_project where c_project_id = (select c_project_id  from c_acctschema_element  where  elementtype ='PJ' and  ad_client_id= v_client_id);
+	select c_activity_id,value,name into v_act_id,v_act_value,v_act_name from c_activity where c_activity_id =(select c_activity_id  from c_acctschema_element  where  elementtype ='AY'  and  ad_client_id= v_client_id);
+	select user1_id,value,name into v_fut1_id,v_fut1_value,v_fut1_name from user1 where user1_id =(select em_efin_user1   from c_acctschema_element  where  elementtype ='U1'  and ad_client_id= v_client_id);
+	select user2_id,value,name into v_fut2_id,v_fut2_value,v_fut2_name from user2 where user2_id =(select em_efin_user2  from c_acctschema_element  where  elementtype ='U2'  and ad_client_id= v_client_id);
+	select c_bpartner_id, value,name into v_bp_id,v_bp_value,v_bp_name from c_bpartner where c_bpartner_id =(select c_bpartner_id   from c_acctschema_element where elementtype ='BP' and ad_client_id= v_client_id);
+        select c_acctschema_id into v_acctschema_id  from c_acctschema_element   where ad_client_id= v_client_id limit 1;
+        select HQ_Budgetcontrolunit into v_bcu_id from efin_budget_ctrl_param where isready='Y' and ad_client_id=v_client_id;     
+		--createDate and Accno param is null then execute this for loop
+        if(v_param_accno is null and v_param_fromdate is null) then 
+	--get uniquecode
+   FOR Cur_Account IN
+      (select  org.value||'-'||dep.value||'-'||subacc.value||'-'||coalesce(proj.value,v_proj_value)||'-'||budget.value||'-'||coalesce(bp.value,coalesce(v_bp_value,'000'))||'-'||coalesce(act.value ,v_act_value)||'-'||coalesce(u1.value,v_fut1_value)||'-'||coalesce(u2.value,v_fut2_value)  as uniquecode, 
+       org.name||'-'||dep.name||'-'||subacc.name||'-'||coalesce(proj.name,v_proj_name)||'-'||budget.name||'-'||coalesce(bp.name,v_bp_name)||'-'||coalesce(act.name ,v_act_name)||'-'||coalesce(u1.name,v_fut1_name)||'-'||coalesce(u2.name,v_fut2_name)  as uniquecodename,       
+	subacc.C_ElementValue_id as acctId,          
+	coalesce(proj.c_project_id,v_proj_id) as projId, 
+	budget.c_campaign_id as budId, dep.C_Salesregion_id as depId,         
+	coalesce(bp.c_bpartner_id,v_bp_id) as bpId,  
+	coalesce(u1.user1_id,v_fut1_id) as u1Id,  
+	coalesce(u2.user2_id,v_fut2_id) as u2Id , 
+	coalesce(act.c_activity_id,v_act_id) as actId, 
+	org.ad_org_id as orgid,subacc.em_efin_isdeptfund as accountdeptfund,org.em_efin_isdeptfund as orgdeptfund  
+	from c_campaign  budget         
+	join EFIN_BudgetType_Acct parentacc on budget.c_campaign_id = parentacc.c_campaign_id         
+	join ad_treenode treenode on treenode.node_id in (select  replace(unnest(string_to_array
+         (public.eut_getchildacct(parentacc.C_ElementValue_id),',')::character varying []),'''','')) 
+        join C_ElementValue subacc on (subacc.accounttype ='E' and subacc.em_efin_project_id is not null)
+	and treenode.node_id = subacc.C_ElementValue_id and subacc.elementlevel ='S' and subacc.isactive ='Y' and subacc.issummary ='N'  
+	join EFIN_Costorgnization efinorg on subacc.C_ElementValue_id = efinorg.C_ElementValue_id and efinorg.isactive = 'Y' 
+	join EFIN_Costcenters costcen on efinorg.EFIN_Costorgnization_id = costcen.EFIN_Costorgnization_id and costcen.isactive = 'Y'
+	join ad_org org on efinorg.org = org.ad_org_id  and org.isactive ='Y'
+	join C_Salesregion dep on costcen.C_Salesregion_ID = dep.C_Salesregion_ID and dep.isactive ='Y'
+	left join c_project  proj on subacc.em_efin_project_id= proj.c_project_id        
+	join c_bpartner  bp on bp.C_bpartner_id = v_bp_id
+	join user1  u1 on u1.user1_id= v_fut1_id       
+	join user2  u2 on u2.user2_id = v_fut2_id       
+	join c_activity  act on act.c_activity_id = v_act_id
+        where budget.ad_client_id =v_client_id and budget.isactive='Y' and 
+                  (org.value||'-'||dep.value||'-'||subacc.value||'-'||coalesce(proj.value,v_proj_value)||'-'||budget.value||'-'||coalesce(bp.value,coalesce(v_bp_value,'000'))||'-'||coalesce(act.value ,v_act_value)||'-'||coalesce(u1.value,v_fut1_value)||'-'||coalesce(u2.value,v_fut2_value))       
+	     not in (select em_efin_uniquecode from c_validcombination where ad_client_id =budget.ad_client_id and em_efin_uniquecode is not null)
+      )
+      LOOP
+     
+      -- update department fund as 'N' for BCU Dept (990)
+      IF (Cur_Account.depId=v_bcu_id) THEN
+                v_deptfund='N';
+      -- update Department Fund as 'Y' if Account and Org Both Department Fund is 'Y'          
+      ELSE IF (Cur_Account.accountdeptfund='Y' and Cur_Account.orgdeptfund='Y') THEN
+                v_deptfund='Y';
+      ELSE 
+                v_deptfund='N';
+      END IF;
+      END IF;          
+
+       	INSERT INTO public.c_validcombination(
+            c_validcombination_id, ad_client_id, ad_org_id, isactive,
+            createdby, updatedby,c_acctschema_id, account_id,
+            c_bpartner_id, ad_orgtrx_id, c_salesregion_id, 
+            c_project_id, c_campaign_id, c_activity_id, user1_id, user2_id, 
+            em_efin_uniquecode, em_efin_uniquecodename,em_efin_isdeptfund, 
+            em_efin_accounttype, em_efin_dimensiontype, em_efin_ismanual)
+	VALUES (get_uuid(), v_client_id, Cur_Account.orgid,'N', 
+            v_user_id,v_user_id, v_acctschema_id,Cur_Account.acctId,
+            Cur_Account.bpId, Cur_Account.orgid,Cur_Account.depId,  
+            Cur_Account.projId, Cur_Account.budId, Cur_Account.actId, Cur_Account.u1Id, Cur_Account.u2Id, 
+            Cur_Account.uniquecode,Cur_Account.uniquecodename , v_deptfund,
+            'E', 'E', 'N');    
+ 
+        END LOOP;
+	end if;
+    --param is not null then execute this part
+     if(v_param_accno is not null or v_param_fromdate is not null) then 
+    select to_char(eut_convertto_gregorian(to_char(v_param_fromdate::timestamp,'dd-MM-yyyy')),'yyyy-MM-dd') into v_param_fromdate from dual; 
+  		FOR Cur_Account IN
+      (select  org.value||'-'||dep.value||'-'||subacc.value||'-'||coalesce(proj.value,v_proj_value)||'-'||budget.value||'-'||coalesce(bp.value,coalesce(v_bp_value,'000'))||'-'||coalesce(act.value ,v_act_value)||'-'||coalesce(u1.value,v_fut1_value)||'-'||coalesce(u2.value,v_fut2_value)  as uniquecode, 
+       org.name||'-'||dep.name||'-'||subacc.name||'-'||coalesce(proj.name,v_proj_name)||'-'||budget.name||'-'||coalesce(bp.name,v_bp_name)||'-'||coalesce(act.name ,v_act_name)||'-'||coalesce(u1.name,v_fut1_name)||'-'||coalesce(u2.name,v_fut2_name)  as uniquecodename,       
+	subacc.C_ElementValue_id as acctId,          
+	coalesce(proj.c_project_id,v_proj_id) as projId, 
+	budget.c_campaign_id as budId, dep.C_Salesregion_id as depId,         
+	coalesce(bp.c_bpartner_id,v_bp_id) as bpId,  
+	coalesce(u1.user1_id,v_fut1_id) as u1Id,  
+	coalesce(u2.user2_id,v_fut2_id) as u2Id , 
+	coalesce(act.c_activity_id,v_act_id) as actId, 
+	org.ad_org_id as orgid,subacc.em_efin_isdeptfund as accountdeptfund,org.em_efin_isdeptfund as orgdeptfund  
+	from c_campaign  budget         
+	join EFIN_BudgetType_Acct parentacc on budget.c_campaign_id = parentacc.c_campaign_id         
+	join ad_treenode treenode on treenode.node_id in (select  replace(unnest(string_to_array
+         (public.eut_getchildacct(parentacc.C_ElementValue_id),',')::character varying []),'''','')) 
+        join C_ElementValue subacc on (subacc.accounttype ='E' and subacc.em_efin_project_id is not null)
+	and treenode.node_id = subacc.C_ElementValue_id and subacc.elementlevel ='S' and subacc.isactive ='Y' 
+       and subacc.issummary ='N'  and 
+       case when v_param_fromdate is not null then 
+       TO_DATE(to_char( subacc.created,'yyyy-MM-dd'),'yyyy-MM-dd') >= 
+			TO_DATE(to_char(v_param_fromdate ::timestamp ,'yyyy-MM-dd'),'yyyy-MM-dd') else 1=1 end
+       and case when v_param_accno is not null then
+       subacc.c_elementvalue_id = v_param_accno else 1=1 end
+     join EFIN_Costorgnization efinorg on subacc.C_ElementValue_id = efinorg.C_ElementValue_id and efinorg.isactive = 'Y' 
+	join EFIN_Costcenters costcen on efinorg.EFIN_Costorgnization_id = costcen.EFIN_Costorgnization_id and costcen.isactive = 'Y'
+	join ad_org org on efinorg.org = org.ad_org_id  and org.isactive ='Y'
+	join C_Salesregion dep on costcen.C_Salesregion_ID = dep.C_Salesregion_ID and dep.isactive ='Y'
+	left join c_project  proj on subacc.em_efin_project_id= proj.c_project_id        
+	join c_bpartner  bp on bp.C_bpartner_id = v_bp_id
+	join user1  u1 on u1.user1_id= v_fut1_id       
+	join user2  u2 on u2.user2_id = v_fut2_id       
+	join c_activity  act on act.c_activity_id = v_act_id
+        where budget.ad_client_id =v_client_id and budget.isactive='Y' and 
+                  (org.value||'-'||dep.value||'-'||subacc.value||'-'||coalesce(proj.value,v_proj_value)||'-'||budget.value||'-'||coalesce(bp.value,coalesce(v_bp_value,'000'))||'-'||coalesce(act.value ,v_act_value)||'-'||coalesce(u1.value,v_fut1_value)||'-'||coalesce(u2.value,v_fut2_value))       
+	     not in (select em_efin_uniquecode from c_validcombination where ad_client_id =budget.ad_client_id and em_efin_uniquecode is not null)
+      )
+      LOOP
+      -- update department fund as 'N' for BCU Dept (990)
+      IF (Cur_Account.depId=v_bcu_id) THEN
+                v_deptfund='N';
+      -- update Department Fund as 'Y' if Account and Org Both Department Fund is 'Y'          
+      ELSE IF (Cur_Account.accountdeptfund='Y' and Cur_Account.orgdeptfund='Y') THEN
+                v_deptfund='Y';
+      ELSE 
+                v_deptfund='N';
+      END IF;
+      END IF;          
+
+       	INSERT INTO public.c_validcombination(
+            c_validcombination_id, ad_client_id, ad_org_id, isactive,
+            createdby, updatedby,c_acctschema_id, account_id,
+            c_bpartner_id, ad_orgtrx_id, c_salesregion_id, 
+            c_project_id, c_campaign_id, c_activity_id, user1_id, user2_id, 
+            em_efin_uniquecode, em_efin_uniquecodename,em_efin_isdeptfund, 
+            em_efin_accounttype, em_efin_dimensiontype, em_efin_ismanual)
+	VALUES (get_uuid(), v_client_id, Cur_Account.orgid,'N', 
+            v_user_id,v_user_id, v_acctschema_id,Cur_Account.acctId,
+            Cur_Account.bpId, Cur_Account.orgid,Cur_Account.depId,  
+            Cur_Account.projId, Cur_Account.budId, Cur_Account.actId, Cur_Account.u1Id, Cur_Account.u2Id, 
+            Cur_Account.uniquecode,Cur_Account.uniquecodename , v_deptfund,
+            'E', 'E', 'N');    
+ 
+        END LOOP;
+	end if;
+        
+        
+        
+        
+        -- update the department funds flag unique code wise
+
+        FOR CUR_Combination IN( select c_validcombination_id,val.issummary as acctsummary,
+        val.em_efin_isdeptfund as actdeptfunds , acdim.em_efin_isdeptfund as comdeptfunds,org.em_efin_isdeptfund as orgdeptfunds
+        ,account_id from c_validcombination acdim 
+        left join c_elementvalue val on val.c_elementvalue_id= acdim.account_id
+        left join ad_org org on org.ad_org_id= acdim.ad_org_id
+        where acdim.em_efin_uniquecode is not null  and acdim.ad_client_id=v_client_id and  c_salesregion_id<> v_bcu_id)
+    LOOP
+
+   
+        -- update the validcombiantion as 'N' 
+        -- ( only account summary level is 'N' ,( account deft funds 'N'  or org dept funds 'N' ) , combination dept funds 'Y'
+        IF (CUR_Combination.acctsummary='N' and (CUR_Combination.actdeptfunds='N' or CUR_Combination.orgdeptfunds='N')
+         and CUR_Combination.comdeptfunds='Y' )  THEN
+
+         -- check unqiue code  is used in Budget Enquiry ( current Budget = funds available)
+         select count(c_validcombination_id) into v_count from efin_budgetinquiry where   c_validcombination_id=CUR_Combination.c_validcombination_id and 
+           ad_client_id=v_client_id and  (current_budget <> funds_available or depinc_amt<> 0 or depdec_amt<>0);
+
+           IF(v_count=0) THEN
+           update c_validcombination set em_efin_isdeptfund='N'  where c_validcombination_id=CUR_Combination.c_validcombination_id;
+	END IF;	
+        
+	 
+	-- update the validcombiantion as 'Y'  only  account dept funds ='Y' and org dept funds ='Y'  , combination dept funds ='N'
+       ELSE IF(CUR_Combination.acctsummary='N' and (CUR_Combination.actdeptfunds='Y' and CUR_Combination.orgdeptfunds='Y') 
+       and CUR_Combination.comdeptfunds='N' )  THEN
+
+     -- check unqiue code  is used in Budget Enquiry ( current Budget = funds available)
+         select count(c_validcombination_id) into v_count from efin_budgetinquiry where    c_validcombination_id=CUR_Combination.c_validcombination_id
+          and  ad_client_id=v_client_id and  (current_budget <> funds_available );
+
+           IF(v_count=0) THEN
+           update c_validcombination set em_efin_isdeptfund='Y'  where c_validcombination_id=CUR_Combination.c_validcombination_id;
+           END IF;
+
+        END IF;
+	END IF;
+	END LOOP;
+
+--Update cost account combination id in its corresponding funds account combination
+  EFIN_UPDATECOSTACCTINFUNDS(v_client_id);
+               
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 1, v_Message) ;
+    EXCEPTION
+WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  DBMS_OUTPUT.PUT_LINE(v_ResultStr) ;
+  AD_UPDATE_PINSTANCE(PInstance_ID, NULL, 'N', 0, v_ResultStr) ;
+  RETURN;
+END EFIN_CREATEUNIQUECODE
+]]></body>
+    </function>
+  </database>

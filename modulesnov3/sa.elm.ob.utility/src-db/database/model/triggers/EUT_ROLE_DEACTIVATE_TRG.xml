@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EUT_ROLE_DEACTIVATE_TRG">
+    <trigger name="EUT_ROLE_DEACTIVATE_TRG" table="AD_ROLE" fires="before" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[	v_total integer;
+    v_role varchar(32);
+BEGIN 
+ 	IF (TG_OP ='UPDATE') 
+    THEN
+        IF(:new.isactive='N' and :old.isactive='Y') THEN
+			SELECT COUNT(ad_user_roles.ad_role_id) INTO v_total 
+            	FROM ad_user_roles JOIN (SELECT ad_user_id FROM ad_user_roles WHERE ad_role_id=:new.ad_role_id) ad_user
+				ON ad_user.ad_user_id= ad_user_roles.ad_user_id WHERE ad_user_roles.isactive='Y'
+				GROUP BY  ad_user_roles.ad_user_id,ad_user_roles.ad_client_id HAVING COUNT(ad_user_roles.ad_role_id) = 1;
+        	SELECT default_ad_role_id INTO v_role FROM ad_user WHERE default_ad_role_id=:new.ad_role_id;
+     		IF ((v_total = 1) or (v_role is not null))
+        	THEN
+       			RAISE_APPLICATION_ERROR(-20000,'@eut_roledeactivate@');
+      		END IF;
+        END IF;
+ 	END IF;
+    IF (TG_OP ='DELETE') 
+    THEN
+			SELECT COUNT(ad_user_roles.ad_role_id) INTO v_total 
+            	FROM ad_user_roles JOIN (SELECT ad_user_id FROM ad_user_roles WHERE ad_role_id=:old.ad_role_id) ad_user
+				ON ad_user.ad_user_id= ad_user_roles.ad_user_id WHERE ad_user_roles.isactive='Y'
+				GROUP BY  ad_user_roles.ad_user_id,ad_user_roles.ad_client_id HAVING COUNT(ad_user_roles.ad_role_id) = 1;
+        	SELECT default_ad_role_id INTO v_role FROM ad_user WHERE default_ad_role_id=:old.ad_role_id;
+     		IF ((v_total = 1) or (v_role is not null))
+        	THEN
+       			RAISE_APPLICATION_ERROR(-20000,'@eut_roledeactivate@');
+      		END IF;
+ 	END IF;
+ 	IF DELETING 
+     	THEN 
+     		RETURN OLD; 
+  		ELSE 
+  			RETURN NEW; 
+  	END IF;
+END EUT_ROLE_DEACTIVATE_TRG
+]]></body>
+    </trigger>
+  </database>

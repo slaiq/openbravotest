@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_INSERT_FORROLECHK_ACCESS">
+    <function name="EUT_INSERT_FORROLECHK_ACCESS" type="NULL">
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_eut_forward_reqmoreinfo_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): Priyanka Ranjan 30-10-2018
+************************************************************************/
+Cur_Forward RECORD;
+v_ResultStr VARCHAR2(2000):='';
+v_sqlQuery VARCHAR2(2000):='';
+v_sqldocrule  VARCHAR2(2000):='';
+v_docruleid VARCHAR2(32); 
+v_nextforwardrmiid VARCHAR(32);
+v_forRmi VARCHAR(2);
+
+ 
+BEGIN
+
+ FOR Cur_Forward IN (
+ --select query
+select coalesce(frmrole.em_efin_departmenthead,'N') as fromrole_dh,
+coalesce(frmrole.em_escm_islinemanager,'N') as fromrole_lm,
+coalesce(frmrole.em_escm_warehouse_role,'N') as fromrole_wr,
+coalesce(trole.em_efin_departmenthead,'N') as torole_dh,
+coalesce(trole.em_escm_islinemanager,'N') as torole_lm,
+coalesce(trole.em_escm_warehouse_role,'N') as torole_wr,
+trole.ad_org_id as toorg,trole.ad_role_id as torole,fwd.createdby as user, fwd.processed as processed, fwd.docruleid as docruleid,
+fwd.recuser_id as frwduserid ,fwd.rec_role_id as frwdroleid,fwd.eut_forward_reqmoreinfo_id
+from eut_forward_reqmoreinfo fwd
+left join ad_role frmrole on frmrole.ad_role_id=fwd.ad_role_id
+left join ad_role trole on trole.ad_role_id =fwd.rec_role_id
+and fwd.ad_client_id =p_client_id where fwd.eut_forward_reqmoreinfo_id=p_eut_forward_reqmoreinfo_id)
+LOOP 
+   
+    v_docruleid = Cur_Forward.docruleid;
+
+	IF(v_docruleid='PRL' or v_docruleid='PRD') THEN
+				v_sqldocrule:= ' and (docruleid = ''PRL'' or  docruleid=''PRD'')';
+			elseif(v_docruleid='PROD' or v_docruleid='PROL') THEN
+				v_sqldocrule:= ' and (docruleid = ''PROD'' or  docruleid=''PROL'')';
+			elseif(v_docruleid='MIR' or v_docruleid='MIRIT') THEN
+				v_sqldocrule:= ' and (docruleid = ''MIR'' or  docruleid=''MIRIT'')';
+			ELSE 
+				v_sqldocrule:= 'and docruleid ='''|| v_docruleid ||'''' ;
+	 END IF;             
+     
+ --do operation 
+	--department head check
+	IF(Cur_Forward.fromrole_dh='Y' and Cur_Forward.torole_dh='N') THEN	
+		INSERT INTO eut_delegate_role_check(
+		    eut_delegate_role_check_id, ad_client_id, ad_org_id, isactive, 
+		   eut_forward_reqmoreinfo_id, 
+		     columname, oldvalue, newvalue,createdby,updatedby,ad_role_id)
+		VALUES (get_uuid(), p_client_id, Cur_Forward.toorg, 'Y', 
+		     p_eut_forward_reqmoreinfo_id, 
+		   'DH', Cur_Forward.torole_dh, 
+                Cur_Forward.fromrole_dh,Cur_Forward.user,Cur_Forward.user,Cur_Forward.torole);
+
+		update ad_role set em_efin_departmenthead='Y' where ad_role_id=Cur_Forward.torole;
+       END IF;
+
+        --line manager check
+	IF(Cur_Forward.fromrole_lm='Y' and Cur_Forward.torole_lm='N') THEN
+	
+		INSERT INTO public.eut_delegate_role_check(
+		eut_delegate_role_check_id, ad_client_id, ad_org_id, isactive, 
+		eut_forward_reqmoreinfo_id, 
+		 columname, oldvalue, newvalue,createdby,updatedby,ad_role_id)
+		VALUES (get_uuid(), p_client_id, Cur_Forward.toorg, 'Y', 
+		p_eut_forward_reqmoreinfo_id, 
+		 'LM', Cur_Forward.torole_lm, Cur_Forward.fromrole_lm,Cur_Forward.user,
+                Cur_Forward.user,Cur_Forward.torole);
+
+		update ad_role set em_escm_islinemanager='Y' where ad_role_id=Cur_Forward.torole;
+	END IF;
+        --warehouse role check
+	IF(Cur_Forward.fromrole_wr='Y' and Cur_Forward.torole_wr='N') THEN
+	
+		INSERT INTO public.eut_delegate_role_check(
+		eut_delegate_role_check_id, ad_client_id, ad_org_id, isactive, 
+		eut_forward_reqmoreinfo_id, 
+		 columname, oldvalue, newvalue,createdby,updatedby,ad_role_id)
+		VALUES (get_uuid(), p_client_id, Cur_Forward.toorg, 'Y', 
+		p_eut_forward_reqmoreinfo_id, 
+		 'WR', Cur_Forward.torole_wr, Cur_Forward.fromrole_wr,Cur_Forward.user,Cur_Forward.user,Cur_Forward.torole);
+
+                update ad_role set em_escm_warehouse_role='Y' where ad_role_id=Cur_Forward.torole;
+        END IF;
+  		
+     	   
+	IF((Cur_Forward.fromrole_dh='Y' and Cur_Forward.torole_dh='Y') or (Cur_Forward.fromrole_lm='Y' and Cur_Forward.torole_lm='Y') or (Cur_Forward.fromrole_wr='Y' and Cur_Forward.torole_wr='Y') ) THEN
+	  v_sqlQuery:= 'select eut_forward_reqmoreinfo_id,forward_rmi  from eut_forward_reqmoreinfo 
+                    			 where recuser_id ='''||Cur_Forward.frwduserid
+								 ||''' and rec_role_id = '''|| Cur_Forward.frwdroleid ||'''
+                    			and processed =''Y'' and schedule =''N'' and forward_rmi =''F''' || v_sqldocrule||
+                    			' order by created asc limit 1';								 
+                    EXECUTE IMMEDIATE  v_sqlQuery into   v_nextforwardrmiid,v_forRmi;  
+	  IF(v_nextforwardrmiid is not null) then
+	     IF(v_forRmi='F') then
+         Update eut_delegate_role_check set eut_forward_reqmoreinfo_id = Cur_Forward.eut_forward_reqmoreinfo_id where eut_forward_reqmoreinfo_id = v_nextforwardrmiid; 	  
+	     END IF;
+	  END IF;
+	  
+	END IF;
+ END LOOP;
+    EXCEPTION
+WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  RAISE v_ResultStr ;
+  RETURN;
+END EUT_INSERT_FORROLECHK_ACCESS
+]]></body>
+    </function>
+  </database>

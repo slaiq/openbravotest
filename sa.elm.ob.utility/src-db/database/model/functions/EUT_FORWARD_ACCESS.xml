@@ -1,0 +1,285 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_FORWARD_ACCESS">
+    <function name="EUT_FORWARD_ACCESS" type="NULL">
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_user_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_doctype" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_forwardrmi_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2001-2008 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  Priyanka Ranjan 30-10-2018.
+************************************************************************/
+--p VARCHAR(32767); --OBTG:VARCHAR2--
+v_ResultStr VARCHAR2(2000):='';
+vp VARCHAR2(32);
+vTree VARCHAR2(32);
+v_parentOrg VARCHAR2(32);
+v_parent VARCHAR2(32);
+v_orgId  VARCHAR2(32);
+Cur_Forward RECORD;
+Cur_Window RECORD;
+Cur_Process RECORD;
+Cur_Form RECORD;
+Cur_List RECORD;
+Cur_Processdef RECORD;
+Cur_ForwardUpdate RECORD;
+Cur_ProcessUpdate RECORD;
+Cur_FormUpdate RECORD;
+Cur_DefUpdate RECORD;
+Cur_ListUpdate RECORD;
+v_rmi VARCHAR2(60):='';
+v_forward VARCHAR2(60):='';
+
+BEGIN
+ FOR Cur_Forward IN (
+ --select query
+    select frmi.rec_role_id  as torole,frmi.forward_rmi as for_rmi from eut_forward_reqmoreinfo frmi 
+    where frmi.eut_forward_reqmoreinfo_id=p_forwardrmi_id and ad_client_id=p_client_id
+ )
+ 
+  LOOP 
+  -- set forward_rmi id
+  IF(Cur_Forward.for_rmi='RMI')THEN
+  v_rmi := p_forwardrmi_id;
+  v_forward := null;
+   END IF;
+   IF (Cur_Forward.for_rmi ='F') THEN
+  v_rmi := null;
+  v_forward := p_forwardrmi_id;
+  END IF;
+   
+  --Update rmi or forward id in Window Access if already present with either rmi or forward  
+  FOR Cur_ForwardUpdate IN(
+      
+      
+        select ad_window_access_id  as windowaccessid  from ad_role role
+	left join ad_window_access p on p.ad_role_id=role.ad_role_id
+	where role.ad_role_id=Cur_Forward.torole  and role.ad_client_id=p_client_id
+    and p.ad_window_id is not null
+    and p.ad_window_id in (
+                           select win.ad_window_id  from ad_window_access win 
+	join ad_role role on role.ad_role_id=win.ad_role_id
+	where role.em_eut_documenttype=p_doctype and role.ad_client_id=p_client_id)
+    and (em_eut_reqmoreinfo_id is not null or em_eut_forward_reqmoreinfo_id is not null)
+      
+      )
+   LOOP
+      IF(Cur_Forward.for_rmi='RMI') THEN
+      Update ad_window_access set em_eut_reqmoreinfo_id = p_forwardrmi_id where ad_window_access_id=Cur_ForwardUpdate.windowaccessid;
+       END IF;
+      IF(Cur_Forward.for_rmi='F') THEN
+      Update ad_window_access set em_eut_forward_reqmoreinfo_id = p_forwardrmi_id where ad_window_access_id=Cur_ForwardUpdate.windowaccessid;
+      END IF;
+  END LOOP;
+
+ --do operation 
+     --Window Access 
+     -- Insert record in Window Access if not present
+     FOR Cur_Window in (
+	select ad_window_id as windowid from ad_role role
+	join ad_window_access win on win.ad_role_id=role.ad_role_id
+	where role.em_eut_documenttype=p_doctype and role.ad_client_id=p_client_id and
+	win.ad_window_id not in ( select ad_window_id from ad_role role
+	left join ad_window_access p on p.ad_role_id=role.ad_role_id
+	where role.ad_role_id=Cur_Forward.torole and role.ad_client_id=p_client_id and ad_window_id is not null ) ) 
+     LOOP 
+    INSERT INTO public.ad_window_access(
+            ad_window_access_id, ad_window_id, ad_role_id, ad_client_id, 
+            ad_org_id, isactive, createdby, updatedby, 
+            isreadwrite,em_eut_forward_reqmoreinfo_id,em_eut_reqmoreinfo_id)
+    VALUES (get_uuid(), Cur_Window.windowid, Cur_Forward.torole, p_client_id, 
+            '0', 'Y', p_user_id,p_user_id , 
+            'Y',v_forward,v_rmi);
+     END LOOP;
+    --process access
+    --Update rmi or forward id in Report and Process Access if already present with either rmi or forward
+     FOR Cur_ProcessUpdate IN(
+         select ad_process_access_id  as processaccessid  from ad_role role
+	left join ad_process_access p on p.ad_role_id=role.ad_role_id
+	where role.ad_role_id=Cur_Forward.torole  and role.ad_client_id=p_client_id
+    and p.ad_process_id is not null
+    and p.ad_process_id in (
+                           select process.ad_process_id as windowaccessid from ad_process_access process 
+	join ad_role role on role.ad_role_id=process.ad_role_id
+	where role.em_eut_documenttype=p_doctype and role.ad_client_id=p_client_id)
+   and (em_eut_reqmoreinfo_id is not null or em_eut_forward_reqmoreinfo_id is not null)
+      )
+      LOOP
+      IF(Cur_Forward.for_rmi='RMI') THEN
+      Update ad_process_access set em_eut_reqmoreinfo_id = p_forwardrmi_id where ad_process_access_id=Cur_ProcessUpdate.processaccessid;
+     END IF;
+     IF(Cur_Forward.for_rmi='F') THEN
+      Update ad_process_access set em_eut_forward_reqmoreinfo_id = p_forwardrmi_id where ad_process_access_id=Cur_ProcessUpdate.processaccessid;
+    END IF;
+    END LOOP;
+   
+   -- Insert record in Report and Process Access if not present
+    FOR Cur_Process IN (
+		select ad_process_id as processid from ad_role role
+		 join ad_process_access pro on pro.ad_role_id=role.ad_role_id
+		where role.em_eut_documenttype=p_doctype and role.ad_client_id=p_client_id and
+		pro.ad_process_id not in ( select ad_process_id from ad_role rl
+		left join ad_process_access p on p.ad_role_id=rl.ad_role_id
+		where rl.ad_role_id=Cur_Forward.torole and rl.ad_client_id=p_client_id and ad_process_id is not null)
+		)	
+   LOOP
+   INSERT INTO public.ad_process_access(
+            ad_process_access_id, ad_process_id, ad_role_id, ad_client_id, 
+            ad_org_id, isactive,createdby,updatedby, 
+            isreadwrite,em_eut_forward_reqmoreinfo_id,em_eut_reqmoreinfo_id)
+    VALUES (get_uuid(), Cur_Process.processid, Cur_Forward.torole, p_client_id,
+            '0', 'Y', p_user_id, p_user_id, 
+            'Y',v_forward,v_rmi);
+   END LOOP;
+    --Update rmi or forward id in Form access if already present with either rmi or forward
+	 FOR Cur_FormUpdate IN(
+         select ad_form_access_id  as formaccessid  from ad_role role
+	left join ad_form_access p on p.ad_role_id=role.ad_role_id
+	where role.ad_role_id=Cur_Forward.torole  and role.ad_client_id=p_client_id
+    and p.ad_form_id is not null
+    and p.ad_form_id in (
+                           select formaccess.ad_form_id as formid from ad_form_access formaccess 
+	join ad_role role on role.ad_role_id=formaccess.ad_role_id
+	where role.em_eut_documenttype=p_doctype and role.ad_client_id=p_client_id)
+   and  em_eut_forward_reqmoreinfo_id is not null)
+      
+      LOOP
+      IF(Cur_Forward.for_rmi='RMI') THEN
+      Update ad_form_access set em_eut_reqmoreinfo_id = p_forwardrmi_id where ad_form_access_id=Cur_FormUpdate.formaccessid;
+     END IF;
+     IF(Cur_Forward.for_rmi='F') THEN
+      Update ad_form_access set em_eut_forward_reqmoreinfo_id = p_forwardrmi_id where ad_form_access_id=Cur_FormUpdate.formaccessid;
+    END IF;
+    END LOOP;
+   --Form Access
+   FOR Cur_Form IN (
+	select ad_form_id as formid from ad_role role
+	join ad_form_access pro on pro.ad_role_id=role.ad_role_id
+	where role.em_eut_documenttype=p_doctype and role.ad_client_id=p_client_id and
+	pro.ad_form_id not in ( select ad_form_id from ad_role rl
+	left join ad_form_access p on p.ad_role_id=rl.ad_role_id
+	where rl.ad_role_id=Cur_Forward.torole and rl.ad_client_id=p_client_id and ad_form_id is not null))
+   LOOP
+   INSERT INTO public.ad_form_access(
+            ad_form_access_id, ad_form_id, ad_role_id, ad_client_id, ad_org_id, 
+            isactive,createdby, updatedby, isreadwrite, 
+            em_eut_forward_reqmoreinfo_id)
+    VALUES (get_uuid(), Cur_Form.formid, Cur_Forward.torole, p_client_id, '0', 
+            'Y',p_user_id, p_user_id, 'Y',p_forwardrmi_id);
+
+   END LOOP;
+    --Update rmi or forward id in process definition if already present with either rmi or forward
+ FOR Cur_DefUpdate IN(
+         select obuiapp_process_access_id  as defId  from ad_role role
+	left join obuiapp_process_access p on p.ad_role_id=role.ad_role_id
+	where role.ad_role_id=Cur_Forward.torole  and role.ad_client_id=p_client_id
+    and p.Obuiapp_Process_ID is not null
+    and p.Obuiapp_Process_ID in (
+                           select defprocess.obuiapp_process_id as defprocessid from obuiapp_process_access defprocess 
+	join ad_role role on role.ad_role_id=defprocess.ad_role_id
+	where role.em_eut_documenttype=p_doctype and role.ad_client_id=p_client_id)
+     and  em_eut_forward_reqmoreinfo_id is not null)
+     
+      LOOP
+      IF(Cur_Forward.for_rmi='RMI') THEN
+      Update obuiapp_process_access set em_eut_reqmoreinfo_id = p_forwardrmi_id where obuiapp_process_access_id=Cur_DefUpdate.defId;
+     END IF;
+     IF(Cur_Forward.for_rmi='F') THEN
+      Update obuiapp_process_access set em_eut_forward_reqmoreinfo_id = p_forwardrmi_id where obuiapp_process_access_id=Cur_DefUpdate.defId;
+    END IF;
+    END LOOP;
+     
+   --Process Definition access
+   FOR Cur_Processdef IN (
+	select obuiapp_process_id as obid from ad_role role
+	join obuiapp_process_access pro on pro.ad_role_id=role.ad_role_id
+	where role.em_eut_documenttype=p_doctype and role.ad_client_id=p_client_id and
+	pro.obuiapp_process_id not in ( select obuiapp_process_id from ad_role rl
+	left join obuiapp_process_access p on p.ad_role_id=rl.ad_role_id
+	where rl.ad_role_id=Cur_Forward.torole and rl.ad_client_id=p_client_id and obuiapp_process_id is not null))
+   LOOP
+   INSERT INTO public.obuiapp_process_access(
+            obuiapp_process_access_id, obuiapp_process_id, ad_role_id, ad_client_id, 
+            ad_org_id, isactive,createdby,updatedby, 
+            isreadwrite,em_eut_forward_reqmoreinfo_id)
+    VALUES (get_uuid(), Cur_Processdef.obid,Cur_Forward.torole, p_client_id,
+            '0', 'Y',p_user_id ,p_user_id, 
+            'Y',p_forwardrmi_id);
+   END LOOP;
+    --Update rmi or forward id in list Access if already present with either rmi or forward
+   FOR Cur_ListUpdate IN(
+         select eut_list_access_id  as listid  from ad_role role
+	left join eut_list_access p on p.ad_role_id=role.ad_role_id
+	where role.ad_role_id=Cur_Forward.torole  and role.ad_client_id=p_client_id
+    and p.ad_ref_list_id is not null
+    and p.ad_ref_list_id in (
+                           select list.ad_ref_list_id as listaccessid from eut_list_access list 
+	join ad_role role on role.ad_role_id=list.ad_role_id
+	where role.em_eut_documenttype=p_doctype and role.ad_client_id=p_client_id)
+   and  eut_forward_reqmoreinfo_id is not null)
+      LOOP
+
+
+      IF(Cur_Forward.for_rmi='RMI') THEN
+      Update eut_list_access set eut_reqmoreinfo_id = p_forwardrmi_id where eut_list_access_id=Cur_ListUpdate.listid;
+     END IF;
+     IF(Cur_Forward.for_rmi='F') THEN
+      Update eut_list_access set eut_forward_reqmoreinfo_id = p_forwardrmi_id where eut_list_access_id=Cur_ListUpdate.listid;
+    END IF;
+    END LOOP;
+   
+   --List Access
+   FOR Cur_List IN (
+	select pro.ad_window_id as wid,pro.ad_reference_id as rid,pro.ad_ref_list_id as lid from ad_role role
+	join eut_list_access pro on pro.ad_role_id=role.ad_role_id
+	where role.em_eut_documenttype=p_doctype and role.ad_client_id=p_client_id and
+	pro.ad_reference_id not in ( select ad_reference_id from ad_role rl
+	left join eut_list_access p on p.ad_role_id=rl.ad_role_id
+	where rl.ad_role_id=Cur_Forward.torole and rl.ad_client_id=p_client_id and ad_reference_id is not null and ad_window_id is not null) 
+	and pro.ad_ref_list_id not in (
+	select ad_ref_list_id from ad_role ru
+	left join eut_list_access li on li.ad_role_id=ru.ad_role_id
+	where ru.ad_role_id=Cur_Forward.torole and ru.ad_client_id=p_client_id and ad_ref_list_id is not null
+	and ad_window_id is not null) and ad_window_id is not null) 
+    LOOP 
+    INSERT INTO public.eut_list_access(
+            eut_list_access_id, ad_window_id, ad_role_id, ad_client_id, ad_org_id, 
+            isactive, createdby, updatedby, isreadwrite, 
+            ad_reference_id, ad_ref_list_id,eut_forward_reqmoreinfo_id 
+            )
+    VALUES (get_uuid(), Cur_List.wid, Cur_Forward.torole, p_client_id, '0', 
+            'Y', p_user_id, p_user_id,'Y', 
+            Cur_List.rid, Cur_List.lid,p_forwardrmi_id );
+
+END LOOP;
+
+ END LOOP;
+    EXCEPTION
+WHEN OTHERS THEN
+  v_ResultStr:= '@ERROR=' || SQLERRM;
+  RAISE v_ResultStr ;
+  RETURN;
+END EUT_FORWARD_ACCESS
+]]></body>
+    </function>
+  </database>

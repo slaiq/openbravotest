@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" defaultValues="true">
+  <ADRole id="C23B537E1AA5483C9410080B20FA8AE3" identifier="Requester">
+    <id>C23B537E1AA5483C9410080B20FA8AE3</id>
+    <active>true</active>
+    <name>Requester</name>
+    <description xsi:nil="true"/>
+    <userLevel> CO</userLevel>
+    <clientList>6522D733E2334B11A4706BA51CB597D3</clientList>
+    <organizationList>0</organizationList>
+    <currency id="317" entity-name="Currency" identifier="SAR"/>
+    <approvalAmount>0</approvalAmount>
+    <primaryTreeMenu xsi:nil="true"/>
+    <manual>true</manual>
+    <processNow>false</processNow>
+    <clientAdmin>false</clientAdmin>
+    <advanced>true</advanced>
+    <isrestrictbackend>false</isrestrictbackend>
+    <forPortalUsers>false</forPortalUsers>
+    <portalAdmin>false</portalAdmin>
+    <isWebServiceEnabled>false</isWebServiceEnabled>
+    <template>false</template>
+    <recalculatePermissions>false</recalculatePermissions>
+    <eutIncludeinrule>false</eutIncludeinrule>
+    <efinSecurityRules xsi:nil="true"/>
+    <efinDepartmenthead>false</efinDepartmenthead>
+    <escmWarehouseRole>false</escmWarehouseRole>
+  </ADRole>
+  <ADWindowAccess id="E4EA193730424951BDC918781103D2ED" identifier="Custody Transfer - Requester">
+    <id>E4EA193730424951BDC918781103D2ED</id>
+    <window id="D6F05B3A695E4D6BB357E1B6686E3D4D" entity-name="ADWindow" identifier="Custody Transfer"/>
+    <role id="C23B537E1AA5483C9410080B20FA8AE3" entity-name="ADRole" identifier="Requester"/>
+    <active>true</active>
+    <editableField>false</editableField>
+    <inheritedFrom xsi:nil="true"/>
+  </ADWindowAccess>
+  <ADProcessAccess id="0E85FC3D69924057A4FBA5CD6D0ABFF7" identifier="Custody Transfer Reject - Requester">
+    <id>0E85FC3D69924057A4FBA5CD6D0ABFF7</id>
+    <process id="5408B425EBE1436CB0E6294FA66BFBF2" entity-name="ADProcess" identifier="Custody Transfer Reject"/>
+    <role id="C23B537E1AA5483C9410080B20FA8AE3" entity-name="ADRole" identifier="Requester"/>
+    <active>true</active>
+    <editableField>false</editableField>
+    <inheritedFrom xsi:nil="true"/>
+  </ADProcessAccess>
+  <ADProcessAccess id="1CC43BA0B529439E9D08D7A137C1DFA2" identifier="Custody Transfer Process - Requester">
+    <id>1CC43BA0B529439E9D08D7A137C1DFA2</id>
+    <process id="0DECBACC03C841B4966D0CCBCA76A5D7" entity-name="ADProcess" identifier="Custody Transfer Process"/>
+    <role id="C23B537E1AA5483C9410080B20FA8AE3" entity-name="ADRole" identifier="Requester"/>
+    <active>true</active>
+    <editableField>false</editableField>
+    <inheritedFrom xsi:nil="true"/>
+  </ADProcessAccess>
+</ob:Openbravo>

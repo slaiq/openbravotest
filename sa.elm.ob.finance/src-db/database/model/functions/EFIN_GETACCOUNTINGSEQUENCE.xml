@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_GETACCOUNTINGSEQUENCE">
+    <function name="EFIN_GETACCOUNTINGSEQUENCE" type="VARCHAR">
+      <parameter name="p_documentno" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_ad_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_ad_org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_acctseq varchar(32);
+BEGIN
+
+select em_efin_acctseq into v_acctseq from ((select fact.em_efin_acctseq ,inv.documentno from c_invoice inv,
+fin_payment_sched_inv_v invln ,fin_payment_detail_v det ,fin_finacc_transaction fin,fact_acct fact 
+where invln.c_invoice_id=inv.c_invoice_id and  det.fin_payment_sched_inv_v_id=invln.fin_payment_sched_inv_v_id 
+and fin.fin_payment_id=det.fin_payment_id
+and fact.record_id=fin.fin_finacc_transaction_id and 
+inv.documentno = p_documentNo and fact.ad_client_id = p_ad_client_id and fact.ad_org_id = p_ad_org_id  order by fin.created desc limit 1) 
+union
+(select fact.em_efin_acctseq ,inv.documentno from c_invoice inv,C_DocType doc,fact_acct fact where 
+fact.em_efin_documentno=p_documentNo and inv.c_doctype_id=doc.c_doctype_id  
+and doc.EM_Efin_Isprepayinvapp='Y' and inv.posted='Y' and fact.ad_client_id = p_ad_client_id and fact.ad_org_id = p_ad_org_id order by inv.created desc limit 1)) a ;
+RETURN v_acctseq;
+END EFIN_GETACCOUNTINGSEQUENCE
+]]></body>
+    </function>
+  </database>

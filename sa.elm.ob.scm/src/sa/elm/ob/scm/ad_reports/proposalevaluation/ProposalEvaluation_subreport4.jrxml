@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report1_subreport3_subreport1" pageWidth="600" pageHeight="802" columnWidth="553" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="c0f21d3d-ae7e-47ca-b92f-04221c68ec29">
+	<property name="ireport.zoom" value="1.3310000000000013"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="committee" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/opt/elm/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_DESIGN" class="java.lang.String"/>
+	<parameter name="inpEventId" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpClientId" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select (select emp_name  from escm_committee_members where escm_committee_id =$P{committee} and membertype='CBA6361FD21A4981AB51CBBCDF6C2003') as president,
+       (select emp_name  from escm_committee_members where escm_committee_id =$P{committee} and membertype='FA4FFB15F199438EB59E6B0544F5C342') as finctl,
+       (select name from escm_deflookups_typeln where ((value='LDEN' or escm_deflookups_typeln_id='3BDA14E50CD44BC98BB2C18EEA35B135')) and ad_client_id= $P{inpClientId}) as legal,
+       (select name from escm_deflookups_typeln where ((value='PDEN' or escm_deflookups_typeln_id='ADCA4759849D4FD29B3343D7B0A427AC'))  and ad_client_id= $P{inpClientId}) as procurement,
+       (select name from escm_deflookups_typeln where ((value='PREN' or escm_deflookups_typeln_id='6CE10F31DC7E447395C50B1E9332012A'))  and ad_client_id= $P{inpClientId}) as proj,
+       (select name from escm_deflookups_typeln where ((value='RREN' or escm_deflookups_typeln_id='5C143979B1B2493C9F54DAB11C3C5697'))  and ad_client_id= $P{inpClientId}) as road]]>
+	</queryString>
+	<field name="president" class="java.lang.String"/>
+	<field name="finctl" class="java.lang.String"/>
+	<field name="legal" class="java.lang.String"/>
+	<field name="procurement" class="java.lang.String"/>
+	<field name="proj" class="java.lang.String"/>
+	<field name="road" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="557">
+			<textField isBlankWhenNull="true">
+				<reportElement x="17" y="115" width="188" height="25" uuid="1eb80352-ca3c-4582-af12-abe922e31db8"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{legal}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="248" y="356" width="324" height="93" uuid="c6af1273-ba70-4818-8336-53ec629968a0"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[
+تعرض مع التحية والتقدير لمعالي وزير النقل
+برجاء التكرم بالموافقة على ما أوصت به لجنة فحص العروض]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="392" y="263" width="180" height="23" uuid="6a9c3fff-d60f-4a66-b0ac-aa8082ed1686"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{proj}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="205" y="68" width="187" height="46" backcolor="#82BEDF" uuid="54628eae-dbfd-4fcd-83aa-f1a5da3b4ecb"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[مدير عام الإدارة العامة للمناقصات والعقود
+Member]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="17" y="140" width="188" height="44" uuid="f0e0ff90-bcfd-49e9-a4d8-12c54185cf69"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Justified"/>
+				<text><![CDATA[
+
+            ...................................]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="205" y="115" width="187" height="25" uuid="3e34c4a5-6258-486b-9cc4-637920c7e7d0"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{procurement}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="205" y="212" width="187" height="51" uuid="0c002123-fc91-45c1-8a95-dade2f1f0f54"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="392" y="212" width="180" height="51" backcolor="#82BEDF" uuid="46b88ee8-4c3d-4b5d-94a8-bd017d6c19fe"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[وكيل الوزارة المساعد للمشاريع
+Member]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="17" y="68" width="188" height="46" backcolor="#82BEDF" uuid="a525ff87-dc48-48db-85c5-ba9e0fcc1390"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[مدير عام الشؤون القانونية
+Member]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="17" y="212" width="188" height="50" backcolor="#82BEDF" uuid="faf251ee-0486-4296-9a71-a453de96caf1"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[وكيل الوزارة المساعد لإدارة الطرق
+President]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="392" y="115" width="180" height="25" uuid="f8764c9b-05e4-4450-a630-273877087e1e"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{finctl}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="17" y="521" width="555" height="24" uuid="69e08105-e7a4-447c-a481-976ce3154e32"/>
+				<box>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="17" y="263" width="188" height="24" uuid="f0fb9b34-99b4-4fa8-ba52-0c315d089120"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{road}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="17" y="497" width="555" height="24" uuid="866608eb-da3e-41cb-8710-47e485b04b0e"/>
+				<box>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0" lineStyle="Dashed"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="392" y="68" width="180" height="46" backcolor="#82BEDF" uuid="13c4127e-cbe2-45a0-8560-1ddc37025026"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[المراقب المالي
+Finance Crtl]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="17" y="356" width="231" height="93" uuid="b4f75a81-88b0-470d-9b65-d447899a32ef"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0" lineStyle="Dashed"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[وكيل الوزارة المساعد لإدارات الطرق
+رئيس اللجنة]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="17" y="449" width="555" height="24" uuid="6615e855-45c0-4e4b-8e3f-0903aa1c1472"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0" lineStyle="Dashed"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="205" y="263" width="187" height="24" uuid="b5a53158-7e94-4d80-9482-cec7f3aeccba"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="17" y="473" width="555" height="24" uuid="2970c1ef-aafc-4fb6-bc62-b680bb0f5c5a"/>
+				<box>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0" lineStyle="Dashed"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="205" y="32" width="167" height="25" uuid="28ba84fa-4f89-44c3-ba20-59c4dc51b54d"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="16"/>
+				</textElement>
+				<text><![CDATA[أعضــــــــاء اللجنـــــــــة]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="227" y="8" width="129" height="24" uuid="af839b7e-bf0a-4895-bfc8-23c2d384e3e2"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[وبالله التوفيق ,,,]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="17" y="407" width="231" height="42" uuid="271ab5a6-4052-48fb-af5d-f324342c9c82"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{president}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="205" y="140" width="187" height="44" uuid="3cec2b2c-2dd8-40cb-944d-32a011e8428b"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Justified"/>
+				<text><![CDATA[
+
+            ...................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="392" y="140" width="180" height="44" uuid="2a059d2f-d387-40a9-a458-d52f049f0690"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Justified"/>
+				<text><![CDATA[
+
+            ...................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="17" y="286" width="188" height="44" uuid="b9f871b1-8d86-4264-9a9f-3685ebcf244d"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Justified"/>
+				<text><![CDATA[
+
+            ...................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="205" y="286" width="187" height="44" uuid="60b63c4b-b16f-4f1c-9f53-e78d69b3973e"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Justified"/>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="392" y="286" width="180" height="44" uuid="9ba6691b-159f-45bc-a1c8-9d97bcbc847f"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Justified"/>
+				<text><![CDATA[
+
+            ...................................]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+</jasperReport>

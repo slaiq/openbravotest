@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_INVOICE_TAXAMT_TRG">
+    <trigger name="EFIN_INVOICE_TAXAMT_TRG" table="C_INVOICE" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_invoice_id VARCHAR(32);
+BEGIN
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF DELETING THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+	
+	--inserting/updating Operation delete tax lines when istax is N
+	IF INSERTING THEN
+	END IF;
+    IF UPDATING THEN
+		v_invoice_id = :new.c_invoice_id;
+        IF(:new.em_efin_istax='N' AND :old.em_efin_istax='Y')THEN
+			DELETE FROM c_invoiceline WHERE c_invoice_id=v_invoice_id AND em_efin_istax = 'Y';
+            update c_invoice set em_efin_tax_method_id=null  WHERE c_invoice_id=v_invoice_id ;
+		END IF;
+	END IF;
+	IF  DELETING THEN 
+	END IF; 
+    
+END EFIN_INVOICE_TAXAMT_TRG
+]]></body>
+    </trigger>
+  </database>

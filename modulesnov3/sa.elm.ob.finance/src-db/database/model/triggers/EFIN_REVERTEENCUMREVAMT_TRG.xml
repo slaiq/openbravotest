@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_REVERTEENCUMREVAMT_TRG">
+    <trigger name="EFIN_REVERTEENCUMREVAMT_TRG" table="EFIN_BUD_MANENCUM_REV" fires="before" insert="false" update="false" delete="true" foreach="row">
+      <body><![CDATA[
+v_efin_bud_manencum_rev_id  VARCHAR2(60); 
+
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	IF DELETING THEN
+    
+    -- decrease and  increase changes in encum lines
+    IF(:old.issystem='N') THEN
+	IF(:old.revamount < 0 )THEN
+	update efin_budget_manencumlines set enc_decrease=enc_decrease+:old.revamount 
+	where efin_budget_manencumlines_id=:old.efin_budget_manencumlines_id;
+	ELSE
+	update efin_budget_manencumlines set enc_increase=enc_increase-:old.revamount where
+	 efin_budget_manencumlines_id=:old.efin_budget_manencumlines_id;
+	END IF;
+    END IF;
+    --System decrease and system increase changes in encum lines
+    IF(:old.issystem='Y') THEN
+    IF(:old.revamount < 0 )THEN
+	update efin_budget_manencumlines set system_decrease=system_decrease+:old.revamount 
+	where efin_budget_manencumlines_id=:old.efin_budget_manencumlines_id;
+	ELSE
+	update efin_budget_manencumlines set system_increase=system_increase-:old.revamount where
+	 efin_budget_manencumlines_id=:old.efin_budget_manencumlines_id;
+	END IF;
+     END IF;
+    
+	END IF;
+ 
+	
+	
+	END EFIN_REVERTEENCUMREVAMT_TRG
+]]></body>
+    </trigger>
+  </database>

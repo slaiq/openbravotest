@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_FIN_RECONCILE_GSNO">
+    <trigger name="EFIN_FIN_RECONCILE_GSNO" table="FIN_RECONCILIATION" fires="before" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_documentno VARCHAR2(30);
+v_type VARCHAR2(30);
+v_calender VARCHAR2(32);
+v_sequence VARCHAR2(30);
+BEGIN
+    IF INSERTING  THEN
+    select c_calendar_id into v_calender from ad_org where ad_org_id = :new.ad_org_id;
+    v_type='GS';
+    select efin_getGeneralSequence(:new.Statementdate, v_type,v_calender,:new.AD_Org_ID) into v_sequence;
+    IF (v_sequence is null) THEN
+    RAISE_APPLICATION_ERROR(-20000, '@Efin_NoPaymentSequence@');
+    ELSE
+    :NEW.DocumentNo := v_sequence;
+    END IF;	
+    
+    END IF;
+    END EFIN_FIN_RECONCILE_GSNO
+]]></body>
+    </trigger>
+  </database>

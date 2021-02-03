@@ -1,0 +1,759 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="EncumbranceDetails" pageWidth="730" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="690" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="36180a48-44d8-44ae-ae39-0f37c845bf50">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="BASE_WEB" class="java.lang.String" isForPrompting="false">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+	</parameter>
+	<parameter name="inpADUser" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/opt/elm/WebContent/web/sa.elm.ob.finance/jasper/EncumbranceDetailsReport/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Client_ID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="basedesign" class="java.lang.String">
+		<defaultValueExpression><![CDATA["/opt/elm/WebContent/web/sa.elm.ob.finance/jasper/EncumbranceDetailsReport/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inporgid" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="CYearID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="CCampaignID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="CElementValueIdFrom" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="CElementValueIDTo" class="java.lang.String"/>
+	<parameter name="Uniquecode" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="RowNo" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpRole" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpResource" class="java.lang.String">
+		<defaultValueExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.remamount",""+$P{REPORT_LOCALE})]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpactual" class="java.lang.String">
+		<defaultValueExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.actual.prepayment",""+$P{REPORT_LOCALE})]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpencuamt" class="java.lang.String">
+		<defaultValueExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.encamount",""+$P{REPORT_LOCALE})]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpstatus" class="java.lang.String">
+		<defaultValueExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.status",""+$P{REPORT_LOCALE})]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inptotal" class="java.lang.String">
+		<defaultValueExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.total",""+$P{REPORT_LOCALE})]]></defaultValueExpression>
+	</parameter>
+	<parameter name="paramClient" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="paramOrg" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="paramUser" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="paramStage" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="paramMethod" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="paramType" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AUX_Stage" class="java.lang.String">
+		<defaultValueExpression><![CDATA[$P{paramStage}==null?"":$P{paramStage}.equals("null")? "":$P{paramStage}.equals("")? " ": " and t1.encum_stage='"+$P{paramStage}+"'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AUX_Method" class="java.lang.String">
+		<defaultValueExpression><![CDATA[$P{paramMethod}==null?"":$P{paramMethod}.equals("null")? "":$P{paramMethod}.equals("")? " ": " and t1.encum_method='"+ $P{paramMethod}+"'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AUX_Type" class="java.lang.String">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+		<defaultValueExpression><![CDATA[$P{paramType}==null?"":$P{paramType}.equals("null")? "":$P{paramType}.equals("")? " ": " and t1.encum_type='"+$P{paramType}+"'"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AUX_CCampaignID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[$P{CCampaignID}==null?" ":$P{CCampaignID}.equals( "null" )?" " :$P{CCampaignID}.equals( "" )?" " :" and  t1.c_campaign_id ='"+$P{CCampaignID}+"' "]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select main.encumno ,appno ,eut_convert_to_hijri(to_char(main.encumdate,'YYYY-MM-DD HH24:MI:SS')) as encumdate, status,
+appamount,encumamt,encum_method,em_efin_uniquecode as uniquecode,eut_convert_to_hijri_timestamp(to_char(now(),'YYYY-MM-DD HH24:MI:SS')) as date
+,main.actual, main.encum_type as encum_type, main.applied_no as applied_no
+from (select
+0 as actual, t1.documentno as encumno, '' as appno,
+t1.trxdate as encumdate,case when t1.docstatus='CO' then 'Approved' else '' end as status,
+0 as appamount,
+ coalesce(t2.revamount,0) as encumamt,case when t1.encum_method='A' then 'Auto Encumbrance'
+when t1.encum_method='M' then 'Manual Encumbrance' end as encum_method,t3.em_efin_uniquecode,'1' as type,
+ ref.name as encum_type, '' as applied_no
+from efin_budget_manencum t1
+left join efin_budget_manencumlines t2 on t2.efin_budget_manencum_id=t1.efin_budget_manencum_id
+left join c_validcombination t3 on t3.c_validcombination_id=t2.c_validcombination_id
+left join efin_budgetint bud on bud.efin_budgetint_id=t1.efin_budgetint_id
+join ad_ref_list ref on ref.ad_reference_id ='8B295E69212844C6AF89EFB0554B6143' and ref.value = t1.encum_type
+where 1=1 and t1.docstatus='CO' and t2.revamount > 0 and t2.c_validcombination_id is not null
+ and bud.efin_budgetint_id =$P{CYearID} $P!{AUX_CCampaignID}
+and t1.ad_client_id = $P{AD_Client_ID}
+and t3.account_id in (
+select c_elementvalue_id from c_elementvalue where value
+between (select value from c_elementvalue where c_elementvalue_id =$P{CElementValueIdFrom})
+and (select value from c_elementvalue where c_elementvalue_id =$P{CElementValueIDTo}))
+  $P!{AUX_Method}  $P!{AUX_Stage} $P!{AUX_Type}
+union
+select
+case when inv.ispaid ='Y' then inv.invamount else 0 end as actual, t1.documentno as encumno, '' as appno,
+t1.trxdate as encumdate,case when t1.docstatus='CO' then 'Approved' else '' end as status,
+inv.invamount as appamount,
+ case when inv.ispaid ='Y' then coalesce((t2.revamount-inv.invamount),0) else coalesce(t2.revamount,0) end as encumamt,
+ case when t1.encum_method='A' then 'Auto Encumbrance'
+when t1.encum_method='M' then 'Manual Encumbrance' end as encum_method,t3.em_efin_uniquecode,'1' as type,
+      ref.name as encum_type, inv.documentno as applied_no
+from efin_budget_manencum t1
+left join efin_budget_manencumlines t2 on t2.efin_budget_manencum_id=t1.efin_budget_manencum_id
+join efin_manualencuminvoice inv on t2.efin_budget_manencumlines_id = inv.efin_budget_manencumlines_id
+join c_campaign cam on cam.c_campaign_id = cam.c_campaign_id and cam.em_efin_budgettype='F'
+left join c_validcombination t3 on t3.c_validcombination_id=t2.c_validcombination_id
+left join efin_budgetint bud on bud.efin_budgetint_id=t1.efin_budgetint_id
+join ad_ref_list ref on ref.ad_reference_id ='8B295E69212844C6AF89EFB0554B6143' and ref.value = t1.encum_type
+where 1=1 and t1.docstatus='CO' and t2.revamount > 0 and t2.c_validcombination_id is not null
+ and bud.efin_budgetint_id = $P{CYearID} $P!{AUX_CCampaignID}
+and t1.ad_client_id = $P{AD_Client_ID}
+and t3.account_id in (
+select c_elementvalue_id from c_elementvalue where value
+between (select value from c_elementvalue where c_elementvalue_id =$P{CElementValueIdFrom})
+and (select value from c_elementvalue where c_elementvalue_id =$P{CElementValueIDTo}))
+  $P!{AUX_Method}  $P!{AUX_Stage} $P!{AUX_Type})
+as main order by main.em_efin_uniquecode,main.encumno,main.type, main.encumamt desc, main.appamount asc,main.actual asc]]>
+	</queryString>
+	<field name="encumno" class="java.lang.String"/>
+	<field name="appno" class="java.lang.String"/>
+	<field name="encumdate" class="java.lang.String"/>
+	<field name="Encum_type" class="java.lang.String"/>
+	<field name="status" class="java.lang.String"/>
+	<field name="appamount" class="java.lang.Integer"/>
+	<field name="encumamt" class="java.math.BigDecimal"/>
+	<field name="encum_method" class="java.lang.String"/>
+	<field name="uniquecode" class="java.lang.String"/>
+	<field name="date" class="java.lang.String"/>
+	<field name="actual" class="java.math.BigDecimal"/>
+	<field name="applied_no" class="java.lang.String"/>
+	<variable name="sum_encum_amt" class="java.math.BigDecimal" resetType="Group" resetGroup="uniquecode _Group" calculation="Sum">
+		<variableExpression><![CDATA[$F{encumamt}.subtract(BigDecimal.valueOf($F{appamount}))]]></variableExpression>
+	</variable>
+	<variable name="sumact" class="java.math.BigDecimal" resetType="Group" resetGroup="uniquecode _Group" calculation="Sum">
+		<variableExpression><![CDATA[$F{actual}]]></variableExpression>
+	</variable>
+	<variable name="FinalEncum" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$V{sum_encum_amt}.add($V{sumact})]]></variableExpression>
+	</variable>
+	<variable name="RemAmt" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$V{RemAmt}]]></variableExpression>
+	</variable>
+	<variable name="AmountSum" class="java.math.BigDecimal" resetType="Group" resetGroup="uniquecode _Group" calculation="Sum">
+		<variableExpression><![CDATA[$F{encumamt}.subtract(BigDecimal.valueOf($F{appamount}))]]></variableExpression>
+	</variable>
+	<variable name="sumactual" class="java.lang.Integer" resetType="Group" resetGroup="uniquecode _Group" calculation="Sum">
+		<variableExpression><![CDATA[$F{appamount}]]></variableExpression>
+	</variable>
+	<group name="Summary" keepTogether="true">
+		<groupExpression><![CDATA[]]></groupExpression>
+		<groupFooter>
+			<band height="162" splitType="Stretch">
+				<textField>
+					<reportElement x="12" y="3" width="100" height="20" uuid="ee335139-5b3a-41e3-880b-429f2c3dee5a"/>
+					<textElement verticalAlignment="Middle" markup="none">
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.summary",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+				</textField>
+				<subreport>
+					<reportElement x="56" y="23" width="200" height="27" uuid="37607329-524f-45ef-9bc8-03ff83dfae33"/>
+					<subreportParameter name="inpstatus">
+						<subreportParameterExpression><![CDATA[$P{inpstatus}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inpRole">
+						<subreportParameterExpression><![CDATA[$P{inpRole}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inpResource">
+						<subreportParameterExpression><![CDATA[$P{inpResource}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inpencuamt">
+						<subreportParameterExpression><![CDATA[$P{inpencuamt}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="paramClient">
+						<subreportParameterExpression><![CDATA[$P{paramClient}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="AD_Client_ID">
+						<subreportParameterExpression><![CDATA[$P{AD_Client_ID}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="paramUser">
+						<subreportParameterExpression><![CDATA[$P{paramUser}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="Uniquecode">
+						<subreportParameterExpression><![CDATA[$P{Uniquecode}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inptotal">
+						<subreportParameterExpression><![CDATA[$P{inptotal}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="BASE_WEB">
+						<subreportParameterExpression><![CDATA[$P{BASE_WEB}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inpactual">
+						<subreportParameterExpression><![CDATA[$P{inpactual}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="CYearID">
+						<subreportParameterExpression><![CDATA[$P{CYearID}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="paramStage">
+						<subreportParameterExpression><![CDATA[$P{paramStage}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="CElementValueIdFrom">
+						<subreportParameterExpression><![CDATA[$P{CElementValueIdFrom}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inpADUser">
+						<subreportParameterExpression><![CDATA[$P{inpADUser}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="paramMethod">
+						<subreportParameterExpression><![CDATA[$P{paramMethod}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="RowNo">
+						<subreportParameterExpression><![CDATA[$P{RowNo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="CCampaignID">
+						<subreportParameterExpression><![CDATA[$P{CCampaignID}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="paramOrg">
+						<subreportParameterExpression><![CDATA[$P{paramOrg}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="CElementValueIDTo">
+						<subreportParameterExpression><![CDATA[$P{CElementValueIDTo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="basedesign">
+						<subreportParameterExpression><![CDATA[$P{basedesign}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inporgid">
+						<subreportParameterExpression><![CDATA[$P{inporgid}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="paramType">
+						<subreportParameterExpression><![CDATA[$P{paramType}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{SUBREPORT_DIR}+"EncumbranceDetails_subreport1.jrxml")]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement positionType="Float" x="56" y="70" width="200" height="27" uuid="667ec93c-6247-439d-af14-264b1aeed8b5"/>
+					<subreportParameter name="inpstatus">
+						<subreportParameterExpression><![CDATA[$P{inpstatus}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inpRole">
+						<subreportParameterExpression><![CDATA[$P{inpRole}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inpResource">
+						<subreportParameterExpression><![CDATA[$P{inpResource}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inpencuamt">
+						<subreportParameterExpression><![CDATA[$P{inpencuamt}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="paramClient">
+						<subreportParameterExpression><![CDATA[$P{paramClient}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="AD_Client_ID">
+						<subreportParameterExpression><![CDATA[$P{AD_Client_ID}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="paramUser">
+						<subreportParameterExpression><![CDATA[$P{paramUser}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="Uniquecode">
+						<subreportParameterExpression><![CDATA[$P{Uniquecode}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inptotal">
+						<subreportParameterExpression><![CDATA[$P{inptotal}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="BASE_WEB">
+						<subreportParameterExpression><![CDATA[$P{BASE_WEB}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inpactual">
+						<subreportParameterExpression><![CDATA[$P{inpactual}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="CYearID">
+						<subreportParameterExpression><![CDATA[$P{CYearID}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="paramStage">
+						<subreportParameterExpression><![CDATA[$P{paramStage}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="CElementValueIdFrom">
+						<subreportParameterExpression><![CDATA[$P{CElementValueIdFrom}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inpADUser">
+						<subreportParameterExpression><![CDATA[$P{inpADUser}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="paramMethod">
+						<subreportParameterExpression><![CDATA[$P{paramMethod}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="RowNo">
+						<subreportParameterExpression><![CDATA[$P{RowNo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="CCampaignID">
+						<subreportParameterExpression><![CDATA[$P{CCampaignID}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="paramOrg">
+						<subreportParameterExpression><![CDATA[$P{paramOrg}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="CElementValueIDTo">
+						<subreportParameterExpression><![CDATA[$P{CElementValueIDTo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="basedesign">
+						<subreportParameterExpression><![CDATA[$P{basedesign}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inporgid">
+						<subreportParameterExpression><![CDATA[$P{inporgid}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="paramType">
+						<subreportParameterExpression><![CDATA[$P{paramType}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{SUBREPORT_DIR}+"EncumbranceDetails_subreport2.jrxml")]]></subreportExpression>
+				</subreport>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="uniquecode _Group" keepTogether="true">
+		<groupExpression><![CDATA[$F{uniquecode}]]></groupExpression>
+		<groupHeader>
+			<band height="68">
+				<textField>
+					<reportElement mode="Opaque" x="623" y="36" width="68" height="32" backcolor="#8B959C" uuid="adc36dd0-16db-4746-ad05-d50ba700eaea"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.apptrans",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Opaque" x="0" y="36" width="80" height="32" backcolor="#8B959C" uuid="b3167d87-7462-4800-93bd-f7d16e678da3"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.remamount",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Opaque" x="80" y="36" width="57" height="32" backcolor="#8B959C" uuid="fa41251c-1fac-4fd6-8a16-3f2c2af194a1"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.actualamt",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Opaque" x="551" y="36" width="72" height="32" backcolor="#8B959C" uuid="eb123c78-e2fb-4d18-a515-f6433da02dca"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.encnumber",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Opaque" x="345" y="36" width="75" height="32" backcolor="#8B959C" uuid="718259a0-4c15-48a5-bfd8-078cd7afbc5b"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.encamount",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Opaque" x="481" y="36" width="70" height="32" backcolor="#8B959C" uuid="fad27273-37a0-4d6a-9aac-22b01427df53"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.encdate",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Opaque" x="420" y="36" width="61" height="32" backcolor="#8B959C" uuid="3ad521f0-c948-40a2-bb35-74c99ff1800f"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.status",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Opaque" x="218" y="36" width="67" height="32" backcolor="#8B959C" uuid="725a889f-c80b-4ded-b59e-d450c63ed957"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.encumsource",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="9" width="555" height="20" uuid="84230bd7-1a98-4f8b-9bd6-13f0ebb68a31"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{uniquecode}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Opaque" x="285" y="36" width="60" height="32" backcolor="#8B959C" uuid="b1d13233-68f8-45ef-b304-126437bbb6c8"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.invoiceamount",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Opaque" x="137" y="36" width="81" height="32" backcolor="#8B959C" uuid="0ecb5d13-f0a1-42b1-9df1-10c59a7aa06c"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.encType",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="25">
+				<textField>
+					<reportElement mode="Opaque" x="420" y="0" width="61" height="25" backcolor="#B8E4FF" uuid="5c741018-c5a4-4a87-b110-bed9465299a3"/>
+					<box rightPadding="4">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom" markup="none">
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.net",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+				</textField>
+				<textField pattern=" #,##0.00" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="0" y="0" width="80" height="25" backcolor="#B8E4FF" uuid="8998b3c2-f8bb-4dec-9067-8ab382bbfef5"/>
+					<box rightPadding="4">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+					<textFieldExpression><![CDATA[$V{sum_encum_amt}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="218" y="0" width="67" height="25" backcolor="#B8E4FF" uuid="b504fe3e-a4e5-4c05-8e9a-95bc06f479ff"/>
+					<box rightPadding="4">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="481" y="0" width="70" height="25" backcolor="#B8E4FF" uuid="d4165231-6f29-4c4b-abc4-7a406f4434e5"/>
+					<box rightPadding="4">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="551" y="0" width="72" height="25" backcolor="#B8E4FF" uuid="9b30bf74-e63a-42bb-8c55-b916c41cecdc"/>
+					<box rightPadding="4">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="623" y="0" width="68" height="25" backcolor="#B8E4FF" uuid="bf038462-0dc7-4ec5-a505-73b1d1309d61"/>
+					<box rightPadding="4">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField pattern=" #,##0.00" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="80" y="0" width="57" height="25" backcolor="#B8E4FF" uuid="33b70cd0-d619-4e92-b4f4-5bd6997687f8"/>
+					<box rightPadding="4">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="0.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+					<textFieldExpression><![CDATA[$V{sumactual}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Opaque" x="345" y="0" width="75" height="25" backcolor="#B8E4FF" uuid="0aa07c3f-0437-4f30-9ce9-9d72777b4266"/>
+					<box rightPadding="4">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="285" y="0" width="60" height="25" backcolor="#B8E4FF" uuid="31c725f0-00e6-487a-a9cd-98354a2e834e"/>
+					<box rightPadding="4">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="137" y="0" width="81" height="25" backcolor="#B8E4FF" uuid="b21ae36b-2a12-43a0-9d66-3ae8f12f653a"/>
+					<box rightPadding="4">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="131" splitType="Stretch">
+			<textField>
+				<reportElement x="100" y="39" width="94" height="14" uuid="969963b5-675c-41dc-b855-6ff2af6107c3"/>
+				<textElement textAlignment="Right" markup="none"/>
+				<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.reportdate",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="100" y="53" width="94" height="14" uuid="dbb5e171-637b-46e9-a472-022c2747b6d7"/>
+				<textElement textAlignment="Right" markup="none"/>
+				<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.reporttime",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="100" y="67" width="94" height="14" uuid="bbd72b55-d5ac-4588-b14b-b848cb263995"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.reportuser",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="343" y="37" width="212" height="14" uuid="64b83410-e6f8-4b22-9613-c7780e61ddce"/>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{paramClient}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="343" y="51" width="212" height="14" uuid="1a8b5bd1-7a40-4439-b7e3-419a8d939169"/>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{paramOrg}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="214" y="105" width="126" height="13" uuid="23a203c5-ad18-45b1-a409-0b68310d0d6a"/>
+				<textElement textAlignment="Center" markup="none">
+					<font fontName="DejaVu Sans" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.finance.properties.Resource.getProperty("finance.enc.encumdetail",""+$P{REPORT_LOCALE})]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement x="0" y="39" width="100" height="14" uuid="db2da90a-5d86-40a0-80d5-104f1878cf59"/>
+				<box leftPadding="2"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{date}.substring( 0, 10)]]></textFieldExpression>
+			</textField>
+			<textField pattern="h.mm a" isBlankWhenNull="true">
+				<reportElement x="0" y="53" width="100" height="14" uuid="b9768475-bbe0-4981-908e-d4ebd24b4d58"/>
+				<box leftPadding="2"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{date}.substring( 11, $F{date}.length() )]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="67" width="100" height="14" uuid="158b4022-f47e-4b9a-8e77-56a8936cfdbf"/>
+				<box leftPadding="2"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$P{paramUser}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="30" splitType="Stretch">
+			<textField pattern=" #,##0.00" isBlankWhenNull="true">
+				<reportElement x="345" y="0" width="75" height="30" uuid="5e7c588e-1aa7-4d1e-9492-d6443cff8537"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[$F{encumamt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement x="481" y="0" width="70" height="30" uuid="4423de58-1915-4908-9c13-c00ccfdd0b16"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[$F{encumdate}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="551" y="0" width="72" height="30" uuid="09adb193-2f94-4392-bf09-23e272b74f84"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[$F{encumno}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="623" y="0" width="68" height="30" uuid="af0debd5-de64-467f-9214-49f34430d23a"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[$F{applied_no}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="420" y="0" width="61" height="30" uuid="0bb7cd0d-8cc0-47e5-adfc-b9b8f7cee719"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{status}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="218" y="0" width="67" height="30" uuid="741074dc-abca-4581-9808-04af1e883c4b"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{encum_method}]]></textFieldExpression>
+			</textField>
+			<textField pattern=" #,##0.00">
+				<reportElement x="80" y="0" width="57" height="30" uuid="626dd16a-d6a6-4f87-96e9-3dd4745be20f"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[$F{actual}]]></textFieldExpression>
+			</textField>
+			<textField pattern=" #,##0.00" isBlankWhenNull="true">
+				<reportElement x="285" y="0" width="60" height="30" uuid="38804bdb-2e03-4c7e-9d0c-0c6e8a698a29"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[$F{appamount}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="0" y="0" width="80" height="30" uuid="a59bc77c-bb8e-4e49-aabf-e18955294fb1"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[$V{AmountSum}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="137" y="0" width="81" height="30" uuid="64463385-e9f9-4a7d-baba-3887425b3b47"/>
+				<box rightPadding="4">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Encum_type}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<noData>
+		<band height="23">
+			<staticText>
+				<reportElement x="0" y="0" width="650" height="23" uuid="ae9af3c9-4676-4b06-8cf8-18dc73925f92"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[لاتوجد بيانات]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_FROWARDPROCESS_PREFERENCE">
+    <function name="EUT_FROWARDPROCESS_PREFERENCE" type="VARCHAR">
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_forwardrmi_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_window_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): Priyanka Ranjan 30-10-2018
+************************************************************************/
+  
+   cur_record RECORD;
+   cur_pref RECORD;
+   v_prefCount NUMBER;
+   v_forrole VARCHAR2(60):='';
+   v_foruserId VARCHAR2(60):='';
+  v_recuserid VARCHAR2(60):='';
+   v_recroleid VARCHAR2(60):='';
+   v_prefernceId VARCHAR2(32);
+    v_delrecuserid VARCHAR2(32);
+    v_delrecroleid VARCHAR2(32);
+    
+BEGIN
+
+select frmi.ad_role_id  ,frmi.ad_user_id,frmi.recuser_id ,frmi.rec_role_id 
+into v_forrole,v_foruserId,v_recuserid,v_recroleid
+from eut_forward_reqmoreinfo frmi 
+    where frmi.eut_forward_reqmoreinfo_id=p_forwardrmi_id and ad_client_id=p_client_id;
+    
+     for cur_record in (select 
+                       pr.ad_org_id as org,pr.isactive as active,pr.createdby as createdby,pr.updatedby as updatedby,
+                       pr.ad_window_id as windowid,pr.attribute as attr,pr.value as value,pr.property as property,pr.ispropertylist as plist,
+                       pr.visibleat_client_id as visibleclient,pr.visibleat_org_id as visibleorg,pr.selected as selection,pr.ad_module_id as module,pr.inherited_from as inherited 
+                       from ad_preference pr
+                       where pr.ad_client_id=p_client_id
+                    and pr.value='Y'  and pr.property is not null
+                       and (pr.visibleat_role_id=v_forrole or pr.visibleat_role_id is null)
+                     and case when (pr.visibleat_role_id is not null) 
+                     then (pr.ad_user_id =v_foruserId or pr.ad_user_id is null)
+		       else (pr.ad_user_id=v_foruserId ) end
+                       )
+                    
+                    
+                      
+               
+        loop
+	select ad_preference_id
+ into v_prefernceId from ad_preference where property = cur_record.property and ad_user_id = v_recuserid and
+	visibleat_role_id = v_recroleid and ad_client_id =p_client_id and ad_window_id=p_window_id and value='Y' limit 1;
+
+	IF (v_prefernceId is not null)
+	THEN
+         update ad_preference set em_eut_forward_reqmoreinfo_id=p_forwardrmi_id where ad_preference_id=v_prefernceId;
+    
+    ELSE
+		INSERT INTO ad_preference(
+		    ad_preference_id, ad_client_id, ad_org_id, isactive, 
+		    createdby, updatedby, ad_window_id, ad_user_id, attribute, 
+		    value, property, ispropertylist, visibleat_client_id, visibleat_org_id, 
+		    visibleat_role_id, selected, ad_module_id, inherited_from, em_eut_forward_reqmoreinfo_id,em_eut_istemporary)
+		VALUES (get_uuid(),p_client_id ,cur_record.org,cur_record.active, cur_record.createdby,cur_record.updatedby, 
+		    p_window_id, v_recuserid, cur_record.attr, cur_record.value, cur_record.property, cur_record.plist, 
+		    cur_record.visibleclient, cur_record.visibleorg, v_recroleid, cur_record.selection, cur_record.module, 
+		    cur_record.inherited,p_forwardrmi_id,'Y');
+	END IF;
+    
+    
+            select 
+             dll.ad_user_id ,dll.ad_role_id into v_delrecuserid,v_delrecroleid
+            from eut_docapp_delegate dl 
+            join eut_docapp_delegateln dll on dl.eut_docapp_delegate_id = dll.eut_docapp_delegate_id
+            where TO_DATE(to_char(from_date,'yyyy-MM-dd'),'yyyy-MM-dd') <= 
+            TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd')
+            and TO_DATE(to_char(TO_DATE,'yyyy-MM-dd'),'yyyy-MM-dd') >= 
+            TO_DATE(to_char(current_timestamp,'yyyy-MM-dd'),'yyyy-MM-dd') 
+            and dl.processed='Y' 
+            and dl.ad_user_id=v_recuserid and dl.ad_role_id=v_recroleid;
+            
+			IF(v_delrecuserid is not null and v_delrecroleid is not null ) THEN
+            select ad_preference_id
+                into v_prefernceId from ad_preference where property = cur_record.property and ad_user_id = v_delrecuserid and
+                visibleat_role_id = v_delrecroleid and ad_client_id =p_client_id and ad_window_id=p_window_id and value='Y' limit 1;
+
+            IF (v_prefernceId is not null)
+            THEN
+            	update ad_preference set em_eut_forward_reqmoreinfo_id=p_forwardrmi_id where ad_preference_id=v_prefernceId;
+
+            ELSE
+                INSERT INTO ad_preference(
+                ad_preference_id, ad_client_id, ad_org_id, isactive, 
+                createdby, updatedby, ad_window_id, ad_user_id, attribute, 
+                value, property, ispropertylist, visibleat_client_id, visibleat_org_id, 
+                visibleat_role_id, selected, ad_module_id, inherited_from, em_eut_forward_reqmoreinfo_id,em_eut_istemporary)
+                VALUES (get_uuid(),p_client_id ,cur_record.org,cur_record.active, cur_record.createdby,cur_record.updatedby, 
+                p_window_id, v_delrecuserid, cur_record.attr, cur_record.value, cur_record.property, cur_record.plist, 
+                cur_record.visibleclient, cur_record.visibleorg, v_delrecroleid, cur_record.selection, cur_record.module, 
+                cur_record.inherited,p_forwardrmi_id,'Y');
+            END IF;
+            END IF;
+ end loop;
+  RETURN p_forwardrmi_id;
+END EUT_FROWARDPROCESS_PREFERENCE
+]]></body>
+    </function>
+  </database>

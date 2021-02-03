@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
+<!-- 2017-09-27T13:19:03 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CleaningContracts_subreport4" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="c268ed8e-323f-4a49-9bbf-c3beae1977cc">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="96"/>
+	<parameter name="contposition" class="java.lang.String"/>
+	<parameter name="motcontperson" class="java.lang.String"/>
+	<parameter name="motconpostion" class="java.lang.String"/>
+	<parameter name="contname" class="java.lang.String"/>
+	<parameter name="totalamt" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select 1 from dual;]]>
+	</queryString>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="77">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="493">
+			<staticText>
+				<reportElement x="324" y="13" width="188" height="25" uuid="f03f7478-74cf-49e8-ae48-18aef833c091">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[المادة السادسة : نظام العقد :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="40" y="38" width="459" height="22" uuid="1b55bf28-7c4e-4773-8abe-72416c89498f">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[يخضع هذا العقد للأنظمة المعمول بها في المملكة ، ويتم تفسيره وتنفيذه والفصل فيما ينشأ عنه من دعاوى بموجبها .]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="324" y="103" width="188" height="25" uuid="4750a87f-329e-40d0-a340-cac3b00a426a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[المادة السابعة : تسوية الخلافات :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="40" y="128" width="459" height="44" uuid="cfe0c89c-61b7-4c10-b9f4-417621804616">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[كل خلاف ينشأ عن تطبيق العقد ولا يتم التوصل إلى تسويته بين الطرفين يختص ديوان المظالم بالفصل فيه ، ويكون حكم الديوان في ذلك نهائياً .]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="40" y="173" width="459" height="44" uuid="a37aab4a-0d1b-439a-89d6-b7cbd47eb21c">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[وتوثيقاً لما تقدم فقد قام الطرفان بالتوقيع على هذه الوثيقة في المكان والتاريخ المذكورين أعلاه ، وحرر منها سبع نسخ وقد تسلم المتعهد إحداها .]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="324" y="222" width="188" height="22" uuid="75b905d4-20d5-487c-b63d-b24b6192b9a2">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[والله الموفق ،،،]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="459" y="319" width="53" height="66" uuid="c9d97d3a-adea-48ac-b117-b4e87a5e90d2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[الاسم :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="459" y="385" width="53" height="66" uuid="bd05a258-e8cd-4fc2-baa8-ec3a4f0f1744"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[الصفة :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="459" y="464" width="53" height="28" uuid="e5f9db50-0e96-48de-9dc2-66ca4da20f95">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[التوقيع :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="297" width="228" height="22" uuid="f33c1314-42ef-4c78-94dc-cc3c702cffa9">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[الطرف الثاني]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="258" y="297" width="201" height="22" uuid="af36cfae-02e7-4747-9491-3ed7ba507948">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[الطرف الأول]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="258" y="319" width="201" height="66" isPrintWhenDetailOverflows="true" uuid="3bc714b6-0c09-419b-ad69-777e60db7a3b">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{motcontperson}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="30" y="385" width="228" height="66" isPrintWhenDetailOverflows="true" uuid="6ae8b2d7-89f0-4282-bbd2-5ec3b6e455f0"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{contposition}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="258" y="385" width="201" height="66" isPrintWhenDetailOverflows="true" uuid="cabded46-0e24-468f-9807-c0f6052ce652">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{motconpostion}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="30" y="319" width="228" height="66" isPrintWhenDetailOverflows="true" uuid="33cc32be-c7bb-4974-be94-de6ee7b02664"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{contname}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+</jasperReport>

@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_SEQUENCE_TRG">
+    <trigger name="EFIN_SEQUENCE_TRG" table="AD_SEQUENCE" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2012 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  sathishkumar
+************************************************************************/
+
+v_count NUMBER;
+    
+BEGIN
+    
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+
+  IF (INSERTING) THEN    
+  v_count:= 0;
+  -- check document no is already present in sequence
+  select count(*) into v_count from ad_sequence where name ilike TRIM(:new.name) and ad_client_id = :new.ad_client_id;
+  
+  if(v_count > 1)  then
+        RAISE_APPLICATION_ERROR(-20000, '@efin_documentno_uniq@');
+  end if;   
+   
+  END IF;
+  IF (UPDATING) THEN
+     v_count:= 0;
+
+   -- check document no is already present in sequence
+   select count(*) into v_count from ad_sequence where name ilike TRIM(:new.name) and ad_client_id = :new.ad_client_id;
+   if(v_count > 1)  then
+        RAISE_APPLICATION_ERROR(-20000, '@efin_documentno_uniq@');
+   end if; 
+  END IF;
+  
+END EFIN_SEQUENCE_TRG
+]]></body>
+    </trigger>
+  </database>

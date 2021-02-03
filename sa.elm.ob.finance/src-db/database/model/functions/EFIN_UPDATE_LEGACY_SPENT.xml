@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_UPDATE_LEGACY_SPENT">
+    <function name="EFIN_UPDATE_LEGACY_SPENT" type="NULL">
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_new_budget_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s): 
+************************************************************************/
+v_parentid VARCHAR2(32);
+
+
+TYPE RECORD IS REF CURSOR;
+Cur RECORD;
+
+BEGIN
+ 
+ update efin_budgetinquiry set legacy_spent=0;
+      --Disable all trigger using in budget enq line
+  ALTER TABLE efin_budgetinquiry DISABLE TRIGGER efin_budgetinquiry_trg;
+  ALTER TABLE public.efin_budgetinquiry DISABLE TRIGGER efin_budgetinquiryneg_trg;
+  ALTER TABLE public.efin_budgetinquiry DISABLE TRIGGER efin_updatebudinq_actualtrg;
+    
+for cur in (
+select sum(coalesce(encumline.Legacy_Paid_Amount,0)) as legacy_spent,costcomb.em_efin_uniquecode,
+costComb.c_validcombination_id
+from efin_budgetinquiry cost
+join c_validcombination costComb on cost.c_validcombination_id=costComb.c_validcombination_id
+join Efin_Budget_Manencumlines encumline on encumline.c_validcombination_id=costComb.c_validcombination_id
+where cost.efin_budgetint_id= 'D8D5FA6B54E345B0B0331BC5764BDFAC'
+and cost.c_campaign_id='8CFC8D85BC484DC7AFB75E3DA60FE30F'
+group by costComb.c_validcombination_id
+order by costComb.account_id ,costComb.c_campaign_id desc )
+
+loop 
+
+--actual account
+
+update efin_budgetinquiry set legacy_spent= cur.legacy_spent
+where efin_budgetinquiry.c_validcombination_id=cur.c_validcombination_id;
+--and efin_budgetint_id=p_new_budget_id;
+
+--999 level
+    update efin_budgetinquiry 
+  set legacy_spent = legacy_spent+cur.legacy_spent
+  where efin_budgetinquiry.c_validcombination_id= 
+  (select efin_getparentacctcom(cur.c_validcombination_id ,p_client_id) );
+  --and efin_budgetint_id=p_new_budget_id;
+  
+  --990 level 
+  
+  select efin_getparentacctcom(cur.c_validcombination_id ,p_client_id) into v_parentid;
+  DBMS_OUTPUT.PUT_LINE('ValidCOmbination:'||cur.c_validcombination_id);
+    update efin_budgetinquiry 
+  set legacy_spent = legacy_spent+cur.legacy_spent
+  where efin_budgetinquiry.c_validcombination_id= 
+  (select c_validcombination_id from efin_budgetinquiry  where   efin_budgetinquiry_id  =( select parent_id 
+                            from efin_budgetinquiry en where en.c_validcombination_id = v_parentid 
+                                               and  en.efin_budgetint_id='D8D5FA6B54E345B0B0331BC5764BDFAC') );
+  --and efin_budgetint_id=p_new_budget_id;
+end loop;
+
+  
+   --Enable all trigger using in budget enq line
+  ALTER TABLE efin_budgetinquiry ENABLE TRIGGER efin_budgetinquiry_trg;
+  ALTER TABLE public.efin_budgetinquiry ENABLE TRIGGER efin_budgetinquiryneg_trg;
+  ALTER TABLE public.efin_budgetinquiry ENABLE TRIGGER efin_updatebudinq_actualtrg;
+  
+  return;
+  end
+]]></body>
+    </function>
+  </database>

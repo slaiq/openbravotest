@@ -1,0 +1,328 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_FACT_ACCT">
+    <trigger name="EFIN_FACT_ACCT" table="FACT_ACCT" fires="before" insert="true" update="false" delete="false" foreach="row">
+      <body><![CDATA[v_calender VARCHAR2(32);
+v_sequence VARCHAR2(30);
+v_oldsequence VARCHAR2(30);
+v_count NUMBER(10,0); 
+v_fincount NUMBER(10,0); 
+v_type VARCHAR2(30);
+v_glcount NUMBER(10,0); 
+v_uniquecode VARCHAR2(2000);
+v_paymentschedulecount NUMBER(10,0); 
+v_finacct_trxcount  NUMBER(10,0); 
+v_invoicelineid varchar(32); --OBTG:VARCHAR2--
+v_c_activity_id varchar(32); --OBTG:VARCHAR2--
+v_c_campaign_id varchar(32); --OBTG:VARCHAR2--
+v_c_salesregion_id varchar(32); --OBTG:VARCHAR2--
+v_user1_id varchar(32); --OBTG:VARCHAR2--
+v_user2_id varchar(32); --OBTG:VARCHAR2--
+v_c_project_id varchar(32); --OBTG:VARCHAR2--
+v_documentno VARCHAR2(30);
+v_status VARCHAR2(30);
+v_acctschema varchar(32); --OBTG:VARCHAR2--
+v_invoice_id varchar(32);--OBTG:VARCHAR2--
+v_budgettype varchar(2);--OBTG:VARCHAR2--
+v_Dimensiontype varchar(2);--OBTG:VARCHAR2--
+v_linenetamt NUMBER;
+v_costcombination_id varchar(32);--OBTG:VARCHAR2--
+v_fundcombination_id varchar(32);--OBTG:VARCHAR2--
+
+BEGIN 
+	--inserting Operation
+	IF INSERTING THEN
+	v_uniquecode :=:NEW.em_efin_uniquecode;
+	v_sequence := :NEW.em_efin_acctseq ;
+	
+	 IF(:new.docbasetype <> 'ARR') THEN
+     		
+	        select to_number(count(gl_journal_id)) into v_glcount from gl_journal where gl_journal_id=:new.record_id;
+
+	        IF(v_glcount>to_number(0)) THEN
+	         --journal entries then insert uniquecode
+	        select em_efin_uniquecode into v_uniquecode from gl_journalline where gl_journalline_id=:new.line_id;
+	        :NEW.em_efin_uniquecode := v_uniquecode;
+	        END IF;
+		if(v_uniquecode is null ) then
+		:NEW.em_efin_uniquecode = :NEW.acctvalue;
+		END IF;
+		--calendar
+                select c_calendar_id into v_calender from ad_org where ad_org_id = :new.ad_org_id;
+	 		if(v_calender is null) then
+				select eut_getcalendar(:new.ad_client_id, :new.ad_org_id) into 	v_calender;			   
+			end if;	  
+		select to_number(count(fin_payment_id)) into v_fincount from fin_payment where fin_payment_id=:new.record_id;
+		select to_number(count(fact_acct_id)) into v_count from fact_acct where record_id=:new.record_id ;
+		IF(v_sequence is null ) THEN
+			IF(v_count=to_number(0) ) THEN
+				IF(v_fincount>to_number(0)) THEN
+					v_type := 'PS';
+					select efin_getGeneralSequence(:new.dateacct, v_type,v_calender,:new.ad_org_id) into v_sequence;
+					IF (v_sequence is null) THEN
+						RAISE_APPLICATION_ERROR(-20000, '@Efin_NoPaymentSequence@');
+					ELSE
+						:NEW.em_efin_acctseq := v_sequence;
+					END IF;	
+				ELSE
+					v_type := 'NPS';
+					select efin_getGeneralSequence(:new.dateacct,v_type,v_calender,:new.ad_org_id) into v_sequence;
+					IF (v_sequence is null) THEN
+						RAISE_APPLICATION_ERROR(-20000, '@Efin_NoPaymentSequence@');
+					ELSE
+						:NEW.em_efin_acctseq := v_sequence;
+					END IF;
+				END IF;
+			ELSE
+				IF(:new.docbasetype='PRJ' or :new.docbasetype='API') then
+				select to_number(count(fact_acct_id)) into v_count from fact_acct where record_id=:new.record_id  and  fact_acct_group_id=:new.fact_acct_group_id;
+				IF(v_count=to_number(0)) THEN
+				v_type := 'NPS';
+						select efin_getGeneralSequence(:new.dateacct, v_type,v_calender,:new.ad_org_id) into v_sequence;
+						IF (v_sequence is null) THEN
+						RAISE_APPLICATION_ERROR(-20000, '@Efin_NoPaymentSequence@');
+						ELSE
+						:NEW.em_efin_acctseq := v_sequence;
+						END IF;	
+				else		
+					select to_number(count(fact_acct_id)) into v_count from fact_acct where record_id=:new.record_id  and  docbasetype=:new.docbasetype;
+					if(v_count=to_number(0)) then
+						v_type := 'NPS';
+							select efin_getGeneralSequence(:new.dateacct, v_type,v_calender,:new.ad_org_id) into v_sequence;
+							IF (v_sequence is null) THEN
+							RAISE_APPLICATION_ERROR(-20000, '@Efin_NoPaymentSequence@');
+							ELSE
+							:NEW.em_efin_acctseq := v_sequence;
+							END IF;	
+					else
+						select coalesce(em_efin_acctseq,'0') into v_oldsequence from fact_acct where record_id=:new.record_id limit 1;
+						:NEW.em_efin_acctseq := v_oldsequence;
+				end if;	
+				END IF;	
+				else		
+					select coalesce(em_efin_acctseq,'0') into v_oldsequence from fact_acct where record_id=:new.record_id limit 1;
+					:NEW.em_efin_acctseq := v_oldsequence;
+				END IF;	
+				END IF;
+				END IF;
+		select to_number (count(fin_finacc_transaction_id)) into v_finacct_trxcount from fin_finacc_transaction where fin_finacc_transaction_id = :new.record_id;
+		IF(:new.line_id is null and :NEW.ismodify ='N') THEN
+
+			select efin_getgeneralledger(:new.ad_client_id,:new.ad_org_id) into v_acctschema;
+			select em_efin_uniquecode , trx.em_efin_document_no 
+			into v_uniquecode,v_documentno
+			from fin_finacc_transaction trx
+			join fin_financial_account acc on trx.fin_financial_account_id  = acc.fin_financial_account_id 
+			join fin_financial_account_acct con on con.fin_financial_account_id = acc.fin_financial_account_id
+			join c_validcombination vc on vc.c_validcombination_id = coalesce(em_efin_withdrawal_unique, coalesce(em_efin_out_clear_unique ,em_efin_out_intransit_unique) ) 
+			where fin_finacc_transaction_id  = :new.record_id and con.c_acctschema_id = v_acctschema;
+
+			:NEW.em_efin_uniquecode := v_uniquecode;
+			:NEW.em_efin_documentno  := v_documentno;
+			
+			select c_salesregion_id,c_project_id,c_campaign_id,c_activity_id,user1_id,user2_id into  v_c_salesregion_id,v_c_project_id,v_c_campaign_id,v_c_activity_id,v_user1_id,v_user2_id  
+			from c_validcombination  where em_efin_uniquecode =v_uniquecode and 
+			NOT(c_salesregion_id is null OR c_project_id is null OR c_campaign_id is null OR c_activity_id is null OR user1_id is null OR user2_id is null) limit 1;
+
+			:NEW.c_activity_id  := v_c_activity_id;
+			:NEW.c_campaign_id  := v_c_campaign_id;
+			:NEW.c_salesregion_id  := v_c_salesregion_id;
+			:NEW.user1_id := v_user1_id;
+			:NEW.user2_id := v_user2_id;
+			:NEW.c_project_id := v_c_project_id;
+
+		END IF;
+		v_uniquecode :='';
+ 		IF(v_finacct_trxcount>to_number(0) and :NEW.ismodify ='N') THEN
+
+			select to_number (count(c_invoiceline_id)) into v_paymentschedulecount from c_invoiceline where c_invoiceline_id = :new.line_ID;
+			select em_efin_document_no into v_documentno from fin_finacc_transaction where fin_finacc_transaction_id  = :new.record_id;
+			if(v_paymentschedulecount > to_number(0)) then 
+
+				/*select c_invoiceline_id ,em_efin_uniquecode,em_efin_c_activity_id,em_efin_c_campaign_id,em_efin_c_salesregion_id,user1_id,user2_id,c_project_id 
+				into v_invoicelineid ,v_uniquecode, v_c_activity_id,v_c_campaign_id,v_c_salesregion_id,v_user1_id,v_user2_id,v_c_project_id
+				from c_invoiceline il join fin_payment_schedule sc on sc.c_invoice_id = il.c_invoice_id 
+				where sc.fin_payment_schedule_id  = :new.line_ID 
+				and coalesce(il.c_bpartner_id,'') = coalesce(sc.em_efin_bpartner_id ,'')
+				and em_efin_c_elementvalue_id =:new.account_id;*/
+				select c_invoice_id,linenetamt  into v_invoice_id,v_linenetamt from c_invoiceline where c_invoiceline_id =:new.line_ID;
+				
+			    select em_efin_budget_type into v_budgettype from c_invoice where c_invoice_id = v_invoice_id;
+								  
+				if(v_budgettype='C') then
+
+				v_invoicelineid:=:new.line_ID ;								  
+				select em_efin_c_validcombination_id into v_costcombination_id from c_invoiceline where c_invoiceline_id = :new.line_ID ;
+                select EM_Efin_Dimensiontype into v_Dimensiontype from c_validcombination where  c_validcombination_id =v_costcombination_id;
+                 
+                if (v_Dimensiontype ='E') then
+                 	select em_efin_fundscombination into v_fundcombination_id from c_validcombination where c_validcombination_id =  v_costcombination_id;
+						
+                    select em_efin_uniquecode,c_activity_id,c_campaign_id,c_salesregion_id,user1_id,user2_id,c_project_id 
+					into   v_uniquecode, v_c_activity_id,v_c_campaign_id,v_c_salesregion_id,v_user1_id,v_user2_id,v_c_project_id
+					from c_validcombination where c_validcombination_id= v_fundcombination_id;  
+				 else
+                 	select em_efin_uniquecode,c_activity_id,c_campaign_id,c_salesregion_id,user1_id,user2_id,c_project_id 
+					into   v_uniquecode, v_c_activity_id,v_c_campaign_id,v_c_salesregion_id,v_user1_id,v_user2_id,v_c_project_id
+					from c_validcombination where c_validcombination_id= v_costcombination_id;  
+                 end if;
+
+ 				else 
+
+				select c_invoiceline_id ,comb.em_efin_uniquecode,il.em_efin_c_activity_id,em_efin_c_campaign_id,il.em_efin_c_salesregion_id,il.user1_id,il.user2_id,il.c_project_id 
+				into v_invoicelineid ,v_uniquecode, v_c_activity_id,v_c_campaign_id,v_c_salesregion_id,v_user1_id,v_user2_id,v_c_project_id
+				from c_invoice inv
+				join c_invoiceline il on inv.c_invoice_id = il.c_invoice_id
+				join c_validcombination comb on comb.c_validcombination_id = il.em_efin_c_validcombination_id
+				where il.c_invoiceline_id =:new.line_ID ;
+ 				--and em_efin_c_elementvalue_id =new.account_id and il.em_efin_c_salesregion_id=NEW.c_salesregion_id and il.em_efin_c_campaign_id=NEW.c_campaign_id 
+ 				--and il.c_project_id=NEW.c_project_id and il.em_efin_c_activity_id=NEW.c_activity_id and il.user1_id=NEW.user1_id and il.user2_id=NEW.user2_id ;
+
+				end if;	
+
+				:NEW.em_efin_uniquecode := v_uniquecode;
+				:NEW.em_efin_documentno  := v_documentno;
+				
+			end if;
+		END IF;
+        
+		IF(:new.docbasetype ='API' or :new.docbasetype='PPA') THEN
+ 			IF(:new.line_id is null) THEN
+				select comb.em_efin_uniquecode,pin.documentno,ln.em_efin_c_activity_id,ln.em_efin_c_campaign_id,ln.em_efin_c_salesregion_id,ln.user1_id,ln.user2_id,ln.c_project_id 
+				into v_uniquecode, v_documentno,v_c_activity_id,v_c_campaign_id,v_c_salesregion_id,v_user1_id,v_user2_id,v_c_project_id 
+				from efin_applied_prepayment p
+				join c_invoice pa on pa.c_invoice_id = p.efin_applied_invoice  
+				join c_invoiceline ln on ln.c_invoice_id  = pa.c_invoice_id
+				join c_validcombination comb on comb.c_validcombination_id = ln.em_efin_c_validcombination_id
+				join c_invoice pin on p.c_invoice_id = pin.c_invoice_id
+				where p.c_invoice_id = :new.record_id and em_efin_c_elementvalue_id  = :new.account_id  limit 1;
+
+				:NEW.em_efin_uniquecode := v_uniquecode;
+				:NEW.em_efin_documentno  := v_documentno;
+				
+				:NEW.c_activity_id  := v_c_activity_id;
+				:NEW.c_campaign_id  := v_c_campaign_id;
+				:NEW.c_salesregion_id  := v_c_salesregion_id;
+				:NEW.user1_id := v_user1_id;
+				:NEW.user2_id := v_user2_id;
+				:NEW.c_project_id := v_c_project_id;
+
+			ELSE
+				--select em_efin_uniquecode into v_uniquecode from c_invoiceline  where  c_invoiceline_id  = new.line_id ;
+				select documentno,comb.em_efin_uniquecode into v_documentno,v_uniquecode from c_invoice 
+				join c_invoiceline ln using (c_invoice_id) 
+				join c_validcombination comb on comb.c_validcombination_id = ln.em_efin_c_validcombination_id
+				where c_invoiceline_id = :new.line_id ;
+
+				:NEW.em_efin_uniquecode := v_uniquecode; 
+				:NEW.em_efin_documentno  := v_documentno;
+
+			END IF;			
+		END IF;
+
+		IF(:new.docbasetype ='GLJ') THEN 	
+			select documentno into v_documentno from gl_journal 			
+			where gl_journal_id = :new.record_id;
+			:NEW.em_efin_documentno  := v_documentno;					
+		END IF;
+		IF(:new.docbasetype ='REC' or :new.docbasetype='UREC') THEN
+
+			select docstatus into v_status from fin_reconciliation  where   fin_reconciliation_id  =  :new.record_id;
+
+ 			/*select r.documentno into v_documentno
+			from fin_reconciliation r
+			join fin_reconciliationline_v rl on rl.fin_reconciliation_id = r.fin_reconciliation_id 
+			join fin_finacc_transaction trx on trx.fin_finacc_transaction_id = rl.fin_finacc_transaction_id
+			join fin_financial_account acc on acc.fin_financial_account_id = r.fin_financial_account_id
+			join fin_financial_account_acct con on con.fin_financial_account_id = acc.fin_financial_account_id
+			where r.fin_reconciliation_id  =  :new.record_id;*/
+
+			select documentno  into v_documentno from fin_reconciliation where fin_reconciliation_id  =  :new.record_id;
+			
+			:NEW.em_efin_documentno  := v_documentno;
+
+			IF(v_status ='CO') THEN
+
+				IF(:new.amtsourcecr>0) THEN
+
+					select vc.em_efin_uniquecode,vc.c_salesregion_id,vc.c_project_id,vc.c_campaign_id,vc.c_activity_id,vc.user1_id,vc.user2_id
+					into v_uniquecode, v_c_salesregion_id,v_c_project_id,v_c_campaign_id,v_c_activity_id,v_user1_id,v_user2_id  
+					from fin_reconciliation r
+					join efin_fin_reconciliationline rl on rl.fin_reconciliation_id = r.fin_reconciliation_id 
+					join fin_financial_account_acct con on con.fin_financial_account_id = rl.fin_financial_account_id
+					join c_validcombination vc on vc.c_validcombination_id = (
+					case when rl.trxtype ilike 'BPD' then
+						(em_efin_in_intransit_unique)
+					 else (case when em_efin_out_clear_unique is null then em_efin_out_intransit_unique   else em_efin_out_clear_unique    end) end )
+ 					where r.fin_reconciliation_id  =  :new.record_id
+					and vc.account_id = :new.account_id limit 1;
+
+				END IF;
+
+				IF(:new.amtsourcedr  >0 ) THEN
+					select vc.em_efin_uniquecode,vc.c_salesregion_id,vc.c_project_id,vc.c_campaign_id,vc.c_activity_id,vc.user1_id,vc.user2_id
+					into v_uniquecode, v_c_salesregion_id,v_c_project_id,v_c_campaign_id,v_c_activity_id,v_user1_id,v_user2_id  
+					from fin_reconciliation r
+					join efin_fin_reconciliationline rl on rl.fin_reconciliation_id = r.fin_reconciliation_id 
+					join fin_financial_account_acct con on con.fin_financial_account_id = rl.fin_financial_account_id
+					join c_validcombination vc on vc.c_validcombination_id = ( case when rl.trxtype ilike 'BPD' then
+						( case when em_efin_in_clear_unique  is null then coalesce(em_efin_deposit_unique , em_efin_in_intransit_unique )  else em_efin_in_clear_unique   end)
+					 else (coalesce(em_efin_withdrawal_unique , em_efin_out_intransit_unique )) end 
+					)
+ 					where r.fin_reconciliation_id  =  :new.record_id
+					and vc.account_id = :new.account_id limit 1;
+				END IF;
+
+				:NEW.em_efin_uniquecode := v_uniquecode;
+				:NEW.c_activity_id  := v_c_activity_id;
+				:NEW.c_campaign_id  := v_c_campaign_id;
+				:NEW.c_salesregion_id  := v_c_salesregion_id;
+				:NEW.user1_id := v_user1_id;
+				:NEW.user2_id := v_user2_id;
+				:NEW.c_project_id := v_c_project_id;
+			END IF;
+		END IF;
+
+		IF(v_status ='EFIN_UREC') THEN 
+			IF(:new.amtsourcedr >0) THEN
+				select vc.em_efin_uniquecode,vc.c_salesregion_id,vc.c_project_id,vc.c_campaign_id,vc.c_activity_id,vc.user1_id,vc.user2_id
+					into v_uniquecode, v_c_salesregion_id,v_c_project_id,v_c_campaign_id,v_c_activity_id,v_user1_id,v_user2_id  
+				from fin_reconciliation r
+				join efin_fin_reconciliationline rl on rl.fin_reconciliation_id = r.fin_reconciliation_id 
+				join fin_financial_account_acct con on con.fin_financial_account_id = rl.fin_financial_account_id
+				join c_validcombination vc on vc.c_validcombination_id = (
+					case when rl.trxtype ilike 'BPD' then
+						(em_efin_in_intransit_unique)
+					 else (case when em_efin_out_clear_unique is null then em_efin_out_intransit_unique   else em_efin_out_clear_unique    end) end )
+ 				where r.fin_reconciliation_id  =  :new.record_id
+				and vc.account_id = :new.account_id limit 1;
+
+			END IF;
+
+			IF(:new.amtsourcecr >0 ) THEN
+				select vc.em_efin_uniquecode,vc.c_salesregion_id,vc.c_project_id,vc.c_campaign_id,vc.c_activity_id,vc.user1_id,vc.user2_id
+					into v_uniquecode, v_c_salesregion_id,v_c_project_id,v_c_campaign_id,v_c_activity_id,v_user1_id,v_user2_id  
+				from fin_reconciliation r
+				join efin_fin_reconciliationline rl on rl.fin_reconciliation_id = r.fin_reconciliation_id 
+				join fin_financial_account_acct con on con.fin_financial_account_id = rl.fin_financial_account_id
+				join c_validcombination vc on vc.c_validcombination_id = 
+						  ( case when rl.trxtype ilike 'BPD' then
+						( case when em_efin_in_clear_unique  is null then coalesce(em_efin_deposit_unique , em_efin_in_intransit_unique )  else em_efin_in_clear_unique   end)
+					 else (coalesce(em_efin_withdrawal_unique , em_efin_out_intransit_unique )) end 
+					)
+				where r.fin_reconciliation_id  =  :new.record_id
+				and vc.account_id = :new.account_id limit 1;
+			END IF;
+			:NEW.em_efin_uniquecode := v_uniquecode;
+			:NEW.c_activity_id  := v_c_activity_id;
+			:NEW.c_campaign_id  := v_c_campaign_id;
+			:NEW.c_salesregion_id  := v_c_salesregion_id;
+			:NEW.user1_id := v_user1_id;
+			:NEW.user2_id := v_user2_id;
+			:NEW.c_project_id := v_c_project_id;
+		END IF;
+	END IF;	
+	END IF;
+		END EFIN_FACT_ACCT
+]]></body>
+    </trigger>
+  </database>

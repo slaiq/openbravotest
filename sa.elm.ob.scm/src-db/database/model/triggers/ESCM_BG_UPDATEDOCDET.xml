@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_BG_UPDATEDOCDET">
+    <trigger name="ESCM_BG_UPDATEDOCDET" table="ESCM_BANKGUARANTEE_DETAIL" fires="after" insert="true" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_currencyId VARCHAR2(32);
+	v_supplierId VARCHAR2(32);
+	v_bidmmgmtID VARCHAR2(32);
+	v_totalAmt NUMBER;
+	v_financialyear VARCHAR(60);
+	v_bgrate NUMBER;
+	v_contactname  VARCHAR2(32);
+	v_expireIn  NUMBER;   
+	v_proposalId VARCHAR2(32);
+	v_documentType VARCHAR(3);
+	v_document_no VARCHAR(32);--OBTG:VARCHAR2--
+	v_calculatedamount NUMBER;
+	v_bgstatus VARCHAR(3);
+	v_client_id VARCHAR(32);--OBTG:VARCHAR2--
+BEGIN
+    
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+    IF(TG_OP= 'INSERT' or (TG_OP='UPDATE' and :new.escm_proposalmgmt_id <> :old.escm_proposalmgmt_id)) THEN
+    IF(:new.isbgworkbench='N' ) THEN
+    
+	                     -- GET PROPOSAL DETAILS
+			IF(:new.escm_proposalmgmt_id is not null  and :new.c_order_id is null) THEN	
+				select pro.supplier,pro.escm_bidmgmt_id, pro.totalamount,pro.ad_client_id,'P',:new.escm_proposalmgmt_id
+				into v_supplierId ,v_bidmmgmtID,v_totalAmt,v_client_id,v_documentType,v_document_no
+				from escm_proposalmgmt  pro
+				where    pro.escm_proposalmgmt_id =:new.escm_proposalmgmt_id ;
+			END IF;
+			
+	                     -- GET Order DETAILS
+			IF(:new.escm_proposalmgmt_id is not null  and :new.c_order_id is not null) THEN	
+				select ord.c_bpartner_id,pro.escm_bidmgmt_id,pro.totalamount ,ord.ad_client_id ,'POC',:new.c_order_id
+				into v_supplierId ,v_bidmmgmtID,v_totalAmt,v_client_id,v_documentType,v_document_no
+				from c_order  ord 
+				join escm_proposalmgmt pro on ord.em_escm_proposalmgmt_id = pro.escm_proposalmgmt_id
+				where    ord.c_order_id =:new.c_order_id ;
+			END IF;
+			-- get the currency id 
+
+			select c_currency_id  into v_currencyId from ad_client   where   ad_client_id =v_client_id;
+			
+			--GET BG RATE BASED ON BANK GUARANTEE TYPE
+			IF(:new.bankguaranteetype='IBG')THEN
+			
+			v_bgrate :=  (select  attrvalue:: NUMBER from escm_bidtermcdn bidterm where 
+					bidterm.escm_bidmgmt_id = v_bidmmgmtID
+					and attributename in ( select escm_deflookups_typeln_id from escm_deflookups_typeln 
+					where escm_deflookups_type_id in ( select escm_deflookups_type_id from escm_deflookups_type
+					where reference='BTC') and value='ING')
+					order by created desc limit 1);
+
+			ELSE IF (:new.bankguaranteetype='FBG')THEN
+
+			v_bgrate := (SELECT name :: NUMBER from escm_deflookups_typeln  where escm_deflookups_type_id 
+			            = ( select  escm_deflookups_type_id from escm_deflookups_type where reference ='PRC_PARAM'  
+				   and ad_client_id= :new.ad_client_id) and ad_client_id = :new.ad_client_id 
+				   order by created desc  limit 1);
+			END IF;
+			END IF; 
+				
+			--CALCULATE THE EXPRIE IN BASED ON BG START DATE AND EXPIRY DATE
+			
+			select count(distinct gregorian_date) into v_expireIn from eut_hijri_dates  where   gregorian_date > :new.bgstartdateh  and gregorian_date <= :new.expirydateh  
+			and ad_client_id= :new.ad_client_id;
+			
+			-- CALCULATE THE FINANCIAL YEAR
+			select coalesce(y.description,y.year) into v_financialyear from c_period p 
+			join c_year y on y.c_year_id = p.c_year_id where  :new.created between startdate 
+			and enddate and p.ad_client_id=:new.ad_client_id;
+		
+			-- GET BG SPECIALIST ROLE
+			select  (case when visibleat_role_id is not null  then ( select  C_BPartner_ID from ad_user  
+			where ad_user_id = ( select ad_user_id from ad_user_roles   where ad_role_id =pd.visibleat_role_id 
+			order by created asc limit 1 ) ) when ad_user_id is not null then ( select  usr.C_BPartner_ID from ad_user usr 
+			where usr.ad_user_id= pd.ad_user_id )  end ) into v_contactname    from ad_preference  pd where  pd.ispropertylist='Y' 
+			and pd.property='ESCM_BGSpecialist_Role';
+
+			--get calculate amount & bg status
+			/*v_calculatedamount:= round(((v_totalAmt*(v_bgrate/100))*(:new.bank_percentage/100)),2);
+			IF(v_calculatedamount > :new.bgamount) THEN
+			v_bgstatus:='INV';
+			else
+			v_bgstatus:='ACT';
+			END IF;*/
+
+
+			
+			-- update the bank guarantee values  
+			--,calculated_amt=v_calculatedamount,bgstatus=v_bgstatus,bank_percentage =new.bank_percentage,multi_banks=new.multi_banks ,
+			update escm_bankguarantee_detail set document_type =v_documentType , c_bpartner_id=v_supplierId,
+			escm_bidmgmt_id= v_bidmmgmtID,document_amount=v_totalAmt,financial_year =v_financialyear ,
+			c_currency_id=v_currencyId , exprire_in= v_expireIn,
+			 foreign_bank='N', contactname=v_contactname, initialbg= v_bgrate,
+			 document_no= v_document_no
+			where escm_bankguarantee_detail_id = :new.escm_bankguarantee_detail_id;
+
+    END IF;
+    END IF;
+	
+	
+  
+END ESCM_BG_UPDATEDOCDET
+]]></body>
+    </trigger>
+  </database>

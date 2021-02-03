@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_BIDMGMT">
+    <trigger name="ESCM_BIDMGMT" table="ESCM_BIDMGMT_LINE" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_NoOfChilds NUMBER;
+v_ParentIsManual CHAR(1);
+v_ChildIsManual CHAR(1);
+v_Quantity NUMBER;
+v_ReqLineId VARCHAR2(32); 
+
+BEGIN
+
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF DELETING THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+    
+    IF DELETING  THEN
+	IF (:OLD.parentline_id IS NOT NULL) THEN		
+			--Check deliverable parent has altleast one child after the deletion, if it does not have then delete its parent too
+			-- it should happen only if the deliverables has ismanual ='N' and also its parent has ismanual ='N' 
+			select count(escm_bidmgmt_line_id) into v_NoOfChilds from escm_bidmgmt_line where parentline_id = :OLD.parentline_id;
+			select ismanual into v_ParentIsManual from escm_bidmgmt_line where escm_bidmgmt_line_id = :OLD.parentline_id;
+			
+			IF (v_NoOfChilds = 0 and v_ParentIsManual ='N') THEN
+            	select quantity,m_requisitionline_id into v_Quantity,v_ReqLineId from escm_bidsourceref where escm_bidmgmt_line_id = :OLD.parentline_id;
+				update m_requisitionline set em_escm_bidmgmt_qty = (em_escm_bidmgmt_qty - v_Quantity) where m_requisitionline_id = v_ReqLineId;
+			  	delete from escm_bidsourceref where escm_bidmgmt_line_id = :OLD.parentline_id;
+		        delete from escm_bidmgmt_line where escm_bidmgmt_line_id = :OLD.parentline_id;
+		    END IF;
+	  END IF;			
+    END IF;
+
+    END ESCM_BIDMGMT
+]]></body>
+    </trigger>
+  </database>

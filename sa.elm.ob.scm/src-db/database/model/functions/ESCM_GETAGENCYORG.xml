@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION ESCM_GETAGENCYORG">
+    <function name="ESCM_GETAGENCYORG" type="VARCHAR">
+      <parameter name="p_node_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[/*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2001-2012 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************/
+p VARCHAR2(32767);
+v_parentID VARCHAR2(32);
+v_hrtypeID VARCHAR2(32);
+v_hrtype VARCHAR2(32);
+
+
+
+BEGIN
+
+    SELECT parent_id INTO v_parentID from ad_treenode node 
+    JOIN ad_tree tree ON tree.ad_tree_id = node.ad_tree_id
+    WHERE node.node_id= p_node_id  AND tree.treetype ='OO' AND tree.ad_client_id = p_client_id ;    
+
+    IF v_parentID IS NULL THEN
+      RETURN ' ';
+    ELSE
+      SELECT lower(value) into v_hrtype from ehcm_org_type  where  ehcm_org_type_id =(SELECT em_ehcm_orgtyp from ad_org where ad_org_id = v_parentID and ad_client_id =p_client_id);
+
+      IF(v_hrtype ='agency') THEN
+       RETURN v_parentID;
+      ELSE 
+       p:= escm_getagencyorg(v_parentID,p_client_id );
+      END IF;
+    END IF;
+    
+  RETURN p;
+
+  EXCEPTION WHEN OTHERS THEN RETURN ' ';
+END ESCM_GETAGENCYORG
+]]></body>
+    </function>
+  </database>

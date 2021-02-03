@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_BUDGETADD">
+    <trigger name="EFIN_BUDGETADD" table="EFIN_BUDGETADD" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[v_budget_id VARCHAR(32);
+v_count NUMBER;
+BEGIN
+
+    IF AD_isTriggerEnabled()='N' THEN 
+	IF DELETING THEN 
+		RETURN OLD; 
+	ELSE 
+		RETURN NEW; 
+	END IF; 
+    END IF;
+
+    	--inserting/updating Operation
+	IF INSERTING  OR UPDATING THEN
+		v_budget_id = :new.efin_budget_id;
+		
+		select count(*) into v_count from efin_budgetadd budad 
+		join efin_budget bud on budad.efin_budget_id=bud.efin_budget_id
+		join c_period prdf on prdf.c_period_id=bud.frmperiod
+		join c_period prdt on prdt.c_period_id=bud.toperiod
+		where budad.efin_budget_id=:new.efin_budget_id
+		and (budad.trxdate>=prdf.startdate) and (budad.trxdate<=prdt.enddate);
+		
+		IF(v_count=0) THEN
+			RAISE_APPLICATION_ERROR(-20501,'@EFIN_BudAdd_TrxDt@');
+		END IF;
+	END IF;   
+   
+END EFIN_BUDGETADD
+]]></body>
+    </trigger>
+  </database>

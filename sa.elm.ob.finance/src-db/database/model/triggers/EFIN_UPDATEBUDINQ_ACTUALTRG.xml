@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_UPDATEBUDINQ_ACTUALTRG">
+    <trigger name="EFIN_UPDATEBUDINQ_ACTUALTRG" table="EFIN_BUDGETINQUIRY" fires="after" insert="false" update="true" delete="false" foreach="row">
+      <body><![CDATA[v_parent_id character varying(32);
+v_diffAmount NUMBER;
+
+BEGIN
+v_diffAmount:=0;
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+	-- Insert/Delete Operation	
+
+	IF UPDATING THEN	
+      
+      ---GET DIFFERENCE AMOUNT AND UPDATE THE PARENT SPENT AMOUNT 
+      v_diffAmount:= :NEW.SPENT_AMT - :OLD.SPENT_AMT;
+      IF(:NEW.SPENT_AMT <> :OLD.SPENT_AMT and :NEW.PARENT_ID IS NOT NULL and :new.isvirtual ='N') THEN
+      UPDATE EFIN_BUDGETINQUIRY SET SPENT_AMT = (SPENT_AMT + v_diffAmount) WHERE EFIN_BUDGETINQUIRY_ID = :NEW.PARENT_ID;
+      END IF;
+
+	END IF;
+	
+	END EFIN_UPDATEBUDINQ_ACTUALTRG
+]]></body>
+    </trigger>
+  </database>

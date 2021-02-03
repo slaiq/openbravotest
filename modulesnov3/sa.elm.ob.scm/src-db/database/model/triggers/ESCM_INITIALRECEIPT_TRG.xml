@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER ESCM_INITIALRECEIPT_TRG">
+    <trigger name="ESCM_INITIALRECEIPT_TRG" table="ESCM_INITIALRECEIPT" fires="after" insert="false" update="true" delete="false" foreach="row">
+      <body><![CDATA[  v_OrderlineID varchar2(32);
+  v_acceptedQty NUMBER;
+  v_rejectedQty NUMBER;
+  v_returnedQty NUMBER;
+  v_deliveredQty NUMBER; 
+  v_returnedAmt NUMBER;
+  v_deliveredAmt NUMBER; 
+  v_irQty NUMBER;   
+  v_baseOrder varchar2(32);
+  v_completionPercent NUMBER;   
+  v_recType VARCHAR(60); 
+  v_receivingType VARCHAR(60);
+  v_documentNo VARCHAR(30);
+  v_returnDiff NUMBER;
+  v_irReturnDiff NUMBER;
+    
+BEGIN
+    IF AD_isTriggerEnabled()='N' THEN RETURN;
+    END IF;
+  if(UPDATING) THEN
+   v_OrderlineID:=:new.c_orderline_id;
+
+   if(v_OrderlineID IS NOT NULL) THEN
+   
+     select em_escm_receivetype,coalesce(em_Escm_base_order,c_order_id) into v_recType , v_baseOrder from c_order where c_order_id in (select c_order_id from
+                                                                                c_orderline where c_orderline_id = :new.c_orderline_id); 
+                      
+	select DocumentNo INTO v_documentNo from c_order ord join c_orderline ln on ord.c_order_id = ln.c_order_id
+	where ln.c_orderline_id = v_OrderlineID;
+    
+    if(v_recType = 'QTY') then
+    if ((:new.accepted_qty<> :old.accepted_qty) or (:new.rejected_qty<>:old.rejected_qty) or (:new.delivered_qty<>:old.delivered_qty)
+                           or (:new.return_qty<>:old.return_qty) or (:new.ir_return_qty<>:old.ir_return_qty)) then 
+        select sum(accepted_qty),sum(rejected_qty),sum(delivered_qty),sum(return_qty),sum(ir_return_qty)
+        into v_acceptedQty, v_rejectedQty,  v_deliveredQty, v_returnedQty, v_irQty from escm_initialreceipt where  
+        source_ref is null and c_orderline_id in
+        (select c_orderline_id from c_orderline where (c_order_id in (
+                select c_order_id from c_order where em_Escm_base_order = v_baseOrder and em_escm_appstatus = 'ESCM_AP') 
+                or c_order_id= v_baseOrder ) and line = :new.line) ;
+                        
+        update c_orderline set em_escm_qty_accepted=v_acceptedQty, 
+        em_escm_qty_delivered=em_escm_legacy_qty_delivered+v_deliveredQty, 
+        em_escm_qtyrejected=v_rejectedQty, 
+        em_escm_qtyreturned =v_returnedQty ,
+        em_escm_qtyirr=v_irQty
+        where c_orderline_id = :new.c_orderline_id and em_escm_issummarylevel = 'N';
+        
+        if((:new.return_qty<>:old.return_qty) or (:new.ir_return_qty<>:old.ir_return_qty)) then
+        	
+            v_returnDiff := :new.return_qty - :old.return_qty;
+            v_irReturnDiff := :new.ir_return_qty - :old.ir_return_qty;
+                        
+			update c_orderline set em_escm_qtyreturned = em_escm_qtyreturned + v_returnDiff,
+            EM_Escm_Qtyirr = EM_Escm_Qtyirr + v_irReturnDiff,
+            EM_Escm_Qty_Delivered = EM_Escm_Qty_Delivered - v_returnDiff - v_irReturnDiff
+            where c_orderline_id in (select c_orderline_id from c_order hdr join c_orderline ln on hdr.c_order_id = ln.c_order_id
+			where em_escm_revision > (select em_escm_revision from c_order ord join c_orderline ordln on ord.c_order_id = ordln.c_order_id
+			where c_orderline_id = v_OrderlineID) and documentno = v_documentNo 
+			and line = :new.line);
+
+        end if;
+        	
+        end if;
+    ELSE
+    if((:new.delivered_amt<>:old.delivered_amt) or (:new.return_amt<>:old.return_amt)) then 
+          select sum(delivered_amt),sum(return_amt) 
+        into  v_deliveredAmt, v_returnedAmt from escm_initialreceipt where  
+        source_ref is null and c_orderline_id in 
+        (select c_orderline_id from c_orderline where (c_order_id in (
+                select c_order_id from c_order where em_Escm_base_order = v_baseOrder and em_escm_appstatus = 'ESCM_AP' ) 
+                or c_order_id= v_baseOrder ) and line = :new.line);
+        --sum(accepted_qty),sum(rejected_qty),(delivered_qty),sum(return_qty),sum(ir_return_qty),v_acceptedQty, v_rejectedQty,  v_deliveredQty, v_returnedQty, v_irQty,
+
+        update c_orderline set
+         em_escm_amt_delivered = em_escm_legacy_amt_delivered + v_deliveredAmt,
+          em_escm_amtreturned = v_returnedAmt
+        where c_orderline_id = :new.c_orderline_id ;
+        -- em_escm_qty_accepted=v_acceptedQty, 
+       -- em_escm_qty_delivered=v_deliveredQty, 
+       -- em_escm_qtyrejected=v_rejectedQty, 
+       -- em_escm_qtyirr=v_irQty,
+                  
+    	if(:new.return_amt<>:old.return_amt) then
+        	
+            v_returnDiff := :new.return_amt-:old.return_amt;
+            
+			update c_orderline set em_escm_amtreturned = em_escm_amtreturned + v_returnDiff,
+            EM_Escm_Amt_Delivered = EM_Escm_Amt_Delivered - v_returnDiff
+            where c_orderline_id in (select c_orderline_id from c_order hdr join c_orderline ln on hdr.c_order_id = ln.c_order_id
+			where em_escm_revision > (select em_escm_revision from c_order ord join c_orderline ordln on ord.c_order_id = ordln.c_order_id
+			where c_orderline_id = v_OrderlineID) and documentno = v_documentNo 
+			and line = :new.line);
+
+        end if;
+        	
+     end if;
+    END IF;
+
+    
+       if(v_recType = 'QTY') then
+        if ((:new.accepted_qty<> :old.accepted_qty) or (:new.rejected_qty<>:old.rejected_qty) or (:new.delivered_qty<>:old.delivered_qty)
+                           or (:new.return_qty<>:old.return_qty) or (:new.ir_return_qty<>:old.ir_return_qty)) then 
+       -- update completion percentage 
+	select  ((em_escm_qty_delivered/QtyOrdered)*100) into v_completionPercent from c_orderline where c_orderline_id = :new.c_orderline_id;
+	update c_orderline set em_escm_complete_percen= v_completionPercent where c_orderline_id = :new.c_orderline_id;
+    end if;
+ 	else
+      if((:new.delivered_amt<>:old.delivered_amt) or (:new.return_amt<>:old.return_amt)) then 
+ 	select  ((em_escm_amt_delivered/linenetamt)*100) into v_completionPercent from c_orderline where c_orderline_id = :new.c_orderline_id;
+	update c_orderline set em_escm_complete_percen= v_completionPercent where c_orderline_id = :new.c_orderline_id;
+     end if;
+	end if;
+ 	
+	
+    END IF;      
+    END IF;      
+
+    END ESCM_INITIALRECEIPT_TRG
+]]></body>
+    </trigger>
+  </database>

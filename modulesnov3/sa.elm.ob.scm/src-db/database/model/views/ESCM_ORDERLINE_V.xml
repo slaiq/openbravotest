@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW ESCM_ORDERLINE_V">
+    <view name="ESCM_ORDERLINE_V"><![CDATA[SELECT ordln.c_orderline_id AS escm_orderline_v_id, ordln.ad_client_id, ordln.ad_org_id, ordln.em_escm_prodescription, ordln.em_escm_ismanual, ordln.c_uom_id, ordln.c_order_id, ordln.isactive, ordln.created, ordln.createdby, ordln.updated, ordln.updatedby, ordln.em_escm_product_category_id, ordln.m_product_id, ordln.em_escm_issummarylevel, ordln.line, (COALESCE(ordln.line, 0) || ' - ') || COALESCE(ordln.em_escm_prodescription, '') AS code FROM c_orderline ordln]]></view>
+  </database>

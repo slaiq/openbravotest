@@ -1,0 +1,736 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="EmployeeProgress" pageWidth="1560" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="1520" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="d33d428e-0b23-4f8e-bba0-97327e492330">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="LocalHostDB"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="Trx_type" class="java.lang.String"/>
+	<parameter name="Efin_Ad_User_Report_V_ID" class="java.lang.String"/>
+	<parameter name="Aux_User_id" class="java.lang.String">
+		<defaultValueExpression><![CDATA[($P{Efin_Ad_User_Report_V_ID}==null || $P{Efin_Ad_User_Report_V_ID}.equals( "" )) ?  "    AND 1=1    " : "   and  main.ad_user_id  = '"+$P{Efin_Ad_User_Report_V_ID}+"'    "]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+	Transaction_number,
+	amount,
+	transaction_date,
+	pending_on,
+	Pending_Creation_date,
+	pending_days,
+	status,
+	transaction_type,
+	To_char(
+		Creation_date,
+		'DD/MM/YYYY'
+	) Creation_date,
+	ad_user_id,
+	created_by,
+	updated_by,
+	inward_no,
+	inward_date
+from
+	(
+	select
+			inv.documentno Transaction_number,
+			trunc(inv.dateinvoiced) Transaction_Date,
+			Pendingapproval pending_on,
+			to_char(
+				to_Date(
+					Eut_convert_to_hijri(
+						To_char(
+							(hist.approveddate),
+							'YYYY-MM-DD'
+						)
+					)
+				),
+				'DD/MM/YYYY'
+			) Pending_Creation_date,
+			date_part(
+				'day',
+				now()- hist.approveddate
+			) pending_days,
+			inv.grandtotal amount,
+			list.name status,
+			'Purchase Invoices' transaction_type,
+			trunc(inv.created) Creation_date,
+			ad.ad_user_id,
+			ad.name created_by,
+			ad1.name updated_by
+			,inv.em_efin_inwardno inward_no
+			,trunc(inv.em_efin_inwarddate) inward_date
+		from
+			c_invoice inv,
+			ad_user ad,
+			ad_user ad1,
+			AD_Ref_List list,
+			efin_purchasein_app_hist hist
+		/*	left join (
+				select
+					max( seqno ) seqno,c_invoice_id
+				from
+					efin_purchasein_app_hist  group by c_invoice_id) hist1 on  hist.c_invoice_id = hist1.c_invoice_id and hist.seqno = hist1.seqno  */
+		where
+			inv.createdby = ad.ad_user_id
+			and inv.updatedby = ad1.ad_user_id
+			and list.value = inv.docstatus
+			and inv.c_invoice_id = hist.c_invoice_id
+			and list.ad_reference_id = '9155F881BAA34E7AAFCD2329BFAC8291'
+			and hist.seqno =(
+				select
+					max( seqno )
+				from
+					efin_purchasein_app_hist hist1
+				where
+					hist1.c_invoice_id = hist.c_invoice_id
+			) 
+			and inv.docstatus = 'EFIN_WFA'
+			and  $P{Trx_type} ='API'
+			Union all
+		select
+			bud.document_no Transaction_number,
+			trunc(bud.Transaction_Date) Transaction_Date,
+			Pendingapproval pending_on,
+			to_char(
+				to_Date(
+					Eut_convert_to_hijri(
+						To_char(
+							(hist.approveddate),
+							'YYYY-MM-DD'
+						)
+					)
+				),
+				'DD/MM/YYYY'
+			) Pending_Creation_date,
+			date_part(
+				'day',
+				now()- hist.approveddate
+			) pending_days,
+			bud.Totalbudgetvalue amount,
+			list.name status,
+			'Budget' transaction_type,
+			trunc(bud.created) Creation_date,
+			ad.ad_user_id,
+			ad.name created_by,
+			ad1.name updated_by
+			,null inward_no
+			,null inward_date
+		from
+			EFIN_Budget bud,
+			ad_user ad,
+			ad_user ad1,
+			AD_Ref_List list,
+			Efin_Budget_App_Hist hist
+		where
+			bud.createdby = ad.ad_user_id
+			and bud.updatedby = ad1.ad_user_id
+			and list.value = bud.status
+			and list.ad_reference_id = '6AB8A63A8A9642008FAEE5364962C7EB'
+			and bud.status = 'INAPP'
+			and bud.efin_budget_id = hist.efin_budget_id
+			and hist.seqno=(select max(seqno) from Efin_Budget_App_Hist hist1 where hist1.efin_budget_id= hist.efin_budget_id)
+			and  $P{Trx_type} ='BD'
+	union all select
+			btrx.documentno Transaction_number,
+			trunc(btrx.trxdate) Transaction_Date,
+			Pendingapproval pending_on,
+			to_char(
+				to_Date(
+					Eut_convert_to_hijri(
+						To_char(
+							(hist.approveddate),
+							'YYYY-MM-DD'
+						)
+					)
+				),
+				'DD/MM/YYYY'
+			) Pending_Creation_date,
+			date_part(
+				'day',
+				now()- hist.approveddate
+			) pending_days,
+			0 amount,
+			list.name status,
+			'Budget Revision' transaction_type,
+			trunc(btrx.created) Creation_date,
+			ad.ad_user_id,
+			ad.name created_by,
+			ad1.name updated_by
+			,null inward_no
+			,null inward_date
+		from
+			Efin_Budget_Transfertrx btrx,
+			ad_user ad,
+			ad_user ad1,
+			AD_Ref_List list,
+			Efin_BudTransTrx_App_Hist hist
+		where
+			btrx.createdby = ad.ad_user_id
+			and btrx.updatedby = ad1.ad_user_id
+			and list.value = btrx.docstatus
+			and hist.efin_budget_transfertrx_id = btrx.efin_budget_transfertrx_id
+			and list.ad_reference_id = '9D1783539DF745C79D0AC495C93C3ACC'
+			and hist.seqno=(select max(seqno) from Efin_BudTransTrx_App_Hist hist1 where hist1.efin_budget_transfertrx_id= hist.efin_budget_transfertrx_id)
+			and btrx.docstatus = 'WFA'
+			and  $P{Trx_type} ='BR'
+	union all select
+			fq.documentno Transaction_number,
+			trunc(fq.trxdate) Transaction_Date,
+			Pendingapproval pending_on,
+			to_char(
+				to_Date(
+					Eut_convert_to_hijri(
+						To_char(
+							(hist.approveddate),
+							'YYYY-MM-DD'
+						)
+					)
+				),
+				'DD/MM/YYYY'
+			) Pending_Creation_date,
+			date_part(
+				'day',
+				now()- hist.approveddate
+			) pending_days,
+			0 amount,
+			list.name status,
+			'Fund Request Management' transaction_type,
+			trunc(fq.created) Creation_date,
+			ad.ad_user_id,
+			ad.name created_by,
+			ad1.name updated_by
+			,null inward_no
+			,null inward_date
+		from
+			EFIN_FundsReq fq,
+			ad_user ad,
+			ad_user ad1,
+			AD_Ref_List list,
+			EFIN_FundReq_AppHist hist
+		where
+			fq.createdby = ad.ad_user_id
+			and fq.updatedby = ad1.ad_user_id
+			and list.value = fq.docstatus
+			and fq.efin_fundsreq_id = hist.efin_fundsreq_id
+			and list.ad_reference_id = '99C8A81A7D8A495D8F1B62D3D15990E5'
+			and hist.seqno=(select max(seqno) from EFIN_FundReq_AppHist hist1 where hist1.efin_fundsreq_id= hist.efin_fundsreq_id)
+			and fq.docstatus = 'WFA'
+			and  $P{Trx_type} ='FRM'
+	union all select
+			fc.docno Transaction_number,
+			trunc(fc.trx_date) Transaction_Date,
+			Pendingapproval pending_on,
+			to_char(
+				to_Date(
+					Eut_convert_to_hijri(
+						To_char(
+							(hist.approveddate),
+							'YYYY-MM-DD'
+						)
+					)
+				),
+				'DD/MM/YYYY'
+			) Pending_Creation_date,
+			date_part(
+				'day',
+				now()- hist.approveddate
+			) pending_days,
+			0 amount,
+			list.name status,
+			'Fund and Cost Adjustments' transaction_type,
+			trunc(fc.created) Creation_date,
+			ad.ad_user_id,
+			ad.name created_by,
+			ad1.name updated_by
+			,null inward_no
+			,null inward_date
+		from
+			Efin_Budgetadj fc,
+			ad_user ad,
+			ad_user ad1,
+			AD_Ref_List list,
+			Efin_Budgetadj_Hist hist
+		where
+			fc.createdby = ad.ad_user_id
+			and fc.updatedby = ad1.ad_user_id
+			and list.value = fc.docstatus
+			and fc.efin_budgetadj_id = hist.efin_budgetadj_id
+			and list.ad_reference_id = '69A31CE7A6914F6BB3E285678DA1F59F'
+			and fc.docstatus = 'EFIN_IP'
+			and  $P{Trx_type} ='FCA'
+			and hist.seqno =(
+				select
+					max( seqno )
+				from
+					Efin_Budgetadj_Hist hist1
+				where
+					hist1.efin_budgetadj_id = hist.efin_budgetadj_id
+			)
+	union all select
+			encum.documentno Transaction_number,
+			trunc(encum.trxdate) Transaction_Date,
+			Pendingapproval pending_on,
+			to_char(
+				to_Date(
+					Eut_convert_to_hijri(
+						To_char(
+							(hist.approveddate),
+							'YYYY-MM-DD'
+						)
+					)
+				),
+				'DD/MM/YYYY'
+			) Pending_Creation_date,
+			date_part(
+				'day',
+				now()- hist.approveddate
+			) pending_days,
+			encum.amount,
+			list.name status,
+			'Encumbrance' transaction_type,
+			trunc(encum.created) Creation_date,
+			ad.ad_user_id,
+			ad.name created_by,
+			ad1.name updated_by
+			,null inward_no
+			,null inward_date
+		from
+			Efin_Budget_Manencum encum,
+			ad_user ad,
+			ad_user ad1,
+			AD_Ref_List list,
+			Efin_Budget_Encum_App_Hist hist
+		where
+			encum.createdby = ad.ad_user_id
+			and encum.updatedby = ad1.ad_user_id
+			and list.value = encum.docstatus
+			and encum.efin_budget_manencum_id = hist.efin_budget_manencum_id
+			and list.ad_reference_id = '1B17393E6B444FE1B5F62E92C02FBE13'
+			and encum.docstatus = 'WFA'
+			and  $P{Trx_type} ='ENC'
+			and hist.approveddate =(
+				select
+					max( approveddate )
+				from
+					Efin_Budget_Encum_App_Hist hist1
+				where
+					hist1.efin_budget_manencum_id = hist.efin_budget_manencum_id
+			)
+	) main
+	where 1=1	
+	 $P!{Aux_User_id} 
+order by
+	transaction_type,
+	Transaction_number,
+	transaction_date]]>
+	</queryString>
+	<field name="transaction_number" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="transaction_number"/>
+	</field>
+	<field name="amount" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="amount"/>
+	</field>
+	<field name="transaction_date" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="transaction_date"/>
+	</field>
+	<field name="pending_on" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="pending_on"/>
+	</field>
+	<field name="pending_creation_date" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="pending_creation_date"/>
+	</field>
+	<field name="pending_days" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="pending_days"/>
+	</field>
+	<field name="status" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="status"/>
+	</field>
+	<field name="transaction_type" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="transaction_type"/>
+	</field>
+	<field name="Creation_date" class="java.lang.String"/>
+	<field name="ad_user_id" class="java.lang.String"/>
+	<field name="created_by" class="java.lang.String"/>
+	<field name="updated_by" class="java.lang.String"/>
+	<field name="inward_no" class="java.lang.String"/>
+	<field name="inward_date" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="1140" y="0" width="381" height="20" backcolor="#BFBFBF" uuid="7a2f98ce-1fb5-4bfa-a8cf-4b751db87aac">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[نوع المعاملة :]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="1140" height="20" backcolor="#BFBFBF" uuid="632a0e34-701d-4ace-a30e-3bd8a35c2834"/>
+				<box leftPadding="10" rightPadding="10">
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{transaction_type}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="0" width="111" height="20" backcolor="#BFBFBF" uuid="32e4dfe9-ce6e-4849-bcb3-263857c0952a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[رقم المعاملة]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="111" y="0" width="90" height="20" backcolor="#BFBFBF" uuid="a2904b84-1525-4744-b1cf-35f1006039e1">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[تاريخ المعاملة]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="201" y="0" width="180" height="20" backcolor="#BFBFBF" uuid="08343d34-1a9c-4d5e-afb5-5f1b2d8e6551">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[معلق لدى]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="381" y="0" width="109" height="20" backcolor="#BFBFBF" uuid="ea75eae5-5f5a-4e64-aee0-226cda500d1a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[تاريخ الإنشاء المعلق]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="490" y="0" width="129" height="20" backcolor="#BFBFBF" uuid="683b3e58-7a22-41d5-875b-dd78a6353748">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[عدد الأيام المعلقة]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="619" y="0" width="181" height="20" backcolor="#BFBFBF" uuid="4a55328e-d664-42c2-ab39-dd6ba4453168">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[المبلغ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="800" y="0" width="160" height="20" backcolor="#BFBFBF" uuid="ecb7abf5-9ff7-4f69-b70a-6eb6090117b2">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[الحالة]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="1140" y="0" width="180" height="20" backcolor="#BFBFBF" uuid="6986d90a-7cdd-4353-8149-8a66ef95f2b2">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[محدث بواسطة]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="960" y="0" width="180" height="20" backcolor="#BFBFBF" uuid="6eed9817-6577-4213-8078-d8fe988ed12b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[انشئ بواسطة]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="1320" y="0" width="100" height="20" backcolor="#BFBFBF" uuid="5bfd3dd3-1188-4467-be31-2f5dfba834fb">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[رقم التبليغ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="1420" y="0" width="100" height="20" backcolor="#BFBFBF" uuid="4e72350f-c2d1-4667-b50a-45d2a2e5ae13">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[تاريخ التبليغ]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Prevent">
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="111" height="20" backcolor="#FFFFFF" uuid="84bd04aa-268c-4950-9193-9c52662e374c"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{transaction_number}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="111" y="0" width="90" height="20" backcolor="#FFFFFF" uuid="318a63bb-4cca-4063-8eee-54a9bdc7df84"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Creation_date}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="201" y="0" width="180" height="20" backcolor="#FFFFFF" uuid="b1bdd3df-0c7d-4234-b8c9-adf8a797326c"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pending_on}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="381" y="0" width="109" height="20" backcolor="#FFFFFF" uuid="28bf0f7c-b9d2-40dd-8adc-6f05d60bc0a8"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pending_creation_date}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="490" y="0" width="129" height="20" backcolor="#FFFFFF" uuid="ea8556f2-3f55-4c74-9c98-37e48a6ec541"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pending_days}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="619" y="0" width="181" height="20" backcolor="#FFFFFF" uuid="7a4e8312-31ee-4983-a948-73ea5159cb0d"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="800" y="0" width="160" height="20" backcolor="#FFFFFF" uuid="81bc582b-eb5b-4f2c-a793-91a3dbfb24d3"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{status}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="1140" y="0" width="180" height="20" backcolor="#FFFFFF" uuid="16c7f8cb-26ca-47e6-bf3a-db91a2049217"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{updated_by}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="960" y="0" width="180" height="20" backcolor="#FFFFFF" uuid="ad8e7ef4-5297-4760-bf88-dce9ef835d85"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{created_by}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="1320" y="0" width="100" height="20" backcolor="#FFFFFF" uuid="cfb38c8f-b971-4b4c-9ade-290ad3f8ef09"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inward_no}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="1420" y="0" width="100" height="20" backcolor="#FFFFFF" uuid="26f1525b-78e4-46c1-a0bf-40d491c6a43c"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inward_date}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+	<noData>
+		<band height="50">
+			<staticText>
+				<reportElement mode="Transparent" x="647" y="15" width="210" height="25" backcolor="#BFBFBF" uuid="92f5d88a-b4f0-4b19-943f-0790f313894b">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[No Data Found]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

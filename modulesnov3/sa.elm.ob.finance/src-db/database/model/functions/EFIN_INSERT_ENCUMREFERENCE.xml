@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EFIN_INSERT_ENCUMREFERENCE">
+    <function name="EFIN_INSERT_ENCUMREFERENCE" type="NULL">
+      <body><![CDATA[/*************************************************************************
+* All Rights Reserved.
+* Contributor(s):Gopalakrishnan
+************************************************************************/
+	
+	cursor_budget RECORD;
+	year_v character varying(32);
+	budget_def_v character varying(32);
+	period_v character varying(32);
+	trans_period_name_v character varying(60);
+	v_funds_id character varying(32);
+	parenid_v character varying(32);
+
+BEGIN
+      
+select c_year_id into year_v from c_year where c_year_id='9EF3BC3B76C44188AAD2584C83F9B4C6';
+--c_year_id in (
+--select c_year_id from c_period where now() between startdate and enddate )
+
+select efin_budgetint_id into budget_def_v from efin_budgetint where c_year_id='9EF3BC3B76C44188AAD2584C83F9B4C6';
+--c_year_id=year_v
+
+select c_period_id into period_v from c_period where startdate= (select min(startdate) 
+from c_period where c_year_id='9EF3BC3B76C44188AAD2584C83F9B4C6' 
+--c_year_id=year_v
+);
+
+
+select name into trans_period_name_v from c_period where now() between startdate and enddate;
+
+
+for cursor_budget in ( select uniquecode,* 
+from efin_budgetinquiry inq
+where 
+c_validcombination_id in 
+(
+select c_validcombination_id from efin_budget_manencumlines 
+where c_elementvalue_id='83F1BC33B079475883241445C8B2A86F')
+and c_campaign_id='8CFC8D85BC484DC7AFB75E3DA60FE30F'
+
+)
+loop
+
+select efin_budgetinquiry_id into  parenid_v from efin_budgetinquiry 
+where c_validcombination_id in (select c_validcombination_id from efin_budgetinquiry
+							   where efin_budgetinquiry_id=cursor_budget.parent_id)
+							   and efin_budgetint_id=budget_def_v;
+
+--insert the values into inquiry line
+	 INSERT INTO efin_budgetinquiry(efin_budgetinquiry_id, ad_client_id, ad_org_id, isactive, created,
+           createdby, updated, updatedby, uniquecode, 
+          c_salesregion_id, user1_id, user2_id, c_activity_id, c_elementvalue_id,
+          c_campaign_id,
+		c_project_id, c_bpartner_id,c_validcombination_id, uniquecodename,
+          isdistribute,efin_budgetint_id,parent_id,encumbrance )
+          values(
+          get_uuid(), 'FFEFCBB01E1F412886CB69CDBDD81774' ,cursor_budget.ad_org_id , 
+			  'Y', now(),'100', now(), '100', cursor_budget.uniquecode,
+          cursor_budget.c_salesregion_id,cursor_budget.user1_id, 
+			  cursor_budget.user2_id, cursor_budget.c_activity_id, 
+			  cursor_budget.c_elementvalue_id, cursor_budget.c_campaign_id,
+			  cursor_budget.c_project_id,
+			  cursor_budget.c_bpartner_id,
+			  cursor_budget.c_validcombination_id, cursor_budget.uniquecodename , 'Y',budget_def_v,
+			  parenid_v,cursor_budget.encumbrance );
+end loop;
+END EFIN_INSERT_ENCUMREFERENCE
+]]></body>
+    </function>
+  </database>

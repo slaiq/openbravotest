@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_CHILD_ORG">
+    <function name="EUT_CHILD_ORG" type="VARCHAR">
+      <parameter name="p_client_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_org_id" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[vOrgId VARCHAR2(32767);
+vTreeId VARCHAR2(32);
+vOrgList VARCHAR(32767);
+Cur_Org RECORD;
+BEGIN
+    SELECT ad_tree_id INTO vTreeId FROM ad_tree WHERE ad_client_id=p_client_id AND treetype='OO';
+    vOrgList:='';
+    vOrgId:='';
+    	
+    SELECT node_id into vOrgId FROM ad_treenode WHERE parent_id = p_org_id AND ad_tree_id = vTreeId;
+    vOrgList:= ',' || '''' || p_org_id || '''';
+    
+    FOR Cur_Org IN (SELECT node_id FROM ad_treenode WHERE parent_id = p_org_id AND ad_tree_id = vTreeId)
+    LOOP
+	vOrgList:= vOrgList || eut_child_org(p_client_id, Cur_Org.node_id);
+    END LOOP;
+
+    RETURN vOrgList;
+END EUT_CHILD_ORG
+]]></body>
+    </function>
+  </database>

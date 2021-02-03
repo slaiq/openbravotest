@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <database name="VIEW EFIN_FINANCIAL_ACCOUNT_V">
+    <view name="EFIN_FINANCIAL_ACCOUNT_V"><![CDATA[SELECT acc.fin_financial_account_id AS efin_financial_account_v_id, acc.created, acc.createdby, acc.updated, acc.updatedby, acc.ad_client_id, acc.ad_org_id, acc.isactive, (((COALESCE(acc.name, '') || '-') || COALESCE(acc.iban, '')) || '-') || COALESCE(list.iso_code, '') AS name, acc.em_efin_acct_type FROM fin_financial_account acc LEFT JOIN c_currency list ON list.c_currency_id = acc.c_currency_id]]></view>
+  </database>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="E040C09107D94DBB912CF32865E1C543" identifier="Bid Management Request More Information">
+    <id>E040C09107D94DBB912CF32865E1C543</id>
+    <active>true</active>
+    <name>Bid Management Request More Information</name>
+    <tab id="31960EC365D746A180594FFB7B403ABB" entity-name="ADTab" identifier="Header - Bid Management"/>
+    <filterClause>((ad_user_id is not null and ad_user_id=@#AD_USER_ID@) or (ad_user_id is null)) </filterClause>
+    <sql xsi:nil="true"/>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType>BMR</eSCMProcessType>
+    <eutIsbackgroundvalidation>false</eutIsbackgroundvalidation>
+  </ADAlertRule>
+</ob:Openbravo>

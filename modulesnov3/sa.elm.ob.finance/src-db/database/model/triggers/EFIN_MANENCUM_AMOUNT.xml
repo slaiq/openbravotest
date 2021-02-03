@@ -1,0 +1,185 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_MANENCUM_AMOUNT">
+    <trigger name="EFIN_MANENCUM_AMOUNT" table="EFIN_BUDGET_MANENCUMLINES" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[
+v_totalamt NUMBER;
+v_manencum_id VARCHAR(60);
+v_dbAmount NUMBER;
+v_budinit_id character varying(32);
+v_encumtype VARCHAR(60);
+v_encummethod VARCHAR(60);
+v_docstatus VARCHAR(60);
+v_clientId character varying(32);
+v_prec NUMBER;
+
+BEGIN
+v_totalamt = 0;
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+		
+	IF TG_OP='INSERT' OR TG_OP='UPDATE' THEN
+	v_clientId:=:new.ad_client_id;
+	ELSE
+	v_clientId:=:old.ad_client_id;
+	END IF;
+		
+ 	-- To get Standarrd Precision from Currency by using Current Client ID
+ 	select stdPrecision INTO v_prec from c_currency where c_currency_id 
+ 	in (select c_currency_id from ad_client where ad_client_id  = v_clientId);
+	-- Insert/Update/Delete Operation	
+	IF UPDATING THEN
+		v_manencum_id := :new.efin_budget_manencum_id;
+		if(:new.revamount <> :old.revamount) then
+
+        	update efin_budget_manencumlines 
+        	set remaining_amount = Round((:new.revamount - :new.app_amt - :new.used_amount),v_prec)
+        	where efin_budget_manencumlines_id = :new.efin_budget_manencumlines_id;
+
+		update efin_budget_manencum 
+		set amount = Round((amount + (:new.revamount-:old.revamount)),v_prec),
+		revamount = Round((revamount + (:new.revamount-:old.revamount)),v_prec)
+		where efin_budget_manencum_id = v_manencum_id;
+
+		update efin_budget_manencum 
+		set remainingamt = Round(((revamount - app_amt- usedamount)),v_prec)
+		where efin_budget_manencum_id = v_manencum_id; 
+		
+            select efin_budgetint_id ,encum_type ,docstatus ,encum_method into v_budinit_id,v_encumtype,v_docstatus,v_encummethod from efin_budget_manencum  where   efin_budget_manencum_id= new .efin_budget_manencum_id;
+            if(v_encumtype<>'TE'  and (v_encummethod='A' or (v_encummethod='M' and v_docstatus='CO')))THEN
+                    EFIN_UPDATEBUDGETINQ(:new.c_validcombination_id, (Round(:new.revamount,v_prec)-Round(:old.revamount,v_prec)),v_budinit_id) ;
+            end if;	
+            if(v_encummethod='A') then
+            :new.system_updated_amt:= :new.amount + :new.enc_increase-:new.enc_decrease;
+           update efin_budget_manencumlines set system_updated_amt  =  Round(:new.system_updated_amt,v_prec)
+		   where efin_budget_manencumlines_id= :new.efin_budget_manencumlines_id; 
+           end if;
+           /* update efin_budgetinquiry set encumbrance=encumbrance+(:new.revamount-:old.revamount) 
+            where efin_budgetinquiry_id = (select efin_budgetinquiry_id  from efin_budgetinquiry 
+                where c_validcombination_id = :new.c_validcombination_id and efin_budgetint_id = v_budinit_id 
+                and ad_client_id = :new.ad_client_id limit 1);*/
+		end if;
+		if(:new.app_amt <> :old.app_amt) then
+			update efin_budget_manencum 
+			set app_amt = Round((app_amt + (:new.app_amt-:old.app_amt)),v_prec)
+			where efin_budget_manencum_id = v_manencum_id;
+			
+			update efin_budget_manencumlines 
+			set app_amt = Round(:new.app_amt,v_prec), remaining_amount = Round((:new.revamount - Round(:new.app_amt,v_prec)  - :new.used_amount),v_prec)
+			where efin_budget_manencumlines_id = :new.efin_budget_manencumlines_id;
+                        
+			update efin_budget_manencum 
+			set remainingamt = Round((revamount - :new.app_amt - usedamount) ,v_prec)
+			where efin_budget_manencum_id = v_manencum_id;
+		end if;
+		if ( (:old.enc_increase <> :new.enc_increase) or (:old.enc_decrease <> :new.enc_decrease )) then 
+			update efin_budget_manencum 
+			set usedamount = Round((usedamount +(:new.used_amount-:old.used_amount) ),v_prec)
+			where efin_budget_manencum_id = v_manencum_id;
+		else 
+			update efin_budget_manencum 
+			set usedamount = Round((usedamount +(:new.used_amount-:old.used_amount)),v_prec) 
+			where efin_budget_manencum_id = v_manencum_id;
+		end if; 
+        
+		if(:new.used_amount <> :old.used_amount) then
+			update efin_budget_manencum 
+			set remainingamt = Round((revamount - app_amt- :new.used_amount),v_prec)
+			where efin_budget_manencum_id = v_manencum_id; 
+		end if; 
+        
+        -- while enc_decrease or enc_increase changed update the revision amount and remaining amount and also update the budget inquiry
+		if(:new.enc_decrease <> :old.enc_decrease) THEN
+        	:new.system_updated_amt:= :new.system_updated_amt -(:new.enc_decrease-:old.enc_decrease);
+		 	update efin_budget_manencumlines 
+		 	set system_updated_amt  = Round(:new.system_updated_amt,v_prec)
+		  	where efin_budget_manencumlines_id= :new.efin_budget_manencumlines_id;--remaining_amount  = remaining_amount -(:new.enc_decrease-:old.enc_decrease) 
+		   
+            :new.revamount:= :new.revamount -(:new.enc_decrease-:old.enc_decrease+:new.system_decrease-:old.system_decrease);
+		 	update efin_budget_manencumlines 
+		 	set revamount  = Round(:new.revamount,v_prec)
+		  	where efin_budget_manencumlines_id= :new.efin_budget_manencumlines_id;
+        end if;
+		if(:new.enc_increase <> :old.enc_increase) THEN
+			update efin_budget_manencumlines 
+			set system_updated_amt  = Round((system_updated_amt +(:new.enc_increase-:old.enc_increase)),v_prec)
+			where efin_budget_manencumlines_id= :new.efin_budget_manencumlines_id;--remaining_amount  = remaining_amount +(:new.enc_increase-:old.enc_increase)
+
+			update efin_budget_manencumlines 
+			set revamount  = Round((revamount +(:new.enc_increase-:old.enc_increase+:new.system_increase-:old.system_increase)),v_prec)
+		   	where efin_budget_manencumlines_id= :new.efin_budget_manencumlines_id;
+        end if;
+         -- while system_decrease or system_increase changed update the revision amount and remaining amount and also update the budget inquiry
+		if(:new.system_decrease <> :old.system_decrease) THEN
+        	:new.system_updated_amt:= :new.system_updated_amt -(:new.enc_decrease-:old.enc_decrease);
+		 	update efin_budget_manencumlines 
+		 	set system_updated_amt  = Round(:new.system_updated_amt,v_prec)
+		  	where efin_budget_manencumlines_id= :new.efin_budget_manencumlines_id;--remaining_amount  = remaining_amount -(:new.enc_decrease-:old.enc_decrease) 
+		   
+            :new.revamount:= :new.revamount -(:new.enc_decrease-:old.enc_decrease+:new.system_decrease-:old.system_decrease);
+		 	update efin_budget_manencumlines 
+		 	set revamount  = Round(:new.revamount,v_prec)
+		  	where efin_budget_manencumlines_id= :new.efin_budget_manencumlines_id;
+        end if;
+		if(:new.system_increase <> :old.system_increase) THEN
+			update efin_budget_manencumlines 
+			set system_updated_amt  = Round((system_updated_amt +(:new.enc_increase-:old.enc_increase)),v_prec)
+		   	where efin_budget_manencumlines_id= :new.efin_budget_manencumlines_id;--remaining_amount  = remaining_amount +(:new.enc_increase-:old.enc_increase)
+
+			update efin_budget_manencumlines 
+			set revamount  = Round((revamount +(:new.enc_increase-:old.enc_increase+:new.system_increase-:old.system_increase)),v_prec)
+		   	where efin_budget_manencumlines_id= :new.efin_budget_manencumlines_id;
+        end if;
+        if(:new.amount <> :old.amount) then
+        	update efin_budget_manencum 
+			set original_amount = Round((original_amount - :old.amount + :new.amount),v_prec)
+			where efin_budget_manencum_id = v_manencum_id; 
+        end if;
+        
+	END IF;
+
+	IF INSERTING THEN
+		v_manencum_id := :new.efin_budget_manencum_id;
+		update efin_budget_manencum 
+		set amount = Round((amount + (:new.revamount)),v_prec),
+		revamount = Round((revamount +(:new.revamount)),v_prec),
+		app_amt = Round((app_amt +(:new.app_amt)),v_prec), 
+		usedamount = Round((usedamount +(:new.used_amount)),v_prec), 
+		remainingamt = Round((amount - usedamount),v_prec),
+        original_amount = Round((original_amount + :new.amount),v_prec)
+		where efin_budget_manencum_id = v_manencum_id;	
+		 select efin_budgetint_id,encum_type,encum_method,docstatus into v_budinit_id,v_encumtype ,v_encummethod,v_docstatus from efin_budget_manencum  where      efin_budget_manencum_id= new .efin_budget_manencum_id;
+		if(v_encumtype<>'TE' and (v_encummethod='A' or (v_encummethod='M' and v_docstatus='CO')))THEN
+               EFIN_UPDATEBUDGETINQ(:new.c_validcombination_id, Round(:new.revamount,v_prec),v_budinit_id) ;
+        end if;	
+        if(v_encummethod='A') then
+          :new.system_updated_amt:= :new.amount + :new.enc_increase-:new.enc_decrease;
+          update efin_budget_manencumlines 
+          set system_updated_amt  = Round( :new.system_updated_amt,v_prec)
+		  where efin_budget_manencumlines_id= :new.efin_budget_manencumlines_id; 
+        
+        end if;
+	END IF;
+
+	IF DELETING THEN
+		v_manencum_id := :old.efin_budget_manencum_id;
+		update efin_budget_manencum 
+		set amount = Round((amount - (:old.revamount)),v_prec),
+		revamount = Round((revamount -(:old.revamount)),v_prec),
+		app_amt = Round((app_amt -(:old.app_amt)),v_prec) ,
+		usedamount = Round((usedamount - (:old.used_amount) ),v_prec),
+        original_amount = Round((original_amount - :old.amount),v_prec)
+		where efin_budget_manencum_id = v_manencum_id;	
+		 
+		update efin_budget_manencum 
+		set remainingamt = Round((amount - usedamount ),v_prec) where efin_budget_manencum_id = v_manencum_id; 
+
+        select efin_budgetint_id,encum_type,docstatus,encum_method into v_budinit_id,v_encumtype ,v_docstatus,v_encummethod from efin_budget_manencum  where    efin_budget_manencum_id= old .efin_budget_manencum_id;
+		if(v_encumtype<>'TE' and (v_encummethod='A' or (v_encummethod='M' and v_docstatus='CO')))THEN
+               EFIN_UPDATEBUDGETINQ(:old.c_validcombination_id, Round((:old.revamount*-1),v_prec),v_budinit_id) ;
+		end if;		
+	END IF;
+	
+	END EFIN_MANENCUM_AMOUNT
+]]></body>
+    </trigger>
+  </database>

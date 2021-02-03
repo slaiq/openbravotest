@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SmartClient&trade; Reference v10.0d_2014-02-13 (2014-02-13)</title>
+<STYLE>
+.throbber {
+    background-color:white; border:1px solid #add8e6;
+}
+
+.throbberText {
+    font-family:Verdana,Bitstream Vera Sans,sans-serif; font-size:11px; color:black;
+    vertical-align:middle;
+}</STYLE>
+</head>
+<body STYLE="overflow:hidden">
+
+<script>
+window.isomorphicDir='../../';
+</script>
+
+<LINK REL="stylesheet" TYPE="text/css" HREF="skin/shell_styles.css">
+<LINK REL="stylesheet" TYPE="text/css" HREF="docViewerStyles.css">
+<LINK REL="stylesheet" TYPE="text/css" HREF="sourceColorizer.css">
+
+<!-- load ISC -->
+<SCRIPT SRC="../development/ISC_History.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../development/ISC_FileLoader.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT>
+isc.FL.showThrobber("Loading Doc data...");
+</SCRIPT>
+<SCRIPT SRC="../development/ISC_Core.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<!--  -->
+<SCRIPT SRC="../development/ISC_Foundation.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../development/ISC_Containers.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../development/ISC_Grids.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../development/ISC_Forms.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../development/ISC_RichTextEditor.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../development/ISC_DataBinding.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../development/ISC_Calendar.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<!-- //>PluginBridges -->
+<SCRIPT SRC="../development/ISC_PluginBridges.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<!-- //<PluginBridges -->
+<!--  -->
+<SCRIPT SRC="../development/ISC_DocViewer.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../development/ISC_SyntaxHiliter.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT SRC="../development/ISC_ExampleViewer.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+<SCRIPT src="../../skins/Enterprise/load_skin.js?isc_version=v10.0d_2014-02-13.js"></SCRIPT>
+
+<script src=docTree.js></script>
+<script src=exampleTree.js></script>
+<script>
+// In iPad set the initial zoom level to 1.0 and disable scaling. 
+// In iPhone, set to large enough to view the app as a whole (but allow the user to scale so 
+// they can zoom in and make text readable!). 
+if (isc.Browser.isMobileWebkit) { 
+    isc.Canvas.addProperties({
+        scrollbarConstructor: "NativeScrollbar"
+    });
+
+    if (isc.Browser.isHandset) { 
+        isc.Page.updateViewport(null, 700, null, true); 
+    } else { 
+        isc.Page.updateViewport(1.0, null, null, true); 
+    } 
+} 
+
+isc.Page.leaveScrollbarGap = false;
+
+if (isc.Browser.isSafari && !isc.Browser.isMobileWebkit) {
+    isc.FileLoader.loadFile("referenceDocs.js", "isc.jsdoc.init(docItems)");
+} else {
+    isc.xml.loadXML("referenceDocs.xml", "isc.jsdoc.init(xmlDoc)");
+}
+
+isc.DocViewer.create({
+    trackHistory: true,
+    width: "100%",
+    height: "100%",
+    docRoot: "../../../docs/"
+});
+
+</script>
+
+</body>
+</html>

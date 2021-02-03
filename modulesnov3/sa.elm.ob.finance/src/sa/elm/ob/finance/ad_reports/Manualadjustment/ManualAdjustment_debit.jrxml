@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ManualAdjustment_debit" pageWidth="680" pageHeight="680" columnWidth="680" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="5a5d3dd0-1abe-47f5-a74e-4eadb06162ba">
+	<property name="ireport.zoom" value="0.8467108950806659"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="inpGlJournalId" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpClientId" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select debitdecilist, debitintlist, sumdebitint, sumdecidebit, wholedesc, project, naturalacct
+from
+((select array_to_string(array_agg(decdebit),E'\r\n') as debitdecilist,
+replace(array_to_string(array_agg(' '||floor((debitamt*100)-(decdebit*100))),CHR(10)),' 0',' 00') as debitintlist,
+to_char((array_agg(floor(sumdebitamt)))[1]) as sumdebitint,
+(array_agg(replace(to_char(floor(((sumdebitamt)-(floor(sumdebitamt)))*100)) ,'0','00')))[1] as sumdecidebit,
+array_to_string(array_agg(wholedesc),'') as wholedesc,
+array_to_string(array_agg(subacct),E'\r\n') as project,
+array_to_string(array_agg(natacct),E'\r\n') as naturalacct
+from (select round(gll.amtsourcedr,2) as debitamt,nullif(floor(gll.amtsourcedr),'0') as decdebit,
+case when gll.amtsourcedr>0 then (select sum(gll.amtsourcedr) from gl_journalline gll join C_ValidCombination vc on
+vc.C_ValidCombination_ID=gll.C_ValidCombination_ID join c_elementvalue e on e.c_elementvalue_id=vc.account_id
+where gll.gl_journal_id  =$P{inpGlJournalId} and gl.ad_client_id =$P{inpClientId} and gll.amtsourcedr>0) else null end  as sumdebitamt,
+e.value as natacct, p.value as project, e.name ||'-'|| p.name||'-'|| gll.description as wholedesc,
+(select efin_getparentelementlist(gl.ad_client_id, e.c_elementvalue_id)) as subacct
+from  gl_journal gl
+join gl_journalline  gll on gll.gl_journal_id=gl.gl_journal_id
+join c_project p on p.C_Project_ID =gll.C_Project_ID
+left join c_elementvalue e on e.c_elementvalue_id=gll.em_efin_account
+where gl.gl_journal_id  =$P{inpGlJournalId} and gl.ad_client_id =$P{inpClientId} and gll.amtsourcedr>0) debit)
+
+union all
+(select array_to_string(array_agg(decdebit),E'\r\n') as debitdecilist,
+replace(array_to_string(array_agg(' '||floor((debitamt*100)-(decdebit*100))),CHR(10)),' 0',' 00') as debitintlist,
+to_char((array_agg(floor(sumdebitamt)))[1]) as sumdebitint,
+(array_agg(replace(to_char(floor(((sumdebitamt)-(floor(sumdebitamt)))*100)) ,'0','00')))[1] as sumdecidebit,
+array_to_string(array_agg(wholedesc),'') as wholedesc,
+array_to_string(array_agg(subacct),E'\r\n') as project,
+array_to_string(array_agg(natacct),E'\r\n') as naturalacct
+from (select round(fc.amtsourcedr,2) as debitamt,nullif(floor(fc.amtsourcedr),'0') as decdebit,
+case when fc.amtsourcedr>0 then (select sum(fc.amtsourcedr) from fact_acct fc join
+c_invoice inv on inv.c_invoice_id =fc.record_id
+join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.record_id  =$P{inpGlJournalId}  and inv.ad_client_id=$P{inpClientId}  and fc.amtsourcedr>0) else null end  as sumdebitamt,
+e.value as natacct, p.value as project,
+e.name||'-'||p.name||'  '|| (select array_to_string(array_agg(description),E'\r\n') from c_invoice where c_invoice_id=inv.c_invoice_id) as wholedesc,
+(select efin_getparentelementlist(inv.ad_client_id, e.c_elementvalue_id)) as subacct
+from fact_acct fc
+join c_invoice  inv on inv.c_invoice_id=fc.record_id
+left join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+join c_project p on p.C_Project_ID =fc.C_Project_ID
+where fc.record_id  =$P{inpGlJournalId}  and inv.ad_client_id =$P{inpClientId} and fc.amtsourcedr>0) debit)
+
+union all
+(select array_to_string(array_agg(decdebit),E'\r\n') as debitdecilist,
+replace(array_to_string(array_agg(' '||floor((debitamt*100)-(decdebit*100))),CHR(10)),' 0',' 00') as debitintlist,
+to_char((array_agg(floor(sumdebitamt)))[1]) as sumdebitint,
+(array_agg(replace(to_char(floor(((sumdebitamt)-(floor(sumdebitamt)))*100)) ,'0','00')))[1] as sumdecidebit,
+array_to_string(array_agg(wholedesc),'') as wholedesc,
+array_to_string(array_agg(subacct),E'\r\n') as project,
+array_to_string(array_agg(natacct),E'\r\n') as naturalacct
+from (select round(fc.amtsourcedr,2) as debitamt,nullif(floor(fc.amtsourcedr),'0') as decdebit,
+case when fc.amtsourcedr>0 then (select sum(fc.amtsourcedr) from fact_acct fc join
+fin_reconciliation recon on recon.fin_reconciliation_id =fc.record_id
+join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.record_id  =$P{inpGlJournalId}  and recon.Docstatus='CO' and recon.ad_client_id =$P{inpClientId} and fc.amtsourcedr>0) else null end  as sumdebitamt,
+e.value as natacct, p.value as project, e.name ||'-'||p.name ||'-'||recon.em_efin_description as wholedesc,
+(select efin_getparentelementlist(recon.ad_client_id, e.c_elementvalue_id)) as subacct
+from  fact_acct fc
+join fin_reconciliation recon on recon.fin_reconciliation_id=fc.record_id
+left join c_project p on p.C_Project_ID =fc.C_Project_ID
+left join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.record_id  =$P{inpGlJournalId}  and recon.Docstatus='CO' and recon.ad_client_id =$P{inpClientId}  and fc.amtsourcedr>0) debit)
+
+union all
+(select array_to_string(array_agg(decdebit),E'\r\n') as debitdecilist,
+replace(array_to_string(array_agg(' '||floor((debitamt*100)-(decdebit*100))),CHR(10)),' 0',' 00') as debitintlist,
+to_char((array_agg(floor(sumdebitamt)))[1]) as sumdebitint,
+(array_agg(replace(to_char(floor(((sumdebitamt)-(floor(sumdebitamt)))*100)) ,'0','00')))[1] as sumdecidebit,
+array_to_string(array_agg(wholedesc),'') as wholedesc,
+array_to_string(array_agg(subacct),E'\r\n') as project,
+array_to_string(array_agg(natacct),E'\r\n') as naturalacct
+from (select round(fc.amtsourcedr,2) as debitamt,nullif(floor(fc.amtsourcedr),'0') as decdebit,
+case when fc.amtsourcedr>0 then (select sum(fc.amtsourcedr) from fact_acct fc join
+FIN_Finacc_Transaction  tran on tran.FIN_Finacc_Transaction_id =fc.record_id
+join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.record_id  =$P{inpGlJournalId}  and fc.docbasetype='PRJ' and tran.ad_client_id =$P{inpClientId}  and fc.amtsourcedr>0) else null end  as sumdebitamt,
+e.value as natacct, p.value as project, e.name ||'-'||p.name||'-'||tran.description as wholedesc,
+(select efin_getparentelementlist(tran.ad_client_id, e.c_elementvalue_id)) as subacct
+from  fact_acct fc
+join FIN_Finacc_Transaction tran on tran.FIN_Finacc_Transaction_id=fc.record_id
+left join c_project p on p.C_Project_ID =fc.C_Project_ID
+join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.record_id  =$P{inpGlJournalId}  and fc.docbasetype='PRJ' and tran.ad_client_id =$P{inpClientId}  and fc.amtsourcedr>0) debit)
+
+union all
+(select array_to_string(array_agg(decdebit),E'\r\n') as debitdecilist,
+replace(array_to_string(array_agg(' '||floor((debitamt*100)-(decdebit*100))),CHR(10)),' 0',' 00') as debitintlist,
+to_char((array_agg(floor(sumdebitamt)))[1]) as sumdebitint,
+(array_agg(replace(to_char(floor(((sumdebitamt)-(floor(sumdebitamt)))*100)) ,'0','00')))[1] as sumdecidebit,
+array_to_string(array_agg(wholedesc),'') as wholedesc,
+array_to_string(array_agg(subacct),E'\r\n') as project,
+array_to_string(array_agg(natacct),E'\r\n') as naturalacct
+from (select round(fc.amtsourcedr,2) as debitamt,nullif(floor(fc.amtsourcedr),'0') as decdebit,
+case when fc.amtsourcedr>0 then (select sum(fc.amtsourcedr) from fact_acct fc join
+fin_reconciliation recon on recon.fin_reconciliation_id =fc.record_id
+join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.record_id  =$P{inpGlJournalId} and Docstatus='EFIN_UREC' and recon.ad_client_id =$P{inpClientId} and fc.amtsourcedr>0) else null end  as sumdebitamt,
+e.value as natacct, p.value as project, e.name||'-'||p.name||'-'||recon.em_efin_description as wholedesc,
+(select efin_getparentelementlist(recon.ad_client_id, e.c_elementvalue_id)) as subacct
+from  fact_acct fc
+join fin_reconciliation recon on recon.fin_reconciliation_id=fc.record_id
+left join c_project p on p.C_Project_ID =fc.C_Project_ID
+join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.record_id  =$P{inpGlJournalId} and Docstatus='EFIN_UREC'  and recon.ad_client_id = $P{inpClientId} and fc.amtsourcedr>0) debit)
+
+union all
+(select array_to_string(array_agg(decdebit),E'\r\n') as debitdecilist,
+replace(array_to_string(array_agg(' '||floor((debitamt*100)-(decdebit*100))),CHR(10)),' 0',' 00') as debitintlist,
+to_char((array_agg(floor(sumdebitamt)))[1]) as sumdebitint,
+(array_agg(replace(to_char(floor(((sumdebitamt)-(floor(sumdebitamt)))*100)) ,'0','00')))[1] as sumdecidebit,
+array_to_string(array_agg(wholedesc),'') as wholedesc,
+array_to_string(array_agg(subacct),E'\r\n') as project,
+array_to_string(array_agg(natacct),E'\r\n') as naturalacct
+from (select round(sum(fc.amtsourcedr),2) as debitamt,nullif(floor(sum(fc.amtsourcedr)),'0') as decdebit,
+case when fc.amtsourcedr>0 then (select sum(fc.amtsourcedr) from fact_acct fc join
+fin_payment  payin on payin.fin_payment_id =fc.record_id
+join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.em_efin_documentno =$P{inpGlJournalId} and fc.docbasetype ='ARR' and fc.ad_client_id =$P{inpClientId}  and fc.amtsourcedr>0) else null end  as sumdebitamt,
+e.value as natacct, p.value as project, e.name||'-'||p.name||'-'||fc.description as wholedesc,
+(select efin_getparentelementlist(fc.ad_client_id, e.c_elementvalue_id)) as subacct
+from  fact_acct fc
+left join c_project p on p.C_Project_ID =fc.C_Project_ID
+join c_elementvalue e on e.c_elementvalue_id=fc.account_id
+where fc.em_efin_documentno =$P{inpGlJournalId} and fc.docbasetype ='ARR' and fc.ad_client_id =$P{inpClientId} and fc.amtsourcedr>0
+group by sumdebitamt,project, e.value, p.value, e.name,p.name, fc.description, e.c_elementvalue_id, fc.ad_client_id) debit))as gladj
+where naturalacct is not null]]>
+	</queryString>
+	<field name="debitdecilist" class="java.lang.String"/>
+	<field name="debitintlist" class="java.lang.String"/>
+	<field name="sumdebitint" class="java.lang.String"/>
+	<field name="sumdecidebit" class="java.lang.String"/>
+	<field name="wholedesc" class="java.lang.String"/>
+	<field name="project" class="java.lang.String"/>
+	<field name="naturalacct" class="java.lang.String"/>
+	<variable name="project" class="java.lang.String">
+		<variableExpression><![CDATA[$F{project}]]></variableExpression>
+	</variable>
+	<variable name="TotalDebit" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{sumdebitint}]]></variableExpression>
+		<initialValueExpression><![CDATA[]]></initialValueExpression>
+	</variable>
+	<variable name="TotalDebitDecimal" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{sumdecidebit}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="25" splitType="Stretch">
+			<elementGroup/>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="60" height="25" uuid="45f8e011-40db-44f7-a685-3de7b7cf19fe"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="480" y="0" width="100" height="25" uuid="3d93472e-6b6a-4c42-8d1b-23a443b03db6"/>
+				<box rightPadding="2">
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{project})]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="60" y="0" width="25" height="25" uuid="2c007b8f-620e-415a-852d-150b399e2459"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="85" y="0" width="60" height="25" uuid="389377b1-cdce-4b75-8c75-a6dce6978744"/>
+				<box>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="580" y="0" width="100" height="25" uuid="e43c0f28-4150-435b-9f77-3c96dae09f53"/>
+				<box>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{naturalacct})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="170" y="0" width="140" height="25" isPrintWhenDetailOverflows="true" uuid="38a4b517-608a-44d8-81eb-2eb70e451058"/>
+				<box rightPadding="2">
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{wholedesc}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" isPrintRepeatedValues="false" x="455" y="0" width="25" height="25" uuid="26c3cd82-6451-459b-9cfb-ee2f40c1f043">
+					<printWhenExpression><![CDATA[$V{REPORT_COUNT}==$V{REPORT_COUNT}]]></printWhenExpression>
+				</reportElement>
+				<box rightPadding="2">
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{sumdecidebit})]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" isPrintRepeatedValues="false" x="395" y="0" width="60" height="25" uuid="8bfc3b99-37bb-4d23-85d2-04e1a102d35d"/>
+				<box rightPadding="2">
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{sumdebitint})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="145" y="0" width="25" height="25" uuid="412002c8-8747-4a05-bab7-9c1d427d7cef"/>
+				<box>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="###0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="370" y="0" width="25" height="25" uuid="7a7ed084-5934-4424-a939-c3a3b2a6664b"/>
+				<box rightPadding="2">
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{debitintlist})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="310" y="0" width="60" height="25" uuid="d65ea21b-d017-4182-a658-da6981f90a3f"/>
+				<box rightPadding="2">
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{debitdecilist})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="1">
+			<line>
+				<reportElement x="0" y="0" width="680" height="1" uuid="a571f741-8f2b-4577-8feb-17a79a203989"/>
+			</line>
+		</band>
+	</summary>
+</jasperReport>

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_BUDGPRE_CALAMT_TRG">
+    <trigger name="EFIN_BUDGPRE_CALAMT_TRG" table="EFIN_BUDGPREP_LINES" fires="after" insert="true" update="true" delete="true" foreach="row">
+      <body><![CDATA[
+v_totalamt NUMBER;
+v_budget_preparation_id VARCHAR(60);
+v_status VARCHAR(60);
+v_dbAmount NUMBER;
+BEGIN
+
+IF AD_isTriggerEnabled()='N' THEN RETURN;END IF;
+
+	-- Delete Operation
+	IF DELETING THEN
+		v_budget_preparation_id = :old.efin_budget_preparation_id;
+	END IF;
+
+	-- Insert Operation
+	IF INSERTING OR UPDATING THEN
+		v_budget_preparation_id = :new.efin_budget_preparation_id;
+	END IF;
+
+	IF  INSERTING  OR  UPDATING OR DELETING  THEN
+
+	select totalbudgetvalue into v_dbAmount from efin_budget_preparation  prep where prep.efin_budget_preparation_id= v_budget_preparation_id;
+
+	select SUM(amount) into v_totalamt from efin_budgprep_lines 
+		 where efin_budget_preparation_id  = v_budget_preparation_id group by efin_budget_preparation_id;
+	 if(v_totalamt is not null) then
+        	if(v_totalamt <> v_dbAmount) then
+				update efin_budget_preparation set totalbudgetvalue = v_totalamt where efin_budget_preparation_id= v_budget_preparation_id;
+		 END IF;
+	else
+				update efin_budget_preparation set totalbudgetvalue = 0 where efin_budget_preparation_id= v_budget_preparation_id;
+	END IF;	 
+		
+		 
+	
+	END IF;
+	END EFIN_BUDGPRE_CALAMT_TRG
+]]></body>
+    </trigger>
+  </database>

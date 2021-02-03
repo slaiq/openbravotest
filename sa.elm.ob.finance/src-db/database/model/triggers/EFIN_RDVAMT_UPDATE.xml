@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+  <database name="TRIGGER EFIN_RDVAMT_UPDATE">
+    <trigger name="EFIN_RDVAMT_UPDATE" table="C_INVOICE" fires="after" insert="false" update="true" delete="false" foreach="row">
+      <body><![CDATA[
+/************************************************************************
+* All Rights Reserved.
+* Contributor(s): Gowtham V
+*************************************************************************/
+  v_paid NUMBER;
+  v_rdvId VARCHAR2(32);
+  v_rdvType VARCHAR2(60);
+  v_grandtotal NUMBER;
+  v_order_id VARCHAR2(32);
+  v_isordertax character(1);
+  v_invwithouttaxgrandtotal NUMBER;
+  v_taxmethod_id VARCHAR2(32);
+  v_istaxincluded character(1):='N';
+  v_dbuninvamt NUMBER;
+  v_remainingamt NUMBER;
+  v_netmatchamt NUMBER;
+BEGIN  
+  IF AD_isTriggerEnabled()='N' THEN RETURN;
+  END IF;
+  IF UPDATING THEN
+	if :new.em_efin_isrdv = 'Y' then
+
+	select efin_rdv_id into v_rdvId from efin_rdvtxn  where efin_rdvtxn_id  = :new.em_efin_rdvtxn_id;
+	select txn_type ,c_order_id into v_rdvType, v_order_id from efin_rdv where efin_rdv_id = v_rdvId;
+    
+    -- fetching tax method
+      if(:new.em_efin_tax_method_id is not null) then
+        select istaxincluded into v_istaxincluded from efin_tax_method where efin_tax_method_id=:new.em_efin_tax_method_id;
+        end if;
+    -- if order is exists then check order having tax or not when invoice is excluding tax
+    if(v_order_id is not null) then
+    	select em_escm_istax into v_isordertax  from  c_order where   c_order_id =v_order_id;
+    	
+        if(:new.em_efin_istax='Y' and v_isordertax='N' and v_istaxincluded='N') then
+           -- sum of the linenet amt of invoiceline when invoice having excluding tax and order does not have tax
+    		select sum(linenetamt) into v_invwithouttaxgrandtotal  from c_invoiceline where  c_invoice_id=:new.c_invoice_id
+            and em_efin_istax='N';
+    		v_grandtotal:=v_invwithouttaxgrandtotal;
+    	else 
+     		v_grandtotal:=:new.grandtotal;
+    	end if;
+    else
+       -- check if direct receipt then invoice is excluding tax 
+        if(v_rdvType='POD' and v_istaxincluded='N')THEN
+       		 select sum(linenetamt) into v_invwithouttaxgrandtotal  from c_invoiceline where  c_invoice_id=:new.c_invoice_id and em_efin_istax='N';
+        	 v_grandtotal:=v_invwithouttaxgrandtotal;
+        else
+       		 v_grandtotal:=:new.grandtotal;
+        end if;
+    end if;
+     select uninvoiced_amt into v_dbuninvamt from efin_rdv where  efin_rdv_id=v_rdvId;
+      select sum(netmatch_amt) into v_netmatchamt from efin_rdvtxn where efin_rdv_id = v_rdvId; 
+
+	if :new.processed = 'Y' and :new.docstatus <> :old.docstatus and :new.docstatus = 'CO' then
+		update efin_rdv set unpaidinv_amt = unpaidinv_amt + :new.grandtotal where efin_rdv_id = v_rdvId;
+        
+        if((v_dbuninvamt-v_grandtotal)  <=0) then
+         update efin_rdv set uninvoiced_amt =0 where efin_rdv_id = v_rdvId;
+        else
+        update efin_rdv set uninvoiced_amt = uninvoiced_amt - v_grandtotal where efin_rdv_id = v_rdvId;
+        end if;
+        
+	end if;
+    if :new.processed = 'N' and :new.docstatus <> :old.docstatus and :new.docstatus = 'DR' and :old.docstatus='CO' then
+		update efin_rdv set unpaidinv_amt = unpaidinv_amt - :new.grandtotal  where efin_rdv_id = v_rdvId;
+	    if(v_dbuninvamt+v_grandtotal > v_netmatchamt ) then 
+        v_remainingamt:= v_netmatchamt-v_dbuninvamt;
+        update efin_rdv set uninvoiced_amt = uninvoiced_amt + v_remainingamt  where efin_rdv_id = v_rdvId;
+		 else 
+		update efin_rdv set uninvoiced_amt = uninvoiced_amt + v_grandtotal  where efin_rdv_id = v_rdvId;
+        end if;
+      --update efin_rdvtxn set txnver_status = 'DR' where efin_rdvtxn_id = new.em_efin_rdvtxn_id;
+	end if;
+	
+	if :new.processed = 'Y' and :new.ispaid = 'N' and :new.docstatus <> :old.docstatus and :new.docstatus = 'EFIN_CA' then
+		update efin_rdv set unpaidinv_amt = unpaidinv_amt - :new.grandtotal where efin_rdv_id = v_rdvId;
+        
+         if(v_dbuninvamt+v_grandtotal > v_netmatchamt ) then 
+        v_remainingamt:= v_netmatchamt-v_dbuninvamt;
+        update efin_rdv set uninvoiced_amt = uninvoiced_amt + v_remainingamt  where efin_rdv_id = v_rdvId;
+		 else 
+		update efin_rdv set uninvoiced_amt = uninvoiced_amt + v_grandtotal  where efin_rdv_id = v_rdvId;
+        end if;
+        
+		update efin_rdvtxn set txnver_status = 'DR' where efin_rdvtxn_id = :new.em_efin_rdvtxn_id;
+	end if;
+
+	if :new.ispaid = 'Y' and :new.docstatus <> :old.docstatus and :new.docstatus = 'EFIN_CA' then
+		update efin_rdv set uninvoiced_amt = uninvoiced_amt + v_grandtotal where efin_rdv_id = v_rdvId;
+		update efin_rdv set totpayment = totpayment - :new.grandtotal where efin_rdv_id = v_rdvId;
+        if v_rdvType = 'PO' then
+        	update efin_rdv set contractamt_rem = contractamt_rem + :new.grandtotal where efin_rdv_id = v_rdvId;
+		end if;
+		update efin_rdvtxn set txnver_status = 'DR' where efin_rdvtxn_id = :new.em_efin_rdvtxn_id;
+	end if;
+
+	if (:new.ispaid = 'Y' and :new.totalpaid <> :old.totalpaid) 
+    or (:old.ispaid = 'Y' and :new.ispaid = 'N' and :new.totalpaid <> :old.totalpaid)
+     or ((:new.ispaid='N' or :old.ispaid='N') and :new.totalpaid <> :old.totalpaid)  then
+        v_paid = :new.totalpaid - :old.totalpaid;
+		if v_paid > 0 then
+			update efin_rdv set unpaidinv_amt = unpaidinv_amt - v_paid where efin_rdv_id = v_rdvId;
+			update efin_rdv set totpayment = totpayment + v_paid where efin_rdv_id = v_rdvId;
+			if v_rdvType = 'PO' then
+				update efin_rdv set contractamt_rem = contractamt_rem - v_paid where efin_rdv_id = v_rdvId;
+			end if;
+		end if;
+		if v_paid < 0 then
+			update efin_rdv set unpaidinv_amt = unpaidinv_amt - v_paid where efin_rdv_id = v_rdvId;
+			update efin_rdv set totpayment = totpayment + v_paid where efin_rdv_id = v_rdvId;
+			if v_rdvType = 'PO' then
+				update efin_rdv set contractamt_rem = contractamt_rem - v_paid where efin_rdv_id = v_rdvId;
+			end if;
+		end if;
+        if (:new.ispaid = 'Y' ) then
+			update efin_rdvtxn set txnver_status = 'PD' where efin_rdvtxn_id = :new.em_efin_rdvtxn_id;
+       	end if;
+       	if (:new.ispaid = 'N' ) then
+			update efin_rdvtxn set txnver_status = 'INV' where efin_rdvtxn_id = :new.em_efin_rdvtxn_id;
+       	end if;
+	end if;
+	
+	end if;
+  END IF; 
+
+END EFIN_RDVAMT_UPDATE
+]]></body>
+    </trigger>
+  </database>

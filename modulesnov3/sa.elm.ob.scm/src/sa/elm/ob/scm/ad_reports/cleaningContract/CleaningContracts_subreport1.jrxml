@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CleaningContracts_subreport1" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="d3cd389a-d4d0-4243-b30f-0e91ab873404">
+	<property name="ireport.zoom" value="1.1000000000000005"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="11"/>
+	<parameter name="img" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select 1 from dual;]]>
+	</queryString>
+	<field name="?column?" class="java.lang.Integer"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="431">
+			<staticText>
+				<reportElement x="139" y="195" width="272" height="45" isPrintWhenDetailOverflows="true" uuid="68328623-7cee-40a5-a5ef-5d06b12016d0">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="24"/>
+				</textElement>
+				<text><![CDATA[عقد الصيانة والنظافة والزراعة لـ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="139" y="240" width="272" height="45" isPrintWhenDetailOverflows="true" uuid="018492b7-5091-4d1a-8974-05f98f27b822">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="24"/>
+				</textElement>
+				<text><![CDATA[( ٢٠١٧م – ٢٠٢٠م )]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="139" y="285" width="272" height="45" isPrintWhenDetailOverflows="true" uuid="7762b7c3-324b-4ceb-acd3-280ba65240d6">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="24" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[وثيقة العقد الأساسية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="367" y="15" width="153" height="25" uuid="5038d0aa-b858-46d5-b14e-d70e8bd5289f">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[المملكة العربية السعودية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="367" y="40" width="153" height="25" uuid="3d76fbf6-93ca-4631-a361-3f45c188d1ef">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[وزارة النقل]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="367" y="65" width="153" height="25" uuid="0296826c-9cae-45d3-a8c9-a2379f76eba1">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<text><![CDATA[الإدارة العامة للخدمات العامة]]></text>
+			</staticText>
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement x="14" y="34" width="125" height="75" uuid="24862cd4-1dac-44b2-808b-5a3cd77e6d55"/>
+				<imageExpression><![CDATA[$P{img}==null?org.openbravo.erpCommon.utility.Utility.showImageLogo("yourcompanylegal",""):org.openbravo.erpCommon.utility.Utility.showImage($P{img})]]></imageExpression>
+			</image>
+		</band>
+	</columnHeader>
+</jasperReport>

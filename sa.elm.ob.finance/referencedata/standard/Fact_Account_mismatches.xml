@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><ob:Openbravo xmlns:ob="http://www.openbravo.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ADAlertRule id="1EB7001A563E46EC8E1C109980E4B5B4" identifier="fact acct  sales mismatch">
+    <id>1EB7001A563E46EC8E1C109980E4B5B4</id>
+    <active>true</active>
+    <name>fact acct  sales mismatches</name>
+    <tab id="6EE02C9681A74406A129F1D96D022BA4" entity-name="ADTab" identifier="Accounting - Purchase Invoice"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select a.fact_acct_id as referencekey_id,
+	a.em_efin_documentno as record_id,	0 as ad_role_id,    null as ad_user_id,
+    ' Has the type '|| docbasetype ||' with the document number ' || a.em_efin_documentno ||' Has Unique code of '|| em_efin_uniquecode || ' Mis matches with the Sales Region '  || sr.name || '' as description,
+    'Y' as isActive,    a.ad_org_id,     a.ad_client_id,     now() as created,      0 as createdBy,      now() as updated,    0 as updatedBy
+from fact_acct a left join c_salesregion sr ON sr.c_salesregion_id = a.c_salesregion_id
+where coalesce(a.c_salesregion_id,'null') &lt;&gt; (select coalesce(c_salesregion_id,'0') from c_validcombination where em_efin_uniquecode = a.em_efin_uniquecode )</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="258A98AC26CD431D9C7882426E79EBF3" identifier="fact acct user2 mismatches">
+    <id>258A98AC26CD431D9C7882426E79EBF3</id>
+    <active>true</active>
+    <name>fact acct user2 mismatches</name>
+    <tab id="6EE02C9681A74406A129F1D96D022BA4" entity-name="ADTab" identifier="Accounting - Purchase Invoice"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select a.fact_acct_id as referencekey_id,	a.em_efin_documentno as record_id,	0 as ad_role_id,    null as ad_user_id,
+    ' Has the type '|| docbasetype ||' with the document number ' || a.em_efin_documentno ||'Has Unique code of'|| em_efin_uniquecode || 'Mis matches with the User '  || usr.name || '' as description,
+    'Y' as isActive,    a.ad_org_id,     a.ad_client_id,     now() as created,      0 as createdBy,      now() as updated,    0 as updatedBy
+from fact_acct a left join User2 usr ON usr.User2_id = a.user2_id
+where coalesce(a.user2_id,'null') &lt;&gt; (select coalesce(user2_id,'0') from c_validcombination where em_efin_uniquecode = a.em_efin_uniquecode )</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>  
+  <ADAlertRule id="51FCA62C8C22402A95CFD7341F1D7FEB" identifier="fact acct activity mismatches">
+    <id>51FCA62C8C22402A95CFD7341F1D7FEB</id>
+    <active>true</active>
+    <name>fact acct activity mismatches</name>
+    <tab id="6EE02C9681A74406A129F1D96D022BA4" entity-name="ADTab" identifier="Accounting - Purchase Invoice"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select a.fact_acct_id as referencekey_id,
+	a.em_efin_documentno as record_id,	0 as ad_role_id,    null as ad_user_id,
+    ' Has the type '|| docbasetype ||' with the document number ' || a.em_efin_documentno ||' Has Unique code of '|| em_efin_uniquecode || ' Mis matches with the Activity '  || ca.name || ' ' as description,
+    'Y' as isActive,    a.ad_org_id,     a.ad_client_id,     now() as created,      0 as createdBy,      now() as updated,    0 as updatedBy
+from fact_acct a left join c_activity ca ON ca.c_activity_id = a.c_activity_id
+where coalesce(a.c_activity_id,'null') &lt;&gt; (select coalesce(c_activity_id,'0') from c_validcombination where em_efin_uniquecode = a.em_efin_uniquecode )</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="68FBF76C3B784E3E87B48D4DF26B30F7" identifier="fact acct user 1 mismatches">
+    <id>68FBF76C3B784E3E87B48D4DF26B30F7</id>
+    <active>true</active>
+    <name>fact acct user 1 mismatches</name>
+    <tab id="6EE02C9681A74406A129F1D96D022BA4" entity-name="ADTab" identifier="Accounting - Purchase Invoice"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select a.fact_acct_id as referencekey_id,	a.em_efin_documentno as record_id,	0 as ad_role_id,    null as ad_user_id,
+    ' Has the type '|| docbasetype ||' with the document number ' || a.em_efin_documentno ||' Has Unique code of '|| em_efin_uniquecode || ' Mis matches with the User '  || usr.name || ' ' as description,
+    'Y' as isActive,    a.ad_org_id,     a.ad_client_id,     now() as created,      0 as createdBy,      now() as updated,    0 as updatedBy
+from fact_acct a left join User1 usr ON usr.User1_id = a.user1_id
+where coalesce(a.user1_id,'null') &lt;&gt; (select coalesce(user1_id,'0') from c_validcombination where em_efin_uniquecode = a.em_efin_uniquecode )</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="9649C7061726443185C8BCD95BCF1231" identifier="Fact acct Organization mismatches">
+    <id>9649C7061726443185C8BCD95BCF1231</id>
+    <active>true</active>
+    <name>Fact acct Organization mismatches</name>
+    <tab id="6EE02C9681A74406A129F1D96D022BA4" entity-name="ADTab" identifier="Accounting - Purchase Invoice"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select a.fact_acct_id as referencekey_id,
+	a.em_efin_documentno as record_id,	0 as ad_role_id,    null as ad_user_id,
+    ' Has the type '|| docbasetype ||' with the document number ' || a.em_efin_documentno ||' Has Unique code of '|| em_efin_uniquecode || ' Mis matches with the Organization '  || org.name || '' as description,
+    'Y' as isActive,    a.ad_org_id,     a.ad_client_id,     now() as created,      0 as createdBy,      now() as updated,    0 as updatedBy
+from fact_acct a left join ad_org org ON org.ad_org_id = a.ad_orgtrx_id
+where coalesce(a.ad_orgtrx_id,'null') &lt;&gt; (select coalesce(ad_org_id,' ') from c_validcombination where em_efin_uniquecode = a.em_efin_uniquecode )</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="B446879EF41A4B3B92D4729B4A11AE63" identifier="fact acct project mismatches">
+    <id>B446879EF41A4B3B92D4729B4A11AE63</id>
+    <active>true</active>
+    <name>fact acct project mismatches</name>
+    <tab id="6EE02C9681A74406A129F1D96D022BA4" entity-name="ADTab" identifier="Accounting - Purchase Invoice"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select a.fact_acct_id as referencekey_id,
+	a.em_efin_documentno as record_id,	0 as ad_role_id,    null as ad_user_id,
+    ' Has the type '|| docbasetype ||' with the document number ' || a.em_efin_documentno ||' Has Unique code of '|| em_efin_uniquecode || ' Mis matches with the Project '  || pro.name || '' as description,
+    'Y' as isActive,    a.ad_org_id,     a.ad_client_id,     now() as created,      0 as createdBy,      now() as updated,    0 as updatedBy
+from fact_acct a 
+ left join c_project pro ON pro.c_project_id = a.c_project_id
+where coalesce(a.c_project_id,'null') &lt;&gt; (select coalesce(c_project_id,'0') from c_validcombination where em_efin_uniquecode = a.em_efin_uniquecode )</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="D037D062D8E84C5D964221479A54C5C4" identifier="fact account campain mismatches">
+    <id>D037D062D8E84C5D964221479A54C5C4</id>
+    <active>true</active>
+    <name>fact account campain mismatches</name>
+    <tab id="6EE02C9681A74406A129F1D96D022BA4" entity-name="ADTab" identifier="Accounting - Purchase Invoice"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select a.fact_acct_id as referencekey_id,
+	a.em_efin_documentno as record_id,	0 as ad_role_id,    null as ad_user_id,
+    ' Has the type '|| docbasetype ||' with the document number ' || a.em_efin_documentno ||' Has Unique code of '|| em_efin_uniquecode || ' Mis matches with the Sales Region '  || ca.name || ' ' as description,
+    'Y' as isActive,    a.ad_org_id,     a.ad_client_id,     now() as created,      0 as createdBy,      now() as updated,    0 as updatedBy
+from fact_acct a left join c_campaign ca ON ca.c_campaign_id = a.c_campaign_id
+where coalesce(a.c_campaign_id,'null') &lt;&gt; (select coalesce(c_campaign_id,'0') from c_validcombination where em_efin_uniquecode = a.em_efin_uniquecode )</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+  <ADAlertRule id="D0D0B123B642448BBBB982F9C3A8C7C0" identifier="Fact Account_Mismatches">
+    <id>D0D0B123B642448BBBB982F9C3A8C7C0</id>
+    <active>true</active>
+    <name>Fact Account_Mismatches</name>
+    <tab id="6EE02C9681A74406A129F1D96D022BA4" entity-name="ADTab" identifier="Accounting - Purchase Invoice"/>
+    <filterClause xsi:nil="true"/>
+    <sql>select a.fact_acct_id as referencekey_id,
+	em_efin_documentno as record_id,
+	0 as ad_role_id,    null as ad_user_id,
+    ' Has the type '|| docbasetype ||' with the document number ' || em_efin_documentno ||' Has Unique code of '|| em_efin_uniquecode || ' Mis matches with the account of '  || acctvalue || ' ' as description,
+    'Y' as isActive,    a.ad_org_id,     a.ad_client_id,     now() as created,      0 as createdBy,      now() as updated,    0 as updatedBy
+from fact_acct a 
+where coalesce(a.account_id,'null') &lt;&gt; (select coalesce(account_id,'0') from c_validcombination where em_efin_uniquecode = a.em_efin_uniquecode )</sql>
+    <type>D</type>
+    <efinProcesstype xsi:nil="true"/>
+    <eSCMProcessType xsi:nil="true"/>
+  </ADAlertRule>
+</ob:Openbravo>

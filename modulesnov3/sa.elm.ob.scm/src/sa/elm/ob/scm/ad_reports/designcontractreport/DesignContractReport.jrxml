@@ -1,0 +1,787 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.0.0.final using JasperReports Library version 6.0.0  -->
+<!-- 2018-01-11T10:18:11 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="DesignContractReport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="2c8d9b3b-d241-46c1-b30b-7f3dee033a90">
+	<property name="ireport.zoom" value="1.4641000000000006"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="1680"/>
+	<parameter name="inpPOId" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/opt/erp/projects/mot/WebContent/src-loc/design/sa/elm/ob/scm/ad_reports/designcontractreport/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="BASE_DESIGN" class="java.lang.String"/>
+	<parameter name="inpImageFlag" class="java.lang.String"/>
+	<parameter name="inpOrgId" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select bid.executionadd as contractloc, bid.bidpurpose as bidpurpose1, eut_convert_to_hijri(to_char(CAST(now() as date),'YYYY-MM-DD')) as printdate,
+cty.name as contsigncity, (SELECT EXTRACT(DOW FROM  ord.em_escm_signaturedate::date)::int) as signatureday,
+eut_convert_to_hijri(to_char(em_escm_signaturedate,'YYYY-MM-dd')) as em_escm_signaturedate,
+to_char(em_escm_signaturedate, 'dd-MM-yyyy') as signaturedategreg, em_escm_motcontposition, em_escm_motcontperson,
+bp.name as vendorname, bpcert.certificatenumber as registryno, bpcert.registrydate, bpcert.registrycity,
+loc.address2 as postalbox, loc.postal as postalcode,
+(select usr.name from ad_user usr where usr.c_bpartner_id= bp.c_bpartner_id order by usr.created limit 1) as vndrcontactname,
+(select usr.title from ad_user usr where usr.c_bpartner_id= bp.c_bpartner_id order by usr.created limit 1) as vndrcontactposition,
+(select em_escm_authorization_number from ad_user where c_bpartner_id = bp.c_bpartner_id order by created limit 1) as vndrcontauthno,
+(select eut_convert_to_hijri(to_char(em_escm_authorization_date,'YYYY-MM-dd')) from ad_user
+where c_bpartner_id = bp.c_bpartner_id order by created limit 1) as vndrcontauthdate, em_escm_projectname,
+em_escm_contractduration,  grandtotal as projcost,
+case when em_escm_periodtype='DT' then (select name from ad_ref_list_trl where ad_ref_list_id  ='A30FD69E1BA7437D88F529602B8F92F5')
+when em_escm_periodtype='MT' then (select name from ad_ref_list_trl where ad_ref_list_id  ='07424BD55A70419082F9B327A08B680E')
+when em_escm_periodtype='MTH' then (select name from ad_ref_list_trl where ad_ref_list_id  ='18259FFDADB2487BA820CEBBBD556634')
+when em_escm_periodtype='MTG' then (select name from ad_ref_list_trl where ad_ref_list_id  ='3E5AEEAAC85641B7989E4F819306DEE1')
+else em_escm_periodtype end as em_escm_periodtype
+from c_order ord
+left join c_bpartner bp on bp.c_bpartner_id=ord.c_bpartner_id
+left join escm_bidmgmt bid on bid.escm_bidmgmt_id=em_escm_bidmgmt_id
+left join (select c_location_id, c_bpartner_id from c_bpartner_location where created=(select min(created) as created from c_bpartner_location
+where c_bpartner_id=(select c_bpartner_id from c_order where c_order_id=$P{inpPOId}))) bploc on bploc.c_bpartner_id=bp.c_bpartner_id
+left join c_location loc on loc.c_location_id=bploc.c_location_id
+left join c_city cty on cty.c_city_id=ord.em_escm_c_city_id
+left join (select name, value, escm_deflookups_typeln_id, cert.c_bpartner_id, cert.certificatenumber,
+eut_convert_to_hijri(to_char(cert.registrydate,'YYYY-MM-dd')) as registrydate, cert.registrycity from escm_deflookups_typeln lkln
+join escm_deflookups_type typ on lkln.escm_deflookups_type_id=typ.escm_deflookups_type_id
+right join escm_certificates cert on cert.certificatename=lkln.escm_deflookups_typeln_id
+where reference ='CN' and typ.isactive='Y' and (value ilike '%CRN%')) bpcert on bpcert.c_bpartner_id=bp.c_bpartner_id
+where ord.c_order_id=$P{inpPOId}]]>
+	</queryString>
+	<field name="contractloc" class="java.lang.String"/>
+	<field name="bidpurpose1" class="java.lang.String"/>
+	<field name="printdate" class="java.lang.String"/>
+	<field name="contsigncity" class="java.lang.String"/>
+	<field name="signatureday" class="java.lang.Integer"/>
+	<field name="em_escm_signaturedate" class="java.lang.String"/>
+	<field name="signaturedategreg" class="java.lang.String"/>
+	<field name="em_escm_motcontposition" class="java.lang.String"/>
+	<field name="em_escm_motcontperson" class="java.lang.String"/>
+	<field name="vendorname" class="java.lang.String"/>
+	<field name="registryno" class="java.lang.String"/>
+	<field name="registrydate" class="java.lang.String">
+		<fieldDescription><![CDATA[--OBTG:ONCREATEDEFAULT:SYSDATE--]]></fieldDescription>
+	</field>
+	<field name="registrycity" class="java.lang.String"/>
+	<field name="postalbox" class="java.lang.String"/>
+	<field name="postalcode" class="java.lang.String"/>
+	<field name="vndrcontactname" class="java.lang.String"/>
+	<field name="vndrcontactposition" class="java.lang.String"/>
+	<field name="vndrcontauthno" class="java.lang.String"/>
+	<field name="vndrcontauthdate" class="java.lang.String"/>
+	<field name="em_escm_projectname" class="java.lang.String"/>
+	<field name="em_escm_contractduration" class="java.math.BigDecimal"/>
+	<field name="projcost" class="java.math.BigDecimal"/>
+	<field name="em_escm_periodtype" class="java.lang.String"/>
+	<title>
+		<band height="639" splitType="Stretch">
+			<staticText>
+				<reportElement x="116" y="129" width="309" height="25" uuid="61fd1178-526c-4826-ac02-94c121265d46"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16"/>
+				</textElement>
+				<text><![CDATA[الدراسات والتصميم]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="116" y="104" width="309" height="25" uuid="52288dc5-7dd0-4dd5-a9e3-8d836d66e44b"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16"/>
+				</textElement>
+				<text><![CDATA[وزارة النقل]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="116" y="79" width="309" height="25" uuid="211c630a-6004-47d0-9368-5bda1ba20e02"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="16"/>
+				</textElement>
+				<text><![CDATA[المملكة العربية السعودية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="302" width="555" height="25" uuid="6ecfedd5-707e-47b2-a319-e59c4605cbb7"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="16"/>
+				</textElement>
+				<text><![CDATA[عقد الخدمات الهندسية الاستشارية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="296" y="336" width="95" height="20" uuid="1165c5b8-b540-40e3-aaa8-9d4cc1fdd474"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[دراسة وتصميم طرق بمنطقة]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="16" y="336" width="280" height="20" uuid="1ce362ac-66f0-4930-b481-c998b1f10304"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{contractloc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="223" y="619" width="100" height="20" uuid="15a30576-036e-41be-8689-f89054161563"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{printdate})]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="245" y="206" width="100" height="66" uuid="83dc0f43-934b-4d83-b0c0-488c8cb9c65d">
+					<printWhenExpression><![CDATA[$P{inpImageFlag}.equals("Y")]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[org.openbravo.erpCommon.utility.Utility.showImageLogo("yourcompanylegal",$P{inpOrgId})]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="109" splitType="Stretch"/>
+	</pageHeader>
+	<detail>
+		<band height="541" splitType="Stretch">
+			<staticText>
+				<reportElement x="129" y="49" width="309" height="20" uuid="f298183c-584f-44d9-9624-4da04dee53da"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[عقد الخدمات الهندسية الاستشارية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="129" y="69" width="309" height="20" uuid="bab0b58a-4fbc-4357-a2fa-c03f6f2864da"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[القسم الأول – وثيقة العقد الأساسية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="89" width="555" height="20" uuid="347aec96-d4c2-4b07-b034-f56c58df1b7f"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[بعون الله تعالى:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="109" width="555" height="20" uuid="2c2559fb-aa12-44ae-b42a-cdead169bebe"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["تم الاتفاق بمدينة "+" "+($F{contsigncity}==null?"":$F{contsigncity})+" "+" في يوم"+" "+($F{signatureday}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.getWeekdaysInArabic($F{signatureday}))+" "+"بتاريخ"+" "+($F{em_escm_signaturedate}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{em_escm_signaturedate}))]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="129" width="555" height="20" uuid="ccf764f1-3d45-4c16-9d2b-eb2895f9c767"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["الموافق لــ"+" "+($F{signaturedategreg}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{signaturedategreg}))+" "+"بين كل من:"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="149" width="555" height="20" uuid="0be20200-a9c3-4692-b669-5e88aa2e82b0"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[اولاً : وزارة النقل ويمثلها]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="169" width="555" height="20" uuid="3dcc690c-f2dd-468c-96ed-8aab0d4194d7"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{em_escm_motcontposition}==null?"":$F{em_escm_motcontposition})+" / "+($F{em_escm_motcontperson}==null?"":$F{em_escm_motcontperson}) +":"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="189" width="555" height="20" uuid="3c1d00eb-08d6-470b-abb6-f03c607a9b02"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[طرف أول]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="209" width="555" height="20" uuid="3ee6bc79-5504-4520-bb34-cf04c278a44d"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ويشار إليها فيما بعد بصاحب العمل طرفا اول ، ويشمل هذا التعبير من يخلف صاحب العمل ومن يحيل اليهم العقد.]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="249" width="555" height="20" uuid="1a163f29-960f-4a6b-95bf-d7dccc9c8f77"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["السعودية الرياض ص.ب"+" "+($F{postalbox}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{postalbox}))+" الرمز البريدي"+" "+($F{postalcode}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{postalcode}))]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="269" width="555" height="20" uuid="20b67ff4-5336-442d-8b95-cf1d8863e8d9"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["ويمثلها وينوب عنها في توقيع هذا العقد السيد/"+" "+($F{vndrcontactname}==null?"":$F{vndrcontactname})+" "+"بصفته /"+($F{vndrcontactposition}==null?"":$F{vndrcontactposition})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="289" width="555" height="20" uuid="adecc47d-cf08-45c2-81dc-130382f4e596"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["بموجب التفويض رقم"+" "+($F{vndrcontauthno}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{vndrcontauthno}.toString()))+" "+"وتاريخ"+" "+($F{vndrcontauthdate}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{vndrcontauthdate}))+" "+"هـ."]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="309" width="555" height="20" uuid="ef28ed9b-9f87-4f83-805b-7fa904e7c271"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[والمشار إليه فيما بعد بـ (الاستشاري)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="329" width="555" height="20" uuid="79eab95c-31e8-46b6-95c2-cb6e65b9f99b"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[طرف ثانٍ]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="349" width="555" height="20" uuid="1d7023c1-5927-4dc5-9257-d2698a3acb31"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" لما كان صاحب العمل يرغب في"+" "+($F{em_escm_projectname}==null?"":$F{em_escm_projectname})+" "+" . ولما كان الاستشاري قد تقدم بعرضه للقيام بتلك الخدمات وتنفيذها وإتمامها وذلك بعد إطلاعه على شروط العقد"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="369" width="555" height="20" uuid="4e6c793c-20c8-4677-b708-7aaa54d9321e"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[وجميع المستندات المرفقة به ، وعلى نظام تأمين مشتريات الحكومة وتنفيذ مشروعاتها وأعمالها.ولما كان العرض المقدم من الاستشاري قد اقترن بقبول صاحب العمل ،فقد]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="389" width="555" height="20" uuid="4405b61c-9aa9-4474-98cc-4a41f423131d"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ اتفق الطر فان المشار إليهما أعلاه على ما يلي:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="409" width="555" height="20" uuid="a17c3336-c3b2-4591-b496-58abfe06139a"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[المادة الأولى – الغرض من العقد :]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="430" width="555" height="60" uuid="d617d05d-9230-4074-b065-f2a589b1bcc9"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{bidpurpose1}==null?"":$F{bidpurpose1})]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="229" width="555" height="20" uuid="87ec98c0-ac70-4f4c-9b3e-d66f478e6c1d"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["ثانياً:"+" "+($F{vendorname}==null?"":$F{vendorname})+" "+" المسجلة تحت رقم"+" "+($F{registryno}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{registryno}.toString()))+" "+"وتاريخ"+" "+($F{registrydate}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{registrydate}))+" "+"هــ ومتخذ عنواناً لمراسلاتها بالمملكة العربية"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="1" y="490" width="554" height="50" uuid="cedfb2d4-751b-41e3-a886-2abfd1076fca"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ويشمل ذلك تقديم الخدمات والأفراد والموظفين والمواد وجميع الأشياء اللازمة ، لتنفيذ وإتمام الأعمال المبينة في وثائق العقد وكذلك الخدمات المؤقتة والإضافــية والتكميلية والتعديلات التي يطلب صاحب العمل من الاستشاري القيام بها وفقاً لشروط العقد ووثائقة .]]></text>
+			</staticText>
+		</band>
+		<band height="487">
+			<staticText>
+				<reportElement x="0" y="0" width="555" height="20" uuid="835a484a-189f-472a-b605-d7ca2d9a65e3"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[المادة الثانية – وثائق العقد: ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="60" width="536" height="20" uuid="35f93ed0-5de9-4b8a-9057-da6fda5223b3"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ب- الشروط الخاصة ( إن وجدت).]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="20" width="536" height="20" uuid="bd2f549e-90aa-423c-a321-aa62246464e2"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[أ-  يتألف هذا العقد من الوثائق التالية :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="40" width="536" height="20" uuid="d8fab681-bee6-4573-832d-4f34cf0c2049"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[أ- وثيقة العقد الأساسية]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="80" width="536" height="20" uuid="d206b4a5-fe3e-44ce-be5d-050fa123b054"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ج- الشروط العامة.
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="100" width="536" height="20" uuid="530ebd65-8eb4-4174-a108-bf88160b95cd"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[‌د- بيان بالخدمات الهندسية المطلوبة.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="120" width="536" height="20" uuid="88d0961f-d6b3-40ed-9d6a-7c4d043de294"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[هـ-جداول الأتعاب وفئات الأسعار.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="140" width="536" height="20" uuid="fefac2b6-5c9f-4fac-b681-5b63dde62051"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[و-خطاب الترسية أو قبول العرض.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="160" width="536" height="20" uuid="24cdb25b-9be6-491e-96dd-397b006eb4f4"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ب-  تشكل هذه الوثائق وحدة متكاملة وتعد لكل وثيقة جزءاً من العقد ، وبحيث تفسر وتتمم الوثائق المذكورة أعلاه بعضها بعضاً.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="180" width="536" height="20" uuid="f0436e42-f685-4618-bda7-3d0be1f4e2ad"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ج- في حالة وجود تناقض بين أحكام وثائق العقد فإن الوثيقة المتقدمة تسود على الوثيقة التي تليها في الترتيب الوارد في الفقرة الأولى من هذه المادة.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="238" width="555" height="20" uuid="519656c5-9844-4bd5-a6c9-68a002b67868"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[المادة الثالثة : مدة العقد : ]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="258" width="555" height="20" uuid="75db8675-9c47-4d26-8d53-b2d5791add3d"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["أ- يلتزم الاستشاري بتنفيذ وإتمام الأعمال والخدمات المبينة في العقد وملاحقة ، وذلك خلال مدة قدرها "+" "+($F{em_escm_contractduration}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{em_escm_contractduration}.toString()))+" "+($F{em_escm_periodtype}==null?"":$F{em_escm_periodtype})+" "+"من تاريخ توقيع العقد."]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="278" width="555" height="42" uuid="0bdfc4d6-52be-4dc1-9513-f2b8dde633d6"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[وعلى الاستشاري أن يقدم برنامجا يوضح مراحل العمل خلال هذه المدد فور توقيع العقد علما أن هذه المدد شاملة المراجعة لكل مرحلة والتي لا تتجاوز أسبوعين لكل مرحلة.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="320" width="555" height="20" uuid="8100828d-a016-4f43-ae9b-570e1d6260f4"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[المادة الرابعة : مسؤولية وضمان الأعمال :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="380" width="555" height="20" uuid="7dcad00f-4b91-4c1b-a1d8-b55102a7fef0"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[المادة الخامسة : قيمة العقد:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="400" width="555" height="20" uuid="2f77f23d-3200-42d8-bfbc-a5cb560243d1"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[أولاً : الدراسة والتصميم:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="420" width="555" height="20" uuid="e56b2e85-b2d3-4a01-88ac-cd31f4ec56b9"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[كوسيلة للمقارنة بين العروض فقد وضعت الوزارة كميات تقديريه لعناصر الدراسات و التصميم ليتم بموجبها تقدير التكاليف من واقع فئات أسعار الاستشاري الموضحة أدناه .]]></text>
+			</staticText>
+			<subreport>
+				<reportElement x="0" y="446" width="555" height="40" uuid="3b5b8b9e-27de-46f7-88a6-d787c6474ebc"/>
+				<subreportParameter name="inpPOId">
+					<subreportParameterExpression><![CDATA[$P{inpPOId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{BASE_DESIGN} + "/sa/elm/ob/scm/ad_reports/designcontractreport/DesignContractReport_subreport1.jrxml")]]></subreportExpression>
+			</subreport>
+			<textField>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="340" width="555" height="20" uuid="613dfd1f-308a-4029-bca9-dd6bf851b8f1"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["يضمن الاستشاري الأعمال والخدمات محل العقد على الوجه الأكمل ويكون مسئولاً عن أي ضرر يحصل نتيجة أخطائه في التصميم وفقاً لما ورد في المادة التاسعة"+" ("+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount("9")+") "+" والمادة"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="360" width="555" height="20" uuid="5c0fd4e1-5ac1-4e2d-b529-533093af2b6a"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" العاشرة"+" ("+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount("10")+") "+"من الشروط العامة للعقد ومرفق اقرار تعهد بذلك."]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="536" y="20" width="19" height="20" uuid="f644b062-277f-40c9-93ec-30660a7922db"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["-"+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount("1")]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="536" y="160" width="19" height="20" uuid="c9c58365-b52d-49d7-89e5-5a8e84daf990"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["-"+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount("2")]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="536" y="180" width="19" height="20" uuid="03290b92-6cf0-46d6-ba2b-089caf9cddb8"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["-"+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount("3")]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="740" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="96" width="555" height="20" uuid="fa537a95-2ef1-450c-8aa8-5e13dc1c2d5b"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["وبذلك تكون التكاليف التقديرية للدراسات والتصميم"+" "+($F{projcost}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{projcost}.toString()))+" "+"ريال فقط وسيتم تحديد التكاليف النهائية المشار إليها أعلاه للدراسات"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="116" width="555" height="20" uuid="b1ed0bbc-d7d8-4912-ae8e-9869c6d8edcc"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[والتصميم من واقع الحصر النهائي للأعمال المطلوب تصميمها  والتي توافق عليها الوزارة ، أما محاسبة الاستشاري عن التصميم فستكون وفق الكميات التي يتم بموجبها التصميم]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="136" width="555" height="20" uuid="3d5f407c-2dc4-4fbe-a4c2-fcd477aa7a0b"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[النهائي وعلى أساس ألا يتجاوز ما يتم دفعه للاستشاري التكاليف المحددة لذلك بموجب الحصر الموافق عليه والتي تعتبر حداً أقصى كما هو موضح أعلاه لأتعاب]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="156" width="555" height="20" uuid="56591e7c-30af-4ba7-8adf-3465e0f78f3a"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ الدراسات والتصميم. ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="187" width="555" height="20" uuid="e8765802-1105-456a-8ff0-6e3d952e8961"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[وإذا ارتأت الوزارة تكليف الاستشاري بأعمال إضافية للقيام بخدمات تصميم أخرى يستحق مقابل تلك الخدمات أتعابا وفق الأسعار الواردة في جدول الكميات للدراسة]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="207" width="555" height="20" uuid="65d67781-0e78-4668-b9e8-f2743f777b76"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[والتصميم المشار إليها أعلاه.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="247" width="555" height="20" uuid="5ba42182-d319-499a-95f9-e03d85b9aa0d"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ بتنفيذها طبقاً للعقد وتبعاً للأعمال الإضافية والتكميلية والتعديلات التي يقوم بإجرائها بناءً على طلب صاحب العمل في نطاق الحدود المنصوص عليها في شروط العقد.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="267" width="555" height="20" uuid="daacff4f-b77b-4e86-989a-4ebd829ea67b"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[المادة السادسة : طريقة الدفع :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="307" width="555" height="20" uuid="b9043282-ac58-4f25-aba1-42d0e4a772e9"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[المتفق عليها.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="349" width="555" height="20" uuid="33a7e201-6663-4c5a-9464-b8823cad7cc3"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[المادة السابعة : تعهدات الاستشاري: ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="369" width="536" height="20" uuid="e9dfaf1f-36eb-4a7e-a5ab-a7d2833c2e51"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ مع عدم الإخلال بما تقضي به الأنظمة يقر الاستشاري ويتعهد بما يلي:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="389" width="536" height="20" uuid="b22a36a6-e59e-410e-b5ff-b84256ca29ec"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ ‌أ- عدم دفع أو منح أي مبلغ من المال أو أي منفعة أخرى ، أو وعد أحد بذلك ، من أجل ترسية المنافسة عليه والحصول على هذا العقد.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="449" width="536" height="20" uuid="6eb659c3-7dcd-4cbd-8d5b-b555dae207a9"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ يتعهد الاستشاري بأن يوضح لصاحب العمل ويطلعه قبل توقيع هذا العقد على ما يقوم أو ينوي القيام به من أعمال أو خدمات تتعارض أو تؤثر سلباً على عقده. ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="409" width="536" height="20" uuid="209c4dbb-4a03-4885-8119-862975507e4f"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ب- تجنب الإشارة إلى النوع أو الوصف أو الرقم الوارد في قوائم المنتجين.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="429" width="536" height="20" uuid="fad5e210-3234-42b6-84df-9db8ec8ccd1f"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ج- عدم اشتراط أو استخدام مواد ومعدات أو أجهزة ذات أسماء أو ماركات معينة بذاتها أو اسمها ( ولن يركز عند اختيار العينات أو اعتمادها على شيء من ذلك).]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="469" width="536" height="20" uuid="645bb3e2-34b3-4621-8646-01cbef8aa2bf"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ يقر الاستشاري بعمله أنه في حالة عدم صحة أي من التعهدات السابقة ، أو عدم الالتزام بما تعهد به ، أو في حالة إخفائه لأي معلومات تعهد بالإفصاح عنها – فسيطبق]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="489" width="536" height="20" uuid="58fbe412-f0d7-42b3-8930-e2210af07883"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[بحقه ما تقضي به الأنظمة في المملكة كنظام مكافحة الرشوة ، ونظام مكافحة التزوير ، ونظام مكافحة الغش التجاري وغيرها من الأنظمة والتعليمات.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="544" width="555" height="20" uuid="321b97bb-9bcf-49ff-856a-550bdd7c9060"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic Bold" size="12"/>
+				</textElement>
+				<text><![CDATA[المادة الثامنة : نظام العقد :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="564" width="536" height="20" uuid="3392f3ff-9157-4576-93cf-fa384b01efb8"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[يخضع هذا العقد للأنظمة النافذة في المملكة العربية السعودية ويجري تفسيره وتنفيذه والفصل فيما ينشأ عنه من دعاوى بموجبها وتوثيقاً لما تقدم فقد قام الطرفان]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="584" width="555" height="20" uuid="7a822f1d-8af5-4605-8ba2-c53c5005da54"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[بالتوقيع على هذه الوثيقة.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="380" y="604" width="100" height="20" uuid="7794ed11-2b21-4152-a1e8-cf1b7e6a052b"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[والله الموفق.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="438" y="624" width="73" height="20" uuid="ab671304-ac58-4707-a03e-c9a216697d35"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[الطرف الثاني]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="145" y="624" width="100" height="20" uuid="03abac7b-0940-4e1e-9df0-7f015b283c9b"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[الطرف الاول]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="511" y="644" width="44" height="20" uuid="af35fd85-e91c-457d-9762-c1468ed332f4"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[الاسم :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="511" y="664" width="44" height="20" uuid="8425d1c6-58a3-4d8b-be79-2783146fc0c5"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[الصفة :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="511" y="684" width="44" height="20" uuid="e13a1f7f-ee5d-4732-bc84-17ed784f19de"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[التوقيع :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="511" y="704" width="44" height="20" uuid="359d1812-da71-414e-bf27-0d9441988931"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<text><![CDATA[ الختم:]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="245" y="644" width="266" height="20" uuid="784eb4f1-fde3-45d2-88fc-4729d9f43766"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vndrcontactname}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="245" y="664" width="266" height="20" uuid="1ca0188a-4e9d-41d8-b24a-c737d1e48d3e"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vndrcontactposition}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="644" width="245" height="20" uuid="650ad6b5-b7fe-4e69-bded-a26b08506ac6"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{em_escm_motcontperson}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="664" width="245" height="20" uuid="688bf41f-8440-4123-9593-bfb7060fb1a3"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{em_escm_motcontposition}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1" y="227" width="554" height="20" uuid="83578194-0dc3-47b3-ad84-ff50966b4de5"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["مع مراعاة ما ورد في المادة الثالثة عشرة"+" ("+(sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount("13"))+") "+"من الشروط العامة للعقد تخضع هذه القيمة الإجمالية للزيادة والنقص تبعاً لتغير الأعمال الفعلية التي يقوم الاستشاري"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="287" width="555" height="20" uuid="03d8b8b3-d956-40f1-bb76-79821e65546c"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["يلتزم صـاحب العمل بتسديد قيمة العقـد بالطـريقة وفي الأوقات المحددة في المادة الثانية عشر"+" ("+(sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount("12"))+") "+"من الشروط العامة للعقد مقابل قيام الاستشاري بتنفيذ وإتمام الأعمال"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="536" y="369" width="19" height="20" uuid="5d4140a6-0f2b-4168-8b8b-06cbb777ede9"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["-"+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount("1")]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="536" y="449" width="19" height="20" uuid="52914231-c541-4b06-b9eb-afdb661800e6"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["-"+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount("2")]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="536" y="469" width="19" height="20" uuid="5594fef5-8b1b-42b4-a975-69fcbce74ec0"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["-"+sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount("3")]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.0.final using JasperReports Library version 6.5.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ProposalEvaluationEventDirect" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="72625d67-0884-4052-a1ee-68aaa1341043">
+	<property name="ireport.zoom" value="1.1000000000000045"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="672"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="inpEventId" class="java.lang.String"/>
+	<parameter name="BASE_DESIGN" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/opt/elm/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inpClientId" class="java.lang.String"/>
+	<parameter name="inpParamOne" class="java.lang.String"/>
+	<parameter name="inpParamTwo" class="java.lang.String"/>
+	<parameter name="inpParamThree" class="java.lang.String"/>
+	<parameter name="inpParamFour" class="java.lang.String"/>
+	<parameter name="inpParamFive" class="java.lang.String"/>
+	<parameter name="inpParamSix" class="java.lang.String"/>
+	<parameter name="inpParamSeven" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select ete.bidname, eb.bidno, eo.eventno, eut_convert_to_hijri(to_char(CAST(ete.envelope_date as date),'YYYY-MM-DD')) as envdate
+from escm_technicalevl_event ete
+left join escm_openenvcommitee eo on eo.escm_openenvcommitee_id = ete.escm_openenvcommitee_id
+left join escm_bidmgmt eb on ete.escm_bidmgmt_id = eb.escm_bidmgmt_id
+where ete.escm_technicalevl_event_id = $P{inpEventId}]]>
+	</queryString>
+	<field name="bidno" class="java.lang.String"/>
+	<field name="bidname" class="java.lang.String"/>
+	<field name="eventno" class="java.lang.String"/>
+	<field name="envdate" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="140">
+			<textField isStretchWithOverflow="true">
+				<reportElement x="19" y="109" width="530" height="30" uuid="066c8a63-16a6-4c71-bff4-7af627876de1"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Center">
+					<font fontName="Traditional Arabic Bold" size="18"/>
+				</textElement>
+				<textFieldExpression><![CDATA["الموضوع: دراسة العطاءات المقدمة لعملية " + ($F{bidname}==null?"":$F{bidname}) + ". رقم المنافسة  " + "(" + ($F{bidno}=="null"?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{bidno})) + ")"]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="497" splitType="Stretch">
+			<elementGroup/>
+			<elementGroup/>
+			<textField>
+				<reportElement x="1" y="6" width="553" height="23" uuid="f8992a8c-93ae-482d-af25-c7ac681293bb"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic Bold" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["سعادة/" + " " +  $P{inpParamOne} + "      " + "المحترم."]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="270" y="35" width="285" height="28" uuid="78e06c32-9ecc-4514-800c-b5f9c740fcd2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[السلام عليكم ورحمة الله وبركاته...]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="1" y="63" width="554" height="45" uuid="2708d260-78c5-40de-aab0-7a46096e3651">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["أرفق لسعادتكم من طيه محضر لجنة فتح المظاريف رقم " + ($F{eventno}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{eventno})) + " وتاريخ " + ($F{envdate}==null?"":sa.elm.ob.utility.ad_reports.NumberToWords.ConvertAmountToArabicAmount($F{envdate}.toString())) + " عن فتح مظاريف العطاءات لمنافسة مشروع " + ($F{bidname}==null?"":$F{bidname}) + "."]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="280" y="108" width="274" height="25" uuid="302344f6-fb48-4630-b6e8-0796317c2b76">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["آمل دراستها وفق ما يقضي به النظام ومن ثم إعادتها لنا."]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="140" y="128" width="100" height="24" uuid="2e5e4e39-873a-463b-872c-f2a6ff42d075"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[ولكم تحياتي،،،]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="19" y="157" width="281" height="30" uuid="12abc33f-ed46-4ca9-9e74-d3b8a82cfdb6">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="18" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{inpParamTwo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="88" y="190" width="148" height="30" uuid="eadb6cd8-919d-461f-99e4-8c6f79f336b2">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="18"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{inpParamThree}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="170" y="212" width="384" height="70" uuid="bf68dbb6-e2e3-459e-af3c-e07e40893e7d"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[المكرم مدير عام إدارة التنفيذ.
+المكرم مدير عام إدارة الصيانة.
+المكرم مدير عام إدارة الدراسات والتصميم.
+					]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="170" y="282" width="290" height="44" uuid="ff52f212-499a-42a9-abe9-bf8f6fd75e76"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[يدرس من قبل .........................................................
+					وتقدم النتيجة سريعا.]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="88" y="358" width="146" height="30" uuid="b615797e-e395-4c4a-90e0-87d3e3dde7fd">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="18"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{inpParamFive}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="19" y="324" width="281" height="30" uuid="5e5be703-7f60-456b-b572-9dd6e180109e">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="18" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{inpParamFour}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="19" y="435" width="281" height="30" uuid="c79e576c-dae2-449f-a380-c0ef953cbfb9">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="18" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{inpParamSix}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="88" y="466" width="148" height="30" uuid="377936cd-b7b1-4b70-9a91-60c8cc9cb7ba">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Traditional Arabic" size="18"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{inpParamSeven}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="282" y="392" width="272" height="44" uuid="4ecc1dca-6957-4047-ae09-9aa60b6a629d"/>
+				<textElement textAlignment="Right">
+					<font fontName="Traditional Arabic" size="14"/>
+				</textElement>
+				<text><![CDATA[المكرم مدير عام الإدارة العامة المنافسات والعقود.
+برفقه الدراسة الفنية للمشروع أعلاه، وتعرض على اللجنة.]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="63"/>
+	</pageFooter>
+</jasperReport>

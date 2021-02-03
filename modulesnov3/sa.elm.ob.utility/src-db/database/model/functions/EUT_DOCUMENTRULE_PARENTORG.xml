@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_DOCUMENTRULE_PARENTORG">
+    <function name="EUT_DOCUMENTRULE_PARENTORG" type="VARCHAR">
+      <parameter name="p_clientid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_orgid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <parameter name="p_doctype" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[v_parent_id VARCHAR(32);
+v_org VARCHAR(32);
+v_count NUMBER:=0;
+BEGIN
+	v_org := p_orgId;
+	WHILE(1)
+	LOOP
+		select count(*) into v_count from eut_documentrule_header where ad_client_id = p_clientId and ad_org_id = v_org and document_type = p_doctype;
+		IF (v_count = 0) THEN
+			IF (v_org = '0') THEN
+				-- RAISE_APPLICATION_ERROR(-20501, '@QU_DocumentRuleNotSet@');
+				RETURN '-1';
+			ELSE
+				SELECT parent_id INTO v_parent_id FROM ad_treenode t WHERE node_id = v_org 
+				AND EXISTS (SELECT 1 FROM ad_tree, ad_org WHERE ad_tree.ad_client_id = ad_org.ad_client_id
+				AND ad_tree.ad_client_id = t.ad_client_id AND ad_tree.treetype = 'OO'
+				AND t.ad_tree_id = ad_tree.ad_tree_id);
+				v_org := v_parent_id;
+			END IF;
+		ELSE	
+			RETURN v_org;
+		EXIT;
+		END IF;
+	END LOOP;
+END EUT_DOCUMENTRULE_PARENTORG
+]]></body>
+    </function>
+  </database>

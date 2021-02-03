@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+*************************************************************************
+* The contents of this file are subject to the Openbravo  Public  License
+* Version  1.1  (the  "License"),  being   the  Mozilla   Public  License
+* Version 1.1  with a permitted attribution clause; you may not  use this
+* file except in compliance with the License. You  may  obtain  a copy of
+* the License at http://www.openbravo.com/legal/license.html
+* Software distributed under the License  is  distributed  on  an "AS IS"
+* basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+* License for the specific  language  governing  rights  and  limitations
+* under the License.
+* The Original Code is Openbravo ERP.
+* The Initial Developer of the Original Code is Openbravo SLU
+* All portions are Copyright (C) 2001-2015 Openbravo SLU
+* All Rights Reserved.
+* Contributor(s):  ______________________________________.
+************************************************************************
+-->
+<REPORT>
+  <template file="ReportGeneralLedgerJournal.html"/>
+  <PARAMETER id="paramToolBar" name="toolbar" default=""/>
+  <PARAMETER id="fieldCalendar" name="calendar" attribute="src" replace="es" default="en"/>
+  <PARAMETER id="paramDirectory" name="directory" default=""/>
+  <PARAMETER id="paramLanguage" name="paramLanguage" default=""/>
+  <PARAMETER id="paramC_FROMPERIOD_ID" name="cFromPeriodId"/>  
+    <PARAMETER id="paramC_TOPERIOD_ID" name="cToPeriodId"/>  
+  <PARAMETER id="paramDateFrom" name="dateFrom" attribute="value"/>
+    <PARAMETER id="paramDateFrom" name="dateFromdisplayFormat" attribute="displayformat" replace="xx"/>
+    <PARAMETER id="paramDateFrom" name="dateFromsaveFormat" attribute="saveformat" replace="yy"/>
+  <PARAMETER id="paramDateTo" name="dateTo" attribute="value"/>
+    <PARAMETER id="paramDateTo" name="dateTodisplayFormat" attribute="displayformat" replace="xx"/>
+    <PARAMETER id="paramDateTo" name="dateTosaveFormat" attribute="saveformat" replace="yy"/>
+  <PARAMETER id="paramAD_ORGID" name="adOrgId"/>
+  <PARAMETER id="paramDocumenttype" name="strdocument"/>
+  	<PARAMETER id="paramOrderby" name="orderby"/>
+  	<PARAMETER id="paramascdesc" name="ascdesc"/>
+  <PARAMETER id="paramGroupId" name="groupId" default="0"/>
+  <PARAMETER id="paramCSS" name="theme" attribute="href" replace="Default"/>
+  <PARAMETER id="tdleftTabs" name="leftTabs" default=""/>
+  <PARAMETER id="paramParentTabContainer" name="parentTabContainer" default=" "/>
+  <PARAMETER id="paramMainTabContainer" name="mainTabContainer" default=" "/>
+  <PARAMETER id="paramChildTabContainer" name="childTabContainer" default=" "/>
+  <PARAMETER id="tdtopButtons" name="navigationBar" default=""/>
+  <PARAMETER id="messageBoxID" name="messageType" attribute="class" replace="yy" default="HIDDEN"/>
+  <PARAMETER id="messageBoxIDTitle" name="messageTitle" default=""/>
+  <PARAMETER id="messageBoxIDMessage" name="messageMessage" default=""/>
+  <PARAMETER id="inpRecord" name="paramRecord" attribute="value" default=""/>
+  <PARAMETER id="inpTable" name="paramTable" attribute="value" default=""/>
+  <PARAMETER id="paramC_ACCTSCHEMA_ID" name="cAcctschemaId"/>
+  <PARAMETER id="paramC_FROMPERIOD_ID" name="cFromPeriodId"/>  
+  <PARAMETER id="paramC_TOPERIOD_ID" name="cToPeriodId"/>  
+  <PARAMETER id="inpParamschemas" name="cAcctschemas" attribute="value" default=""/>
+  <PARAMETER id="posted" name="posted" attribute="value" default=""/>
+  <PARAMETER id="paramPageNo" name="inpPageNo" attribute="value" default="1"/>
+  <PARAMETER id="paramDocumentNo" name="inpDocumentNo" attribute="value" default=""/>
+  <PARAMETER id="paramDocNo" name="DocNo" attribute="value"/>
+  <PARAMETER id="paramAccSeq" name="AccSeq" attribute="value"/>
+  <PARAMETER id="paramEntryNo" name="inpEntryNo" attribute="value" default="1"/>
+  <PARAMETER id="fieldCheck" name="check" default="Y"/>
+  <PARAMETER id="paramShowRegular" name="showRegular" boolean="checked" withId="fieldCheck"/>
+  <PARAMETER id="paramShowClosing" name="showClosing" boolean="checked" withId="fieldCheck"/>
+  <PARAMETER id="paramShowReg" name="showReg" boolean="checked" withId="fieldCheck"/>
+  <PARAMETER id="paramShowOpening" name="showOpening" boolean="checked" withId="fieldCheck"/>
+  <PARAMETER id="paramShowDivideUp" name="showDivideUp" boolean="checked" withId="fieldCheck"/>
+  <PARAMETER id="paramShowDescription" name="showDescription" boolean="checked" withId="fieldCheck"/>
+  <PARAMETER id="paramElementvalueIdTo" name="paramElementvalueIdTo" attribute="value"/>
+  <PARAMETER id="paramElementvalueIdFrom" name="paramElementvalueIdFrom" attribute="value"/>
+  <PARAMETER id="inpElementValueIdTo_DES" name="inpElementValueIdTo_DES" attribute="value"/>
+  <PARAMETER id="inpElementValueIdFrom_DES" name="inpElementValueIdFrom_DES" attribute="value"/>
+  <PARAMETER id="primaryfilter" name="primaryfilter" default=""/>
+  <PARAMETER id="strFromPeriod" name="strFromPeriod" default=""/>
+  <PARAMETER id="strToPeriod" name="strToPeriod" default=""/>
+  <PARAMETER id="strorganization" name="strorganization" default=""/>
+  <PARAMETER id="strgeneralledger" name="strgeneralledger" default=""/>
+  <PARAMETER id="strFromAccount" name="strFromAccount" default=""/> 
+  <PARAMETER id="strToAccount" name="strToAccount" default=""/> 
+  <PARAMETER id="strdocumenttype" name="document" default=""/> 
+  <PARAMETER id="initpageno" name="initpageno" default=""/> 
+  <PARAMETER id="strDocumentNo" name="strDocumentNo" default=""/> 
+    <PARAMETER id="strorderby" name="strorderby" default=""/> 
+  <PARAMETER id="strAcctseq" name="strAcctseq" default=""/>
+  <PARAMETER id="initentryno" name="initentryno" default=""/>  
+  <PARAMETER id="reularentries" name="reularentries" default=""/> 
+  <PARAMETER id="plclosing" name="plclosing" default=""/>   
+  <PARAMETER id="openentry" name="openentry" default=""/>
+  <PARAMETER id="closeentry" name="closeentry" default=""/>
+  <PARAMETER id="entrydesc" name="entrydesc" default=""/>
+  <PARAMETER id="divideup" name="divideup" default=""/> 
+  <PARAMETER id="viewresult" name="viewresult" default=""/>
+  <PARAMETER id="search" name="search" default=""/>  
+  <PARAMETER id="advfilter" name="advfilter" default=""/>
+  <PARAMETER id="entry" name="entry" default=""/>  
+  <PARAMETER id="date" name="date" default=""/>
+  <PARAMETER id="detail" name="detail" default=""/>
+  <PARAMETER id="acctseq" name="acctseq" default=""/>
+  <PARAMETER id="acctno" name="acctno" default=""/>
+  <PARAMETER id="name" name="name" default=""/>
+  <PARAMETER id="debit" name="debit" default=""/>
+  <PARAMETER id="credit" name="credit" default=""/>
+    
+  <PARAMETER id="jsDisablePreviousNext" name="jsDisablePreviousNext" default=""/>
+
+  <SUBREPORT id="reportDocument" name="reportDocument" report="org/openbravo/erpCommon/reference/List">
+    <ARGUMENT name="parameterListSelected" withId="paramDocumenttype"/>
+  </SUBREPORT>
+  <SUBREPORT id="reportAD_ORGID" name="reportAD_ORGID" report="org/openbravo/erpCommon/reference/List">
+    <ARGUMENT name="parameterListSelected" withId="paramAD_ORGID"/>
+  </SUBREPORT>
+
+	<SUBREPORT id="reportOrderby" name="reportOrderby" report="org/openbravo/erpCommon/reference/List">
+   		 <ARGUMENT name="parameterListSelected" withId="paramOrderby"/>
+  	</SUBREPORT>
+
+	<SUBREPORT id="reportascdesc" name="reportascdesc" report="org/openbravo/erpCommon/reference/List">
+   		 <ARGUMENT name="parameterListSelected" withId="paramascdesc"/>
+  	</SUBREPORT>
+     <SUBREPORT id="reportC_ACCTSCHEMA_ID" name="reportC_ACCTSCHEMA_ID" report="org/openbravo/erpCommon/reference/List">
+      <ARGUMENT name="parameterListSelected" withId="paramC_ACCTSCHEMA_ID"/>
+    </SUBREPORT>
+    <SUBREPORT id="reportC_FROMPERIOD_ID" name="reportC_FROMPERIOD_ID" report="org/openbravo/erpCommon/reference/List">
+    <ARGUMENT name="parameterListSelected" withId="paramC_FROMPERIOD_ID"/>
+  </SUBREPORT>
+   <SUBREPORT id="reportC_TOPERIOD_ID" name="reportC_TOPERIOD_ID" report="org/openbravo/erpCommon/reference/List">
+    <ARGUMENT name="parameterListSelected" withId="paramC_TOPERIOD_ID"/>
+  </SUBREPORT>
+
+  <PARAMETER id="param2" name="param2" default="2"/>
+  <PARAMETER id="secTable" name="secTable" default=""/>
+   
+  <structure name="structure1">
+
+    <FIELD id="fieldRownum1">rownum</FIELD>
+    <FUNCTION id="funcEvenOddRow1xx" name="MODULE" arg1="fieldRownum1" arg2="param2" format="integerEdition" attribute="class" replace="yy"/>
+    <FIELD id="fieldSchemaName" replaceCharacters="html">schemaName</FIELD>  
+    <FIELD id="fieldIdentifier" attribute="onclick" replace="xx">identifier</FIELD>
+    <FIELD id="fieldIdentifier" attribute="onclick" replace="yy">dateacct</FIELD>
+    <FIELD id="fieldDateacct">dateacct</FIELD>
+    <FIELD id="fieldEntry" attribute="style" replace="xx">newstyle</FIELD>
+    <FIELD id="fieldDateacct" attribute="style" replace="xx">newstyle</FIELD>
+    <FIELD id="fieldDetail" attribute="style" replace="xx">newstyle</FIELD>
+    <FIELD id="fieldDocName" attribute="style" replace="xx">DOCBASETYPE</FIELD>
+    <FIELD id="fieldName" replaceCharacters="html">name</FIELD>
+    <FIELD id="fieldAmtacctdr" format="euroInform">amtacctdr</FIELD>
+    <FIELD id="fieldAmtacctcr" format="euroInform">amtacctcr</FIELD>
+    <FIELD id="fieldValue" replaceCharacters="html">value</FIELD>
+    <FIELD id="fieldDocNo" replaceCharacters="html">docno</FIELD>
+    <FIELD id="fieldDoctNo" replaceCharacters="html">documentno</FIELD>
+    
+    <FIELD id="fieldDescription" replaceCharacters="html">description</FIELD>
+    <FIELD id="fieldDocName" replaceCharacters="html">docName</FIELD>
+    <FIELD id="fieldId" attribute="onclick" replace="xx">id</FIELD>
+    <FIELD id="fieldId" attribute="onclick" replace="yy">adTableId</FIELD>
+    <FIELD id="fieldId" attribute="onclick" replace="zz">docbasetype</FIELD>
+    <FIELD id="fieldId" attribute="onclick" replace="ww">tabId</FIELD>
+    <FIELD id="fieldName" attribute="title" replace="pp">name</FIELD>
+    
+    <FUNCTION id="functionOrderJournal" name="ORDER" attribute="value">identifier</FUNCTION>
+    <FUNCTION id="functionCalculateOrderJournal" name="ADD" arg1="functionOrderJournal" arg2="paramGroupId" format="integerInform"/>
+    <FUNCTION id="functionCalculateOrderJournalWithInitial" name="ADD" arg1="functionCalculateOrderJournal" arg2="paramEntryNo" format="integerInform"/>
+    <SECTION id="sectionSchema" field="schemaName"/>        
+    <SECTION id="sectionDateAcct" field="dateacct"/>
+    <SECTION id="sectionJournal" field="identifier"/>
+    <SECTION id="sectionDetail"/>
+
+  </structure>
+  <DISCARD id="discard"/>
+</REPORT>

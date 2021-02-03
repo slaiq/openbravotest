@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+  <database name="MODIFIED TABLE C_CONVERSION_RATE">
+    <table name="C_CONVERSION_RATE" primaryKey="C_CURRENCYRATE_KEY">
+      <column name="EM_EFIN_PERIOD" primaryKey="false" required="false" type="VARCHAR" size="32" autoIncrement="false">
+        <default/>
+        <onCreateDefault/>
+      </column>
+      <foreign-key foreignTable="C_PERIOD" name="EM_EFIN_FOREIGN_PERIOD">
+        <reference local="EM_EFIN_PERIOD" foreign="C_PERIOD_ID"/>
+      </foreign-key>
+    </table>
+  </database>

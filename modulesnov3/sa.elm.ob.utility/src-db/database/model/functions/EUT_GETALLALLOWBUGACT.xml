@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+  <database name="FUNCTION EUT_GETALLALLOWBUGACT">
+    <function name="EUT_GETALLALLOWBUGACT" type="VARCHAR">
+      <parameter name="p_clientid" type="VARCHAR" mode="in">
+        <default/>
+      </parameter>
+      <body><![CDATA[cur_allowbudg record ;
+childact character varying;
+newchildact character varying;
+/*************************************************************************
+* This function use to get all the  Budget account
+* Contributor(s):  Qualian
+************************************************************************/
+BEGIN
+
+-- fetch all the budget account
+FOR cur_allowbudg  in (select val.c_elementvalue_id from c_elementvalue val where val.em_efin_allow_budgeting ='Y'
+ and val.ad_client_id=p_clientid)
+LOOP
+        -- call the eut_getchildacct function, to get the child account upto last level of parent
+	childact:= (select eut_getchildacct(cur_allowbudg.c_elementvalue_id));
+
+	  -- if child account is not empty then added the value to new childaccount    
+	IF (length(childact)>2) then 
+		IF(newchildact is not null ) THEN
+			newchildact:= newchildact ||','|| childact;
+		else
+			newchildact:= childact;
+		end if;
+        end if; 
+           
+END LOOP;
+    RETURN newchildact ;
+END EUT_GETALLALLOWBUGACT
+]]></body>
+    </function>
+  </database>
