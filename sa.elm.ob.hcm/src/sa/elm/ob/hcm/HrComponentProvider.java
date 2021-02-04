@@ -22,15 +22,16 @@ public class HrComponentProvider extends BaseComponentProvider {
     return null;
   }
   
-   @Override
+  // my work
+
+  @Override
   public List<ComponentResource> getGlobalComponentResources() {
 
     List<ComponentResource> globalResources = new ArrayList<ComponentResource>();
     /*
      * globalResources.add(createStaticResource("web/sa.elm.ob.hcm/js/NewButtonDisable.js", true));
      */
-	 //commented by laiq
-  //  globalResources.add(createStaticResource("web/sa.elm.ob.hcm/js/addressstyle.js", true));
+    globalResources.add(createStaticResource("web/sa.elm.ob.hcm/js/addressstyle.js", true));
     globalResources
         .add(createStaticResource("web/sa.elm.ob.hcm/js/updatepositionnewvalues.js", true));
     globalResources.add(
